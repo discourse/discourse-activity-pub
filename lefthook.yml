@@ -1,0 +1,35 @@
+skip_output:
+  - meta
+  - success
+
+pre-commit:
+  parallel: true
+  commands:
+    rubocop:
+      glob: "*.rb"
+      run: bundle exec rubocop --parallel --force-exclusion {staged_files}
+    prettier:
+      glob: "*.js"
+      include: "app/assets/javascripts|plugins/.+?/assets/javascripts"
+      run: yarn prettier --list-different {staged_files}
+    prettier-scss:
+      glob: "*.scss"
+      include: "app/assets/stylesheets|plugins/.+?/assets/stylesheets"
+      run: yarn prettier --list-different {staged_files}
+    eslint:
+      glob: "*.js"
+      include: "app/assets/javascripts|plugins/.+?/assets/javascripts"
+      run: yarn eslint -f compact --quiet {staged_files}
+
+lints:
+  parallel: true
+  commands:
+    rubocop:
+      glob: "*.rb"
+      run: bundle exec rubocop --parallel
+    prettier:
+      run: yarn prettier --list-different **/*.js
+    prettier-scss:
+      run: yarn prettier --list-different **/*.scss
+    eslint:
+      run: yarn eslint -f compact --quiet --ext .js .

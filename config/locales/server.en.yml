@@ -1,0 +1,36 @@
+en:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_actor:
+          attributes:
+            ap_type:
+              invalid: "is not valid"
+        discourse_activity_pub_activity:
+          attributes:
+            ap_type:
+              invalid: "is not valid"
+            object_type:
+              invalid: "is not valid"
+  discourse_activity_pub:
+    activity:
+      error:
+        json_not_valid: "Invalid JSON-LD"
+        not_enabled: "AcitivtyPub is not enabled"
+        not_found: "No object found"
+        not_available: "ActivityPub is not available for that object"
+        invalid_request: "Invalid request"
+      warning:
+        failed_to_process: "Failed to process %{object_id}"
+        cant_resolve_actor: "Could not resolve actor"
+        actor_not_supported: "Actor is not supported"
+        cant_create_actor: "Could not create actor"
+        object_not_valid: "Object is not valid"
+        activity_not_supported: "Activity is not supported for actor and object"
+        activity_not_enabled: "Activity is not enabled for object"
+      reject:
+        actor_already_following: "Actor is already following that object"
+
+  site_settings:
+    activity_pub_enabled: "Enable ActivityPub plugin."
+    activity_pub_rate_limit_inbox_post_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
