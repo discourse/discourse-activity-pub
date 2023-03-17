@@ -15,7 +15,10 @@ module DiscourseActivityPub
         def can_perform_activity
           {
             accept: [:follow],
-            reject: [:follow]
+            reject: [:follow],
+            create: [:note],
+            update: [:note],
+            delete: [:note]
           }
         end
       end

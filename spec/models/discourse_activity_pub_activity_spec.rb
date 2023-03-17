@@ -8,6 +8,7 @@ RSpec.describe DiscourseActivityPubActivity do
     it "raises an error" do
       expect{
         described_class.create!(
+          actor: follow.object,
           ap_type: DiscourseActivityPub::AP::Activity::Follow.type,
           object_id: category.id,
           object_type: category.class.name

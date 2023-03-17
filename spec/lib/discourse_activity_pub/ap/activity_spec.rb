@@ -14,7 +14,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         inbox: "https://external.com/u/angus/inbox",
         outbox: "https://external.com/u/angus/outbox"
       },
-      object: category.full_url,
+      object: category.activity_pub_id,
     }.with_indifferent_access
   end
 
@@ -40,7 +40,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
       Rails.logger = @orig_logger
     end
 
-    context "with a valid follow" do
+    context "with a valid activity" do
       context 'without activity pub enabled on the model' do
         it "returns false" do
           expect(perform_process(json)).to eq(false)
@@ -54,7 +54,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         it "logs a warning" do
           perform_process(json)
           expect(@fake_logger.warnings.last).to match(
-            build_warning("activity_not_enabled", json['id'])
+            build_warning("activity_not_available", json['id'])
           )
         end
       end
@@ -79,7 +79,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
       end
     end
 
-    context "with an invalid follow" do
+    context "with an invalid activity" do
       context "with an unspported actor" do
         before do
           json["actor"]["type"] = "Group"

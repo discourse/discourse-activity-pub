@@ -30,4 +30,36 @@ RSpec.describe DiscourseActivityPubActor do
       expect(actor.persisted?).to eq(true)
     end
   end
+
+  describe "#ensure_for" do
+    let(:category) { Fabricate(:category) }
+
+    context "without activty pub enabled on the object" do
+      it "does not create an actor" do
+        described_class.ensure_for(category)
+        expect(category.activity_pub_actor.present?).to eq(false)
+      end
+    end
+
+    context "with activity pub enabled on the object" do
+      before do
+        category.custom_fields['activity_pub_enabled'] = true
+        category.save!
+      end
+
+      it "ensures a valid actor exists" do
+        described_class.ensure_for(category)
+        expect(category.activity_pub_actor.present?).to eq(true)
+        expect(category.activity_pub_actor.uid).to eq(category.activity_pub_id)
+        expect(category.activity_pub_actor.domain).to eq(Discourse.current_hostname)
+        expect(category.activity_pub_actor.ap_type).to eq(category.activity_pub_type)
+      end
+
+      it "does not duplicate actors" do
+        described_class.ensure_for(category)
+        described_class.ensure_for(category)
+        expect(DiscourseActivityPubActor.where(model_id: category.id).size).to eq(1)
+      end
+    end
+  end
 end

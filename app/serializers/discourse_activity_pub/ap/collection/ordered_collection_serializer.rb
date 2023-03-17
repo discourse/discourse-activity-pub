@@ -4,6 +4,6 @@ class DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer < Discou
   attributes :ordered_items
 
   def ordered_items
-    serialize_items(object.ordered_items)
+    object.ordered_items.map(&:json)
   end
 end

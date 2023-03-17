@@ -3,17 +3,18 @@
 RSpec.describe DiscourseActivityPub::AP::Activity::ResponseSerializer do
   let!(:activity) { Fabricate(:discourse_activity_pub_activity_accept) }
 
-  def build_response(activity)
-    DiscourseActivityPub::AP::Activity::Response.new(activity: activity)
+  def get_ap_response(activity)
+    DiscourseActivityPub::AP::Activity::Response.new(stored: activity)
   end
 
-  def serialize_response(response)
+  def get_serialized_ap_response(response)
     DiscourseActivityPub::AP::Activity::ResponseSerializer.new(response, root: false).as_json
   end
 
   it "serializes response attributes correctly" do
-    serialized = serialize_response(build_response(activity))
-    expect(serialized[:actor]).to eq(activity.actor.uid)
-    expect(serialized[:object]).to eq(activity.object.uid)
+    response = get_ap_response(activity)
+    serialized_response = get_serialized_ap_response(response)
+    expect(serialized_response[:actor]).to eq(activity.actor.ap.json)
+    expect(serialized_response[:object]).to eq(activity.object.ap.json)
   end
 end

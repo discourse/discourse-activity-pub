@@ -14,7 +14,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
         'inbox': "https://external.com/u/angus/inbox",
         'outbox': "https://external.com/u/angus/outbox"
       },
-      'object': category.full_url,
+      'object': category.activity_pub_id,
     }
   end
 
@@ -31,6 +31,10 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
   describe "#create" do
     context "without activity pub enabled" do
+      before do
+        SiteSetting.activity_pub_enabled = false
+      end
+
       it "returns a not enabled error" do
         post_json
         expect(response.status).to eq(403)
@@ -57,7 +61,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
       context "without a valid model" do
         it "returns a not found error" do
-          post_json(custom_url: "#{category.full_url.sub(category.id.to_s, (category.id + 1).to_s)}/inboxes")
+          post_json(custom_url: "#{category.activity_pub_id.sub(category.id.to_s, (category.id + 1).to_s)}/inboxes")
           expect(response.status).to eq(404)
           expect(response.parsed_body).to eq(build_error(("not_found")))
         end
@@ -77,10 +81,10 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       end
 
       context "without activity pub enabled on model" do
-        it "returns a not enabled error" do
+        it "returns a not available error" do
           post_json
           expect(response.status).to eq(403)
-          expect(response.parsed_body).to eq(build_error(("not_enabled")))
+          expect(response.parsed_body).to eq(build_error(("not_available")))
         end
       end
 

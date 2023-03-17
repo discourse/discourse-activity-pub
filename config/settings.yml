@@ -3,3 +3,5 @@ plugins:
     default: true
   activity_pub_rate_limit_post_to_inbox_per_minute:
     default: 3
+  activity_pub_note_excerpt_maxlength:
+    default: 500

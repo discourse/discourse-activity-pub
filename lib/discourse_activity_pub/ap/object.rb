@@ -6,17 +6,23 @@ module DiscourseActivityPub
       include ActiveModel::SerializerSupport
 
       attr_writer :json
+      attr_accessor :stored
+
+      def initialize(json: nil, stored: nil)
+        @json = json
+        @stored = stored
+      end
 
       def context
         DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT
       end
 
       def id
-        json[:id]
+        stored&.uid
       end
 
       def type
-        json[:type]
+        stored&.ap_type
       end
 
       def self.type
@@ -24,23 +30,33 @@ module DiscourseActivityPub
       end
 
       def json
-        @json.nil? ? {} : @json
+        return @json if @json.present?
+
+        if stored && klass = AP::Object.get_klass(type)
+          serializer = "#{klass}Serializer".classify.constantize
+          @json = serializer.new(klass.new(stored: stored), root: false).as_json
+          @json
+        else
+          {}
+        end
       end
 
       def self.factory(json)
         json = json.with_indifferent_access
-        klass = nil
-
-        self.descendants.each do |k|
-          if k.to_s.demodulize === json[:type]
-            klass = k
-          end
-        end
+        klass = AP::Object.get_klass(json[:type])
         return nil unless klass
 
-        instance = klass.new
-        instance.json = json
-        instance
+        object = klass.new
+        object.json = json
+        object
+      end
+
+      def self.from_type(type)
+        factory({ type: type.to_s.capitalize })
+      end
+
+      def self.get_klass(type)
+        self.descendants.find { |klass| klass.to_s.demodulize === type }
       end
     end
   end

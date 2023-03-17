@@ -7,12 +7,16 @@ module DiscourseActivityPub
         include HasErrors
 
         def type
-          return activity.ap_type if activity.present?
-          rejected? ? AP::Activity::Reject.type : AP::Activity::Accept.type
+          return stored.ap_type if stored.present?
+          rejected? ? Reject.type : Accept.type
+        end
+
+        def types
+          [Accept.type, Reject.type]
         end
 
         def summary
-          return activity.summary if activity.present?
+          return stored.summary if stored.present?
           rejected? ? errors.full_messages.first : nil
         end
 
@@ -26,6 +30,10 @@ module DiscourseActivityPub
 
         def reject(key: nil, message: nil)
           add_error(key ? reject_message_from_key(key) : message)
+        end
+
+        def deliver(url)
+          enqueue_delivery(url, json)
         end
 
         protected
