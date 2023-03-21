@@ -1,39 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Actor do
-  describe "#ensure_for" do
-    let(:category) { Fabricate(:category) }
-
-    context "without activty pub enabled on the object" do
-      it "does not create an actor" do
-        described_class.ensure_for(category)
-        expect(category.activity_pub_actor.present?).to eq(false)
-      end
-    end
-
-    context "with activity pub enabled on the object" do
-      before do
-        category.custom_fields['activity_pub_enabled'] = true
-        category.save!
-      end
-
-      it "ensures a valid actor exists" do
-        described_class.ensure_for(category)
-        expect(category.activity_pub_actor.present?).to eq(true)
-        expect(category.activity_pub_actor.uid).to eq(category.full_url)
-        expect(category.activity_pub_actor.domain).to eq(Discourse.current_hostname)
-        expect(category.activity_pub_actor.ap_type).to eq(category.activity_pub_type)
-      end
-
-      it "does not duplicate actors" do
-        described_class.ensure_for(category)
-        described_class.ensure_for(category)
-        expect(DiscourseActivityPubActor.where(model_id: category.id).size).to eq(1)
-      end
-    end
-  end
-
-  describe "#create_or_update_from_json" do
+  describe "#update_stored_from_json" do
     let(:json) do
       {
         '@context': 'https://www.w3.org/ns/activitystreams',
@@ -53,7 +21,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     before do
-      subject.create_or_update_from_json
+      subject.update_stored_from_json
     end
 
     it "creates an actor" do
@@ -70,7 +38,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     it "updates an actor if optional attributes have changed" do
       json['name'] = "Bob McLeod"
       subject.json = json
-      subject.create_or_update_from_json
+      subject.update_stored_from_json
 
       actor = DiscourseActivityPubActor.find_by(uid: json['id'])
       expect(actor.name).to eq("Bob McLeod")
@@ -80,7 +48,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       original_id = json['id']
       json['id'] = "https://external.com/u/bob"
       subject.json = json
-      subject.create_or_update_from_json
+      subject.update_stored_from_json
 
       expect(DiscourseActivityPubActor.exists?(uid: original_id)).to eq(true)
       expect(DiscourseActivityPubActor.exists?(uid: json['id'])).to eq(true)

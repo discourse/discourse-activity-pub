@@ -2,9 +2,8 @@
 
 module DiscourseActivityPub
   class Model
-    def self.enabled?(model)
-      return false unless model.respond_to?(:activity_pub_enabled)
-      model.activity_pub_enabled && model.activity_pub_ready?
+    def self.ready?(model)
+      model.respond_to?(:activity_pub_ready?) && model.activity_pub_ready?
     end
 
     def self.find_by_url(url)

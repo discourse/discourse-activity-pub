@@ -14,12 +14,12 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         inbox: "https://external.com/u/angus/inbox",
         outbox: "https://external.com/u/angus/outbox"
       },
-      object: category.full_url,
+      object: category.activity_pub_id,
     }.with_indifferent_access
   end
 
   def build_response(activity)
-    DiscourseActivityPub::AP::Activity::Response.new(activity: activity)
+    DiscourseActivityPub::AP::Activity::Response.new(stored: activity)
   end
 
   def serialize_response(response)
@@ -124,7 +124,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
           before do
             json['actor']['id'] = activity.actor.uid
-            json['object'] = activity.object.model.full_url
+            json['object'] = activity.object.model.activity_pub_id
             perform_process(json)
           end
 

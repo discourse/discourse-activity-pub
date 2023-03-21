@@ -12,13 +12,19 @@ en:
               invalid: "is not valid"
             object_type:
               invalid: "is not valid"
+            object_id:
+              invalid: "is not valid"
+        discourse_activity_pub_object:
+          attributes:
+            ap_type:
+              invalid: "is not valid"
   discourse_activity_pub:
     activity:
       error:
         json_not_valid: "Invalid JSON-LD"
         not_enabled: "AcitivtyPub is not enabled"
         not_found: "No object found"
-        not_available: "ActivityPub is not available for that object"
+        not_available: "ActivityPub is not available for that model"
         invalid_request: "Invalid request"
       warning:
         failed_to_process: "Failed to process %{object_id}"
@@ -27,10 +33,11 @@ en:
         cant_create_actor: "Could not create actor"
         object_not_valid: "Object is not valid"
         activity_not_supported: "Activity is not supported for actor and object"
-        activity_not_enabled: "Activity is not enabled for object"
+        activity_not_available: "Activity is not available for object"
       reject:
         actor_already_following: "Actor is already following that object"
 
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_inbox_post_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
+    activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes."

@@ -5,9 +5,9 @@ class DiscourseActivityPub::AP::CollectionsController < ApplicationController
 
   before_action :rate_limit
   before_action :ensure_site_enabled
-  before_action :ensure_model
-  before_action :ensure_can_access
-  before_action :ensure_model_enabled
+  before_action :ensure_model_exists
+  before_action :ensure_can_access_model
+  before_action :ensure_model_ready
 
   protected
 
@@ -22,16 +22,16 @@ class DiscourseActivityPub::AP::CollectionsController < ApplicationController
     render_ap_error("not_enabled", 403) unless SiteSetting.activity_pub_enabled && !SiteSetting.login_required
   end
 
-  def ensure_model
+  def ensure_model_exists
     render_ap_error("not_found", 404) unless @model = DiscourseActivityPub::Model.find_by_url(request.original_url)
   end
 
-  def ensure_can_access
+  def ensure_can_access_model
     render_ap_error("not_available", 401) unless guardian.can_see?(@model)
   end
 
-  def ensure_model_enabled
-    render_ap_error("not_enabled", 403) unless DiscourseActivityPub::Model.enabled?(@model)
+  def ensure_model_ready
+    render_ap_error("not_available", 403) unless DiscourseActivityPub::Model.ready?(@model)
   end
 
   def render_ap_error(key, status)

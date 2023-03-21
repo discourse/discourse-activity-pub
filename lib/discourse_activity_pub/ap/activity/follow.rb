@@ -13,36 +13,36 @@ module DiscourseActivityPub
           return false unless actor && model
 
           ActiveRecord::Base.transaction do
-            model_actor = model.activity_pub_actor
-            ap_response = AP::Activity::Response.new
+            response = AP::Activity::Response.new
+            followed_actor = model.activity_pub_actor
 
-            @activity = DiscourseActivityPubActivity.create!(
+            @stored = DiscourseActivityPubActivity.create!(
               uid: json[:id],
               ap_type: type,
               actor_id: actor.id,
-              object_id: model_actor.id,
+              object_id: followed_actor.id,
               object_type: 'DiscourseActivityPubActor'
             )
 
-            ap_response.reject(message: activity.errors.full_messages.join(', ')) if activity.errors.any?
-            ap_response.reject(key: "actor_already_following") if actor.following?(model)
+            response.reject(message: stored.errors.full_messages.join(', ')) if stored.errors.any?
+            response.reject(key: "actor_already_following") if actor.following?(model)
 
-            ap_response.activity = DiscourseActivityPubActivity.create!(
-              ap_type: ap_response.type,
-              actor_id: model_actor.id,
-              object_id: activity.id,
+            response.stored = DiscourseActivityPubActivity.create!(
+              ap_type: response.type,
+              actor_id: followed_actor.id,
+              object_id: stored.id,
               object_type: 'DiscourseActivityPubActivity',
-              summary: ap_response.summary
+              summary: response.summary
             )
 
-            if ap_response.accepted?
+            if response.accepted?
               DiscourseActivityPubFollow.create!(
                 follower_id: actor.id,
-                followed_id: model_actor.id
+                followed_id: followed_actor.id
               )
             end
 
-            deliver_ap_response(actor.inbox, ap_response)
+            response.deliver(actor.inbox)
           end
         end
       end

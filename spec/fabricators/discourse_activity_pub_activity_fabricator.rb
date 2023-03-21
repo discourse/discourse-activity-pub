@@ -22,3 +22,9 @@ end
 Fabricator(:discourse_activity_pub_activity_reject, from: :discourse_activity_pub_activity_accept) do
   ap_type { DiscourseActivityPub::AP::Activity::Reject.type }
 end
+
+Fabricator(:discourse_activity_pub_activity_create, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Create.type }
+  actor { Fabricate(:discourse_activity_pub_actor_group) }
+  object { Fabricate(:discourse_activity_pub_object_note) }
+end

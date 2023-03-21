@@ -5,18 +5,17 @@ module DiscourseActivityPub
 
       SUPPORTED_FOR = %w(inbox outbox)
 
-      attr_accessor :model,
-                    :collection_for
+      attr_accessor :collection_for
 
-      def initialize(model: nil, collection_for: nil)
+      def initialize(stored: nil, collection_for: nil)
         raise ArgumentError.new("Unsupported collection_for") unless SUPPORTED_FOR.include?(collection_for)
 
+        @stored = stored
         @collection_for = collection_for
-        @model = model
       end
 
       def id
-        @model.activity_pub_actor.send(collection_for)
+        stored.send(collection_for)
       end
 
       def type
@@ -24,8 +23,8 @@ module DiscourseActivityPub
       end
 
       def items
-        @items ||= model.activity_pub_activities.map do |activity|
-          "DiscourseActivityPub::AP::Activity::#{activity.ap_type}".classify.constantize.new(activity: activity)
+        @items ||= stored&.activities.map do |activity|
+          "DiscourseActivityPub::AP::Activity::#{activity.ap_type}".classify.constantize.new(stored: activity)
         end
       end
 

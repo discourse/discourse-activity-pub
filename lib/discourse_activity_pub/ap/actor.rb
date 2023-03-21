@@ -4,14 +4,8 @@ module DiscourseActivityPub
   module AP
     class Actor < Object
 
-      attr_accessor :actor
-
-      def initialize(actor: nil)
-        @actor = actor
-      end
-
       def domain
-        domain_from_id(id)
+        model&.domain
       end
 
       def can_belong_to
@@ -29,39 +23,28 @@ module DiscourseActivityPub
         }
       end
 
-      def create_or_update_from_json
+      def update_stored_from_json
         return false unless json
 
-        @actor = DiscourseActivityPubActor.find_by(uid: id)
+        @stored = DiscourseActivityPubActor.find_by(uid: json[:id])
 
-        unless actor
-          @actor = DiscourseActivityPubActor.new(
-            uid: id,
-            domain: domain,
-            ap_type: type,
+        unless stored
+          @stored = DiscourseActivityPubActor.new(
+            uid: json[:id],
+            domain: domain_from_id(json[:id]),
+            ap_type: json[:type],
             inbox: json[:inbox],
             outbox: json[:outbox]
           )
         end
 
         optional_attributes.each do |column, attribute|
-          actor.send("#{column}=", json[attribute]) if json[attribute].present?
+          stored.send("#{column}=", json[attribute]) if json[attribute].present?
         end
 
-        actor.save! if actor.new_record? || actor.changed?
+        stored.save! if stored.new_record? || stored.changed?
 
-        actor
-      end
-
-      def self.ensure_for(model)
-        if model.activity_pub_enabled && !model.activity_pub_actor
-          model.build_activity_pub_actor(
-            uid: model.full_url,
-            domain: Discourse.current_hostname,
-            ap_type: model.activity_pub_type
-          )
-          model.save!
-        end
+        stored
       end
     end
   end
