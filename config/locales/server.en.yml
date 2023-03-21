@@ -12,7 +12,7 @@ en:
               invalid: "is not valid"
             object_type:
               invalid: "is not valid"
-            object_uid:
+            object_id:
               invalid: "is not valid"
         discourse_activity_pub_object:
           attributes:

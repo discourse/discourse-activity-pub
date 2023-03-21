@@ -3,7 +3,7 @@
 class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::Concerns::Model
 
-  belongs_to :model, polymorphic: true
+  belongs_to :model, polymorphic: true, optional: true
   has_one :activity, class_name: "DiscourseActivityPubActivity"
 
   def self.handle_model_callback(model, ap_type_sym)

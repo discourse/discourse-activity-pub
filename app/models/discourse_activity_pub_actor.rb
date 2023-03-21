@@ -2,16 +2,19 @@
 class DiscourseActivityPubActor < ActiveRecord::Base
   include DiscourseActivityPub::AP::Concerns::Model
 
-  belongs_to :model, polymorphic: true
+  belongs_to :model, polymorphic: true, optional: true
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id"
-  has_many :followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id"
-  has_many :follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id"
+
+  has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id"
+  has_many :follow_follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id"
+  has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
+  has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
 
   validates :domain, presence: true
 
   def following?(model)
-    model.activity_pub_followers.exists?(follower_id: self.id)
+    model.activity_pub_followers.exists?(id: self.id)
   end
 
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)

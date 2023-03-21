@@ -5,29 +5,31 @@ RSpec.describe DiscourseActivityPubObject do
   let!(:topic) { Fabricate(:topic, category: category) }
   let!(:post) { Fabricate(:post, topic: topic) }
 
-  context "with an invalid model and activity pub type" do
-    it "raises an error" do
-      expect{
-        described_class.create!(
-          model_id: topic.id,
-          model_type: topic.class.name,
+  describe "#create" do
+    context "with an invalid model and activity pub type" do
+      it "raises an error" do
+        expect{
+          described_class.create!(
+            model_id: topic.id,
+            model_type: topic.class.name,
+            uid: "foo",
+            ap_type: DiscourseActivityPub::AP::Object::Note.type
+          )
+        }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    context "with a valid model and activity pub type" do
+      it "creates an object " do
+        actor = described_class.create!(
+          model_id: post.id,
+          model_type: post.class.name,
           uid: "foo",
           ap_type: DiscourseActivityPub::AP::Object::Note.type
         )
-      }.to raise_error(ActiveRecord::RecordInvalid)
-    end
-  end
-
-  context "with a valid model and activity pub type" do
-    it "creates an object " do
-      actor = described_class.create!(
-        model_id: post.id,
-        model_type: post.class.name,
-        uid: "foo",
-        ap_type: DiscourseActivityPub::AP::Object::Note.type
-      )
-      expect(actor.errors.any?).to eq(false)
-      expect(actor.persisted?).to eq(true)
+        expect(actor.errors.any?).to eq(false)
+        expect(actor.persisted?).to eq(true)
+      end
     end
   end
 

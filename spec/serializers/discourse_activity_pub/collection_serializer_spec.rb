@@ -23,7 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionSerializer do
       DiscourseActivityPub::AP::Activity::AcceptSerializer.new(
         DiscourseActivityPub::AP::Activity::Accept.new(stored: accept),
         root: false
-      ).as_json
+      ).as_json.with_indifferent_access
     ])
   end
 end

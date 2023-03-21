@@ -34,7 +34,9 @@ module DiscourseActivityPub
 
         if stored && klass = AP::Object.get_klass(type)
           serializer = "#{klass}Serializer".classify.constantize
-          @json = serializer.new(klass.new(stored: stored), root: false).as_json
+          @json = serializer.new(klass.new(stored: stored), root: false)
+            .as_json
+            .with_indifferent_access
           @json
         else
           {}

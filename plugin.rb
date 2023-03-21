@@ -61,7 +61,7 @@ after_initialize do
   end
 
   Category.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model, dependent: :destroy
-  Category.has_many :activity_pub_followers, class_name: "DiscourseActivityPubFollow", through: :activity_pub_actor, source: :followers, dependent: :destroy
+  Category.has_many :activity_pub_followers, class_name: "DiscourseActivityPubActor", through: :activity_pub_actor, source: :followers, dependent: :destroy
   Category.has_many :activity_pub_activities, class_name: "DiscourseActivityPubActivity", through: :activity_pub_actor, source: :activities, dependent: :destroy
 
   register_category_custom_field_type('activity_pub_enabled', :boolean)

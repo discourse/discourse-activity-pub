@@ -5,7 +5,7 @@ class CreateDiscourseActivityPubActivities < ActiveRecord::Migration[7.0]
       t.string :uid, null: false, index: true, unique: true
       t.string :ap_type, null: false
       t.integer :actor_id, null: false
-      t.string :object_uid
+      t.string :object_id
       t.string :object_type
       t.string :summary
 

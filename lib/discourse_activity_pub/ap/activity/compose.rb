@@ -8,13 +8,9 @@ module DiscourseActivityPub
           [Create.type, Delete.type, Update.type]
         end
 
-        def content
-          stored.content
-        end
-
         def deliver
           stored.actor.followers.each do |follower|
-            enqueue_delivery(follower.uid, json)
+            enqueue_delivery(follower.inbox, json)
           end
         end
       end

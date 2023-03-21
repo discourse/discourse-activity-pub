@@ -11,7 +11,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   after_create :deliver, if: Proc.new { ap&.composed? }
 
   def deliver
-    ap.activity = self
+    ap.stored = self
     ap.deliver
   end
 
