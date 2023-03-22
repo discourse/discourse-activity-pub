@@ -34,6 +34,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
         ap_type: model.activity_pub_type
       )
       model.save!
+      model.activity_pub_publish_state
     end
   end
 end

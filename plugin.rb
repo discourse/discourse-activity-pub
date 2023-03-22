@@ -5,6 +5,9 @@
 # version: 0.1.0
 # authors: Angus McLeod
 
+register_asset "stylesheets/common/common.scss"
+register_svg_icon "discourse-activity-pub"
+
 after_initialize do
   %w(
     ../lib/discourse_activity_pub/engine.rb
@@ -56,6 +59,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../config/routes.rb
+    ../extensions/discourse_activity_pub_custom_fields_extension.rb
   ).each do |path|
     load File.expand_path(path, __FILE__)
   end
@@ -63,19 +67,44 @@ after_initialize do
   Category.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model, dependent: :destroy
   Category.has_many :activity_pub_followers, class_name: "DiscourseActivityPubActor", through: :activity_pub_actor, source: :followers, dependent: :destroy
   Category.has_many :activity_pub_activities, class_name: "DiscourseActivityPubActivity", through: :activity_pub_actor, source: :activities, dependent: :destroy
+  Category.prepend DiscourseActivityPubCustomFieldsExtension
 
   register_category_custom_field_type('activity_pub_enabled', :boolean)
+  register_category_custom_field_type('activity_pub_show_status', :boolean)
   add_to_class(:category, :full_url) { "#{Discourse.base_url}#{self.url}" }
-  add_to_class(:category, :activity_pub_enabled) { SiteSetting.activity_pub_enabled && !!custom_fields["activity_pub_enabled"] }
+  add_to_class(:category, :activity_pub_enabled) { !SiteSetting.login_required && SiteSetting.activity_pub_enabled && !!custom_fields["activity_pub_enabled"] }
+  add_to_class(:category, :activity_pub_show_status) { !SiteSetting.login_required && SiteSetting.activity_pub_enabled && !!custom_fields["activity_pub_show_status"] }
   add_to_class(:category, :activity_pub_enable!) { custom_fields["activity_pub_enabled"] = true; save! }
+  add_to_class(:category, :activity_pub_disable!) { custom_fields["activity_pub_enabled"] = false; save! }
   add_to_class(:category, :activity_pub_id) { full_url }
   add_to_class(:category, :activity_pub_type) { DiscourseActivityPub::AP::Actor::Group.type }
-  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? }
+  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor&.persisted? }
+  add_to_class(:category, :activity_pub_publish_state) do
+    message = {
+      model: {
+        id: self.id,
+        type: "category",
+        ready: activity_pub_ready?,
+        enabled: activity_pub_enabled
+      }
+    }
+    group_ids = [Group::AUTO_GROUPS[:staff], *self.reviewable_by_group_id]
+    MessageBus.publish("/activity-pub", message.as_json, group_ids: group_ids)
+  end
   add_model_callback(:category, :after_save) { DiscourseActivityPubActor.ensure_for(self) }
+
+  add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
+  add_to_serializer(:basic_category, :activity_pub_ready) { object.activity_pub_ready? }
+  add_to_serializer(:basic_category, :activity_pub_show_status) { object.activity_pub_show_status }
+  if Site.respond_to? :preloaded_category_custom_fields
+    Site.preloaded_category_custom_fields << "activity_pub_enabled"
+    Site.preloaded_category_custom_fields << "activity_pub_ready"
+    Site.preloaded_category_custom_fields << "activity_pub_show_status"
+  end
 
   Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
 
-  add_to_class(:post, :activity_pub_enabled) { SiteSetting.activity_pub_enabled && topic.category&.activity_pub_ready? && is_first_post? }
+  add_to_class(:post, :activity_pub_enabled) { !SiteSetting.login_required && SiteSetting.activity_pub_enabled && topic.category&.activity_pub_ready? && is_first_post? }
   add_to_class(:post, :activity_pub_id) { full_url }
   add_to_class(:post, :activity_pub_type) { DiscourseActivityPub::AP::Object::Note.type }
   add_to_class(:post, :activity_pub_content) { PrettyText.excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }

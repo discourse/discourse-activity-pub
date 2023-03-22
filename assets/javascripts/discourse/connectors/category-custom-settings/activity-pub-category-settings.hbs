@@ -1,0 +1,18 @@
+<div class="activity-pub-category-settings-title">
+  <h3>{{i18n 'category.discourse_activity_pub.settings_heading'}}</h3>
+  <ActivityPubStatus @model={{this.category}} @modelType="category" />
+</div>
+
+<section class='field'>
+  <label>
+    <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_enabled}} />
+    {{i18n 'category.discourse_activity_pub.enable'}}
+  </label>
+</section>
+
+<section class='field'>
+  <label>
+    <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_show_status}} />
+    {{i18n 'category.discourse_activity_pub.show_status'}}
+  </label>
+</section>
