@@ -40,9 +40,13 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedTitle() {
-    return I18n.t(`discourse_activity_pub.status.title.${this.translatedTitleKey}`, {
+    const args = {
       model_type: this.args.modelType
-    })
+    }
+    if (this.active) {
+      args.model_name = this.args.model.name;
+    }
+    return I18n.t(`discourse_activity_pub.status.title.${this.translatedTitleKey}`, args);
   }
 
   get translatedTitleKey() {
@@ -58,7 +62,11 @@ export default class ActivityPubStatus extends Component {
     if (!this.ready) {
       return "model_not_ready";
     }
-    return this.active ? "model_active" : "model_not_active";
+    if (this.active) {
+      return "model_active.first_post";
+    } else {
+      return "model_not_active";
+    }
   }
 
   get labelKey() {

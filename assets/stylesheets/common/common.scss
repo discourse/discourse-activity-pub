@@ -9,9 +9,10 @@
 }
 
 .activity-pub-status {
-  padding: 0.25em 0.5em;
+  padding: 2px 8px;
   border-radius: var(--d-border-radius);
   font-size: .9em;
+  line-height: .9em;
   background-color: var(--primary-200);
   display: inline-flex;
   align-items: center;
@@ -20,10 +21,14 @@
     height: 1.5em;
     width: 1.5em;
     margin-right: 0.5em;
-    color: var(--danger);
+    color: var(--danger) !important;
   }
 
   &.active .svg-icon {
-    color: var(--success);
+    color: var(--success) !important;
   }
+}
+
+#reply-control .activity-pub-status {
+  margin-left: 1em;
 }

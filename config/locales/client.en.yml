@@ -13,7 +13,8 @@ en:
           model_disabled: AcivityPub is disabled for this %{model_type}
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
-          model_active: ActivityPub is active for this %{model_type}
+          model_active:
+            first_post: New posts in %{model_name} are federated to its followers
         label:
           active: Active
           not_active: Not Active
