@@ -4,6 +4,7 @@ Fabricator(:discourse_activity_pub_actor) do
   uid { sequence(:uid) { |i| "actor#{i}"} }
   domain { "forum.com" }
   ap_type { "Actor" }
+  preferred_username { sequence(:preferred_username) { |i| "username#{i}"} }
   inbox { "https://forum.com/inbox" }
   outbox { "https://forum.com/outbox" }
 end
