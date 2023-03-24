@@ -78,7 +78,7 @@ after_initialize do
   add_to_class(:category, :activity_pub_disable!) { custom_fields["activity_pub_enabled"] = false; save! }
   add_to_class(:category, :activity_pub_id) { full_url }
   add_to_class(:category, :activity_pub_type) { DiscourseActivityPub::AP::Actor::Group.type }
-  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor&.persisted? }
+  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted? }
   add_to_class(:category, :activity_pub_publish_state) do
     message = {
       model: {
