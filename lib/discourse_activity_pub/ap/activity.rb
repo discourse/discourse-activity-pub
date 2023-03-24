@@ -3,6 +3,10 @@
 module DiscourseActivityPub
   module AP
     class Activity < Object
+      def base_type
+        'Activity'
+      end
+
       def actor
         return nil unless stored
         AP::Actor.new(stored: stored.actor)

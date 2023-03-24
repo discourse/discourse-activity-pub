@@ -25,8 +25,16 @@ module DiscourseActivityPub
         stored&.ap_type
       end
 
+      def base_type
+        'Object'
+      end
+
       def self.type
         self.new.type
+      end
+
+      def self.base_type
+        self.new.base_type
       end
 
       def json

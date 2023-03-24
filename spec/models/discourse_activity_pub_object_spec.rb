@@ -62,8 +62,8 @@ RSpec.describe DiscourseActivityPubObject do
         it "creates the right object" do
           expect(
             post.activity_pub_objects.where(
-              uid: post.activity_pub_id,
-              ap_type: post.activity_pub_type,
+              uid: json_ld_id(post, 'Object'),
+              ap_type: 'Note',
               content: post.activity_pub_content
             ).exists?
           ).to eq(true)
@@ -90,8 +90,8 @@ RSpec.describe DiscourseActivityPubObject do
         it "creates the right object" do
           expect(
             post.activity_pub_objects.where(
-              uid: post.activity_pub_id,
-              ap_type: post.activity_pub_type,
+              uid: json_ld_id(post, 'Object'),
+              ap_type: 'Note',
               content: "Updated post"
             ).exists?
           ).to eq(true)
@@ -117,8 +117,8 @@ RSpec.describe DiscourseActivityPubObject do
         it "creates the right object" do
           expect(
             post.activity_pub_objects.where(
-              uid: post.activity_pub_id,
-              ap_type: post.activity_pub_type,
+              uid: json_ld_id(post, 'Object'),
+              ap_type: 'Note',
               content: nil
             ).exists?
           ).to eq(true)

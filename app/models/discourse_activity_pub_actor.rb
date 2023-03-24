@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 class DiscourseActivityPubActor < ActiveRecord::Base
-  include DiscourseActivityPub::AP::Concerns::Model
+  include DiscourseActivityPub::AP::ModelValidations
+  include DiscourseActivityPub::WebfingerActorAttributes
 
   belongs_to :model, polymorphic: true, optional: true
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id"
-
   has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id"
   has_many :follow_follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id"
   has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
@@ -28,11 +28,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def self.ensure_for(model)
     if model.activity_pub_enabled && !model.activity_pub_actor
-      model.build_activity_pub_actor(
-        uid: model.activity_pub_id,
-        domain: Discourse.current_hostname,
-        ap_type: model.activity_pub_type
-      )
+      model.build_activity_pub_actor(domain: Discourse.current_hostname)
       model.save!
       model.activity_pub_publish_state
     end

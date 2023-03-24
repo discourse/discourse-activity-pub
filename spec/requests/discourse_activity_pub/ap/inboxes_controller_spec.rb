@@ -14,7 +14,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
         'inbox': "https://external.com/u/angus/inbox",
         'outbox': "https://external.com/u/angus/outbox"
       },
-      'object': category.activity_pub_id,
+      'object': json_ld_id(category, 'Actor'),
     }
   end
 
@@ -61,7 +61,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
       context "without a valid model" do
         it "returns a not found error" do
-          post_json(custom_url: "#{category.activity_pub_id.sub(category.id.to_s, (category.id + 1).to_s)}/inboxes")
+          post_json(custom_url: "#{json_ld_id(category, 'Actor').sub(category.id.to_s, (category.id + 1).to_s)}/inboxes")
           expect(response.status).to eq(404)
           expect(response.parsed_body).to eq(build_error(("not_found")))
         end

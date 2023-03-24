@@ -14,7 +14,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         inbox: "https://external.com/u/angus/inbox",
         outbox: "https://external.com/u/angus/outbox"
       },
-      object: category.activity_pub_id,
+      object: json_ld_id(category, 'Actor'),
     }.with_indifferent_access
   end
 
