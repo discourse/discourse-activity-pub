@@ -1,0 +1,20 @@
+en:
+  js:
+    category:
+      discourse_activity_pub:
+        settings_heading: ActivityPub
+        enable: Enable ActivityPub in this category.
+        show_status: Show an ActivityPub status label in this category.
+    discourse_activity_pub:
+      status:
+        title:
+          login_required_enabled: ActivityPub does not work with login required
+          plugin_disabled: The ActivityPub plugin is disabled
+          model_disabled: AcivityPub is disabled for this %{model_type}
+          model_not_ready: ActivityPub is not ready for this %{model_type}
+          model_not_active: ActivityPub is not active for this %{model_type}
+          model_active:
+            first_post: New posts in %{model_name} are federated to its followers
+        label:
+          active: Active
+          not_active: Not Active

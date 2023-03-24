@@ -1,0 +1,34 @@
+.activity-pub-category-settings-title {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+
+  > * {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.activity-pub-status {
+  padding: 2px 8px;
+  border-radius: var(--d-border-radius);
+  font-size: 0.9em;
+  line-height: 0.9em;
+  background-color: var(--primary-200);
+  display: inline-flex;
+  align-items: center;
+
+  .svg-icon {
+    height: 1.5em;
+    width: 1.5em;
+    margin-right: 0.5em;
+    color: var(--danger) !important;
+  }
+
+  &.active .svg-icon {
+    color: var(--success) !important;
+  }
+}
+
+#reply-control .activity-pub-status {
+  margin-left: 1em;
+}
