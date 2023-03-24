@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
 import { bind } from "discourse-common/utils/decorators";
+import I18n from "I18n";
 
 export default class ActivityPubStatus extends Component {
   @service siteSettings;
@@ -26,27 +27,36 @@ export default class ActivityPubStatus extends Component {
   handleMessage(data) {
     const model = data.model;
 
-    if (model && (model.type === this.args.modelType && model.id === this.args.model.id)) {
+    if (
+      model &&
+      model.type === this.args.modelType &&
+      model.id === this.args.model.id
+    ) {
       this.enabled = model.enabled;
       this.ready = model.ready;
     }
   }
 
   get active() {
-    return !this.siteSettings.login_required &&
+    return (
+      !this.siteSettings.login_required &&
       this.siteSettings.activity_pub_enabled &&
       this.enabled &&
-      this.ready;
+      this.ready
+    );
   }
 
   get translatedTitle() {
     const args = {
-      model_type: this.args.modelType
-    }
+      model_type: this.args.modelType,
+    };
     if (this.active) {
       args.model_name = this.args.model.name;
     }
-    return I18n.t(`discourse_activity_pub.status.title.${this.translatedTitleKey}`, args);
+    return I18n.t(
+      `discourse_activity_pub.status.title.${this.translatedTitleKey}`,
+      args
+    );
   }
 
   get translatedTitleKey() {

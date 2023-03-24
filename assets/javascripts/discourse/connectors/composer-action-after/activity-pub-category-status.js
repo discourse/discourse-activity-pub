@@ -1,7 +1,8 @@
-
-function showStatus(model, siteSettings) {
-  return model.get("category.activity_pub_show_status") &&
-    model.get("action") === "createTopic";
+function showStatus(model) {
+  return (
+    model.get("category.activity_pub_show_status") &&
+    model.get("action") === "createTopic"
+  );
 }
 
 export default {
