@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPubObject < ActiveRecord::Base
-  include DiscourseActivityPub::AP::Concerns::Model
+  include DiscourseActivityPub::AP::ModelValidations
 
   belongs_to :model, polymorphic: true, optional: true
   has_one :activity, class_name: "DiscourseActivityPubActivity"
@@ -11,10 +11,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     return unless model.activity_pub_enabled && ap&.composed?
 
     ActiveRecord::Base.transaction do
-      object = model.activity_pub_objects.build(
-        uid: model.activity_pub_id,
-        ap_type: model.activity_pub_type
-      )
+      object = model.activity_pub_objects.build
       object.content = model.activity_pub_content if %i(create update).include?(ap_type_sym)
       object.save!
 

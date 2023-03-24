@@ -23,9 +23,7 @@ module DiscourseActivityPub
       end
 
       def items
-        @items ||= stored&.activities.map do |activity|
-          "DiscourseActivityPub::AP::Activity::#{activity.ap_type}".classify.constantize.new(stored: activity)
-        end
+        @items ||= stored&.activities.map { |activity| activity.ap }
       end
 
       def total_items

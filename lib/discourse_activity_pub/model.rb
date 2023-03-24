@@ -2,6 +2,13 @@
 
 module DiscourseActivityPub
   class Model
+    def self.ap_type(model)
+      case model.class.name
+      when 'Category' then AP::Actor::Group.type
+      when 'Post' then AP::Object::Note.type
+      end
+    end
+
     def self.ready?(model)
       model.respond_to?(:activity_pub_ready?) && model.activity_pub_ready?
     end

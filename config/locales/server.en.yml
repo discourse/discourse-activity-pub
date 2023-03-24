@@ -36,6 +36,11 @@ en:
         activity_not_available: "Activity is not available for object"
       reject:
         actor_already_following: "Actor is already following that object"
+    webfinger:
+      error:
+        not_enabled: "Webfinger is not enabled"
+        resource_not_supported: "Resource not supported"
+        resource_not_found: "Resource not found"
 
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."

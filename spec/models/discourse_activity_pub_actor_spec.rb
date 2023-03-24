@@ -52,9 +52,9 @@ RSpec.describe DiscourseActivityPubActor do
       it "ensures a valid actor exists" do
         described_class.ensure_for(category)
         expect(category.activity_pub_actor.present?).to eq(true)
-        expect(category.activity_pub_actor.uid).to eq(category.activity_pub_id)
+        expect(category.activity_pub_actor.uid).to eq(json_ld_id(category, 'Actor'))
         expect(category.activity_pub_actor.domain).to eq(Discourse.current_hostname)
-        expect(category.activity_pub_actor.ap_type).to eq(category.activity_pub_type)
+        expect(category.activity_pub_actor.ap_type).to eq('Group')
       end
 
       it "does not duplicate actors" do

@@ -4,6 +4,10 @@ module DiscourseActivityPub
   module AP
     class Actor < Object
 
+      def base_type
+        'Actor'
+      end
+
       def domain
         model&.domain
       end

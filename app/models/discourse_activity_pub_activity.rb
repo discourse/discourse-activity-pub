@@ -1,28 +1,15 @@
 # frozen_string_literal: true
 class DiscourseActivityPubActivity < ActiveRecord::Base
-  include DiscourseActivityPub::AP::Concerns::Activity
+  include DiscourseActivityPub::AP::ActivityValidations
 
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
   belongs_to :object, polymorphic: true
-
-  before_validation :ensure_uid
-  validates :actor_id, presence: true
 
   after_create :deliver, if: Proc.new { ap&.composed? }
 
   def deliver
     ap.stored = self
     ap.deliver
-  end
-
-  private
-
-  def supported_object_types
-    %w(DiscourseActivityPubActivity DiscourseActivityPubActor DiscourseActivityPubObject)
-  end
-
-  def ensure_uid
-    self.uid = DiscourseActivityPub::JsonLd.generate_activity_id(actor, ap_type) if !self.uid
   end
 end
 

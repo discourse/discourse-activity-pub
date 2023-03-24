@@ -9,7 +9,7 @@ RSpec.describe DiscourseActivityPub::AP::Object do
         id: "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
         type: DiscourseActivityPub::AP::Activity::Follow.type,
         actor: "https://external.com/u/angus",
-        object: category.activity_pub_id,
+        object: json_ld_id(category, 'Actor'),
       }.with_indifferent_access
     end
 

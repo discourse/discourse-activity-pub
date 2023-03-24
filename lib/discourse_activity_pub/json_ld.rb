@@ -5,7 +5,9 @@ module DiscourseActivityPub
     ACTIVITY_STREAMS_CONTEXT = "https://www.w3.org/ns/activitystreams"
     REQUIRED_CONTEXTS = [ACTIVITY_STREAMS_CONTEXT]
     REQUIRED_PROPERTIES = %w(id type)
-    CONTENT_TYPES = %w(application/ld+json application/activity+json)
+    LD_CONTENT_TYPE = "application/ld+json"
+    ACTIVITY_CONTENT_TYPE = "application/activity+json"
+    CONTENT_TYPES = [LD_CONTENT_TYPE, ACTIVITY_CONTENT_TYPE]
 
     def validate_json_ld(json)
       parsed_json = parse_json_ld(json)
@@ -46,8 +48,12 @@ module DiscourseActivityPub
       Request.get_json_ld(uri: uri)
     end
 
-    def generate_activity_id(actor, activity_type)
-      "#{actor.uid}#activity/#{activity_type.downcase}/#{SecureRandom.hex(8)}"
+    def json_ld_id(model, ap_base_type)
+      case ap_base_type
+      when AP::Actor.base_type then model.full_url
+      when AP::Object.base_type then model.full_url
+      when AP::Activity.base_type then "#{model.full_url}/#{SecureRandom.hex(8)}"
+      end
     end
 
     def valid_content_type?(value)
@@ -70,7 +76,7 @@ module DiscourseActivityPub
     module_function :required_properties?
     module_function :resolve_object
     module_function :request_object
-    module_function :generate_activity_id
+    module_function :json_ld_id
     module_function :valid_content_type?
     module_function :content_type_header
   end

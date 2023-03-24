@@ -14,7 +14,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         inbox: "https://external.com/u/angus/inbox",
         outbox: "https://external.com/u/angus/outbox"
       },
-      object: category.activity_pub_id,
+      object: json_ld_id(category, 'Actor'),
     }.with_indifferent_access
   end
 
@@ -124,7 +124,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
           before do
             json['actor']['id'] = activity.actor.uid
-            json['object'] = activity.object.model.activity_pub_id
+            json['object'] = json_ld_id(activity.object.model, 'Object')
             perform_process(json)
           end
 

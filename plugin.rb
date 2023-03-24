@@ -14,6 +14,7 @@ after_initialize do
     ../lib/discourse_activity_pub/json_ld.rb
     ../lib/discourse_activity_pub/request.rb
     ../lib/discourse_activity_pub/model.rb
+    ../lib/discourse_activity_pub/webfinger.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -31,17 +32,20 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/object/note.rb
     ../lib/discourse_activity_pub/ap/collection.rb
     ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb
-    ../app/models/discourse_activity_pub/ap/concerns/base.rb
-    ../app/models/discourse_activity_pub/ap/concerns/activity.rb
-    ../app/models/discourse_activity_pub/ap/concerns/model.rb
+    ../app/models/concerns/discourse_activity_pub/ap/base_concern.rb
+    ../app/models/concerns/discourse_activity_pub/ap/activity_validations.rb
+    ../app/models/concerns/discourse_activity_pub/ap/model_validations.rb
+    ../app/models/concerns/discourse_activity_pub/webfinger_actor_attributes.rb
     ../app/models/discourse_activity_pub_actor.rb
     ../app/models/discourse_activity_pub_activity.rb
     ../app/models/discourse_activity_pub_follow.rb
     ../app/models/discourse_activity_pub_object.rb
     ../app/jobs/discourse_activity_pub_process.rb
     ../app/jobs/discourse_activity_pub_deliver.rb
-    ../app/controllers/discourse_activity_pub/ap/collections_controller.rb
+    ../app/controllers/discourse_activity_pub/ap/objects_controller.rb
+    ../app/controllers/discourse_activity_pub/ap/actors_controller.rb
     ../app/controllers/discourse_activity_pub/ap/inboxes_controller.rb
+    ../app/controllers/discourse_activity_pub/webfinger_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -58,6 +62,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/object/note_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
+    ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_custom_fields_extension.rb
   ).each do |path|
@@ -76,9 +81,7 @@ after_initialize do
   add_to_class(:category, :activity_pub_show_status) { !SiteSetting.login_required && SiteSetting.activity_pub_enabled && !!custom_fields["activity_pub_show_status"] }
   add_to_class(:category, :activity_pub_enable!) { custom_fields["activity_pub_enabled"] = true; save! }
   add_to_class(:category, :activity_pub_disable!) { custom_fields["activity_pub_enabled"] = false; save! }
-  add_to_class(:category, :activity_pub_id) { full_url }
-  add_to_class(:category, :activity_pub_type) { DiscourseActivityPub::AP::Actor::Group.type }
-  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor&.persisted? }
+  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted? }
   add_to_class(:category, :activity_pub_publish_state) do
     message = {
       model: {
@@ -105,8 +108,6 @@ after_initialize do
   Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
 
   add_to_class(:post, :activity_pub_enabled) { !SiteSetting.login_required && SiteSetting.activity_pub_enabled && topic.category&.activity_pub_ready? && is_first_post? }
-  add_to_class(:post, :activity_pub_id) { full_url }
-  add_to_class(:post, :activity_pub_type) { DiscourseActivityPub::AP::Object::Note.type }
   add_to_class(:post, :activity_pub_content) { PrettyText.excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }
   add_to_class(:post, :activity_pub_actor) { topic.category&.activity_pub_actor }
   add_model_callback(:post, :after_create) { DiscourseActivityPubObject.handle_model_callback(self, :create) }

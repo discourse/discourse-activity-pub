@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Fabricator(:discourse_activity_pub_actor) do
-  uid { sequence(:uid) { |i| "uid#{i}"} }
+  uid { sequence(:uid) { |i| "actor#{i}"} }
   domain { "forum.com" }
   ap_type { "Actor" }
   inbox { "https://forum.com/inbox" }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Fabricator(:discourse_activity_pub_object) do
-  uid { sequence(:uid) { |i| "uid#{i}"} }
+  uid { sequence(:uid) { |i| "object#{i}"} }
   ap_type { "Object" }
 end
 
