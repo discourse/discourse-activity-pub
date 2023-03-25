@@ -45,20 +45,28 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "with activity pub enabled on the object" do
       before do
-        category.custom_fields['activity_pub_enabled'] = true
-        category.save!
+        CategoryCustomField.create!(category_id: category.id, name: 'activity_pub_enabled', value: "true")
       end
 
       it "ensures a valid actor exists" do
-        described_class.ensure_for(category)
+        described_class.ensure_for(category.reload)
         expect(category.activity_pub_actor.present?).to eq(true)
         expect(category.activity_pub_actor.uid).to eq(json_ld_id(category, 'Actor'))
         expect(category.activity_pub_actor.domain).to eq(Discourse.current_hostname)
         expect(category.activity_pub_actor.ap_type).to eq('Group')
       end
 
+      it "publishes activity pub state" do
+        message = MessageBus.track_publish("/activity-pub") do
+          described_class.ensure_for(category.reload)
+        end.first
+        expect(message.data).to eq(
+          { model: { id: category.id, type: "category", ready: true, enabled: true } }
+        )
+      end
+
       it "does not duplicate actors" do
-        described_class.ensure_for(category)
+        described_class.ensure_for(category.reload)
         described_class.ensure_for(category)
         expect(DiscourseActivityPubActor.where(model_id: category.id).size).to eq(1)
       end

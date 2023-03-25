@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module DiscourseActivityPubCustomFieldsExtension
+module DiscourseActivityPubCategoryExtension
   def on_custom_fields_change
     super
 

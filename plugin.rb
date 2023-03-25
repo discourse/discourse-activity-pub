@@ -64,7 +64,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
     ../config/routes.rb
-    ../extensions/discourse_activity_pub_custom_fields_extension.rb
+    ../extensions/discourse_activity_pub_category_extension.rb
   ).each do |path|
     load File.expand_path(path, __FILE__)
   end
@@ -72,7 +72,7 @@ after_initialize do
   Category.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model, dependent: :destroy
   Category.has_many :activity_pub_followers, class_name: "DiscourseActivityPubActor", through: :activity_pub_actor, source: :followers, dependent: :destroy
   Category.has_many :activity_pub_activities, class_name: "DiscourseActivityPubActivity", through: :activity_pub_actor, source: :activities, dependent: :destroy
-  Category.prepend DiscourseActivityPubCustomFieldsExtension
+  Category.prepend DiscourseActivityPubCategoryExtension
 
   register_category_custom_field_type('activity_pub_enabled', :boolean)
   register_category_custom_field_type('activity_pub_show_status', :boolean)
@@ -91,8 +91,9 @@ after_initialize do
         enabled: activity_pub_enabled
       }
     }
-    group_ids = [Group::AUTO_GROUPS[:staff], *self.reviewable_by_group_id]
-    MessageBus.publish("/activity-pub", message.as_json, group_ids: group_ids)
+    opts = {}
+    opts[:group_ids] = [Group::AUTO_GROUPS[:staff], *self.reviewable_by_group_id] if !activity_pub_show_status
+    MessageBus.publish("/activity-pub", message, opts)
   end
   add_model_callback(:category, :after_save) { DiscourseActivityPubActor.ensure_for(self) }
 
