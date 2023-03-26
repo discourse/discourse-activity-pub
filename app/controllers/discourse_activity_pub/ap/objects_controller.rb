@@ -8,6 +8,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :rate_limit
   before_action :ensure_site_enabled
   before_action :validate_headers
+  before_action :check_allow_deny_lists
 
   protected
 
@@ -26,6 +27,10 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   def validate_headers
     render_activity_error("json_not_valid", 422) unless valid_content_type?(request.headers['Content-Type'])
+  end
+
+  def check_allow_deny_lists
+    # TODO: Add allow/deny domain list checking
   end
 
   def render_activity_error(key, status)

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::ActorsController
+  def show
+    # TODO: add inbox retrieval (OrderedCollection)
+  end
+
   def create
     @json = validate_json_ld(request.body.read)
 

@@ -74,6 +74,7 @@ module DiscourseActivityPub
       end
 
       def enqueue_delivery(url, payload)
+        # TODO: add delay to delivery
         Jobs.enqueue(:discourse_activity_pub_deliver, url: url, payload: payload)
       end
     end

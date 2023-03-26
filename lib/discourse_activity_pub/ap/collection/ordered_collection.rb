@@ -8,6 +8,7 @@ module DiscourseActivityPub
         end
 
         def ordered_items
+          # TODO: order items by creation
           items
         end
       end
