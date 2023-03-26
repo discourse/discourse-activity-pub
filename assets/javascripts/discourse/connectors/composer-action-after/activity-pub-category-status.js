@@ -7,9 +7,7 @@ function showStatus(model) {
 
 export default {
   shouldRender(_, ctx) {
-    return (
-      !ctx.siteSettings.login_required && ctx.siteSettings.activity_pub_enabled
-    );
+    return !ctx.site.activity_pub_enabled;
   },
 
   setupComponent(attrs, component) {

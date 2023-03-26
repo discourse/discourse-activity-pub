@@ -31,6 +31,37 @@ RSpec.describe DiscourseActivityPubActor do
         expect(actor.persisted?).to eq(true)
       end
     end
+
+    context "with local domain and no preferred username" do
+      context "with no preferred username" do
+        it "raises an error" do
+          expect{
+            described_class.create!(
+              model_id: category.id,
+              model_type: category.class.name,
+              uid: "foo",
+              domain: Discourse.current_hostname,
+              ap_type: DiscourseActivityPub::AP::Actor::Person.type
+            )
+          }.to raise_error(ActiveRecord::RecordInvalid)
+        end
+      end
+
+      context "with a preferred username" do
+        it "creates an actor " do
+          actor = described_class.create!(
+            model_id: category.id,
+            model_type: category.class.name,
+            uid: "foo",
+            domain: Discourse.current_hostname,
+            preferred_username: category.slug,
+            ap_type: DiscourseActivityPub::AP::Actor::Group.type
+          )
+          expect(actor.errors.any?).to eq(false)
+          expect(actor.persisted?).to eq(true)
+        end
+      end
+    end
   end
 
   describe "#ensure_for" do
@@ -45,7 +76,7 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "with activity pub enabled on the object" do
       before do
-        CategoryCustomField.create!(category_id: category.id, name: 'activity_pub_enabled', value: "true")
+        enable_activity_pub(category)
       end
 
       it "ensures a valid actor exists" do

@@ -12,7 +12,7 @@ RSpec.describe Post do
     context "with activity pub plugin enabled" do
       context "with activity pub ready on category" do
         before do
-          category.activity_pub_enable!
+          enable_activity_pub(category, with_actor: true)
         end
 
         context "when first post in topic" do

@@ -21,7 +21,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def ensure_site_enabled
-    render_activity_error("not_enabled", 403) unless SiteSetting.activity_pub_enabled && !SiteSetting.login_required
+    render_activity_error("not_enabled", 403) unless Site.activity_pub_enabled
   end
 
   def validate_headers

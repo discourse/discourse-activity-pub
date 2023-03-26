@@ -29,6 +29,33 @@
   }
 }
 
+.activity-pub-username,
+.activity-pub-handle-field {
+  input {
+    margin-bottom: 0;
+  }
+
+  .instructions {
+    color: var(--primary-medium);
+    margin-top: 4px;
+    margin-bottom: 10px;
+    font-size: var(--font-down-1);
+    line-height: var(--line-height-large);
+  }
+
+  .activity-pub-handle {
+    margin: 4px 0;
+  }
+}
+
+.activity-pub-handle {
+  border-radius: var(--d-border-radius);
+  background-color: var(--primary-200);
+  border-radius: var(--d-border-radius);
+  padding: 2px 8px;
+  display: inline-block;
+}
+
 #reply-control .activity-pub-status {
   margin-left: 1em;
 }

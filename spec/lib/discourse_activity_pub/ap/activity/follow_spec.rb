@@ -59,8 +59,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
       context 'with activity pub enabled' do
         before do
-          category.custom_fields["activity_pub_enabled"] = true
-          category.save!
+          enable_activity_pub(category, with_actor: true)
         end
 
         context 'when not following' do

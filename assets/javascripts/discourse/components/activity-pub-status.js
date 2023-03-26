@@ -6,6 +6,7 @@ import I18n from "I18n";
 
 export default class ActivityPubStatus extends Component {
   @service siteSettings;
+  @service site;
   @service messageBus;
 
   @tracked ready;
@@ -38,12 +39,7 @@ export default class ActivityPubStatus extends Component {
   }
 
   get active() {
-    return (
-      !this.siteSettings.login_required &&
-      this.siteSettings.activity_pub_enabled &&
-      this.enabled &&
-      this.ready
-    );
+    return this.site.activity_pub_enabled && this.enabled && this.ready;
   }
 
   get translatedTitle() {

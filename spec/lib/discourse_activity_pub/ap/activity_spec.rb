@@ -61,8 +61,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
       context 'with activity pub enabled on the model' do
         before do
-          category.custom_fields["activity_pub_enabled"] = true
-          category.save!
+          enable_activity_pub(category, with_actor: true)
         end
 
         it "returns an actor and model" do

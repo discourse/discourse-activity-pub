@@ -90,7 +90,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
       context "with activity pub enabled on model" do
         before do
-          category.activity_pub_enable!
+          enable_activity_pub(category, with_actor: true)
         end
 
         context "with invalid headers" do

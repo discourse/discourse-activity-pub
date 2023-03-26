@@ -18,6 +18,12 @@ en:
           attributes:
             ap_type:
               invalid: "is not valid"
+  category:
+    discourse_activity_pub:
+      error:
+        enable_without_username: An ActivityPub username is required to enable ActivityPub.
+        no_change_when_set: An ActivityPub username can't be changed once set. 
+
   discourse_activity_pub:
     activity:
       error:

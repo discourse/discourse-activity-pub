@@ -7,6 +7,7 @@ import hbs from "htmlbars-inline-precompile";
 import { render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import I18n from "I18n";
+import Site from "discourse/models/site";
 
 function setCategory(context, attrs = {}) {
   const categories = context.site.categoriesList;
@@ -118,6 +119,8 @@ module(
         activity_pub_ready: true,
       });
       this.siteSettings.activity_pub_enabled = true;
+      let site = Site.current();
+      site.set("activity_pub_enabled", true);
 
       await render(template);
 

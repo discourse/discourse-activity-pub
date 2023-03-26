@@ -50,7 +50,7 @@ RSpec.describe DiscourseActivityPubObject do
 
     context "with activity pub enabled on the model and a valid activity" do
       before do
-        category.activity_pub_enable!
+        enable_activity_pub(category, with_actor: true)
         DiscourseActivityPubActivity.any_instance.expects(:deliver).once
       end
 

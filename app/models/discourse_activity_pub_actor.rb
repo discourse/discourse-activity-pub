@@ -12,6 +12,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
 
   validates :domain, presence: true
+  validates :preferred_username, presence: true, uniqueness: true, if: :local?
 
   def following?(model)
     model.activity_pub_followers.exists?(id: self.id)
@@ -26,9 +27,17 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     )
   end
 
+  def local?
+    # TODO: perhaps local / remote should be a column. What if the hostname changes.
+    domain === Discourse.current_hostname
+  end
+
   def self.ensure_for(model)
     if model.activity_pub_enabled && !model.activity_pub_actor
-      model.build_activity_pub_actor(domain: Discourse.current_hostname)
+      model.build_activity_pub_actor(
+        preferred_username: model.activity_pub_username,
+        domain: Discourse.current_hostname
+      )
       model.save!
       model.activity_pub_publish_state
     end

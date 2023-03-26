@@ -47,7 +47,7 @@ RSpec.describe DiscourseActivityPubActivity do
 
   describe "#after_create" do
     before do
-      category.activity_pub_enable!
+      enable_activity_pub(category, with_actor: true)
     end
 
     context "when not composed type" do

@@ -7,26 +7,10 @@ RSpec.describe Category do
   it { is_expected.to have_many(:activity_pub_followers).dependent(:destroy) }
   it { is_expected.to have_many(:activity_pub_activities).dependent(:destroy) }
 
-  describe "#activity_pub_enable!" do
-    before do
-      category.activity_pub_enable!
-    end
-
-    it "enables activity pub on the category" do
-      expect(category.activity_pub_enabled).to eq(true)
-    end
-
-    it "creates an activity pub actor for the category (if it doesnt exist)" do
-      expect(category.activity_pub_actor.present?).to eq(true)
-    end
-  end
-
   describe "#activity_pub_ready?" do
     context "with activity pub enabled" do
       before do
-        # to avoid callbacks
-        CategoryCustomField.create!(category_id: category.id, name: "activity_pub_enabled", value: "true")
-        category.reload
+        enable_activity_pub(category)
       end
 
       context "without an activity pub actor" do
@@ -39,17 +23,50 @@ RSpec.describe Category do
         let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
 
         it "returns true" do
-          expect(category.activity_pub_ready?).to eq(true)
+          expect(category.reload.activity_pub_ready?).to eq(true)
         end
       end
     end
   end
 
   describe "#save_custom_fields" do
-    it "publishes activity pub state if activity_pub_enabled is changed" do
-      message = MessageBus.track_publish("/activity-pub") do
+    it "does nothing if activity pub plugin disabled" do
+      SiteSetting.activity_pub_enabled = false
+      expect do
         category.custom_fields['activity_pub_enabled'] = true
         category.save_custom_fields
+      end.not_to raise_error
+    end
+
+    it "raises if activity pub enabled without a username" do
+      expect do
+        category.custom_fields['activity_pub_enabled'] = true
+        category.save_custom_fields
+      end.to raise_error(ActiveRecord::Rollback)
+    end
+
+    it "raises if activity pub username changed after activity pub actor set" do
+      enable_activity_pub(category)
+      category.save!
+      expect(category.activity_pub_actor.present?).to eq(true)
+
+      expect do
+        category.custom_fields['activity_pub_username'] = 'new_username'
+        category.save_custom_fields
+      end.to raise_error(ActiveRecord::Rollback)
+    end
+
+    it "validates activity pub username if changed" do
+      DiscourseActivityPub::UsernameValidator
+        .expects(:perform_validation)
+        .with(category, 'activity_pub_username')
+        .once
+      enable_activity_pub(category)
+    end
+
+    it "publishes activity pub state if activity_pub_enabled is changed" do
+      message = MessageBus.track_publish("/activity-pub") do
+        enable_activity_pub(category)
       end.first
       expect(message.data).to eq(
         { model: { id: category.id, type: "category", ready: false, enabled: true } }
