@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+
+# TODO: PR discourse/discourse to support alternate username uses
+
 class DiscourseActivityPub::UsernameValidator < UsernameValidator
   def user
     nil
