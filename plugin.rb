@@ -16,6 +16,7 @@ after_initialize do
     ../lib/discourse_activity_pub/model.rb
     ../lib/discourse_activity_pub/webfinger.rb
     ../lib/discourse_activity_pub/username_validator.rb
+    ../lib/discourse_activity_pub/excerpt_parser.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -117,7 +118,7 @@ after_initialize do
   Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
 
   add_to_class(:post, :activity_pub_enabled) { Site.activity_pub_enabled && topic.category&.activity_pub_ready? && is_first_post? }
-  add_to_class(:post, :activity_pub_content) { PrettyText.excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }
+  add_to_class(:post, :activity_pub_content) { DiscourseActivityPub::ExcerptParser.get_excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }
   add_to_class(:post, :activity_pub_actor) { topic.category&.activity_pub_actor }
   add_model_callback(:post, :after_create) { DiscourseActivityPubObject.handle_model_callback(self, :create) }
   add_model_callback(:post, :after_update) { DiscourseActivityPubObject.handle_model_callback(self, :update) }
