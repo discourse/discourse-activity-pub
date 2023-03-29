@@ -4,6 +4,7 @@ module DiscourseActivityPubCategoryExtension
     @custom_fields_orig[field_name] != @custom_fields[field_name]
   end
 
+  # TODO (future): add serverside plugin api for on_custom_fields_change
   def on_custom_fields_change
     super
     return unless SiteSetting.activity_pub_enabled
