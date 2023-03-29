@@ -22,7 +22,7 @@ en:
     discourse_activity_pub:
       error:
         enable_without_username: An ActivityPub username is required to enable ActivityPub.
-        no_change_when_set: An ActivityPub username can't be changed once set. 
+        no_change_when_set: An ActivityPub username can't be changed once set.
 
   discourse_activity_pub:
     activity:
@@ -31,7 +31,7 @@ en:
         not_enabled: "AcitivtyPub is not enabled"
         not_found: "No object found"
         not_available: "ActivityPub is not available for that model"
-        invalid_request: "Invalid request"
+        bad_request: "Bad request"
       warning:
         failed_to_process: "Failed to process %{object_id}"
         cant_resolve_actor: "Could not resolve actor"
@@ -51,4 +51,5 @@ en:
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_inbox_post_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
+    activity_pub_rate_limit_get_objects_per_minute: "Number of GET requests that can be made on AcitivityPub objects per minute."
     activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes."

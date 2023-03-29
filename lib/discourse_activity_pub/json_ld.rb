@@ -24,7 +24,7 @@ module DiscourseActivityPub
     end
 
     def format_jsonld(value)
-      # TODO: add support for expanded JSON-LD; see https://github.com/ruby-rdf/json-ld
+      # TODO (future): add support for expanded JSON-LD; see https://github.com/ruby-rdf/json-ld
       value.with_indifferent_access
     end
 
@@ -48,12 +48,8 @@ module DiscourseActivityPub
       Request.get_json_ld(uri: uri)
     end
 
-    def json_ld_id(model, ap_base_type)
-      case ap_base_type
-      when AP::Actor.base_type then model.full_url
-      when AP::Object.base_type then model.full_url
-      when AP::Activity.base_type then "#{model.full_url}/#{SecureRandom.hex(8)}"
-      end
+    def json_ld_id(ap_base_type, ap_key)
+      "#{Discourse.base_url}/ap/#{ap_base_type.downcase}/#{ap_key}"
     end
 
     def valid_content_type?(value)

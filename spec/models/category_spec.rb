@@ -10,7 +10,7 @@ RSpec.describe Category do
   describe "#activity_pub_ready?" do
     context "with activity pub enabled" do
       before do
-        enable_activity_pub(category)
+        toggle_activity_pub(category)
       end
 
       context "without an activity pub actor" do
@@ -46,7 +46,7 @@ RSpec.describe Category do
     end
 
     it "raises if activity pub username changed after activity pub actor set" do
-      enable_activity_pub(category)
+      toggle_activity_pub(category)
       category.save!
       expect(category.activity_pub_actor.present?).to eq(true)
 
@@ -61,12 +61,12 @@ RSpec.describe Category do
         .expects(:perform_validation)
         .with(category, 'activity_pub_username')
         .once
-      enable_activity_pub(category)
+      toggle_activity_pub(category)
     end
 
     it "publishes activity pub state if activity_pub_enabled is changed" do
       message = MessageBus.track_publish("/activity-pub") do
-        enable_activity_pub(category)
+        toggle_activity_pub(category)
       end.first
       expect(message.data).to eq(
         { model: { id: category.id, type: "category", ready: false, enabled: true } }

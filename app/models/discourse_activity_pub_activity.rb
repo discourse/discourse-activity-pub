@@ -18,10 +18,12 @@ end
 # Table name: discourse_activity_pub_activities
 #
 #  id          :bigint           not null, primary key
-#  uid         :string           not null
+#  ap_id       :string           not null
+#  ap_key      :string
 #  ap_type     :string           not null
+#  local       :boolean
 #  actor_id    :integer          not null
-#  object_id   :integer
+#  object_id   :string
 #  object_type :string
 #  summary     :string
 #  created_at  :datetime         not null
@@ -29,7 +31,7 @@ end
 #
 # Indexes
 #
-#  index_discourse_activity_pub_activities_on_uid  (uid)
+#  index_discourse_activity_pub_activities_on_ap_id  (ap_id)
 #
 # Foreign Keys
 #

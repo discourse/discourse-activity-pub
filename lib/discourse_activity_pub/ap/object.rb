@@ -18,7 +18,7 @@ module DiscourseActivityPub
       end
 
       def id
-        stored&.uid
+        stored&.ap_id
       end
 
       def type
@@ -66,7 +66,9 @@ module DiscourseActivityPub
       end
 
       def self.get_klass(type)
-        self.descendants.find { |klass| klass.to_s.demodulize === type }
+        self.descendants.find do |klass|
+          klass.to_s.demodulize === type
+        end
       end
     end
   end

@@ -17,7 +17,7 @@ module DiscourseActivityPub
             followed_actor = model.activity_pub_actor
 
             @stored = DiscourseActivityPubActivity.create!(
-              uid: json[:id],
+              ap_id: json[:id],
               ap_type: type,
               actor_id: actor.id,
               object_id: followed_actor.id,
@@ -28,6 +28,7 @@ module DiscourseActivityPub
             response.reject(key: "actor_already_following") if actor.following?(model)
 
             response.stored = DiscourseActivityPubActivity.create!(
+              local: true,
               ap_type: response.type,
               actor_id: followed_actor.id,
               object_id: stored.id,

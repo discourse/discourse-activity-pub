@@ -48,7 +48,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
         context "when the domain is incorrect" do
           it "returns a not found error" do
-            get "/.well-known/webfinger?resource=acct:#{actor.preferred_username}@anotherforum.com"
+            get "/.well-known/webfinger?resource=acct:#{actor.username}@anotherforum.com"
             expect(response.status).to eq(400)
             expect(response.parsed_body).to eq(build_error("resource_not_found"))
           end
@@ -64,7 +64,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
         context "when the username and domain are correct" do
           it "returns the resource" do
-            get "/.well-known/webfinger?resource=acct:#{actor.preferred_username}@#{Discourse.current_hostname}"
+            get "/.well-known/webfinger?resource=acct:#{actor.username}@#{Discourse.current_hostname}"
             expect(response.status).to eq(200)
 
             body = JSON.parse(response.body)

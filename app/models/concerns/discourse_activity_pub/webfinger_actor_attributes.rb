@@ -5,7 +5,7 @@ module DiscourseActivityPub
     extend ActiveSupport::Concern
 
     def webfinger_uri
-      "#{Webfinger::ACCOUNT_SCHEME}:#{preferred_username}@#{domain}"
+      "#{Webfinger::ACCOUNT_SCHEME}:#{username}@#{domain}"
     end
 
     def webfinger_aliases
@@ -17,7 +17,7 @@ module DiscourseActivityPub
     end
 
     def webfinger_activity_link
-      Webfinger.activity_link(uid)
+      Webfinger.activity_link(ap_id)
     end
   end
 end

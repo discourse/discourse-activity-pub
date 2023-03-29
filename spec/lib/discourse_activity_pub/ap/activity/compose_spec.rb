@@ -12,7 +12,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
     end
 
     it "enqueues deliveries to actor's followers" do
-      stored = Fabricate(:discourse_activity_pub_activity_create, actor: actor)
+      stored = Fabricate(:discourse_activity_pub_activity_create, actor: actor, local: true)
       ap = DiscourseActivityPub::AP::Activity::Create.new(stored: stored)
       ap.deliver
 

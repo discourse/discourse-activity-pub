@@ -25,13 +25,13 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     it "creates an actor" do
-      actor = DiscourseActivityPubActor.find_by(uid: json['id'])
+      actor = DiscourseActivityPubActor.find_by(ap_id: json['id'])
       expect(actor.present?).to eq(true)
       expect(actor.domain).to eq("external.com")
       expect(actor.ap_type).to eq(json["type"])
       expect(actor.inbox).to eq(json["inbox"])
       expect(actor.outbox).to eq(json["outbox"])
-      expect(actor.preferred_username).to eq(json["preferredUsername"])
+      expect(actor.username).to eq(json["preferredUsername"])
       expect(actor.name).to eq(json["name"])
     end
 
@@ -40,7 +40,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       subject.json = json
       subject.update_stored_from_json
 
-      actor = DiscourseActivityPubActor.find_by(uid: json['id'])
+      actor = DiscourseActivityPubActor.find_by(ap_id: json['id'])
       expect(actor.name).to eq("Bob McLeod")
     end
 
@@ -50,8 +50,8 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       subject.json = json
       subject.update_stored_from_json
 
-      expect(DiscourseActivityPubActor.exists?(uid: original_id)).to eq(true)
-      expect(DiscourseActivityPubActor.exists?(uid: json['id'])).to eq(true)
+      expect(DiscourseActivityPubActor.exists?(ap_id: original_id)).to eq(true)
+      expect(DiscourseActivityPubActor.exists?(ap_id: json['id'])).to eq(true)
     end
   end
 end

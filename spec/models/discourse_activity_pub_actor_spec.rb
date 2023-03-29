@@ -8,9 +8,11 @@ RSpec.describe DiscourseActivityPubActor do
       it "raises an error" do
         expect{
           described_class.create!(
+            local: true,
             model_id: category.id,
             model_type: category.class.name,
-            uid: "foo",
+            username: category.slug,
+            ap_id: "foo",
             domain: "domain.com",
             ap_type: DiscourseActivityPub::AP::Actor::Person.type
           )
@@ -21,9 +23,11 @@ RSpec.describe DiscourseActivityPubActor do
     context "with a valid model and activity pub type" do
       it "creates an actor " do
         actor = described_class.create!(
+          local: true,
           model_id: category.id,
           model_type: category.class.name,
-          uid: "foo",
+          username: category.slug,
+          ap_id: "foo",
           domain: "domain.com",
           ap_type: DiscourseActivityPub::AP::Actor::Group.type
         )
@@ -32,34 +36,31 @@ RSpec.describe DiscourseActivityPubActor do
       end
     end
 
-    context "with local domain and no preferred username" do
-      context "with no preferred username" do
-        it "raises an error" do
-          expect{
-            described_class.create!(
-              model_id: category.id,
-              model_type: category.class.name,
-              uid: "foo",
-              domain: Discourse.current_hostname,
-              ap_type: DiscourseActivityPub::AP::Actor::Person.type
-            )
-          }.to raise_error(ActiveRecord::RecordInvalid)
-        end
-      end
-
-      context "with a preferred username" do
-        it "creates an actor " do
-          actor = described_class.create!(
+    context "with no username" do
+      it "raises an error" do
+        expect{
+          described_class.create!(
+            local: true,
             model_id: category.id,
             model_type: category.class.name,
-            uid: "foo",
-            domain: Discourse.current_hostname,
-            preferred_username: category.slug,
-            ap_type: DiscourseActivityPub::AP::Actor::Group.type
+            ap_type: DiscourseActivityPub::AP::Actor::Person.type
           )
-          expect(actor.errors.any?).to eq(false)
-          expect(actor.persisted?).to eq(true)
-        end
+        }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    context "with a username" do
+      it "creates an actor " do
+        actor = described_class.create!(
+          local: true,
+          model_id: category.id,
+          model_type: category.class.name,
+          ap_id: "foo",
+          ap_type: DiscourseActivityPub::AP::Actor::Group.type,
+          username: category.slug
+        )
+        expect(actor.errors.any?).to eq(false)
+        expect(actor.persisted?).to eq(true)
       end
     end
   end
@@ -76,14 +77,12 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "with activity pub enabled on the object" do
       before do
-        enable_activity_pub(category)
+        toggle_activity_pub(category)
       end
 
       it "ensures a valid actor exists" do
         described_class.ensure_for(category.reload)
         expect(category.activity_pub_actor.present?).to eq(true)
-        expect(category.activity_pub_actor.uid).to eq(json_ld_id(category, 'Actor'))
-        expect(category.activity_pub_actor.domain).to eq(Discourse.current_hostname)
         expect(category.activity_pub_actor.ap_type).to eq('Group')
       end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# TODO: PR discourse/discourse to support alternate username uses
+# TODO (future): PR discourse/discourse to support non-user username validations
 
 class DiscourseActivityPub::UsernameValidator < UsernameValidator
   def user

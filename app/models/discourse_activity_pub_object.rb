@@ -11,11 +11,12 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     return unless model.activity_pub_enabled && ap&.composed?
 
     ActiveRecord::Base.transaction do
-      object = model.activity_pub_objects.build
+      object = model.activity_pub_objects.build(local: true)
       object.content = model.activity_pub_content if %i(create update).include?(ap_type_sym)
       object.save!
 
       DiscourseActivityPubActivity.create!(
+        local: true,
         actor_id: model.activity_pub_actor.id,
         object_id: object.id,
         object_type: 'DiscourseActivityPubObject',
@@ -30,8 +31,10 @@ end
 # Table name: discourse_activity_pub_objects
 #
 #  id         :bigint           not null, primary key
-#  uid        :string           not null
+#  ap_id      :string           not null
+#  ap_key     :string
 #  ap_type    :string           not null
+#  local      :boolean
 #  model_id   :integer
 #  model_type :string
 #  content    :string
@@ -40,5 +43,5 @@ end
 #
 # Indexes
 #
-#  index_discourse_activity_pub_objects_on_uid  (uid)
+#  index_discourse_activity_pub_objects_on_ap_id  (ap_id)
 #

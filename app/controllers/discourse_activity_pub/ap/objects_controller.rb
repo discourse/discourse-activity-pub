@@ -9,6 +9,12 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :ensure_site_enabled
   before_action :validate_headers
   before_action :check_allow_deny_lists
+  before_action :check_authorization
+  before_action :ensure_object_exists, if: :is_object_controller
+
+  def show
+    render json: @object.ap.json
+  end
 
   protected
 
@@ -26,11 +32,27 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def validate_headers
-    render_activity_error("json_not_valid", 422) unless valid_content_type?(request.headers['Content-Type'])
+    content_type = case request.method
+                   when "POST" then request.headers['Content-Type']
+                   when "GET" then request.headers['Accept']
+                   end
+    render_activity_error("bad_request", 400) unless valid_content_type?(content_type)
   end
 
   def check_allow_deny_lists
     # TODO: Add allow/deny domain list checking
+  end
+
+  def check_authorization
+    # TODO: Add authorization checking
+  end
+
+  def is_object_controller
+    controller_name === "objects"
+  end
+
+  def ensure_object_exists
+    render_activity_error("not_found", 404) unless @object = DiscourseActivityPubObject.find_by(ap_key: params[:key])
   end
 
   def render_activity_error(key, status)

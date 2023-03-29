@@ -9,7 +9,11 @@ module DiscourseActivityPub
       end
 
       def domain
-        model&.domain
+        stored&.domain
+      end
+
+      def preferred_username
+        stored&.username
       end
 
       def can_belong_to
@@ -28,15 +32,14 @@ module DiscourseActivityPub
 
       def update_stored_from_json
         return false unless json
-
-        @stored = DiscourseActivityPubActor.find_by(uid: json[:id])
+        @stored = DiscourseActivityPubActor.find_by(ap_id: json[:id])
 
         unless stored
           @stored = DiscourseActivityPubActor.new(
-            uid: json[:id],
+            ap_id: json[:id],
             ap_type: json[:type],
             domain: domain_from_id(json[:id]),
-            preferred_username: json[:preferredUsername],
+            username: json[:preferredUsername],
             inbox: json[:inbox],
             outbox: json[:outbox]
           )

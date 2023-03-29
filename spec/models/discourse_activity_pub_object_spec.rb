@@ -10,9 +10,10 @@ RSpec.describe DiscourseActivityPubObject do
       it "raises an error" do
         expect{
           described_class.create!(
+            local: true,
             model_id: topic.id,
             model_type: topic.class.name,
-            uid: "foo",
+            ap_id: "foo",
             ap_type: DiscourseActivityPub::AP::Object::Note.type
           )
         }.to raise_error(ActiveRecord::RecordInvalid)
@@ -22,9 +23,10 @@ RSpec.describe DiscourseActivityPubObject do
     context "with a valid model and activity pub type" do
       it "creates an object " do
         actor = described_class.create!(
+          local: true,
           model_id: post.id,
           model_type: post.class.name,
-          uid: "foo",
+          ap_id: "foo",
           ap_type: DiscourseActivityPub::AP::Object::Note.type
         )
         expect(actor.errors.any?).to eq(false)
@@ -50,7 +52,7 @@ RSpec.describe DiscourseActivityPubObject do
 
     context "with activity pub enabled on the model and a valid activity" do
       before do
-        enable_activity_pub(category, with_actor: true)
+        toggle_activity_pub(category, with_actor: true)
         DiscourseActivityPubActivity.any_instance.expects(:deliver).once
       end
 
@@ -62,7 +64,6 @@ RSpec.describe DiscourseActivityPubObject do
         it "creates the right object" do
           expect(
             post.activity_pub_objects.where(
-              uid: json_ld_id(post, 'Object'),
               ap_type: 'Note',
               content: post.activity_pub_content
             ).exists?
@@ -90,7 +91,6 @@ RSpec.describe DiscourseActivityPubObject do
         it "creates the right object" do
           expect(
             post.activity_pub_objects.where(
-              uid: json_ld_id(post, 'Object'),
               ap_type: 'Note',
               content: "Updated post"
             ).exists?
@@ -117,7 +117,6 @@ RSpec.describe DiscourseActivityPubObject do
         it "creates the right object" do
           expect(
             post.activity_pub_objects.where(
-              uid: json_ld_id(post, 'Object'),
               ap_type: 'Note',
               content: nil
             ).exists?

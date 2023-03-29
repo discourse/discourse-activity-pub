@@ -47,6 +47,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/objects_controller.rb
     ../app/controllers/discourse_activity_pub/ap/actors_controller.rb
     ../app/controllers/discourse_activity_pub/ap/inboxes_controller.rb
+    ../app/controllers/discourse_activity_pub/ap/outboxes_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb

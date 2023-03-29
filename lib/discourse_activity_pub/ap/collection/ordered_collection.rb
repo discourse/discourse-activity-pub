@@ -8,8 +8,7 @@ module DiscourseActivityPub
         end
 
         def ordered_items
-          # TODO: order items by creation
-          items
+          items.sort_by { |item| item.stored.created_at }.reverse
         end
       end
     end

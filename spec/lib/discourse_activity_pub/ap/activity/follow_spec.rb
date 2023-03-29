@@ -3,21 +3,6 @@
 RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
   let(:category) { Fabricate(:category) }
 
-  let(:json) do
-    {
-      '@context': 'https://www.w3.org/ns/activitystreams',
-      id: "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
-      type: described_class.type,
-      actor: {
-        id: "https://external.com/u/angus",
-        type: "Person",
-        inbox: "https://external.com/u/angus/inbox",
-        outbox: "https://external.com/u/angus/outbox"
-      },
-      object: json_ld_id(category, 'Actor'),
-    }.with_indifferent_access
-  end
-
   def build_response(activity)
     DiscourseActivityPub::AP::Activity::Response.new(stored: activity)
   end
@@ -59,14 +44,15 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
       context 'with activity pub enabled' do
         before do
-          enable_activity_pub(category, with_actor: true)
+          toggle_activity_pub(category, with_actor: true)
         end
 
         context 'when not following' do
           before do
+            json = build_follow_json(category.activity_pub_actor)
             perform_process(json)
-            @actor = DiscourseActivityPubActor.find_by(uid: json['actor']['id'])
-            @activity = DiscourseActivityPubActivity.find_by(uid: json['id'])
+            @actor = DiscourseActivityPubActor.find_by(ap_id: json['actor']['id'])
+            @activity = DiscourseActivityPubActivity.find_by(ap_id: json['id'])
           end
 
           it 'creates an actor' do
@@ -109,39 +95,39 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         end
 
         context 'when already following' do
-          let!(:activity) do
+          let!(:existing_activity) do
             Fabricate(:discourse_activity_pub_activity_follow,
               object: category.activity_pub_actor
             )
           end
           let!(:follow) do
             Fabricate(:discourse_activity_pub_follow,
-              follower: activity.actor,
-              followed: activity.object
+              follower: existing_activity.actor,
+              followed: existing_activity.object
             )
           end
 
           before do
-            json['actor']['id'] = activity.actor.uid
-            json['object'] = json_ld_id(activity.object.model, 'Object')
+            json = build_follow_json(category.activity_pub_actor)
+            json['actor']['id'] = existing_activity.actor.ap_id
+            json['object'] = existing_activity.object.ap_id
             perform_process(json)
+            @new_activity = DiscourseActivityPubActivity.find_by(ap_id: json['id'])
           end
 
           it 'creates an activity' do
-            expect(
-              DiscourseActivityPubActivity.exists?(uid: json['id'])
-            ).to eq(true)
+            expect(@new_activity.present?).to eq(true)
           end
 
           it 'does not duplicate actors' do
-            expect(DiscourseActivityPubActor.where(uid: activity.actor.uid).size).to eq(1)
+            expect(DiscourseActivityPubActor.where(ap_id: existing_activity.actor.ap_id).size).to eq(1)
           end
 
           it 'does not duplicate follows' do
             expect(
               DiscourseActivityPubFollow.where(
-                follower_id: activity.actor.id,
-                followed_id: activity.object.id
+                follower_id: existing_activity.actor.id,
+                followed_id: existing_activity.object.id
               ).size
             ).to eq(1)
           end
@@ -149,13 +135,13 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
           it 'enqueues a reject' do
             reject = DiscourseActivityPubActivity.find_by(
               ap_type: DiscourseActivityPub::AP::Activity::Reject.type,
-              actor_id: activity.object.id,
-              object_id: DiscourseActivityPubActivity.find_by(uid: json['id']).id
+              actor_id: @new_activity.object.id,
+              object_id: @new_activity.id
             )
             expect(reject.present?).to eq(true)
 
             args = {
-              url: activity.actor.inbox,
+              url: @new_activity.actor.inbox,
               payload: serialize_response(build_response(reject))
             }
             expect(

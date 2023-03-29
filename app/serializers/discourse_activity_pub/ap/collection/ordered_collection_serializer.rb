@@ -6,4 +6,8 @@ class DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer < Discou
   def ordered_items
     object.ordered_items.map(&:json)
   end
+
+  def include_items?
+    false
+  end
 end

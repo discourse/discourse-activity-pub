@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 Fabricator(:discourse_activity_pub_activity) do
-  uid { sequence(:uid) { |i| "activity#{i}"} }
+  ap_id { DiscourseActivityPub::JsonLd.json_ld_id("activity", SecureRandom.hex(16)) }
   ap_type { "Activity" }
-  actor { Fabricate(:discourse_activity_pub_actor) }
+
+  before_create do |activity|
+    self.actor = Fabricate(:discourse_activity_pub_actor) if !self.actor
+  end
 end
 
 Fabricator(:discourse_activity_pub_activity_follow, from: :discourse_activity_pub_activity) do

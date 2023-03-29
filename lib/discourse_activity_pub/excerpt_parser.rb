@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# TODO: PR discourse/discourse to support alternate custom excerpts
+# TODO (future): PR discourse/discourse to support alternate excerpts
 
 class DiscourseActivityPub::ExcerptParser < ExcerptParser
   CUSTOM_NOTE_REGEX = /<\s*(div)[^>]*class\s*=\s*['"]note['"][^>]*>/

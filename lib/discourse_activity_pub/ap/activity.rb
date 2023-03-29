@@ -53,7 +53,7 @@ module DiscourseActivityPub
         actor = ap_actor.update_stored_from_json
         return process_failed("cant_create_actor") unless actor.present?
 
-        model = Model.find_by_url(json['object'])
+        model = Model.find_by_ap_id(json['object'])
         return process_failed("object_not_valid") unless model.present?
 
         return process_failed("activity_not_available") unless Model.ready?(model)

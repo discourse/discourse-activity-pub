@@ -18,9 +18,9 @@ RSpec.describe DiscourseActivityPub::JsonLd do
     end
 
     it "performs a request on strings" do
-      uid = "https://external.com/u/angus"
-      DiscourseActivityPub::Request.expects(:get_json_ld).with(uri: uid).returns(nil)
-      described_class.resolve_object(uid)
+      ap_id = "https://external.com/u/angus"
+      DiscourseActivityPub::Request.expects(:get_json_ld).with(uri: ap_id).returns(nil)
+      described_class.resolve_object(ap_id)
     end
   end
 

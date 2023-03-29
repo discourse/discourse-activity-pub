@@ -9,6 +9,15 @@ import { module, test } from "qunit";
 import I18n from "I18n";
 import Site from "discourse/models/site";
 
+function setSite(context, attrs = {}) {
+  context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
+  context.siteSettings.login_required = attrs.login_required;
+  Site.current().set(
+    "activity_pub_enabled",
+    attrs.activity_pub_enabled && !attrs.login_required
+  );
+}
+
 function setCategory(context, attrs = {}) {
   const categories = context.site.categoriesList;
   const category = categories.firstObject;
@@ -27,8 +36,8 @@ module(
     const template = hbs`<ActivityPubStatus @model={{this.category}} @modelType="category" />`;
 
     test("with login required enabled", async function (assert) {
+      setSite(this, { activity_pub_enabled: true, login_required: true });
       setCategory(this);
-      this.siteSettings.login_required = true;
 
       await render(template);
 
@@ -47,8 +56,8 @@ module(
     });
 
     test("with plugin disabled", async function (assert) {
+      setSite(this, { activity_pub_enabled: false, login_required: false });
       setCategory(this);
-      this.siteSettings.activity_pub_enabled = false;
 
       await render(template);
 
@@ -67,8 +76,8 @@ module(
     });
 
     test("with activity pub disabled on category", async function (assert) {
+      setSite(this, { activity_pub_enabled: true, login_required: false });
       setCategory(this, { activity_pub_enabled: false });
-      this.siteSettings.activity_pub_enabled = true;
 
       await render(template);
 
@@ -89,11 +98,11 @@ module(
     });
 
     test("with activity pub not ready on category", async function (assert) {
+      setSite(this, { activity_pub_enabled: true, login_required: false });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: false,
       });
-      this.siteSettings.activity_pub_enabled = true;
 
       await render(template);
 
@@ -114,13 +123,11 @@ module(
     });
 
     test("with active activity pub", async function (assert) {
+      setSite(this, { activity_pub_enabled: true, login_required: false });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: true,
       });
-      this.siteSettings.activity_pub_enabled = true;
-      let site = Site.current();
-      site.set("activity_pub_enabled", true);
 
       await render(template);
 
@@ -141,11 +148,11 @@ module(
     });
 
     test("updates correctly after messageBus message", async function (assert) {
+      setSite(this, { activity_pub_enabled: true, login_required: false });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: true,
       });
-      this.siteSettings.activity_pub_enabled = true;
 
       await render(template);
       await publishToMessageBus("/activity-pub", {
