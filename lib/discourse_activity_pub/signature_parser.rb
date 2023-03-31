@@ -32,7 +32,7 @@ module DiscourseActivityPub
     end
 
     def segment_pattern
-      %r{\A(keyId|algorithm|headers|signature)="(.*)"\z}
+      %r{\A(keyId|algorithm|headers|signature|created|expires)="(.*)"\z}
     end
   end
 end

@@ -84,7 +84,6 @@ RSpec.describe DiscourseActivityPub::Request do
       {
         'Content-Type' => DiscourseActivityPub::JsonLd.content_type_header,
         'Digest' => "SHA-256=#{Digest::SHA256.base64digest(accept_json.to_json)}",
-        DiscourseActivityPub::Request::REQUEST_TARGET => "post #{described_class.parse(object[:inbox]).path}",
         'Host' => "external.com",
         'Date' => Time.now.utc.httpdate
       }

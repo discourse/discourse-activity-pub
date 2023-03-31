@@ -107,16 +107,17 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem) }
       let(:group) { Fabricate(:discourse_activity_pub_actor_group) }
 
-      def build_headers(custom_object: nil, custom_actor: nil, custom_key_id: nil, custom_keypair: true, custom_headers: {}, custom_params: {})
+      def build_headers(custom_object: nil, custom_actor: nil, custom_verb: nil, custom_path: nil, custom_key_id: nil, custom_keypair: true, custom_headers: {}, custom_params: {})
         _object = custom_object || object
         _actor = custom_actor || actor
         _headers = {
           "Host" => Discourse.current_hostname,
           "Date" => Time.now.utc.httpdate,
-          "#{DiscourseActivityPub::Request::REQUEST_TARGET}" => "get #{Addressable::URI.parse(_object.ap_id).path}"
         }.merge(custom_headers)
 
         _headers["Signature"] = DiscourseActivityPub::Request.build_signature(
+          verb: custom_verb || 'get',
+          path: custom_path || Addressable::URI.parse(_object.ap_id).path,
           key_id: custom_key_id || signature_key_id(_actor),
           keypair: custom_keypair ? keypair : _actor.keypair,
           headers: _headers,
@@ -146,23 +147,32 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         end
       end
 
-      context "with an invalid date" do
-        let(:headers) { build_headers(custom_headers: { "Date" => "not a date" }) }
+      context "with a rsa-sha256 algorithm" do
+        let(:headers) { build_headers(custom_params: { algorithm: "rsa-sha256" }) }
 
-        it "returns the right unauthorized error" do
+        it "suceeds" do
           get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.invalid_date_header", reason: "not RFC 2616 compliant date: \"not a date\"")])
+          expect(response.status).to eq(200)
         end
-      end
 
-      context "with a stale date" do
-        let(:headers) { build_headers(custom_headers: { "Date" => 2.days.ago.utc.httpdate }) }
+        context "with an invalid date" do
+          let(:headers) { build_headers(custom_params: { algorithm: "rsa-sha256" }, custom_headers: { "Date" => "not a date" }) }
 
-        it "returns the right unauthorized error" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.stale_request")])
+          it "returns the right unauthorized error" do
+            get_object(object, headers: headers)
+            expect(response.status).to eq(401)
+            expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.invalid_date_header", reason: "not RFC 2616 compliant date: \"not a date\"")])
+          end
+        end
+
+        context "with a stale date" do
+          let(:headers) { build_headers(custom_params: { algorithm: "rsa-sha256" }, custom_headers: { "Date" => 2.days.ago.utc.httpdate }) }
+
+          it "returns the right unauthorized error" do
+            get_object(object, headers: headers)
+            expect(response.status).to eq(401)
+            expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.stale_request")])
+          end
         end
       end
 
@@ -227,7 +237,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
 
       context "with a new actor" do
         let(:new_actor) { build_actor_json(keypair.public_key.to_pem) }
-        let(:custom_headers) { build_headers(custom_key_id: new_actor[:publicKey][:id], custom_keypair: keypair) }
+        let(:headers) { build_headers(custom_key_id: new_actor[:publicKey][:id], custom_keypair: keypair) }
 
         before do
           stub_request(:get, new_actor[:id])
@@ -235,14 +245,10 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         end
 
         it "succeeds and creates the actor" do
-          get_object(object, headers: custom_headers)
+          get_object(object, headers: headers)
           expect(response.status).to eq(200)
           expect(DiscourseActivityPubActor.exists?(ap_id: new_actor[:id])).to eq(true)
         end
-      end
-
-      context "with a hs2019 algorithm" do
-        pending("to be implemented")
       end
 
       context "with a post request" do
@@ -253,7 +259,6 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         context "with an invalid digest" do
           let(:headers) {
             build_headers(custom_headers: {
-              "#{DiscourseActivityPub::Request::REQUEST_TARGET}" => "post #{Addressable::URI.parse(group.ap_id).path}",
               "Digest" => "SHA-256=#{invalid_digest}"
             })
           }
@@ -267,10 +272,13 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
 
         context "with a valid digest" do
           let(:headers) {
-            build_headers(custom_headers: {
-              "#{DiscourseActivityPub::Request::REQUEST_TARGET}" => "post #{Addressable::URI.parse(group.inbox).path}",
-              "Digest" => "SHA-256=#{valid_digest}"
-            })
+            build_headers(
+              custom_headers: {
+                "Digest" => "SHA-256=#{valid_digest}"
+              },
+              custom_verb: 'post',
+              custom_path: Addressable::URI.parse(group.inbox).path
+            )
           }
 
           before do

@@ -88,7 +88,7 @@ module DiscourseActivityPub
 
     def verify_signature_strength!
       raise Error, "date_must_be_signed" unless signed_headers.include?('date') || signed_headers.include?('(created)')
-      raise Error, "digest_must_be_signed" unless signed_headers.include?(Request::REQUEST_TARGET) || signed_headers.include?('digest')
+      raise Error, "digest_must_be_signed" unless signed_headers.include?(Request::REQUEST_TARGET_HEADER) || signed_headers.include?('digest')
       raise Error, "host_must_be_signed_on_get" if request.get? && !signed_headers.include?('host')
       raise Error, "digest_must_be_signed_on_post" if request.post? && !signed_headers.include?('digest')
     end
@@ -124,12 +124,11 @@ module DiscourseActivityPub
     def signed_string
       @signed_string ||= begin
         signed_headers.map do |signed_header|
-          if signed_header == Request::REQUEST_TARGET
-            "#{Request::REQUEST_TARGET}: #{request.method.downcase} #{request.path}"
+          if signed_header == Request::REQUEST_TARGET_HEADER
+            "#{Request::REQUEST_TARGET_HEADER}: #{request.method.downcase} #{request.path}"
           elsif signed_header == '(created)' || signed_header == '(expires)'
             _type = signed_header.delete('()')
-            _unsupported = signature_algorithm != 'hs2019' || signature_params[_type].blank?
-            raise Error.new(header: _type), "invalid_signature_pseudo_header" if _unsupported
+            raise Error.new(header: _type), "invalid_signature_pseudo_header" if signature_params[_type].blank?
             "(#{_type}): #{signature_params[_type]}"
           else
             "#{signed_header}: #{request.headers[to_header_name(signed_header)]}"

@@ -7,8 +7,10 @@ module DiscourseActivityPub
     SUPPORTED_SCHEMES = %w(http https)
     SUCCESS_CODES = [200, 201, 202]
     REDIRECT_CODES = [301, 302, 307, 308]
-    REQUEST_TARGET = '(request-target)'
-    SIGNAUTRE_ALGORITHM = 'rsa-sha256'
+    REQUEST_TARGET_HEADER = '(request-target)'
+    CREATED_HEADER = '(created)'
+    EXPIRES_HEADER = '(expires)'
+    SIGNAUTRE_ALGORITHM = 'hs2019'
 
     attr_accessor :uri,
                   :headers,
@@ -47,7 +49,6 @@ module DiscourseActivityPub
     def perform(verb)
       return unless SUPPORTED_SCHEMES.include?(uri.scheme)
 
-      headers[REQUEST_TARGET] = "#{verb} #{uri.path}"
       headers['Signature'] = self.class.build_signature(
         key_id: signature_key_id(actor),
         keypair: actor.keypair,
@@ -78,17 +79,32 @@ module DiscourseActivityPub
       actor.present? && actor.keypair.present?
     end
 
-    def self.build_signature(key_id: nil, keypair: nil, headers: {}, custom_params: {})
+    def self.build_signature(verb: nil, path: nil, key_id: nil, keypair: nil, headers: {}, custom_params: {})
+      request_target = "#{verb} #{path}"
+      created = Time.now.to_i
+      expires = 1.hour.from_now.to_i
+
       headers = headers.without('User-Agent', 'Accept-Encoding', 'Content-Type', 'Accept')
-      headers_str = headers.map { |key, value| "#{key.downcase}: #{value}" }.join("\n")
-      signed_headers = keypair.sign(OpenSSL::Digest.new('SHA256'), headers_str)
-      signature = Base64.strict_encode64(signed_headers)
+      pseudo_headers = {
+        REQUEST_TARGET_HEADER => request_target,
+        CREATED_HEADER => created,
+        EXPIRES_HEADER => expires
+      }
+      combined_headers = headers.merge(pseudo_headers)
+
+      signing_str = combined_headers.map { |key, value| "#{key.downcase}: #{value}" }.join("\n")
+      signed_str = keypair.sign(OpenSSL::Digest.new('SHA256'), signing_str)
+      signature = Base64.strict_encode64(signed_str)
+
       params = {
         "keyId" => key_id,
         "algorithm" => SIGNAUTRE_ALGORITHM,
-        "headers" => headers.keys.join(' ').downcase,
-        "signature" => signature
+        "headers" => combined_headers.keys.join(' ').downcase,
+        "signature" => signature,
+        "created" => created,
+        "expires" => expires
       }.merge(custom_params)
+
       params
         .select { |key, value| value.present? }
         .map{ |key, value| "#{key}=\"#{value}\"" }
