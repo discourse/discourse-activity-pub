@@ -13,6 +13,19 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   validates :username, presence: true, uniqueness: true, if: :local
 
+  before_save :ensure_keys, if: :local
+
+  def refresh_remote!
+    DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id, stored: true) unless local?
+  end
+
+  def keypair
+    @keypair ||= begin
+      return nil unless private_key || public_key
+      OpenSSL::PKey::RSA.new(private_key || public_key)
+    end
+  end
+
   def following?(model)
     model.activity_pub_followers.exists?(id: self.id)
   end
@@ -32,6 +45,28 @@ class DiscourseActivityPubActor < ActiveRecord::Base
       model.save!
       model.activity_pub_publish_state
     end
+  end
+
+  def self.find_by_handle(handle, local: false)
+    username, domain = handle.split('@')
+    return nil unless !local || domain === Discourse.current_hostname
+
+    opts = { username: username }
+    opts[:domain] = domain if !local
+
+    DiscourseActivityPubActor.find_by(opts)
+  end
+
+  protected
+
+  def ensure_keys
+    return unless local && private_key.blank? && public_key.blank?
+
+    keypair = OpenSSL::PKey::RSA.new(2048)
+    self.private_key = keypair.to_pem
+    self.public_key  = keypair.public_key.to_pem
+
+    save!
   end
 end
 

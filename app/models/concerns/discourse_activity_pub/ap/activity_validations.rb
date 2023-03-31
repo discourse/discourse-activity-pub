@@ -4,7 +4,7 @@ module DiscourseActivityPub
   module AP
     module ActivityValidations
       extend ActiveSupport::Concern
-      include BaseConcern
+      include IdentifierValidations
 
       included do
         validates :actor_id, presence: true

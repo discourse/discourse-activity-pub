@@ -17,6 +17,7 @@ after_initialize do
     ../lib/discourse_activity_pub/webfinger.rb
     ../lib/discourse_activity_pub/username_validator.rb
     ../lib/discourse_activity_pub/excerpt_parser.rb
+    ../lib/discourse_activity_pub/signature_parser.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -34,7 +35,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/object/note.rb
     ../lib/discourse_activity_pub/ap/collection.rb
     ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb
-    ../app/models/concerns/discourse_activity_pub/ap/base_concern.rb
+    ../app/models/concerns/discourse_activity_pub/ap/identifier_validations.rb
     ../app/models/concerns/discourse_activity_pub/ap/activity_validations.rb
     ../app/models/concerns/discourse_activity_pub/ap/model_validations.rb
     ../app/models/concerns/discourse_activity_pub/webfinger_actor_attributes.rb
@@ -44,6 +45,8 @@ after_initialize do
     ../app/models/discourse_activity_pub_object.rb
     ../app/jobs/discourse_activity_pub_process.rb
     ../app/jobs/discourse_activity_pub_deliver.rb
+    ../app/controllers/concerns/discourse_activity_pub/domain_verification.rb
+    ../app/controllers/concerns/discourse_activity_pub/signature_verification.rb
     ../app/controllers/discourse_activity_pub/ap/objects_controller.rb
     ../app/controllers/discourse_activity_pub/ap/actors_controller.rb
     ../app/controllers/discourse_activity_pub/ap/inboxes_controller.rb

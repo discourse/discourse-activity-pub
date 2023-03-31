@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   module AP
-    module BaseConcern
+    module IdentifierValidations
       extend ActiveSupport::Concern
 
       included do

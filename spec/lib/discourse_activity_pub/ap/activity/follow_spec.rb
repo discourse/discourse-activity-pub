@@ -8,13 +8,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
   end
 
   def serialize_response(response)
-    DiscourseActivityPub::AP::Activity::ResponseSerializer.new(response, root: false).as_json
-  end
-
-  def build_warning(key, object_id)
-    action = I18n.t("discourse_activity_pub.activity.warning.failed_to_process", object_id: object_id)
-    message = I18n.t("discourse_activity_pub.activity.warning.#{key}")
-    "[Discourse Activity Pub] #{action}: #{message}"
+    DiscourseActivityPub::AP::Activity::ResponseSerializer.new(response, root: false).as_json.as_json
   end
 
   describe '#process' do
@@ -85,7 +79,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
               object_id: @activity.id
             )
             args = {
-              url: @actor.inbox,
+              actor_id: response_activity.actor_id,
+              uri: @actor.inbox,
               payload: serialize_response(build_response(response_activity))
             }
             expect(
@@ -141,7 +136,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
             expect(reject.present?).to eq(true)
 
             args = {
-              url: @new_activity.actor.inbox,
+              actor_id: reject.actor_id,
+              uri: @new_activity.actor.inbox,
               payload: serialize_response(build_response(reject))
             }
             expect(

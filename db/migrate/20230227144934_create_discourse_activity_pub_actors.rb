@@ -13,6 +13,8 @@ class CreateDiscourseActivityPubActors < ActiveRecord::Migration[7.0]
       t.string :name
       t.integer :model_id
       t.string :model_type
+      t.text :private_key
+      t.text :public_key
 
       t.timestamps
     end

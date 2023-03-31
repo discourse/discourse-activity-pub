@@ -3,7 +3,7 @@ module DiscourseActivityPub
   module AP
     module ModelValidations
       extend ActiveSupport::Concern
-      include BaseConcern
+      include IdentifierValidations
 
       included do
         validate :validate_model_type, if: :will_save_change_to_model_type?

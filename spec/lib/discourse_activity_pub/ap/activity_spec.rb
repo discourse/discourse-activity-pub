@@ -3,12 +3,6 @@
 RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
   let(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
 
-  def build_warning(key, object_id)
-    action = I18n.t("discourse_activity_pub.activity.warning.failed_to_process", object_id: object_id)
-    message = I18n.t("discourse_activity_pub.activity.warning.#{key}")
-    "[Discourse Activity Pub] #{action}: #{message}"
-  end
-
   def perform_process(json)
     klass = described_class.new
     klass.json = json
@@ -47,7 +41,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         it "logs a warning" do
           perform_process(@json)
           expect(@fake_logger.warnings.last).to match(
-            build_warning("activity_not_available", @json['id'])
+            build_process_warning("activity_not_available", @json['id'])
           )
         end
       end
@@ -93,8 +87,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
         it "logs a warning" do
           perform_process(@json)
-          expect(@fake_logger.warnings.last).to match(
-            build_warning("actor_not_supported", @json['id'])
+          expect(@fake_logger.warnings.first).to match(
+            build_process_warning("actor_not_supported", @json["actor"]['id'])
           )
         end
       end
@@ -116,7 +110,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         it "logs a warning" do
           perform_process(@json)
           expect(@fake_logger.warnings.last).to match(
-            build_warning("object_not_valid", @json["id"])
+            build_process_warning("object_not_valid", @json["id"])
           )
         end
       end

@@ -17,10 +17,7 @@ module DiscourseActivityPub
     end
 
     def find_actor(uri)
-      username, domain = uri.split('@')
-      return nil unless domain === Discourse.current_hostname
-
-      DiscourseActivityPubActor.find_by(username: username, domain: domain)
+      DiscourseActivityPubActor.find_by_handle(uri, local: true)
     end
 
     def self.activity_link(href)

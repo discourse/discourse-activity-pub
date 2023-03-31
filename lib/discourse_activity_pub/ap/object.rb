@@ -51,6 +51,21 @@ module DiscourseActivityPub
         end
       end
 
+      def process_failed(warning_key)
+        action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
+        message = I18n.t("discourse_activity_pub.process.warning.#{warning_key}")
+        log_warning(action, message)
+        false
+      end
+
+      def self.process_failed(object_id, warning_key)
+        self.new(json: { id: object_id }).process_failed(warning_key)
+      end
+
+      def log_warning(action, message)
+        Rails.logger.warn("[Discourse Activity Pub] #{action}: #{message}")
+      end
+
       def self.factory(json)
         json = json.with_indifferent_access
         klass = AP::Object.get_klass(json[:type])

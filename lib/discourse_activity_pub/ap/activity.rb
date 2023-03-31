@@ -44,13 +44,7 @@ module DiscourseActivityPub
       protected
 
       def process_json
-        resolved_actor = resolve_object(json[:actor])
-        return process_failed("cant_resolve_actor") unless resolved_actor.present?
-
-        ap_actor = AP::Actor.factory(resolved_actor)
-        return process_failed("actor_not_supported") unless ap_actor.can_belong_to.include?(:external)
-
-        actor = ap_actor.update_stored_from_json
+        actor = AP::Actor.resolve_and_store(json[:actor])
         return process_failed("cant_create_actor") unless actor.present?
 
         model = Model.find_by_ap_id(json['object'])
@@ -62,20 +56,9 @@ module DiscourseActivityPub
         [actor, model]
       end
 
-      def process_failed(warning_key)
-        action = I18n.t("discourse_activity_pub.activity.warning.failed_to_process", object_id: json['id'])
-        message = I18n.t("discourse_activity_pub.activity.warning.#{warning_key}")
-        log_warning(action, message)
-        false
-      end
-
-      def log_warning(action, message)
-        Rails.logger.warn("[Discourse Activity Pub] #{action}: #{message}")
-      end
-
-      def enqueue_delivery(url, payload)
+      def enqueue_delivery(uri)
         # TODO: add delay to delivery
-        Jobs.enqueue(:discourse_activity_pub_deliver, url: url, payload: payload)
+        Jobs.enqueue(:discourse_activity_pub_deliver, actor_id: stored.actor.id, uri: uri, payload: json)
       end
     end
   end

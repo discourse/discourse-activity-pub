@@ -8,6 +8,10 @@ RSpec.describe DiscourseActivityPub::AP::OutboxesController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ActorsController }
 
+  before do
+    SiteSetting.activity_pub_require_signed_requests = false
+  end
+
   describe "#index" do
     before do
       toggle_activity_pub(actor.model)

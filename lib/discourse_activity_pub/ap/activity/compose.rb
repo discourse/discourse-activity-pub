@@ -11,7 +11,7 @@ module DiscourseActivityPub
         def deliver
           # TODO: perhaps add batching?
           stored.actor.followers.each do |follower|
-            enqueue_delivery(follower.inbox, json)
+            enqueue_delivery(follower.inbox)
           end
         end
       end

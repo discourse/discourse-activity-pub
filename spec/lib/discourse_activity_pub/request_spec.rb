@@ -76,16 +76,26 @@ RSpec.describe DiscourseActivityPub::Request do
         "id": "https://forum.com/c/announcements#activity/accept/#{SecureRandom.hex(8)}",
         "type": "Accept",
         "actor": "https://forum.com/c/announcements",
-        "object": "https://external.com/activity/follow/#{SecureRandom.hex(8)}"
+        "object": "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
+        "to": "https://external.com/u/angus/inbox"
       }.with_indifferent_access
+    }
+    let(:post_headers) {
+      {
+        'Content-Type' => DiscourseActivityPub::JsonLd.content_type_header,
+        'Digest' => "SHA-256=#{Digest::SHA256.base64digest(accept_json.to_json)}",
+        DiscourseActivityPub::Request::REQUEST_TARGET => "post #{described_class.parse(object[:inbox]).path}",
+        'Host' => "external.com",
+        'Date' => Time.now.utc.httpdate
+      }
     }
 
     context "with a successful response" do
       before do
         stub_request(:post, object[:inbox])
           .with(
-            headers: { 'Content-Type' => DiscourseActivityPub::JsonLd.content_type_header },
-            body: accept_json.as_json
+            headers: post_headers,
+            body: accept_json.to_json
           )
           .to_return(status: 200)
       end
@@ -101,8 +111,8 @@ RSpec.describe DiscourseActivityPub::Request do
       before do
         stub_request(:post, object[:inbox])
           .with(
-            headers: { 'Content-Type' => DiscourseActivityPub::JsonLd.content_type_header },
-            body: accept_json.as_json
+            headers: post_headers,
+            body: accept_json.to_json
           )
           .to_return(status: 404)
       end
@@ -119,8 +129,8 @@ RSpec.describe DiscourseActivityPub::Request do
         url2 = "https://newexternal.com/u/angus/inbox"
         stub_request(:post, object[:inbox])
           .with(
-            headers: { 'Content-Type' => DiscourseActivityPub::JsonLd.content_type_header },
-            body: accept_json.as_json
+            headers: post_headers,
+            body: accept_json.to_json
           )
           .to_return(status: 302, body: "", headers: { location: url2 })
         stub_request(:post, url2).to_return(status: 200)

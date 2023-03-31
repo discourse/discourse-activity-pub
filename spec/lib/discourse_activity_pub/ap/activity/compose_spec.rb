@@ -18,13 +18,15 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
       expect(
         job_enqueued?(job: :discourse_activity_pub_deliver, args: {
-          url: follower1.inbox,
+          actor_id: actor.id,
+          uri: follower1.inbox,
           payload: ap.json
         })
       ).to eq(true)
       expect(
         job_enqueued?(job: :discourse_activity_pub_deliver, args: {
-          url: follower2.inbox,
+          actor_id: actor.id,
+          uri: follower2.inbox,
           payload: ap.json
         })
       ).to eq(true)

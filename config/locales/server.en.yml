@@ -25,13 +25,35 @@ en:
         no_change_when_set: An ActivityPub username can't be changed once set.
 
   discourse_activity_pub:
-    activity:
+    request:
       error:
         json_not_valid: "Invalid JSON-LD"
         not_enabled: "AcitivtyPub is not enabled"
         not_found: "No object found"
         not_available: "ActivityPub is not available for that model"
         bad_request: "Bad request"
+        not_authorized: "Not Authorized"
+        forbidden: "Forbidden"
+        not_signed: "Request not signed"
+        missing_signature_params: "Incompatible request signature. keyId and signature are required"
+        unsupported_signature_algorithm: "Unsupported signature algorithm (only rsa-sha256 and hs2019 are supported)"
+        stale_request: "Request date outside acceptable time window"
+        invalid_signature_key: "Invalid signature key"
+        actor_not_found_for_key: "Actor not found for key %{key_id}"
+        signature_verification_failed: "Verification failed for %{id} using rsa-sha256 (RSASSA-PKCS1-v1_5 with SHA-256)"
+        signature_parse_failed: "Error parsing signature"
+        date_must_be_signed: "Date header or (created) pseudo-header must be signed"
+        digest_must_be_signed: "Digest header or (request-target) pseudo-header must be signed"
+        host_must_be_signed: "Host header must be signed when doing a GET request"
+        digest_must_be_signed_on_post: "Digest header must be signed when doing a POST request"
+        digest_header_missing: "Digest header missing"
+        invalid_digest_header_algorithm: "Digest header requires SHA-256. Offered algorithms: %{algorithms}"
+        invalid_digest_base64: "Invalid Digest value. The provided Digest value is not a valid base64 string. Given digest: %{digest}"
+        invalid_digest_sha256: "Invalid Digest value. The provided Digest value is not a SHA-256 digest. Given digest: %{digest}"
+        invalid_digest: "Invalid Digest value. Computed SHA-256 digest: %{computed}; given: %{digest}"
+        invalid_signature_pseudo_header: 'Invalid Signature pseudo-header (%{header})'
+        invalid_date_header: "Invalid Date header: %{reason}"
+    process:
       warning:
         failed_to_process: "Failed to process %{object_id}"
         cant_resolve_actor: "Could not resolve actor"
@@ -40,6 +62,7 @@ en:
         object_not_valid: "Object is not valid"
         activity_not_supported: "Activity is not supported for actor and object"
         activity_not_available: "Activity is not available for object"
+    activity:
       reject:
         actor_already_following: "Actor is already following that object"
     webfinger:
@@ -53,3 +76,6 @@ en:
     activity_pub_rate_limit_inbox_post_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
     activity_pub_rate_limit_get_objects_per_minute: "Number of GET requests that can be made on AcitivityPub objects per minute."
     activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes."
+    activity_pub_require_signed_requests: "Require ActivityPub requests to be signed with HTTP signatures."
+    activity_pub_allowed_request_domains: "List of domains allowed to make ActivityPub requests."
+    activity_pub_blocked_request_domains: "List of domains not allowed to make ActivityPub requests."

@@ -37,7 +37,7 @@ module DiscourseActivityPub
     end
 
     def domain_from_id(id)
-      Addressable::URI.parse(id).domain
+      Request.domain_from_uri(id)
     end
 
     def resolve_object(raw_object)
@@ -50,6 +50,10 @@ module DiscourseActivityPub
 
     def json_ld_id(ap_base_type, ap_key)
       "#{Discourse.base_url}/ap/#{ap_base_type.downcase}/#{ap_key}"
+    end
+
+    def signature_key_id(actor)
+      "#{actor.ap_id}#main-key"
     end
 
     def valid_content_type?(value)

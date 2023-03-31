@@ -8,7 +8,7 @@ class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::Ac
       process_json
       head 202
     else
-      render_activity_error("json_not_valid", 422)
+      render_activity_pub_error("json_not_valid", 422)
     end
   end
 

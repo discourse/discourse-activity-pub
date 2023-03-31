@@ -12,14 +12,14 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   protected
 
   def ensure_actor_exists
-    render_activity_error("not_found", 404) unless @actor = DiscourseActivityPubActor.find_by(ap_key: params[:key])
+    render_activity_pub_error("not_found", 404) unless @actor = DiscourseActivityPubActor.find_by(ap_key: params[:key])
   end
 
   def ensure_can_access_actor
-    render_activity_error("not_available", 401) unless guardian.can_see?(@actor.model)
+    render_activity_pub_error("not_available", 401) unless guardian.can_see?(@actor.model)
   end
 
   def ensure_model_ready
-    render_activity_error("not_available", 403) unless DiscourseActivityPub::Model.ready?(@actor.model)
+    render_activity_pub_error("not_available", 403) unless DiscourseActivityPub::Model.ready?(@actor.model)
   end
 end

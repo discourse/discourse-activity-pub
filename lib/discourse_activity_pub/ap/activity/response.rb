@@ -32,8 +32,8 @@ module DiscourseActivityPub
           add_error(key ? reject_message_from_key(key) : message)
         end
 
-        def deliver(url)
-          enqueue_delivery(url, json)
+        def deliver(uri)
+          enqueue_delivery(uri)
         end
 
         protected

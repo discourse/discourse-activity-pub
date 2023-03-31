@@ -5,9 +5,13 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
+  before do
+    SiteSetting.activity_pub_require_signed_requests = false
+  end
+
   context "without a valid actor" do
     it "returns a not found error" do
-      get_object(actor, custom_url: "/ap/actor/56")
+      get_object(actor, url: "/ap/actor/56")
       expect(response.status).to eq(404)
       expect(response.parsed_body).to eq(activity_request_error("not_found"))
     end
