@@ -27,8 +27,8 @@ module DiscourseActivityPub
     end
 
     def self.find_by_ap_id(ap_id)
-      uri = Addressable::URI.parse(ap_id)
-      return nil unless uri.domain === Discourse.current_hostname
+      uri = Request.parse(ap_id)
+      return nil unless uri && uri.domain === Discourse.current_hostname
 
       path_parts = uri.path.split('/').compact_blank
       return nil unless path_parts.shift === 'ap'
