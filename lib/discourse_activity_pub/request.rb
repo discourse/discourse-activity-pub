@@ -82,6 +82,7 @@ module DiscourseActivityPub
     def self.build_signature(verb: nil, path: nil, key_id: nil, keypair: nil, headers: {}, custom_params: {})
       request_target = "#{verb} #{path}"
       created = Time.now.to_i
+      # TODO: is this expiry right?
       expires = 1.hour.from_now.to_i
 
       headers = headers.without('User-Agent', 'Accept-Encoding', 'Content-Type', 'Accept')

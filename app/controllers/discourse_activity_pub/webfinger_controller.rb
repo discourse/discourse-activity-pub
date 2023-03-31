@@ -8,6 +8,7 @@ module DiscourseActivityPub
     before_action :find_resource
 
     def index
+      # TODO: is this Cache Control correct for webfinger?
       expires_in 1.minutes
       render json: serialized_resource, content_type: Webfinger::CONTENT_TYPE
     end
