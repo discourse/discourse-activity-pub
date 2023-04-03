@@ -76,8 +76,10 @@ after_initialize do
     load File.expand_path(path, __FILE__)
   end
 
-  # Using module prepension here otherwise Site.activity_pub_enabled would be
-  # both using, and subject to, SiteSetting.activity_pub_enabled.
+  # Site.activity_pub_enabled is the single source of truth for whether
+  # ActivityPub is enabled on the site level. Using module prepension here
+  # otherwise Site.activity_pub_enabled would be both using, and subject to,
+  # SiteSetting.activity_pub_enabled.
   Site.singleton_class.prepend DiscourseActivityPubSiteExtension
   add_to_serializer(:site, :activity_pub_enabled) { Site.activity_pub_enabled }
 
