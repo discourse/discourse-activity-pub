@@ -71,11 +71,14 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
+    ../extensions/discourse_activity_pub_site_extension.rb
   ).each do |path|
     load File.expand_path(path, __FILE__)
   end
 
-  add_class_method(:site, :activity_pub_enabled) { !SiteSetting.login_required && SiteSetting.activity_pub_enabled }
+  # Using module prepension here otherwise Site.activity_pub_enabled would be
+  # both using, and subject to, SiteSetting.activity_pub_enabled.
+  Site.singleton_class.prepend DiscourseActivityPubSiteExtension
   add_to_serializer(:site, :activity_pub_enabled) { Site.activity_pub_enabled }
 
   Category.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model, dependent: :destroy
