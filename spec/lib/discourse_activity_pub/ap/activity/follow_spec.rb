@@ -3,6 +3,8 @@
 RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
   let(:category) { Fabricate(:category) }
 
+  it { expect(described_class).to be < DiscourseActivityPub::AP::Activity }
+
   def build_response(activity)
     DiscourseActivityPub::AP::Activity::Response.new(stored: activity)
   end

@@ -5,6 +5,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
   let(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
   let(:follower2) { Fabricate(:discourse_activity_pub_actor_person) }
 
+  it { expect(described_class).to be < DiscourseActivityPub::AP::Activity }
+
   describe "#deliver" do
     before do
       Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor)

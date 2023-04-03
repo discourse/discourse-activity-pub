@@ -3,6 +3,8 @@
 RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
   let(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
 
+  it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
+
   def perform_process(json)
     klass = described_class.new
     klass.json = json

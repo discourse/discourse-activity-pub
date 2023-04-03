@@ -8,14 +8,14 @@ module DiscourseActivityPub
       attr_accessor :collection_for
 
       def initialize(stored: nil, collection_for: nil)
-        raise ArgumentError.new("Unsupported collection_for") unless SUPPORTED_FOR.include?(collection_for)
+        raise ArgumentError.new("Unsupported collection_for") if collection_for && SUPPORTED_FOR.exclude?(collection_for)
 
         @stored = stored
         @collection_for = collection_for
       end
 
       def id
-        stored.send(collection_for)
+        collection_for ? stored.send(collection_for) : json_ld_id(type, SecureRandom.hex(16))
       end
 
       def type

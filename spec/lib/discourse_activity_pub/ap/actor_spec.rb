@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Actor do
+
+  it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
+
   describe "#update_stored_from_json" do
     let(:json) do
       {
