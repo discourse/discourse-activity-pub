@@ -64,6 +64,12 @@ RSpec.describe Category do
       toggle_activity_pub(category)
     end
 
+    it "raises if username is invalid" do
+      expect do
+        toggle_activity_pub(category, username: "abc象")
+      end.to raise_error(ActiveRecord::Rollback)
+    end
+
     it "publishes activity pub state if activity_pub_enabled is changed" do
       message = MessageBus.track_publish("/activity-pub") do
         toggle_activity_pub(category)

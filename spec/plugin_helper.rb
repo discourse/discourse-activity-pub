@@ -4,9 +4,9 @@ RSpec.configure do |config|
   config.include DiscourseActivityPub::JsonLd
 end
 
-def toggle_activity_pub(category, with_actor: false, disable: false)
+def toggle_activity_pub(category, with_actor: false, disable: false, username: nil)
   category.custom_fields['activity_pub_enabled'] = !disable
-  category.custom_fields['activity_pub_username'] = category.slug
+  category.custom_fields['activity_pub_username'] = username || category.slug
 
   if with_actor
     category.save!
@@ -14,13 +14,6 @@ def toggle_activity_pub(category, with_actor: false, disable: false)
   else
     category.save_custom_fields(true)
   end
-end
-
-def build_headers(object, verb, custom = {})
-  content_key = verb == :get ? "Accept" : "Content-Type"
-  headers = { "#{content_key}" => custom[:content_header] || DiscourseActivityPub::JsonLd.content_type_header }
-  headers["Date"] = custom[:date_header] || Date.now
-
 end
 
 def get_object(object, url: nil, headers: {})
