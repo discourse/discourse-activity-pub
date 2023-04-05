@@ -6,9 +6,13 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :model, polymorphic: true, optional: true
   has_one :activity, class_name: "DiscourseActivityPubActivity"
 
+  def available?
+    local? ? (!!model && !model.trashed?) : true
+  end
+
   def self.handle_model_callback(model, ap_type_sym)
     ap = DiscourseActivityPub::AP::Object.from_type(ap_type_sym)
-    return unless model.activity_pub_enabled && ap&.composed?
+    return unless model.activity_pub_enabled && ap&.composition?
 
     ActiveRecord::Base.transaction do
       object = model.activity_pub_objects.build(local: true)

@@ -7,6 +7,7 @@ module DiscourseActivityPub
     SUPPORTED_SCHEMES = %w(http https)
     SUCCESS_CODES = [200, 201, 202]
     REDIRECT_CODES = [301, 302, 307, 308]
+    TIMEOUT = 60
     REQUEST_TARGET_HEADER = '(request-target)'
     CREATED_HEADER = '(created)'
     EXPIRES_HEADER = '(expires)'
@@ -43,40 +44,27 @@ module DiscourseActivityPub
       })
       @expects = SUCCESS_CODES
 
-      perform(:post) ? true : false
+      response = perform(:post)
+      response ? true : false
     end
 
     def perform(verb)
       return unless SUPPORTED_SCHEMES.include?(uri.scheme)
 
-      headers['Signature'] = self.class.build_signature(
-        key_id: signature_key_id(actor),
-        keypair: actor.keypair,
-        headers: headers
-      ) if sign_request?
-
       options = {
-        headers: headers
+        headers: final_headers
       }
 
       options[:expects] = expects if expects.present?
       options[:middlewares] = middlewares if middlewares.present?
       options[:body] = body if body.present?
+      options[:read_timeout] = TIMEOUT
+      options[:write_timeout] = TIMEOUT
 
       Excon.send(verb, uri.to_s, options)
     rescue Excon::Error
+      # TODO (future): selectively raise expectation failures, e.g. to Deliver job.
       nil
-    end
-
-    def default_headers
-      {
-        'Host' => uri.host,
-        'Date' => Time.now.utc.httpdate
-      }
-    end
-
-    def sign_request?
-      actor.present? && actor.keypair.present?
     end
 
     def self.build_signature(verb: nil, path: nil, key_id: nil, keypair: nil, headers: {}, custom_params: {})
@@ -137,7 +125,30 @@ module DiscourseActivityPub
 
     def self.post_json_ld(actor_id: nil, uri: "", headers: {}, body: nil)
       body[:to] = uri
-      self.new(actor_id: nil, uri: uri, headers: headers, body: body).post_json_ld
+      self.new(actor_id: actor_id, uri: uri, headers: headers, body: body).post_json_ld
+    end
+
+    protected
+
+    def default_headers
+      {
+        'Host' => uri.host,
+        'Date' => Time.now.utc.httpdate
+      }
+    end
+
+    def final_headers
+      @headers['Signature'] = self.class.build_signature(
+        key_id: signature_key_id(actor),
+        keypair: actor.keypair,
+        headers: headers
+      ) if sign_request?
+
+      @headers
+    end
+
+    def sign_request?
+      actor.present? && actor.keypair.present?
     end
   end
 end

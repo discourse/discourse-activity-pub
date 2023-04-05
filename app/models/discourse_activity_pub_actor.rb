@@ -15,6 +15,14 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   before_save :ensure_keys, if: :local
 
+  def available?
+    local? ? true : self.available
+  end
+
+  def ready?
+    local? ? model.activity_pub_ready? : available?
+  end
+
   def refresh_remote!
     DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id, stored: true) unless local?
   end

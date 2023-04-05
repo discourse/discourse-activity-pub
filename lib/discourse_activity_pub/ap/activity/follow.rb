@@ -43,7 +43,7 @@ module DiscourseActivityPub
               )
             end
 
-            response.deliver(actor.inbox)
+            response.stored.deliver(to_actor_id: actor.id)
           end
         end
       end

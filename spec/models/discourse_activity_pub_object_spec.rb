@@ -52,8 +52,8 @@ RSpec.describe DiscourseActivityPubObject do
 
     context "with activity pub enabled on the model and a valid activity" do
       before do
-        toggle_activity_pub(category, with_actor: true)
-        DiscourseActivityPubActivity.any_instance.expects(:deliver).once
+        toggle_activity_pub(category, callbacks: true)
+        DiscourseActivityPubActivity.any_instance.expects(:deliver_composition).once
       end
 
       context "with create" do

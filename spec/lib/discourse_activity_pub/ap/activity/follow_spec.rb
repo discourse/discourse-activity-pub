@@ -40,7 +40,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
       context 'with activity pub enabled' do
         before do
-          toggle_activity_pub(category, with_actor: true)
+          toggle_activity_pub(category, callbacks: true)
         end
 
         context 'when not following' do
@@ -81,9 +81,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
               object_id: @activity.id
             )
             args = {
-              actor_id: response_activity.actor_id,
-              uri: @actor.inbox,
-              payload: serialize_response(build_response(response_activity))
+              activity_id: response_activity.id,
+              from_actor_id: response_activity.actor.id,
+              to_actor_id: response_activity.object.actor.id
             }
             expect(
               job_enqueued?(job: :discourse_activity_pub_deliver, args: args)
@@ -138,9 +138,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
             expect(reject.present?).to eq(true)
 
             args = {
-              actor_id: reject.actor_id,
-              uri: @new_activity.actor.inbox,
-              payload: serialize_response(build_response(reject))
+              activity_id: reject.id,
+              from_actor_id: reject.actor.id,
+              to_actor_id: reject.object.actor.id
             }
             expect(
               job_enqueued?(job: :discourse_activity_pub_deliver, args: args)

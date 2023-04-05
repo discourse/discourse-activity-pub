@@ -18,3 +18,5 @@ plugins:
     default: ""
     type: host_list
     list_type: simple
+  activity_pub_delivery_delay_minutes:
+    default: 3

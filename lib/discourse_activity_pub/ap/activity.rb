@@ -23,15 +23,11 @@ module DiscourseActivityPub
         raise NotImplementedError
       end
 
-      def deliver
-        raise NotImplementedError
-      end
-
       def response?
         type && Response.types.include?(type)
       end
 
-      def composed?
+      def composition?
         type && Compose.types.include?(type)
       end
 
@@ -54,11 +50,6 @@ module DiscourseActivityPub
         return process_failed("activity_not_supported") unless actor.can_perform_activity?(type, model.activity_pub_actor.ap_type)
 
         [actor, model]
-      end
-
-      def enqueue_delivery(uri)
-        # TODO: add delay to delivery
-        Jobs.enqueue(:discourse_activity_pub_deliver, actor_id: stored.actor.id, uri: uri, payload: json)
       end
     end
   end

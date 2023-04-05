@@ -18,6 +18,10 @@ module DiscourseActivityPub
         @ap ||= DiscourseActivityPub::AP::Object.get_klass(ap_type)&.new(stored: self)
       end
 
+      def local?
+        !!self.local
+      end
+
       def _model
         self.respond_to?(:model) ? self.model : self.actor.model
       end
@@ -27,7 +31,7 @@ module DiscourseActivityPub
       end
 
       def ensure_ap_key
-        self.ap_key = SecureRandom.hex(16) if !self.ap_key && self.local
+        self.ap_key = SecureRandom.hex(16) if !self.ap_key && self.local?
       end
 
       def ensure_ap_id

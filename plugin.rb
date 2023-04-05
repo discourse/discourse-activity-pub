@@ -18,6 +18,7 @@ after_initialize do
     ../lib/discourse_activity_pub/username_validator.rb
     ../lib/discourse_activity_pub/excerpt_parser.rb
     ../lib/discourse_activity_pub/signature_parser.rb
+    ../lib/discourse_activity_pub/delivery_failure_tracker.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb

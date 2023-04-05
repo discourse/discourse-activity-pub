@@ -7,6 +7,7 @@ class CreateDiscourseActivityPubActors < ActiveRecord::Migration[7.0]
       t.string :ap_type, null: false
       t.string :domain
       t.boolean :local
+      t.boolean :available, default: true
       t.string :inbox
       t.string :outbox
       t.string :username
