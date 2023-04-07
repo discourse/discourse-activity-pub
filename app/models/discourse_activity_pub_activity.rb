@@ -12,7 +12,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     when "DiscourseActivityPubActivity"
       object.active?
     when "DiscourseActivityPubObject"
-      object.available?
+      object.consistent?(ap_type)
     when "DiscourseActivityPubActor"
       object.ready?
     end

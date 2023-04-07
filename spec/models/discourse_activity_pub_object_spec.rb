@@ -3,7 +3,13 @@
 RSpec.describe DiscourseActivityPubObject do
   let!(:category) { Fabricate(:category) }
   let!(:topic) { Fabricate(:topic, category: category) }
-  let!(:post) { Fabricate(:post, topic: topic) }
+  let!(:post) {
+    PostCreator.create!(
+      Discourse.system_user,
+      raw: "Original content",
+      topic_id: topic.id
+    )
+  }
 
   describe "#create" do
     context "with an invalid model and activity pub type" do
@@ -52,8 +58,9 @@ RSpec.describe DiscourseActivityPubObject do
 
     context "with activity pub enabled on the model and a valid activity" do
       before do
+        DiscourseActivityPubActivity.any_instance.stubs(:deliver_composition).returns(true)
         toggle_activity_pub(category, callbacks: true)
-        DiscourseActivityPubActivity.any_instance.expects(:deliver_composition).once
+        post.reload
       end
 
       context "with create" do
@@ -82,55 +89,133 @@ RSpec.describe DiscourseActivityPubObject do
       end
 
       context "with update" do
+        let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+        let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
         before do
-          post.raw = "Updated post"
+          SiteSetting.activity_pub_delivery_delay_minutes = 3
+        end
+
+        def perform_update
+          post.raw = "Updated content"
           post.rebake!
           described_class.handle_model_callback(post, :update)
         end
 
-        it "creates the right object" do
-          expect(
-            post.activity_pub_objects.where(
-              ap_type: 'Note',
-              content: "Updated post"
-            ).exists?
-          ).to eq(true)
+        context "while in pre publication period" do
+          before do
+            freeze_time 2.minutes.from_now
+            perform_update
+          end
+
+          it "updates the Note content" do
+            expect(note.reload.content).to eq("Updated content")
+          end
+
+          it "does not create an Update Activity" do
+            expect(
+               post.activity_pub_actor.activities.where(
+                 ap_type: 'Update'
+              ).exists?
+            ).to eq(false)
+          end
         end
 
-        it "creates the right activity" do
-          expect(
-             post.activity_pub_actor.activities.where(
-               object_id: post.activity_pub_objects.first.id,
-               object_type: 'DiscourseActivityPubObject',
-               ap_type: 'Update'
-            ).exists?
-          ).to eq(true)
+        context "after pre publication period" do
+          before do
+            freeze_time 4.minutes.from_now
+            perform_update
+          end
+
+          it "does not update the Note content" do
+            expect(note.reload.content).to eq("Original content")
+          end
+
+          it "does not create an Update Activity" do
+            expect(
+               post.activity_pub_actor.activities.where(
+                 ap_type: 'Update'
+              ).exists?
+            ).to eq(false)
+          end
         end
       end
 
       context "with delete" do
+        let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+        let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
         before do
+          SiteSetting.activity_pub_delivery_delay_minutes = 3
+        end
+
+        def perform_delete
           post.delete
           described_class.handle_model_callback(post, :delete)
         end
 
-        it "creates the right object" do
-          expect(
-            post.activity_pub_objects.where(
-              ap_type: 'Note',
-              content: nil
-            ).exists?
-          ).to eq(true)
+        context "while in pre publication period" do
+          before do
+            freeze_time 2.minutes.from_now
+            perform_delete
+          end
+
+          it "does not create an object" do
+            expect(
+              post.activity_pub_objects.where(
+                ap_type: 'Note',
+                content: nil
+              ).exists?
+            ).to eq(false)
+          end
+
+          it "does not create an activity" do
+            expect(
+               post.activity_pub_actor.activities.where(
+                 ap_type: 'Delete'
+              ).exists?
+            ).to eq(false)
+          end
+
+          it "destroys associated objects" do
+            expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
+          end
+
+          it "destroys associated activities" do
+            expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(false)
+          end
         end
 
-        it "creates the right activity" do
-          expect(
-             post.activity_pub_actor.activities.where(
-               object_id: post.activity_pub_objects.first.id,
-               object_type: 'DiscourseActivityPubObject',
-               ap_type: 'Delete'
-            ).exists?
-          ).to eq(true)
+        context "after pre publication period" do
+          before do
+            freeze_time 4.minutes.from_now
+            perform_delete
+          end
+
+          it "creates the right object" do
+            expect(
+              post.activity_pub_objects.where(
+                ap_type: 'Note',
+                content: nil
+              ).exists?
+            ).to eq(true)
+          end
+
+          it "creates the right activity" do
+            expect(
+               post.activity_pub_actor.activities.where(
+                 ap_type: 'Delete'
+              ).exists?
+            ).to eq(true)
+          end
+
+          it "does not destroy associated objects" do
+            expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+          end
+
+          it "does not destroy associated activities" do
+            expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+          end
         end
       end
     end

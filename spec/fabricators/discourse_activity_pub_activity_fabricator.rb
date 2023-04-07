@@ -41,4 +41,12 @@ Fabricator(:discourse_activity_pub_activity_create, from: :discourse_activity_pu
   ap_type { DiscourseActivityPub::AP::Activity::Create.type }
   actor { Fabricate(:discourse_activity_pub_actor_group) }
   object { Fabricate(:discourse_activity_pub_object_note) }
+  local { true }
+end
+
+Fabricator(:discourse_activity_pub_activity_delete, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Delete.type }
+  actor { Fabricate(:discourse_activity_pub_actor_group) }
+  object { Fabricate(:discourse_activity_pub_object_note) }
+  local { true }
 end

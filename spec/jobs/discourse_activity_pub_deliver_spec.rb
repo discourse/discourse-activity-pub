@@ -163,7 +163,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       end
     end
 
-    context "when delivering a note" do
+    context "when delivering a Create" do
       let(:activity) { Fabricate(:discourse_activity_pub_activity_create) }
       let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
 
@@ -183,9 +183,49 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         )
       end
 
-      context "when associated post is trashed" do
+      context "when associated post is trashed prior to delivery" do
         before do
           activity.object.model.trash!
+        end
+
+        it "does not perform a request" do
+          expect_no_request
+          execute_job(
+            activity_id: activity.id,
+            from_actor_id: activity.actor.id,
+            to_actor_id: person.id
+          )
+        end
+      end
+    end
+
+    context "when delivering a Delete" do
+      let(:activity) { Fabricate(:discourse_activity_pub_activity_delete) }
+      let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+
+      before do
+        activity.object.model.trash!
+      end
+
+      it "performs the right request" do
+        body = activity.ap.json
+        body[:to] = person.ap.id
+
+        expect_request(
+          actor_id: activity.actor.id,
+          uri: person.inbox,
+          body: body
+        )
+        execute_job(
+          activity_id: activity.id,
+          from_actor_id: activity.actor.id,
+          to_actor_id: person.id
+        )
+      end
+
+      context "when associated post is restored prior to delivery" do
+        before do
+          activity.object.model.recover!
         end
 
         it "does not perform a request" do

@@ -44,7 +44,7 @@ module Jobs
       Site.activity_pub_enabled &&
         has_required_args? &&
         actors_ready? &&
-        activity_ready? &&
+        activity_active? &&
         failure_tracker.domain_available?
     end
 
@@ -72,7 +72,7 @@ module Jobs
       from_actor && to_actor && from_actor.ready? && to_actor.ready?
     end
 
-    def activity_ready?
+    def activity_active?
       activity && activity.active?
     end
 

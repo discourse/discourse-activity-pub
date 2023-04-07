@@ -73,6 +73,7 @@ after_initialize do
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_site_extension.rb
+    ../extensions/discourse_activity_pub_guardian_extension.rb
   ).each do |path|
     load File.expand_path(path, __FILE__)
   end
@@ -127,10 +128,24 @@ after_initialize do
 
   Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
 
-  add_to_class(:post, :activity_pub_enabled) { Site.activity_pub_enabled && topic.category&.activity_pub_ready? && is_first_post? }
+  add_to_class(:post, :activity_pub_enabled) do
+    return false unless Site.activity_pub_enabled && is_first_post?
+    topic = Topic.with_deleted.find_by(id: self.topic_id)
+    topic&.category&.activity_pub_ready?
+  end
   add_to_class(:post, :activity_pub_content) { DiscourseActivityPub::ExcerptParser.get_excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }
   add_to_class(:post, :activity_pub_actor) { topic.category&.activity_pub_actor }
-  add_model_callback(:post, :after_create) { DiscourseActivityPubObject.handle_model_callback(self, :create) }
-  add_model_callback(:post, :after_update) { DiscourseActivityPubObject.handle_model_callback(self, :update) }
-  add_model_callback(:post, :after_destroy) { DiscourseActivityPubObject.handle_model_callback(self, :delete) }
+  add_to_class(:post, :activity_pub_pre_publication?) { Time.now < (created_at + SiteSetting.activity_pub_delivery_delay_minutes.to_i.minutes) }
+
+  on(:post_edited) do |post, topic_changed, post_revisor|
+    DiscourseActivityPubObject.handle_model_callback(post, :update)
+  end
+  on(:post_created) do |post, opts, user|
+    DiscourseActivityPubObject.handle_model_callback(post, :create)
+  end
+  on(:post_destroyed) do |post, opts, user|
+    DiscourseActivityPubObject.handle_model_callback(post, :delete)
+  end
+
+  Guardian.prepend DiscourseActivityPubGuardianExtension
 end
