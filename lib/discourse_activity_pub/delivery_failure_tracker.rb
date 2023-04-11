@@ -9,7 +9,7 @@ module DiscourseActivityPub
     attr_reader :domain
 
     def initialize(uri)
-      @domain = Addressable::URI.parse(uri).normalized_host
+      @domain = DiscourseActivityPub::URI.domain_from_uri(uri)
     end
 
     def track_failure

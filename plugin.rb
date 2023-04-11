@@ -12,6 +12,7 @@ after_initialize do
   %w(
     ../lib/discourse_activity_pub/engine.rb
     ../lib/discourse_activity_pub/json_ld.rb
+    ../lib/discourse_activity_pub/uri.rb
     ../lib/discourse_activity_pub/request.rb
     ../lib/discourse_activity_pub/model.rb
     ../lib/discourse_activity_pub/webfinger.rb

@@ -14,7 +14,7 @@ module DiscourseActivityPub
     end
 
     def self.find_by_url(url)
-      return nil unless Request.valid_url?(url)
+      return nil unless DiscourseActivityPub::URI.valid_url?(url)
       return nil unless UrlHelper.is_local(url)
 
       route = UrlHelper.rails_route_from_url(url)
@@ -27,8 +27,8 @@ module DiscourseActivityPub
     end
 
     def self.find_by_ap_id(ap_id)
-      uri = Request.parse(ap_id)
-      return nil unless uri && uri.domain === Discourse.current_hostname
+      uri = DiscourseActivityPub::URI.parse(ap_id)
+      return nil unless DiscourseActivityPub::URI.local?(uri)
 
       path_parts = uri.path.split('/').compact_blank
       return nil unless path_parts.shift === 'ap'

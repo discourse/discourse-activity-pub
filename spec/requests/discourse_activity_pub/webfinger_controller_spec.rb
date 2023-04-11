@@ -44,7 +44,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
       end
 
       context "with a supported scheme" do
-        let(:actor) { Fabricate(:discourse_activity_pub_actor_group, domain: Discourse.current_hostname) }
+        let(:actor) { Fabricate(:discourse_activity_pub_actor_group, domain: nil) }
 
         context "when the domain is incorrect" do
           it "returns a not found error" do
@@ -56,7 +56,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
         context "when the username is incorrect" do
           it "returns a not found error" do
-            get "/.well-known/webfinger?resource=acct:angus@#{Discourse.current_hostname}"
+            get "/.well-known/webfinger?resource=acct:angus@#{DiscourseActivityPub.host}"
             expect(response.status).to eq(400)
             expect(response.parsed_body).to eq(build_error("resource_not_found"))
           end
@@ -64,11 +64,11 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
         context "when the username and domain are correct" do
           it "returns the resource" do
-            get "/.well-known/webfinger?resource=acct:#{actor.username}@#{Discourse.current_hostname}"
+            get "/.well-known/webfinger?resource=acct:#{actor.username}@#{DiscourseActivityPub.host}"
             expect(response.status).to eq(200)
 
             body = JSON.parse(response.body)
-            expect(body['subject']).to eq(actor.webfinger_uri)
+            expect(body['subject']).to eq("acct:#{actor.username}@#{DiscourseActivityPub.host}")
             expect(body['aliases']).to eq(actor.webfinger_aliases)
             expect(body['links']).to eq(actor.webfinger_links.map(&:as_json))
           end

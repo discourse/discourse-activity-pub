@@ -40,4 +40,18 @@ RSpec.describe DiscourseActivityPub::JsonLd do
       ).to eq(false)
     end
   end
+
+  describe "#valid_accept?" do
+    it "validates valid accept headers" do
+      expect(
+        described_class.valid_accept?("application/activity+json, application/ld+json")
+      ).to eq(true)
+    end
+
+    it "does not validate invalid accept headers" do
+      expect(
+        described_class.valid_accept?("application/activity+json, application/json")
+      ).to eq(false)
+    end
+  end
 end

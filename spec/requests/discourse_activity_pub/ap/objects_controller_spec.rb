@@ -111,13 +111,13 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         _object = custom_object || object
         _actor = custom_actor || actor
         _headers = {
-          "Host" => Discourse.current_hostname,
+          "Host" => DiscourseActivityPub.host,
           "Date" => Time.now.utc.httpdate,
         }.merge(custom_headers)
 
         _headers["Signature"] = DiscourseActivityPub::Request.build_signature(
           verb: custom_verb || 'get',
-          path: custom_path || Addressable::URI.parse(_object.ap_id).path,
+          path: custom_path || DiscourseActivityPub::URI.parse(_object.ap_id).path,
           key_id: custom_key_id || signature_key_id(_actor),
           keypair: custom_keypair ? keypair : _actor.keypair,
           headers: _headers,
@@ -277,7 +277,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
                 "Digest" => "SHA-256=#{valid_digest}"
               },
               custom_verb: 'post',
-              custom_path: Addressable::URI.parse(group.inbox).path
+              custom_path: DiscourseActivityPub::URI.parse(group.inbox).path
             )
           }
 

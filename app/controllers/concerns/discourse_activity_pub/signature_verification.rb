@@ -176,7 +176,7 @@ module DiscourseActivityPub
 
     def actor_from_key_id(key_id)
       ap_id = key_id.split("#").first
-      domain = ap_id.start_with?('acct:') ? ap_id.split('@').last : Request.domain_from_uri(ap_id)
+      domain = ap_id.start_with?('acct:') ? ap_id.split('@').last : DiscourseActivityPub::URI.domain_from_uri(ap_id)
 
       unless domain_allowed?(domain)
         @signature_verification_failure_code = 403

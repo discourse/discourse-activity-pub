@@ -4,7 +4,6 @@ module DiscourseActivityPub
   class Request
     include JsonLd
 
-    SUPPORTED_SCHEMES = %w(http https)
     SUCCESS_CODES = [200, 201, 202]
     REDIRECT_CODES = [301, 302, 307, 308]
     TIMEOUT = 60
@@ -22,7 +21,7 @@ module DiscourseActivityPub
 
     def initialize(actor_id: nil, uri: "", headers: {}, body: nil)
       @actor = DiscourseActivityPubActor.find_by(id: actor_id) if actor_id
-      @uri = Request.parse(uri)
+      @uri = DiscourseActivityPub::URI.parse(uri)
       @headers = default_headers.merge(headers)
       @body = body
     end
@@ -49,7 +48,7 @@ module DiscourseActivityPub
     end
 
     def perform(verb)
-      return unless SUPPORTED_SCHEMES.include?(uri.scheme)
+      return unless DiscourseActivityPub::URI.valid_url?(uri)
 
       options = {
         headers: final_headers
@@ -98,25 +97,6 @@ module DiscourseActivityPub
         .select { |key, value| value.present? }
         .map{ |key, value| "#{key}=\"#{value}\"" }
         .join(',')
-    end
-
-    def self.parse(uri)
-      Addressable::URI.parse(uri)
-    rescue Addressable::URI::InvalidURIError
-      nil
-    end
-
-    def self.valid_url?(url)
-      parsed = Addressable::URI.parse(url)
-      SUPPORTED_SCHEMES.include?(parsed.scheme)
-    rescue Addressable::URI::InvalidURIError
-      false
-    end
-
-    def self.domain_from_uri(uri)
-      uri && Addressable::URI.parse(uri).domain
-    rescue Addressable::URI::InvalidURIError
-      nil
     end
 
     def self.get_json_ld(uri: "", headers: {})

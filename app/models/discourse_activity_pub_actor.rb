@@ -57,7 +57,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def self.find_by_handle(handle, local: false)
     username, domain = handle.split('@')
-    return nil unless !local || domain === Discourse.current_hostname
+    return nil unless !local || DiscourseActivityPub::URI.local?(domain)
 
     opts = { username: username }
     opts[:domain] = domain if !local

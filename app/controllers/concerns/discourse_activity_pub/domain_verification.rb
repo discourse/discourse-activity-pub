@@ -12,7 +12,7 @@ module DiscourseActivityPub
     end
 
     def request_domain
-      Request.domain_from_uri(request.origin)
+      DiscourseActivityPub::URI.domain_from_uri(request.origin)
     end
 
     def allowed_domains

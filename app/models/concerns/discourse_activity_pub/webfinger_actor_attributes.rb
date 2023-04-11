@@ -5,7 +5,8 @@ module DiscourseActivityPub
     extend ActiveSupport::Concern
 
     def webfinger_uri
-      "#{Webfinger::ACCOUNT_SCHEME}:#{username}@#{domain}"
+      host = self.local? ? DiscourseActivityPub.host : domain
+      "#{Webfinger::ACCOUNT_SCHEME}:#{username}@#{host}"
     end
 
     def webfinger_aliases

@@ -34,11 +34,11 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def validate_headers
-    content_type = case request.method
-                   when "POST" then request.headers['Content-Type']
-                   when "GET" then request.headers['Accept']
-                   end
-    render_activity_pub_error("bad_request", 400) unless valid_content_type?(content_type)
+    valid_content_header = case request.method
+                           when "POST" then valid_content_type?(request.headers['Content-Type'])
+                           when "GET" then valid_accept?(request.headers['Accept'])
+                           end
+    render_activity_pub_error("bad_request", 400) unless valid_content_header
   end
 
   def require_signed_requests?

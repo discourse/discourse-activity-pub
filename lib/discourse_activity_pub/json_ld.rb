@@ -37,7 +37,7 @@ module DiscourseActivityPub
     end
 
     def domain_from_id(id)
-      Request.domain_from_uri(id)
+      DiscourseActivityPub::URI.domain_from_uri(id)
     end
 
     def resolve_object(raw_object)
@@ -49,7 +49,7 @@ module DiscourseActivityPub
     end
 
     def json_ld_id(ap_base_type, ap_key)
-      "#{Discourse.base_url}/ap/#{ap_base_type.downcase}/#{ap_key}"
+      "#{DiscourseActivityPub.base_url}/ap/#{ap_base_type.downcase}/#{ap_key}"
     end
 
     def signature_key_id(actor)
@@ -65,6 +65,10 @@ module DiscourseActivityPub
       CONTENT_TYPES.include?(type)
     end
 
+    def valid_accept?(value)
+      value.split(',').compact.collect(&:strip).all? { |v| valid_content_type?(v) }
+    end
+
     def content_type_header
       CONTENT_TYPES.first + '; profile="' + ACTIVITY_STREAMS_CONTEXT + '"'
     end
@@ -78,6 +82,7 @@ module DiscourseActivityPub
     module_function :request_object
     module_function :json_ld_id
     module_function :valid_content_type?
+    module_function :valid_accept?
     module_function :content_type_header
   end
 end
