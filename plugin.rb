@@ -25,6 +25,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/actor.rb
     ../lib/discourse_activity_pub/ap/actor/group.rb
     ../lib/discourse_activity_pub/ap/actor/person.rb
+    ../lib/discourse_activity_pub/ap/actor/application.rb
     ../lib/discourse_activity_pub/ap/activity.rb
     ../lib/discourse_activity_pub/ap/activity/follow.rb
     ../lib/discourse_activity_pub/ap/activity/response.rb
