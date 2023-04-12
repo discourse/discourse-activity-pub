@@ -51,7 +51,7 @@ module DiscourseActivityPub
       return unless DiscourseActivityPub::URI.valid_url?(uri)
 
       options = {
-        headers: final_headers
+        headers: final_headers(verb)
       }
 
       options[:expects] = expects if expects.present?
@@ -118,8 +118,10 @@ module DiscourseActivityPub
       }
     end
 
-    def final_headers
+    def final_headers(verb)
       @headers['Signature'] = self.class.build_signature(
+        verb: verb,
+        path: uri.path,
         key_id: signature_key_id(actor),
         keypair: actor.keypair,
         headers: headers
