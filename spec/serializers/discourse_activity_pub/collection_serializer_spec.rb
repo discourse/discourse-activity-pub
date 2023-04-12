@@ -8,7 +8,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionSerializer do
   end
 
   def get_ap_collection(actor)
-    DiscourseActivityPub::AP::Collection.new(stored: actor, collection_for: 'inbox')
+    DiscourseActivityPub::AP::Collection.new(stored: actor, collection_for: 'outbox')
   end
 
   it "serializes collection attributes correctly" do

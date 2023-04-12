@@ -61,7 +61,8 @@ module DiscourseActivityPub
       options[:write_timeout] = TIMEOUT
 
       Excon.send(verb, uri.to_s, options)
-    rescue Excon::Error
+    rescue Excon::Error => e
+      Rails.logger.warn("[Discourse Activity Pub] #{verb.upcase} request to #{uri.to_s} failed: #{e.message}")
       # TODO (future): selectively raise expectation failures, e.g. to Deliver job.
       nil
     end

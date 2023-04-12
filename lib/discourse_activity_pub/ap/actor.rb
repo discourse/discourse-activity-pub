@@ -12,6 +12,14 @@ module DiscourseActivityPub
         stored&.domain
       end
 
+      def inbox
+        stored&.inbox
+      end
+
+      def outbox
+        stored&.outbox
+      end
+
       def preferred_username
         stored&.username
       end

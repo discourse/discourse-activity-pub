@@ -11,9 +11,10 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
   has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
 
-  validates :username, presence: true, uniqueness: true, if: :local
+  validates :username, presence: true, uniqueness: true, if: :local?
 
-  before_save :ensure_keys, if: :local
+  before_save :ensure_keys, if: :local?
+  before_save :ensure_inbox_and_outbox, if: :local?
 
   def available?
     local? ? true : self.available
@@ -68,13 +69,18 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   protected
 
   def ensure_keys
-    return unless local && private_key.blank? && public_key.blank?
+    return unless local? && private_key.blank? && public_key.blank?
 
     keypair = OpenSSL::PKey::RSA.new(2048)
     self.private_key = keypair.to_pem
     self.public_key  = keypair.public_key.to_pem
 
     save!
+  end
+
+  def ensure_inbox_and_outbox
+    self.inbox = "#{self.ap_id}/inbox" if !self.inbox
+    self.outbox = "#{self.ap_id}/outbox" if !self.outbox
   end
 end
 

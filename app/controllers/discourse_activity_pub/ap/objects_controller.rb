@@ -5,7 +5,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   include DiscourseActivityPub::DomainVerification
   include DiscourseActivityPub::SignatureVerification
 
-  skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr
+  skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr, :verify_authenticity_token
 
   before_action :rate_limit
   before_action :ensure_site_enabled
@@ -55,5 +55,10 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   def render_activity_pub_error(key, status, opts = {})
     render_json_error(I18n.t("discourse_activity_pub.request.error.#{key}", opts), status: status)
+  end
+
+  def render_ordered_collection(stored, collection_for)
+    collection = DiscourseActivityPub::AP::Collection::OrderedCollection.new(stored: stored, collection_for: collection_for)
+    render json: DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(collection, root: false).as_json
   end
 end

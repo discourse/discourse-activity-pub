@@ -21,8 +21,8 @@ RSpec.describe DiscourseActivityPubActor do
     end
 
     context "with a valid model and activity pub type" do
-      it "creates an actor " do
-        actor = described_class.create!(
+      before do
+        @actor = described_class.create!(
           local: true,
           model_id: category.id,
           model_type: category.class.name,
@@ -31,8 +31,16 @@ RSpec.describe DiscourseActivityPubActor do
           domain: "domain.com",
           ap_type: DiscourseActivityPub::AP::Actor::Group.type
         )
-        expect(actor.errors.any?).to eq(false)
-        expect(actor.persisted?).to eq(true)
+      end
+
+      it "creates an actor" do
+        expect(@actor.errors.any?).to eq(false)
+        expect(@actor.persisted?).to eq(true)
+      end
+
+      it "sets inboxes and outboxes for the actor" do
+        expect(@actor.inbox).to eq("#{@actor.ap_id}/inbox")
+        expect(@actor.outbox).to eq("#{@actor.ap_id}/outbox")
       end
     end
 

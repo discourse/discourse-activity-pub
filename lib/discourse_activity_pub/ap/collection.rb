@@ -3,7 +3,7 @@ module DiscourseActivityPub
   module AP
     class Collection < Object
 
-      SUPPORTED_FOR = %w(inbox outbox)
+      SUPPORTED_FOR = %w(outbox followers)
 
       attr_accessor :collection_for
 
@@ -23,7 +23,15 @@ module DiscourseActivityPub
       end
 
       def items
-        @items ||= stored&.activities.map { |activity| activity.ap }
+        @items ||= collection_for ? self.send("#{collection_for}_items") : []
+      end
+
+      def outbox_items
+        stored&.activities.map { |activity| activity.ap }
+      end
+
+      def followers_items
+        stored&.followers.map { |follower| follower.ap }
       end
 
       def total_items

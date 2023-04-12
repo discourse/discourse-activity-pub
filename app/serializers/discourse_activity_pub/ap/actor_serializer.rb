@@ -1,8 +1,19 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::ObjectSerializer
-  attributes :preferredUsername,
+  attributes :inbox,
+             :outbox,
+             :followers,
+             :preferredUsername,
              :publicKey
+
+  def followers
+    "#{object.id}/followers"
+  end
+
+  def include_followers?
+    object.stored.local?
+  end
 
   def preferredUsername
     object.preferred_username

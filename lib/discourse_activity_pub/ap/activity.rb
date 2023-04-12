@@ -17,6 +17,10 @@ module DiscourseActivityPub
         AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object)
       end
 
+      def start_time
+        stored&.created_at
+      end
+
       def process
         return false unless process_json
 

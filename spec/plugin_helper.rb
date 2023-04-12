@@ -35,6 +35,12 @@ def get_from_outbox(object, url: nil, headers: {})
   }.merge(headers)
 end
 
+def get_followers(object, url: nil, headers: {})
+  get (url || "#{object.ap_id}/followers"), headers: {
+    "Accept" => DiscourseActivityPub::JsonLd.content_type_header
+  }.merge(headers)
+end
+
 def activity_request_error(key)
   { "errors" => [I18n.t("discourse_activity_pub.request.error.#{key}")] }
 end

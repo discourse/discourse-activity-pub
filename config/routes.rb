@@ -5,6 +5,7 @@ DiscourseActivityPub::Engine.routes.draw do
     get "actor/:key" => "actors#show"
     post "actor/:key/inbox" => "inboxes#create"
     get "actor/:key/outbox" => "outboxes#index"
+    get "actor/:key/followers" => "followers#index"
     get "activity/:key" => "activities#show"
     get "object/:key" => "objects#show"
   end

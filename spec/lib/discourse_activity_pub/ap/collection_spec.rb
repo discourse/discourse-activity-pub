@@ -8,7 +8,7 @@ RSpec.describe DiscourseActivityPub::AP::Collection do
 
   describe "#items" do
     it "returns stored activities as AP objects" do
-      expect(described_class.new(stored: actor).items.map(&:id)).to match_array(
+      expect(described_class.new(stored: actor, collection_for: "outbox").items.map(&:id)).to match_array(
         [activity1.ap.id, activity2.ap.id, activity3.ap.id]
       )
     end

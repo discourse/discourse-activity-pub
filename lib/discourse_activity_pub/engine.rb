@@ -17,6 +17,6 @@ module DiscourseActivityPub
   end
 
   def self.base_url
-    "#{Discourse.base_protocol}://#{host}#{Discourse.base_path}"
+    "https://#{host}#{Discourse.base_path}"
   end
 end

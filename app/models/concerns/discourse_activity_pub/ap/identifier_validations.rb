@@ -6,8 +6,8 @@ module DiscourseActivityPub
 
       included do
         before_validation :ensure_ap_type
-        before_validation :ensure_ap_key
-        before_validation :ensure_ap_id
+        before_validation :ensure_ap_key, if: :local?
+        before_validation :ensure_ap_id, if: :local?
 
         validates :ap_type, presence: true
         validates :ap_key, uniqueness: true, allow_nil: true # foreign objects don't have keys
@@ -28,14 +28,23 @@ module DiscourseActivityPub
 
       def ensure_ap_type
         self.ap_type = DiscourseActivityPub::Model.ap_type(_model) if !self.ap_type
+
+        unless ap
+          self.errors.add(
+            :ap_type,
+            I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
+          )
+
+          raise ActiveRecord::RecordInvalid
+        end
       end
 
       def ensure_ap_key
-        self.ap_key = SecureRandom.hex(16) if !self.ap_key && self.local?
+        self.ap_key = SecureRandom.hex(16) if !self.ap_key
       end
 
       def ensure_ap_id
-        self.ap_id = DiscourseActivityPub::JsonLd.json_ld_id(ap.base_type, ap_key) if !self.ap_id && ap
+        self.ap_id = DiscourseActivityPub::JsonLd.json_ld_id(ap.base_type, ap_key) if !self.ap_id
       end
     end
   end
