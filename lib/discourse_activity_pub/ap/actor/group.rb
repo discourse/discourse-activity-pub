@@ -17,7 +17,6 @@ module DiscourseActivityPub
             accept: [:follow],
             reject: [:follow],
             create: [:note],
-            update: [:note],
             delete: [:note]
           }
         end
