@@ -73,10 +73,10 @@ en:
 
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
-    activity_pub_rate_limit_inbox_post_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
     activity_pub_rate_limit_get_objects_per_minute: "Number of GET requests that can be made on AcitivityPub objects per minute."
     activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes."
     activity_pub_require_signed_requests: "Require ActivityPub requests to be signed with HTTP signatures."
-    activity_pub_allowed_request_domains: "List of domains allowed to make ActivityPub requests."
-    activity_pub_blocked_request_domains: "List of domains not allowed to make ActivityPub requests."
+    activity_pub_allowed_request_origins: "List of domains allowed to make ActivityPub requests."
+    activity_pub_blocked_request_origins: "List of domains not allowed to make ActivityPub requests."
     activity_pub_delivery_delay_minutes: "Number of minutes to delay delivery of ActivityPub activities."
