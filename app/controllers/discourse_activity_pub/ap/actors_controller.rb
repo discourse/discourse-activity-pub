@@ -3,7 +3,7 @@
 class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::ObjectsController
   before_action :ensure_actor_exists
   before_action :ensure_can_access_actor
-  before_action :ensure_model_ready
+  before_action :ensure_actor_ready
 
   def show
     render json: @actor.ap.json
@@ -19,7 +19,7 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
     render_activity_pub_error("not_available", 401) unless guardian.can_see?(@actor.model)
   end
 
-  def ensure_model_ready
-    render_activity_pub_error("not_available", 403) unless DiscourseActivityPub::Model.ready?(@actor.model)
+  def ensure_actor_ready
+    render_activity_pub_error("not_available", 403) unless @actor.ready?
   end
 end

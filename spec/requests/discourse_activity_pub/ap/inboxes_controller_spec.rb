@@ -11,7 +11,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
   describe "#create" do
     before do
-      @json = build_follow_json(actor)
+      @json = build_activity_json(object: actor)
       toggle_activity_pub(actor.model)
     end
 

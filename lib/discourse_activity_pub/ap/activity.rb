@@ -8,13 +8,15 @@ module DiscourseActivityPub
       end
 
       def actor
-        return nil unless stored
-        AP::Actor.new(stored: stored.actor)
+        stored ?
+          AP::Actor.new(stored: stored.actor) :
+          @actor
       end
 
       def object
-        return nil unless stored
-        AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object)
+        stored ?
+          AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object) :
+          @object
       end
 
       def start_time
@@ -22,9 +24,34 @@ module DiscourseActivityPub
       end
 
       def process
-        return false unless process_json
+        return false unless process_actor_and_object
+        return false unless validate_activity
 
-        raise NotImplementedError
+        ActiveRecord::Base.transaction do
+          perform_activity
+          store_activity
+          respond_to_activity
+        end
+      end
+
+      def validate_activity
+        true
+      end
+
+      def perform_activity
+      end
+
+      def store_activity
+        @stored = DiscourseActivityPubActivity.create!(
+          ap_id: json[:id],
+          ap_type: type,
+          actor_id: actor.stored.id,
+          object_id: object.stored.id,
+          object_type: object.stored.class.name
+        )
+      end
+
+      def respond_to_activity
       end
 
       def response?
@@ -43,17 +70,16 @@ module DiscourseActivityPub
 
       protected
 
-      def process_json
-        actor = AP::Actor.resolve_and_store(json[:actor])
+      def process_actor_and_object
+        @actor = AP::Actor.resolve_and_store(json[:actor])
         return process_failed("cant_create_actor") unless actor.present?
 
-        model = Model.find_by_ap_id(json['object'])
-        return process_failed("object_not_valid") unless model.present?
+        @object = AP::Object.find_local(json[:object], type)
+        return process_failed("cant_find_object") unless object.present?
+        return process_failed("object_not_ready") unless object.stored.ready?
+        return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)
 
-        return process_failed("activity_not_available") unless Model.ready?(model)
-        return process_failed("activity_not_supported") unless actor.can_perform_activity?(type, model.activity_pub_actor.ap_type)
-
-        [actor, model]
+        true
       end
     end
   end

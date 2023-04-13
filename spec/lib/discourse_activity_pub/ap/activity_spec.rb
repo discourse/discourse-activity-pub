@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
-RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
+RSpec.describe DiscourseActivityPub::AP::Activity do
   let(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
 
-  def perform_process(json)
+  def perform_process(json, activity_type)
     klass = described_class.new
     klass.json = json
-    klass.send(:process_json)
+    klass.stubs(:type).returns(activity_type)
+    klass.send(:process_actor_and_object)
   end
 
-  describe '#process_json' do
+  describe '#process_actor_and_object' do
+    let(:activity_type) { DiscourseActivityPub::AP::Activity::Follow.type }
+
     before do
       @orig_logger = Rails.logger
       Rails.logger = @fake_logger = FakeLogger.new
@@ -23,7 +26,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
     context "with a valid activity" do
       before do
-        @json = build_follow_json(actor)
+        @json = build_activity_json(object: actor, type: activity_type)
       end
 
       context "without activity pub enabled" do
@@ -32,18 +35,18 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         end
 
         it "returns false" do
-          expect(perform_process(@json)).to eq(false)
+          expect(perform_process(@json, activity_type)).to eq(false)
         end
 
         it "creates a actor" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(DiscourseActivityPubActor.exists?(ap_id: @json['actor']['id'])).to eq(true)
         end
 
         it "logs a warning" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(@fake_logger.warnings.last).to match(
-            build_process_warning("activity_not_available", @json['id'])
+            build_process_warning("object_not_ready", @json['id'])
           )
         end
       end
@@ -53,15 +56,12 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
           toggle_activity_pub(actor.model)
         end
 
-        it "returns an actor and model" do
-          expect(perform_process(@json)).to eq([
-            DiscourseActivityPubActor.find_by(ap_id: @json['actor']['id']),
-            actor.model
-          ])
+        it "returns true" do
+          expect(perform_process(@json, activity_type)).to eq(true)
         end
 
         it "does not log a warning" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(@fake_logger.warnings.any?).to eq(false)
         end
       end
@@ -70,16 +70,16 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
     context "with an invalid activity" do
       context "with an unspported actor" do
         before do
-          @json = build_follow_json(actor)
+          @json = build_activity_json(object: actor, type: activity_type)
           @json["actor"]["type"] = "Group"
         end
 
         it "returns false" do
-          expect(perform_process(@json)).to eq(false)
+          expect(perform_process(@json, activity_type)).to eq(false)
         end
 
         it "does not create an actor" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(
             DiscourseActivityPubActor.exists?(
               ap_id: @json['actor']['id']
@@ -88,7 +88,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         end
 
         it "logs a warning" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(@fake_logger.warnings.first).to match(
             build_process_warning("actor_not_supported", @json["actor"]['id'])
           )
@@ -97,22 +97,22 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
       context "with an invalid object" do
         before do
-          @json = build_follow_json
+          @json = build_activity_json
         end
 
         it "returns false" do
-          expect(perform_process(@json)).to eq(false)
+          expect(perform_process(@json, activity_type)).to eq(false)
         end
 
         it "creates an actor" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(DiscourseActivityPubActor.exists?(ap_id: @json['actor']['id'])).to eq(true)
         end
 
         it "logs a warning" do
-          perform_process(@json)
+          perform_process(@json, activity_type)
           expect(@fake_logger.warnings.last).to match(
-            build_process_warning("object_not_valid", @json["id"])
+            build_process_warning("cant_find_object", @json["id"])
           )
         end
       end

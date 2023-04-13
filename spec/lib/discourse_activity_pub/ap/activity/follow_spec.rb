@@ -22,9 +22,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
     end
 
     context "with a valid follow" do
-      context 'without a successful json process' do
+      context 'without a successful processing of actor and object' do
         before do
-          DiscourseActivityPub::AP::Activity.any_instance.stubs(:process_json).returns(false)
+          DiscourseActivityPub::AP::Activity.any_instance.stubs(:process_actor_and_object).returns(false)
         end
 
         it "does not create a follower" do
@@ -45,7 +45,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
         context 'when not following' do
           before do
-            json = build_follow_json(category.activity_pub_actor)
+            json = build_activity_json(object: category.activity_pub_actor)
             perform_process(json)
             @actor = DiscourseActivityPubActor.find_by(ap_id: json['actor']['id'])
             @activity = DiscourseActivityPubActivity.find_by(ap_id: json['id'])
@@ -105,7 +105,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
           end
 
           before do
-            json = build_follow_json(category.activity_pub_actor)
+            json = build_activity_json(object: category.activity_pub_actor)
             json['actor']['id'] = existing_activity.actor.ap_id
             json['object'] = existing_activity.object.ap_id
             perform_process(json)

@@ -14,7 +14,6 @@ after_initialize do
     ../lib/discourse_activity_pub/json_ld.rb
     ../lib/discourse_activity_pub/uri.rb
     ../lib/discourse_activity_pub/request.rb
-    ../lib/discourse_activity_pub/model.rb
     ../lib/discourse_activity_pub/webfinger.rb
     ../lib/discourse_activity_pub/username_validator.rb
     ../lib/discourse_activity_pub/excerpt_parser.rb
@@ -35,6 +34,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/activity/create.rb
     ../lib/discourse_activity_pub/ap/activity/delete.rb
     ../lib/discourse_activity_pub/ap/activity/update.rb
+    ../lib/discourse_activity_pub/ap/activity/undo.rb
     ../lib/discourse_activity_pub/ap/object/note.rb
     ../lib/discourse_activity_pub/ap/collection.rb
     ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb

@@ -8,43 +8,28 @@ module DiscourseActivityPub
           'Follow'
         end
 
-        def process
-          actor, model = process_json
-          return false unless actor && model
+        def respond_to_activity
+          response = AP::Activity::Response.new
+          response.reject(message: stored.errors.full_messages.join(', ')) if stored.errors.any?
+          response.reject(key: "actor_already_following") if actor.stored.following?(object.stored)
 
-          ActiveRecord::Base.transaction do
-            response = AP::Activity::Response.new
-            followed_actor = model.activity_pub_actor
+          response.stored = DiscourseActivityPubActivity.create!(
+            local: true,
+            ap_type: response.type,
+            actor_id: object.stored.id,
+            object_id: stored.id,
+            object_type: 'DiscourseActivityPubActivity',
+            summary: response.summary
+          )
 
-            @stored = DiscourseActivityPubActivity.create!(
-              ap_id: json[:id],
-              ap_type: type,
-              actor_id: actor.id,
-              object_id: followed_actor.id,
-              object_type: 'DiscourseActivityPubActor'
+          if response.accepted?
+            DiscourseActivityPubFollow.create!(
+              follower_id: actor.stored.id,
+              followed_id: object.stored.id
             )
-
-            response.reject(message: stored.errors.full_messages.join(', ')) if stored.errors.any?
-            response.reject(key: "actor_already_following") if actor.following?(model)
-
-            response.stored = DiscourseActivityPubActivity.create!(
-              local: true,
-              ap_type: response.type,
-              actor_id: followed_actor.id,
-              object_id: stored.id,
-              object_type: 'DiscourseActivityPubActivity',
-              summary: response.summary
-            )
-
-            if response.accepted?
-              DiscourseActivityPubFollow.create!(
-                follower_id: actor.id,
-                followed_id: followed_actor.id
-              )
-            end
-
-            response.stored.deliver(to_actor_id: actor.id)
           end
+
+          response.stored.deliver(to_actor_id: actor.stored.id)
         end
       end
     end

@@ -89,6 +89,8 @@ module DiscourseActivityPub
         return process_failed(resolved_actor['id'], "actor_not_supported") unless ap_actor&.can_belong_to.include?(:remote)
 
         ap_actor.update_stored_from_json(stored ? actor_id : nil)
+
+        ap_actor
       end
     end
   end

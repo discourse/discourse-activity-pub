@@ -7,12 +7,12 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   after_create :deliver_composition, if: Proc.new { ap&.composition? }
 
-  def active?
+  def ready?
     case object_type
     when "DiscourseActivityPubActivity"
-      object.active?
+      object.ready?
     when "DiscourseActivityPubObject"
-      object.consistent?(ap_type)
+      object.ready?
     when "DiscourseActivityPubActor"
       object.ready?
     end

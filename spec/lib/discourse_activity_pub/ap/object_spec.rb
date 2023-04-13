@@ -4,7 +4,7 @@ RSpec.describe DiscourseActivityPub::AP::Object do
   describe "#factory" do
     it "generates an AP object from json" do
       expect(
-        described_class.factory(build_follow_json)
+        described_class.factory(build_activity_json)
       ).to be_a(DiscourseActivityPub::AP::Activity::Follow)
     end
   end

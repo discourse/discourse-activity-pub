@@ -27,7 +27,12 @@ module DiscourseActivityPub
       end
 
       def ensure_ap_type
-        self.ap_type = DiscourseActivityPub::Model.ap_type(_model) if !self.ap_type
+        if !self.ap_type
+          self.ap_type = case _model.class.name
+                         when 'Category' then AP::Actor::Group.type
+                         when 'Post' then AP::Object::Note.type
+                         end
+        end
 
         unless ap
           self.errors.add(

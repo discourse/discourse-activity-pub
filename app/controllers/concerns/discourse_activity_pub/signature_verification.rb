@@ -187,7 +187,11 @@ module DiscourseActivityPub
         actor = DiscourseActivityPubActor.find_by_handle(ap_id.gsub(/\Aacct:/, ''), local: false)
       else
         actor = DiscourseActivityPubActor.find_by(ap_id: ap_id)
-        actor = AP::Actor.resolve_and_store(ap_id, stored: false) if !actor
+
+        if !actor
+          ap_actor = AP::Actor.resolve_and_store(ap_id, stored: false)
+          actor = ap_actor.stored if ap_actor
+        end
       end
 
       actor

@@ -14,7 +14,8 @@ module DiscourseActivityPub
 
         def can_perform_activity
           {
-            follow: [:group]
+            follow: [:group],
+            undo: [:follow]
           }
         end
       end

@@ -35,8 +35,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def following?(model)
-    model.activity_pub_followers.exists?(id: self.id)
+  def following?(actor)
+    actor.followers.exists?(id: self.id)
   end
 
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)

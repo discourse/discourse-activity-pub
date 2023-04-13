@@ -61,13 +61,13 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_follow_json(actor = nil)
+def build_activity_json(actor: nil, object: nil, type: 'Follow')
   {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
-    type: 'Follow',
-    actor: build_actor_json,
-    object: actor ? actor.ap_id : DiscourseActivityPub::JsonLd.json_ld_id('Actor', SecureRandom.hex(16))
+    type: type,
+    actor: actor ? actor.ap.json : build_actor_json,
+    object: object ? object.ap_id : DiscourseActivityPub::JsonLd.json_ld_id('Actor', SecureRandom.hex(16))
   }.with_indifferent_access
 end
 

@@ -40,6 +40,10 @@ module DiscourseActivityPub
       DiscourseActivityPub::URI.domain_from_uri(id)
     end
 
+    def resolve_id(raw_object)
+      raw_object.is_a?(String) ? raw_object : raw_object["id"]
+    end
+
     def resolve_object(raw_object)
       raw_object.is_a?(String) ? request_object(raw_object) : raw_object
     end
@@ -78,6 +82,7 @@ module DiscourseActivityPub
     module_function :format_jsonld
     module_function :required_contexts?
     module_function :required_properties?
+    module_function :resolve_id
     module_function :resolve_object
     module_function :request_object
     module_function :json_ld_id

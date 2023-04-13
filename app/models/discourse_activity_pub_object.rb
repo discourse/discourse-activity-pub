@@ -6,10 +6,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :model, polymorphic: true, optional: true
   has_one :activity, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
-  def consistent?(activity_ap_type)
+  def ready?
     return true unless local?
 
-    case activity_ap_type
+    case activity.ap_type
     when DiscourseActivityPub::AP::Activity::Create.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type

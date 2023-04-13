@@ -252,7 +252,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       end
 
       context "with a post request" do
-        let(:body) { build_follow_json(group) }
+        let(:body) { build_activity_json(object: group) }
         let(:invalid_digest) { Digest::SHA256.base64digest("invalid body") }
         let(:valid_digest) { Digest::SHA256.base64digest(body.to_json) }
 

@@ -85,6 +85,19 @@ module DiscourseActivityPub
           klass.to_s.demodulize === type
         end
       end
+
+      def self.find_local(raw_object, activity_type)
+        object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
+        stored = case activity_type
+          when AP::Activity::Follow.type
+            DiscourseActivityPubActor.find_by(ap_id: object_id)
+          when AP::Activity::Undo.type
+            DiscourseActivityPubActivity.find_by(ap_id: object_id)
+          else
+            nil
+          end
+        stored&.ap
+      end
     end
   end
 end
