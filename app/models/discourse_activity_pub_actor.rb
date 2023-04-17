@@ -66,6 +66,15 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     DiscourseActivityPubActor.find_by(opts)
   end
 
+  def self.username_unique?(username, model_id: nil, local: true)
+    sql = "username = :username"
+    sql += " AND model_id <> :model_id" if model_id
+    sql += " AND local IS TRUE" if local
+    args = { username: username }
+    args[:model_id] = model_id if model_id
+    self.where(sql, args).exists?
+  end
+
   protected
 
   def ensure_keys

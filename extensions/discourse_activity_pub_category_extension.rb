@@ -18,6 +18,10 @@ module DiscourseActivityPubCategoryExtension
         self.errors.add(:activity_pub_enabled, I18n.t("category.discourse_activity_pub.error.no_change_when_set"))
       else
         DiscourseActivityPub::UsernameValidator.perform_validation(self, 'activity_pub_username')
+
+        if self.errors.blank? && DiscourseActivityPubActor.username_unique?(@custom_fields['activity_pub_username'], model_id: self.id)
+          self.errors.add(:activity_pub_username, I18n.t("category.discourse_activity_pub.error.username_taken"))
+        end
       end
     end
 

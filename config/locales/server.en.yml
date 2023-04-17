@@ -23,6 +23,7 @@ en:
       error:
         enable_without_username: An ActivityPub username is required to enable ActivityPub.
         no_change_when_set: An ActivityPub username can't be changed once set.
+        username_taken: "That username is already taken on this server."
 
   discourse_activity_pub:
     request:

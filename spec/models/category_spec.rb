@@ -81,6 +81,15 @@ RSpec.describe Category do
       end.to raise_error(ActiveRecord::Rollback)
     end
 
+    it "raises if username is not unique for local actors" do
+      category2 = Fabricate(:category)
+      toggle_activity_pub(category2, username: "general", callbacks: true)
+
+      expect do
+        toggle_activity_pub(category, username: "general")
+      end.to raise_error(ActiveRecord::Rollback)
+    end
+
     it "publishes activity pub state if activity_pub_enabled is changed" do
       message = MessageBus.track_publish("/activity-pub") do
         toggle_activity_pub(category)
