@@ -114,6 +114,16 @@ after_initialize do
     opts[:group_ids] = [Group::AUTO_GROUPS[:staff], *self.reviewable_by_group_id] if !activity_pub_show_status
     MessageBus.publish("/activity-pub", message, opts)
   end
+
+  on(:site_setting_changed) do |name, old_val, new_val|
+    if %i(activity_pub_enabled login_required).include?(name)
+      Category
+        .joins("LEFT JOIN category_custom_fields ON categories.id = category_custom_fields.category_id")
+        .where("category_custom_fields.name = 'activity_pub_enabled' AND category_custom_fields.value IS NOT NULL")
+        .each(&:activity_pub_publish_state)
+    end
+  end
+
   add_model_callback(:category, :after_commit) { DiscourseActivityPubActor.ensure_for(self) }
 
   add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
