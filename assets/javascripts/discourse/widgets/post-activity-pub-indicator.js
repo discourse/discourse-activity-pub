@@ -10,7 +10,7 @@ createWidget("post-activity-pub-indicator", {
     let key;
 
     if (attrs.activity_pub_published_at) {
-      time = attrs.activity_pub_published_at;
+      time = moment(attrs.activity_pub_published_at);
       key = "was_published";
     } else {
       let delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
