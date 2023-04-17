@@ -7,6 +7,10 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   after_create :deliver_composition, if: Proc.new { ap&.composition? }
 
+  def create?
+    ap_type === DiscourseActivityPub::AP::Activity::Create.type
+  end
+
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"
@@ -39,6 +43,17 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
     else
       Jobs.enqueue(:discourse_activity_pub_deliver, args)
+    end
+  end
+
+  def after_deliver
+    if !self.published_at
+      published_at = Time.now
+      self.update(published_at: published_at)
+
+      if create? && self.object.model&.respond_to?(:activity_pub_after_publish)
+        self.object.model.activity_pub_after_publish(published_at)
+      end
     end
   end
 end

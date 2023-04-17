@@ -30,10 +30,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     return unless model.activity_pub_enabled && ap&.composition?
 
     # We don't currently permit updates after publication
-    return if !model.activity_pub_pre_publication? && ap_type_sym == :update
+    return if model.activity_pub_published? && ap_type_sym == :update
 
     # If we're pre-publication destroy all associated objects and activities on delete.
-    if model.activity_pub_pre_publication? && ap_type_sym == :delete
+    if !model.activity_pub_published? && ap_type_sym == :delete
       objects = DiscourseActivityPubObject.where(model_id: model.id, model_type: model.class.name)
       objects.each { |object| object.activity.destroy! }
       objects.destroy_all
@@ -41,7 +41,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
 
     ActiveRecord::Base.transaction do
-      if model.activity_pub_pre_publication? && ap_type_sym == :update
+      if !model.activity_pub_published? && ap_type_sym == :update
         object = model.activity_pub_objects.find_by(ap_type: DiscourseActivityPub::AP::Object::Note.type)
       else
         object = model.activity_pub_objects.build(local: true)

@@ -48,6 +48,7 @@ export default class ActivityPubStatus extends Component {
     };
     if (this.active) {
       args.model_name = this.args.model.name;
+      args.delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
     }
     return I18n.t(
       `discourse_activity_pub.status.title.${this.translatedTitleKey}`,

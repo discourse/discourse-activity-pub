@@ -59,3 +59,12 @@
 #reply-control .activity-pub-status {
   margin-left: 1em;
 }
+
+.post-info.activity-pub {
+  &.published {
+    color: var(--success);
+  }
+  &.not-published {
+    color: var(--primary-medium);
+  }
+}

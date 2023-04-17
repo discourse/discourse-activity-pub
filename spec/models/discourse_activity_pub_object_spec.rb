@@ -102,9 +102,8 @@ RSpec.describe DiscourseActivityPubObject do
           described_class.handle_model_callback(post, :update)
         end
 
-        context "while in pre publication period" do
+        context "while not published" do
           before do
-            freeze_time 2.minutes.from_now
             perform_update
           end
 
@@ -121,10 +120,9 @@ RSpec.describe DiscourseActivityPubObject do
           end
         end
 
-        context "after pre publication period" do
+        context "after publication" do
           before do
-            freeze_time 4.minutes.from_now
-            perform_update
+            note.model.activity_pub_after_publish(Time.now)
           end
 
           it "does not update the Note content" do
@@ -186,9 +184,9 @@ RSpec.describe DiscourseActivityPubObject do
           end
         end
 
-        context "after pre publication period" do
+        context "after publication" do
           before do
-            freeze_time 4.minutes.from_now
+            note.model.activity_pub_after_publish(Time.now)
             perform_delete
           end
 

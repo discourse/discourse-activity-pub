@@ -3,7 +3,7 @@ plugins:
     default: true
     client: true
   activity_pub_rate_limit_post_to_inbox_per_minute:
-    default: 3
+    default: 10
   activity_pub_rate_limit_get_objects_per_minute:
     default: 20
   activity_pub_note_excerpt_maxlength:
@@ -19,4 +19,5 @@ plugins:
     type: host_list
     list_type: simple
   activity_pub_delivery_delay_minutes:
-    default: 3
+    default: 5
+    client: true

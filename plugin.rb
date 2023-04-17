@@ -142,16 +142,40 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_username"
   end
 
+  add_to_class(:topic, :activity_pub_enabled) { Site.activity_pub_enabled && category&.activity_pub_ready? }
+  add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
+
   Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
+
+  register_post_custom_field_type('activity_pub_published_at', :string)
 
   add_to_class(:post, :activity_pub_enabled) do
     return false unless Site.activity_pub_enabled && is_first_post?
     topic = Topic.with_deleted.find_by(id: self.topic_id)
-    topic&.category&.activity_pub_ready?
+    topic&.activity_pub_enabled
   end
   add_to_class(:post, :activity_pub_content) { DiscourseActivityPub::ExcerptParser.get_excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }
   add_to_class(:post, :activity_pub_actor) { topic.category&.activity_pub_actor }
-  add_to_class(:post, :activity_pub_pre_publication?) { Time.now < (created_at + SiteSetting.activity_pub_delivery_delay_minutes.to_i.minutes) }
+  add_to_class(:post, :activity_pub_after_publish) do |published_at|
+    custom_fields['activity_pub_published_at'] = published_at
+    save_custom_fields(true)
+    activity_pub_publish_state
+  end
+  add_to_class(:post, :activity_pub_published_at) { custom_fields['activity_pub_published_at'] }
+  add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
+  add_to_class(:post, :activity_pub_publish_state) do
+    message = {
+      model: {
+        id: self.id,
+        type: "post",
+        published_at: self.activity_pub_published_at
+      }
+    }
+    MessageBus.publish("/activity-pub", message)
+  end
+
+  add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
+  add_to_serializer(:post, :activity_pub_published_at) { object.activity_pub_published_at }
 
   on(:post_edited) do |post, topic_changed, post_revisor|
     DiscourseActivityPubObject.handle_model_callback(post, :update)

@@ -10,6 +10,7 @@ class CreateDiscourseActivityPubActivities < ActiveRecord::Migration[7.0]
       t.string :object_id
       t.string :object_type
       t.string :summary
+      t.datetime :published_at
 
       t.timestamps
     end

@@ -37,7 +37,12 @@ module Jobs
         ::Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, @args.merge(retry_count: retry_count))
       end
     ensure
-      @performed ? failure_tracker.track_success : failure_tracker.track_failure
+      if @performed
+        failure_tracker.track_success
+        activity.after_deliver
+      else
+        failure_tracker.track_failure
+      end
     end
 
     def perform_request?

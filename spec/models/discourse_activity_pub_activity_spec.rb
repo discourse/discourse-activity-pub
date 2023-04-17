@@ -66,7 +66,7 @@ RSpec.describe DiscourseActivityPubActivity do
       end
     end
 
-    context "when creating composed type" do
+    context "with create activity" do
       let(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
 
       context "when actor has followers" do
@@ -127,6 +127,33 @@ RSpec.describe DiscourseActivityPubActivity do
         expect_enqueued_with(job: :discourse_activity_pub_deliver, args: job_args) do
           accept_activity.deliver(to_actor_id: accept_activity.object.actor.id)
         end
+      end
+    end
+  end
+
+  describe "#after_deliver" do
+    it "records published_at if not set" do
+      freeze_time
+      original_time = Time.now
+
+      follow_activity.after_deliver
+      expect(follow_activity.reload.published_at).to eq_time(original_time)
+
+      unfreeze_time
+      freeze_time(2.minutes.from_now) do
+        follow_activity.after_deliver
+        expect(follow_activity.reload.published_at).to eq_time(original_time)
+      end
+    end
+
+    context "with create activity" do
+      let(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
+
+      it "calls activity_pub_after_publish on associated object models" do
+        freeze_time
+        original_time = Time.now
+        Post.any_instance.expects(:activity_pub_after_publish).with(original_time).once
+        create_activity.after_deliver
       end
     end
   end

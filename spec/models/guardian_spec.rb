@@ -48,10 +48,9 @@ RSpec.describe Guardian do
           end
         end
 
-        context "after pre publication period" do
+        context "after publication" do
           before do
-            SiteSetting.activity_pub_delivery_delay_minutes = 3
-            freeze_time 4.minutes.from_now
+            post.activity_pub_after_publish(Time.now)
           end
 
           it "does not allow edits" do
