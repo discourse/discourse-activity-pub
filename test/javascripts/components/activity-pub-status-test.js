@@ -137,7 +137,7 @@ module(
         status.title,
         I18n.t("discourse_activity_pub.status.title.model_active.first_post", {
           model_name: this.category.name,
-          delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes
+          delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
       );
