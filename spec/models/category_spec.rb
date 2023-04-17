@@ -8,7 +8,7 @@ RSpec.describe Category do
   it { is_expected.to have_many(:activity_pub_activities).dependent(:destroy) }
 
   describe "#activity_pub_ready?" do
-    context "with activity pub enabled" do
+    context "with category activity pub enabled" do
       before do
         toggle_activity_pub(category)
       end
@@ -24,6 +24,17 @@ RSpec.describe Category do
 
         it "returns true" do
           expect(category.reload.activity_pub_ready?).to eq(true)
+        end
+
+        context "with category read restricted" do
+          before do
+            category.set_permissions(staff: :full)
+            category.save!
+          end
+
+          it "returns false" do
+            expect(category.reload.activity_pub_ready?).to eq(false)
+          end
         end
       end
     end

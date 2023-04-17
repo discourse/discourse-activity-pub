@@ -62,6 +62,9 @@ export default class ActivityPubStatus extends Component {
     if (!this.siteSettings.activity_pub_enabled) {
       return "plugin_disabled";
     }
+    if (this.args.modelType === "category" && this.args.model.read_restricted) {
+      return "category_read_restricted";
+    }
     if (!this.enabled) {
       return "model_disabled";
     }

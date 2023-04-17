@@ -97,7 +97,7 @@ after_initialize do
   register_category_custom_field_type('activity_pub_show_status', :boolean)
   register_category_custom_field_type('activity_pub_username', :string)
   add_to_class(:category, :full_url) { "#{Discourse.base_url}#{self.url}" }
-  add_to_class(:category, :activity_pub_enabled) { Site.activity_pub_enabled && !!custom_fields["activity_pub_enabled"] }
+  add_to_class(:category, :activity_pub_enabled) { Site.activity_pub_enabled && !self.read_restricted && !!custom_fields["activity_pub_enabled"] }
   add_to_class(:category, :activity_pub_show_status) { Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"] }
   add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted? }
   add_to_class(:category, :activity_pub_username) { custom_fields["activity_pub_username"] }
@@ -115,6 +115,11 @@ after_initialize do
     MessageBus.publish("/activity-pub", message, opts)
   end
 
+  add_model_callback(:category, :after_save) do
+    DiscourseActivityPubActor.ensure_for(self)
+    self.activity_pub_publish_state if self.saved_change_to_read_restricted?
+  end
+
   on(:site_setting_changed) do |name, old_val, new_val|
     if %i(activity_pub_enabled login_required).include?(name)
       Category
@@ -123,8 +128,6 @@ after_initialize do
         .each(&:activity_pub_publish_state)
     end
   end
-
-  add_model_callback(:category, :after_commit) { DiscourseActivityPubActor.ensure_for(self) }
 
   add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
   add_to_serializer(:basic_category, :activity_pub_ready) { object.activity_pub_ready? }

@@ -14,6 +14,7 @@ en:
         title:
           login_required_enabled: ActivityPub does not work with login required
           plugin_disabled: The ActivityPub plugin is disabled
+          category_read_restricted: ActivityPub does not work with private categories
           model_disabled: AcivityPub is disabled for this %{model_type}
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
