@@ -11,11 +11,11 @@ createWidget("post-activity-pub-indicator", {
 
     if (attrs.activity_pub_published_at) {
       time = moment(attrs.activity_pub_published_at);
-      key = "was_published";
+      key = "published";
     } else {
       let delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
       time = moment(attrs.created_at).add(delay_minutes, "m");
-      key = "scheduled_to_be_published";
+      key = "scheduled";
     }
 
     return I18n.t(`post.discourse_activity_pub.title.${key}`, { time });
