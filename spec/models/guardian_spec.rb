@@ -20,8 +20,20 @@ RSpec.describe Guardian do
             PostDestroyer.new(admin, post).destroy
           end
 
-          it "does not allow recovery" do
-            expect(Guardian.new(admin).can_recover_post?(post.reload)).to be_falsey
+          context "while in pre publication period" do
+            it "allows recovery" do
+              expect(Guardian.new(admin).can_recover_post?(post.reload)).to be_truthy
+            end
+          end
+
+          context "after publication" do
+            before do
+              post.activity_pub_after_publish(Time.now)
+            end
+
+            it "allows edits" do
+              expect(Guardian.new(admin).can_recover_post?(post.reload)).to be_falsey
+            end
           end
         end
       end
@@ -38,11 +50,6 @@ RSpec.describe Guardian do
         let!(:admin) { Fabricate(:user, admin: true) }
 
         context "while in pre publication period" do
-          before do
-            SiteSetting.activity_pub_delivery_delay_minutes = 3
-            freeze_time 2.minutes.from_now
-          end
-
           it "allows edits" do
             expect(Guardian.new(admin).can_edit?(post)).to be_truthy
           end
