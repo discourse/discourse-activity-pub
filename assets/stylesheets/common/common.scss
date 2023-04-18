@@ -61,10 +61,15 @@
 }
 
 .post-info.activity-pub {
-  &.published {
+  &.published .d-icon {
     color: var(--success);
   }
-  &.not-published {
+
+  &.not-published .d-icon {
     color: var(--primary-medium);
   }
+}
+
+.deleted nav.post-controls button[disabled="true"] .d-icon {
+  color: var(--danger-low) !important;
 }

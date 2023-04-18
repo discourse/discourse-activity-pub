@@ -12,6 +12,21 @@ export default {
         "activity_pub_published_at"
       );
 
+      api.addPostMenuButton("activity-pub-restore", (attrs) => {
+        if (
+          attrs.isDeleted &&
+          attrs.activity_pub_enabled &&
+          attrs.activity_pub_published_at
+        ) {
+          return {
+            icon: "undo",
+            title: "post.discourse_activity_pub.restore.not_supported",
+            position: "second-last-hidden",
+            disabled: true,
+          };
+        }
+      });
+
       // TODO (future): PR discourse/discourse to add post infos via api
       api.reopenWidget("post-meta-data", {
         html(attrs) {
