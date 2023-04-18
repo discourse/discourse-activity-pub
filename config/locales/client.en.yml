@@ -19,7 +19,7 @@ en:
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
           model_active:
-            first_post: New posts in %{model_name} are federated %{delay_minutes} minutes after being posted
+            first_post: The first post of a new topic in %{model_name} will be federated %{delay_minutes} minutes after being posted
         label:
           active: Active
           not_active: Not Active
