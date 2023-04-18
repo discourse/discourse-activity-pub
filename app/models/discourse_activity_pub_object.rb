@@ -4,12 +4,12 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::ModelValidations
 
   belongs_to :model, polymorphic: true, optional: true
-  has_one :activity, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
-  def ready?
+  def ready?(ap_type)
     return true unless local?
 
-    case activity.ap_type
+    case ap_type
     when DiscourseActivityPub::AP::Activity::Create.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
@@ -35,20 +35,19 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     # If we're pre-publication destroy all associated objects and activities on delete.
     if !model.activity_pub_published? && ap_type_sym == :delete
       objects = DiscourseActivityPubObject.where(model_id: model.id, model_type: model.class.name)
-      objects.each { |object| object.activity.destroy! }
+      objects.each { |object| object.activities.destroy_all }
       objects.destroy_all
       return
     end
 
     ActiveRecord::Base.transaction do
-      if !model.activity_pub_published? && ap_type_sym == :update
-        object = model.activity_pub_objects.find_by(ap_type: DiscourseActivityPub::AP::Object::Note.type)
+      if ap_type_sym == :update || ap_type_sym == :delete
+        object = model.activity_pub_object
       else
-        object = model.activity_pub_objects.build(local: true)
+        object = model.build_activity_pub_object(local: true)
       end
       return unless object
 
-      # We intentionally create a contentless object on delete for coherence.
       if %i(create update).include?(ap_type_sym)
         object.content = model.activity_pub_content
       end

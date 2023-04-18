@@ -145,8 +145,7 @@ after_initialize do
   add_to_class(:topic, :activity_pub_enabled) { Site.activity_pub_enabled && category&.activity_pub_ready? }
   add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
 
-  Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
-  Post.has_one :activity_pub_note, -> { order(:created_at).limit(1) }, class_name: "DiscourseActivityPubObject", as: :model
+  Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
 
   register_post_custom_field_type('activity_pub_published_at', :string)
 
@@ -193,7 +192,7 @@ after_initialize do
     post.custom_fields['activity_pub_content'] = DiscourseActivityPub::ExcerptParser.get_content(post)
   end
   on(:validate_post) do |post|
-    if post.activity_pub_published? && post.activity_pub_content != post.activity_pub_note.content
+    if post.activity_pub_published? && post.activity_pub_content != post.activity_pub_object.content
       post.errors.add(:base, I18n.t("post.discourse_activity_pub.error.edit_after_publication"))
     end
   end

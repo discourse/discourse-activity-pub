@@ -6,7 +6,7 @@ RSpec.describe Post do
   let!(:post1) { Fabricate(:post, topic: topic) }
   let!(:post2) { Fabricate(:post, topic: topic) }
 
-  it { is_expected.to have_many(:activity_pub_objects) }
+  it { is_expected.to have_one(:activity_pub_object) }
 
   describe "#activity_pub_enabled" do
     context "with activity pub plugin enabled" do

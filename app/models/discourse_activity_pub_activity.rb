@@ -16,7 +16,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     when "DiscourseActivityPubActivity"
       object.ready?
     when "DiscourseActivityPubObject"
-      object.ready?
+      object.ready?(ap_type)
     when "DiscourseActivityPubActor"
       object.ready?
     end

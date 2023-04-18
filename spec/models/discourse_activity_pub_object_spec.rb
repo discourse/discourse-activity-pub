@@ -45,14 +45,14 @@ RSpec.describe DiscourseActivityPubObject do
     context "without activty pub enabled on the model" do
       it "does nothing" do
         expect(described_class.handle_model_callback(post, :create)).to eq(nil)
-        expect(post.activity_pub_objects.present?).to eq(false)
+        expect(post.reload.activity_pub_object.present?).to eq(false)
       end
     end
 
     context "with an invalid activity type" do
       it "does nothing" do
         expect(described_class.handle_model_callback(post, :follow)).to eq(nil)
-        expect(post.activity_pub_objects.present?).to eq(false)
+        expect(post.reload.activity_pub_object.present?).to eq(false)
       end
     end
 
@@ -70,17 +70,14 @@ RSpec.describe DiscourseActivityPubObject do
 
         it "creates the right object" do
           expect(
-            post.activity_pub_objects.where(
-              ap_type: 'Note',
-              content: post.activity_pub_content
-            ).exists?
-          ).to eq(true)
+            post.reload.activity_pub_object.content
+          ).to eq(post.activity_pub_content)
         end
 
         it "creates the right activity" do
           expect(
              post.activity_pub_actor.activities.where(
-               object_id: post.activity_pub_objects.first.id,
+               object_id: post.activity_pub_object.id,
                object_type: 'DiscourseActivityPubObject',
                ap_type: 'Create'
             ).exists?
@@ -153,16 +150,12 @@ RSpec.describe DiscourseActivityPubObject do
 
         context "while in pre publication period" do
           before do
-            freeze_time 2.minutes.from_now
             perform_delete
           end
 
           it "does not create an object" do
             expect(
-              post.activity_pub_objects.where(
-                ap_type: 'Note',
-                content: nil
-              ).exists?
+              post.activity_pub_object.present?
             ).to eq(false)
           end
 
@@ -187,15 +180,6 @@ RSpec.describe DiscourseActivityPubObject do
           before do
             note.model.activity_pub_after_publish(Time.now)
             perform_delete
-          end
-
-          it "creates the right object" do
-            expect(
-              post.activity_pub_objects.where(
-                ap_type: 'Note',
-                content: nil
-              ).exists?
-            ).to eq(true)
           end
 
           it "creates the right activity" do
