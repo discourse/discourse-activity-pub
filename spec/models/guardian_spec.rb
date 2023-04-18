@@ -53,8 +53,8 @@ RSpec.describe Guardian do
             post.activity_pub_after_publish(Time.now)
           end
 
-          it "does not allow edits" do
-            expect(Guardian.new(admin).can_edit?(post)).to be_falsey
+          it "allows edits" do
+            expect(Guardian.new(admin).can_edit?(post)).to be_truthy
           end
         end
       end

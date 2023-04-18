@@ -97,8 +97,7 @@ RSpec.describe DiscourseActivityPubObject do
         end
 
         def perform_update
-          post.raw = "Updated content"
-          post.rebake!
+          post.custom_fields['activity_pub_content'] = "Updated content"
           described_class.handle_model_callback(post, :update)
         end
 

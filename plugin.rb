@@ -146,6 +146,7 @@ after_initialize do
   add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
 
   Post.has_many :activity_pub_objects, class_name: "DiscourseActivityPubObject", as: :model
+  Post.has_one :activity_pub_note, -> { order(:created_at).limit(1) }, class_name: "DiscourseActivityPubObject", as: :model
 
   register_post_custom_field_type('activity_pub_published_at', :string)
 
@@ -154,7 +155,13 @@ after_initialize do
     topic = Topic.with_deleted.find_by(id: self.topic_id)
     topic&.activity_pub_enabled
   end
-  add_to_class(:post, :activity_pub_content) { DiscourseActivityPub::ExcerptParser.get_excerpt(cooked, SiteSetting.activity_pub_note_excerpt_maxlength, post: self) }
+  add_to_class(:post, :activity_pub_content) do
+    if custom_fields['activity_pub_content'].present?
+      custom_fields['activity_pub_content']
+    else
+      DiscourseActivityPub::ExcerptParser.get_content(self)
+    end
+  end
   add_to_class(:post, :activity_pub_actor) { topic.category&.activity_pub_actor }
   add_to_class(:post, :activity_pub_after_publish) do |published_at|
     custom_fields['activity_pub_published_at'] = published_at
@@ -177,6 +184,19 @@ after_initialize do
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
   add_to_serializer(:post, :activity_pub_published_at) { object.activity_pub_published_at }
 
+  # TODO (future): discourse/discourse needs to cook earlier for validators.
+  # See also discourse/discourse/plugins/poll/lib/poll.rb.
+  on(:before_create_post) do |post|
+    post.custom_fields['activity_pub_content'] = DiscourseActivityPub::ExcerptParser.get_content(post)
+  end
+  on(:before_edit_post) do |post|
+    post.custom_fields['activity_pub_content'] = DiscourseActivityPub::ExcerptParser.get_content(post)
+  end
+  on(:validate_post) do |post|
+    if post.activity_pub_published? && post.activity_pub_content != post.activity_pub_note.content
+      post.errors.add(:base, I18n.t("post.discourse_activity_pub.error.edit_after_publication"))
+    end
+  end
   on(:post_edited) do |post, topic_changed, post_revisor|
     DiscourseActivityPubObject.handle_model_callback(post, :update)
   end

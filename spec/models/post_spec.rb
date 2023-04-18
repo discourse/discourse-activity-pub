@@ -33,15 +33,4 @@ RSpec.describe Post do
       it { expect(post1.activity_pub_enabled).to eq(false) }
     end
   end
-
-  describe "#activity_pub_content" do
-    it "respects the site setting for note excerpts" do
-      SiteSetting.activity_pub_note_excerpt_maxlength = 10
-      expected_excerpt = "This is a &hellip;"
-      post = Fabricate(:post_with_long_raw_content)
-      post.rebake!
-      excerpt = post.activity_pub_content
-      expect(excerpt).to eq(expected_excerpt)
-    end
-  end
 end

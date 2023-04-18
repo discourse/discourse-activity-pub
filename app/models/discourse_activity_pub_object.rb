@@ -46,6 +46,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
       else
         object = model.activity_pub_objects.build(local: true)
       end
+      return unless object
 
       # We intentionally create a contentless object on delete for coherence.
       if %i(create update).include?(ap_type_sym)

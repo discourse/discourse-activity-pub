@@ -25,6 +25,11 @@ en:
         no_change_when_set: An ActivityPub username can't be changed once set.
         username_taken: "That username is already taken on this server."
 
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: Edit of an ActivityPub note after publication is not currently supported.
+
   discourse_activity_pub:
     request:
       error:
