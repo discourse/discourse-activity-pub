@@ -3,34 +3,40 @@
   <ActivityPubStatus @model={{this.category}} @modelType="category" />
 </div>
 
-<section class='field actvitiy-pub-enabled'>
+<section class='field activity-pub-setting actvitiy-pub-enabled'>
   <label>
     <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_enabled}} />
     {{i18n 'category.discourse_activity_pub.enable'}}
   </label>
+  <div class="activity-pub-setting-description">
+    {{i18n 'category.discourse_activity_pub.enable_description'}}
+  </div>
 </section>
 
-<section class='field activity-pub-show-status'>
+<section class='field activity-pub-setting activity-pub-show-status'>
   <label>
     <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_show_status}} />
     {{i18n 'category.discourse_activity_pub.show_status'}}
   </label>
+  <div class="activity-pub-setting-description">
+    {{i18n 'category.discourse_activity_pub.show_status_description'}}
+  </div>
 </section>
 
 {{#if this.category.activity_pub_username}}
-  <section class='field activity-pub-handle-field'>
+  <section class='field activity-pub-setting activity-pub-handle-field'>
     <label>{{i18n 'category.discourse_activity_pub.handle'}}</label>
     {{activity-pub-handle this.category}}
-    <div class="instructions">
+    <div class="activity-pub-setting-description">
       {{i18n 'category.discourse_activity_pub.handle_description'}}
     </div>
   </section>
 
 {{else}}
-  <section class='field activity-pub-username'>
+  <section class='field activity-pub-setting activity-pub-username'>
     <label for="activity-pub-username">{{i18n 'category.discourse_activity_pub.username'}}</label>
     <Input id="activity-pub-username" @value={{this.category.custom_fields.activity_pub_username}} />
-    <div class="instructions">
+    <div class="activity-pub-setting-description">
       {{i18n 'category.discourse_activity_pub.username_description'}}
     </div>
   </section>

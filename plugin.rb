@@ -143,6 +143,11 @@ after_initialize do
   end
 
   add_to_class(:topic, :activity_pub_enabled) { Site.activity_pub_enabled && category&.activity_pub_ready? }
+  add_to_class(:topic, :activity_pub_published?) do
+    return false unless activity_pub_enabled
+    first_post = posts.with_deleted.find_by(post_number: 1)
+    first_post&.activity_pub_published?
+  end
   add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
 
   Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model

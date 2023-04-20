@@ -12,6 +12,19 @@ export default {
         "activity_pub_published_at"
       );
 
+      api.addPostTransformCallback((attrs) => {
+        if (
+          attrs.isDeleted &&
+          attrs.activity_pub_enabled &&
+          attrs.activity_pub_published_at
+        ) {
+          // TODO (improve?). currently necessary because
+          // discourse/models/topic#destroy hardcodes
+          // "details.can_recover": true in its callback.
+          attrs.canRecoverTopic = false;
+        }
+      });
+
       api.addPostMenuButton("activity-pub-restore", (attrs) => {
         if (
           attrs.isDeleted &&

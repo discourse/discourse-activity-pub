@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPubGuardianExtension
   def can_recover_topic?(topic)
-    return false if topic&.activity_pub_enabled && topic.first_post&.activity_pub_published?
+    return false if topic&.activity_pub_enabled && topic.activity_pub_published?
     super(topic)
   end
 

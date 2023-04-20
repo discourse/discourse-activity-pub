@@ -29,13 +29,14 @@
   }
 }
 
-.activity-pub-username,
-.activity-pub-handle-field {
+.activity-pub-setting {
+  margin-top: 4px;
+
   input {
     margin-bottom: 0;
   }
 
-  .instructions {
+  .activity-pub-setting-description {
     color: var(--primary-medium);
     margin-top: 4px;
     margin-bottom: 10px;
