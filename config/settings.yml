@@ -8,6 +8,8 @@ plugins:
     default: 20
   activity_pub_note_excerpt_maxlength:
     default: 500
+  activity_pub_note_link_to_forum:
+    default: true
   activity_pub_require_signed_requests:
     default: true
   activity_pub_allowed_request_origins:
