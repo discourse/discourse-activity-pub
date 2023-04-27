@@ -53,7 +53,7 @@ RSpec.describe DiscourseActivityPubActivity do
       toggle_activity_pub(actor.model)
     end
 
-    context "when not creating composed type" do
+    context "when not creating composition activity" do
       it "does not run" do
         described_class.any_instance.expects(:deliver_composition).never
         described_class.create!(
@@ -66,8 +66,9 @@ RSpec.describe DiscourseActivityPubActivity do
       end
     end
 
-    context "with create activity" do
+    context "when creating composition activity" do
       let(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
+      let(:delete_activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: actor) }
 
       context "when actor has followers" do
         let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
@@ -95,6 +96,26 @@ RSpec.describe DiscourseActivityPubActivity do
           ).to eq(true)
           expect(
             job_enqueued?(job: :discourse_activity_pub_deliver, args: job2_args, at: delay.minutes.from_now)
+          ).to eq(true)
+        end
+
+        it "enqueues delivery of delete activities instantly" do
+          activity = delete_activity
+          job1_args = {
+            activity_id: activity.id,
+            from_actor_id: actor.id,
+            to_actor_id: follower1.id
+          }
+          job2_args = {
+            activity_id: activity.id,
+            from_actor_id: actor.id,
+            to_actor_id: follower2.id
+          }
+          expect(
+            job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args)
+          ).to eq(true)
+          expect(
+            job_enqueued?(job: :discourse_activity_pub_deliver, args: job2_args)
           ).to eq(true)
         end
       end

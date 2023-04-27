@@ -26,7 +26,15 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     return unless ap&.composition?
 
     actor.followers.each do |follower|
-      deliver(to_actor_id: follower.id, delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i)
+      opts = {
+        to_actor_id: follower.id
+      }
+
+      if ap.type != DiscourseActivityPub::AP::Activity::Delete.type
+        opts[:delay] = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+      end
+
+      deliver(**opts)
     end
   end
 
