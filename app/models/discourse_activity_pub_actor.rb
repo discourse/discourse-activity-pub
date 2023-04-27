@@ -48,6 +48,10 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     )
   end
 
+  def url
+    local? && model&.full_url
+  end
+
   def self.ensure_for(model)
     if model.activity_pub_enabled && !model.activity_pub_actor
       model.build_activity_pub_actor(username: model.activity_pub_username, local: true)

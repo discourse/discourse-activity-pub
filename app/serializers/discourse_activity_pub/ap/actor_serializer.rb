@@ -5,7 +5,8 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
              :outbox,
              :followers,
              :preferredUsername,
-             :publicKey
+             :publicKey,
+             :url
 
   def followers
     "#{object.id}/followers"
@@ -25,5 +26,9 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
 
   def include_publicKey?
     object.public_key.present?
+  end
+
+  def include_url?
+    object.stored.local?
   end
 end

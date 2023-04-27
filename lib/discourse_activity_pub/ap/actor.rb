@@ -20,6 +20,10 @@ module DiscourseActivityPub
         stored&.outbox
       end
 
+      def url
+        stored&.url
+      end
+
       def preferred_username
         stored&.username
       end
