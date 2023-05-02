@@ -26,7 +26,7 @@
 {{#if this.category.activity_pub_username}}
   <section class='field activity-pub-setting activity-pub-handle-field'>
     <label>{{i18n 'category.discourse_activity_pub.handle'}}</label>
-    {{activity-pub-handle this.category}}
+    <ActivityPubHandle @actor={{this.category}} />
     <div class="activity-pub-setting-description">
       {{i18n 'category.discourse_activity_pub.handle_description'}}
     </div>
@@ -35,9 +35,12 @@
 {{else}}
   <section class='field activity-pub-setting activity-pub-username'>
     <label for="activity-pub-username">{{i18n 'category.discourse_activity_pub.username'}}</label>
-    <Input id="activity-pub-username" @value={{this.category.custom_fields.activity_pub_username}} />
-    <div class="activity-pub-setting-description">
-      {{i18n 'category.discourse_activity_pub.username_description'}}
+    <div class="activity-pub-username-input">
+      <Input id="activity-pub-username" @value={{this.category.custom_fields.activity_pub_username}} />
+      <span class="activity-pub-host">@{{this.site.activity_pub_host}}</span>
+    </div>
+    <div class="activity-pub-setting-notice">
+      <span>{{d-icon 'exclamation-triangle'}}{{i18n 'category.discourse_activity_pub.username_description'}}</span>
     </div>
   </section>
 {{/if}}

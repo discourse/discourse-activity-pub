@@ -8,7 +8,7 @@ en:
         show_status: Show an ActivityPub status label in this category.
         show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
         username: ActivityPub username for this category.
-        username_description: unique, no spaces, cannot be changed.
+        username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.
         handle_description: Used to follow this category on services using Webfinger (e.g. Mastodon).
     discourse_activity_pub:
@@ -25,6 +25,8 @@ en:
         label:
           active: Active
           not_active: Not Active
+      discovery:
+        description: Follow %{username} on services that support ActivityPub (e.g Mastodon) using
     post:
       discourse_activity_pub:
         title:

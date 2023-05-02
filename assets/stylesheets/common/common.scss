@@ -44,17 +44,62 @@
     line-height: var(--line-height-large);
   }
 
+  .activity-pub-setting-notice {
+    margin-top: 4px;
+    margin-bottom: 10px;
+    flex: 1 1 100%;
+
+    span {
+      display: inline-flex;
+      gap: 0.25em;
+      align-items: center;
+      font-size: var(--font-down-1);
+      padding: 0.25em;
+      background-color: var(--highlight-low);
+    }
+  }
+
   .activity-pub-handle {
     margin: 4px 0;
   }
 }
 
+#activity-pub-username {
+  width: min(250px, 90%);
+}
+
 .activity-pub-handle {
-  border-radius: var(--d-border-radius);
-  background-color: var(--primary-200);
-  border-radius: var(--d-border-radius);
-  padding: 2px 8px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: stretch;
+
+  .handle {
+    border-radius: var(--d-border-radius);
+    background-color: var(--primary-200);
+    padding: 0 0.65em;
+    line-height: 35px;
+  }
+
+  button {
+    border: unset;
+    max-height: 35px;
+  }
+}
+
+.activity-pub-discovery-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 1em;
+  z-index: 100;
+  background-color: var(--secondary);
+  box-shadow: shadow("dropdown");
+  border: 1px solid var(--primary-low);
+  max-width: 90vw;
+  box-sizing: border-box;
+
+  span {
+    white-space: normal;
+  }
 }
 
 #reply-control .activity-pub-status {

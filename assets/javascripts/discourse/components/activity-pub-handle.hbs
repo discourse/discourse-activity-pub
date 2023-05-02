@@ -1,0 +1,16 @@
+<div class="activity-pub-handle">
+  <span class="handle">{{handle}}</span>
+  {{#if this.copied}}
+    <DButton
+      @class="btn-hover"
+      @icon="copy"
+      @label="ip_lookup.copied"
+    />
+  {{else}}
+    <DButton
+      @action={{action "copy"}}
+      @class="no-text"
+      @icon="copy"
+    />
+  {{/if}}
+</div>

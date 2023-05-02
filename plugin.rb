@@ -87,6 +87,7 @@ after_initialize do
   # SiteSetting.activity_pub_enabled.
   Site.singleton_class.prepend DiscourseActivityPubSiteExtension
   add_to_serializer(:site, :activity_pub_enabled) { Site.activity_pub_enabled }
+  add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
   Category.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model, dependent: :destroy
   Category.has_many :activity_pub_followers, class_name: "DiscourseActivityPubActor", through: :activity_pub_actor, source: :followers, dependent: :destroy
