@@ -6,6 +6,8 @@ export default {
   name: "activity-pub",
   initialize() {
     withPluginApi("1.6.0", (api) => {
+      const currentUser = api.getCurrentUser();
+
       api.includePostAttributes("activity_pub_enabled", "activity_pub_enabled");
       api.includePostAttributes(
         "activity_pub_published_at",
@@ -45,7 +47,7 @@ export default {
         html(attrs) {
           const result = this._super(attrs);
 
-          if (attrs.activity_pub_enabled) {
+          if (attrs.activity_pub_enabled && currentUser?.admin) {
             result[result.length - 1].children.unshift(
               this.attach("post-activity-pub-indicator", attrs)
             );

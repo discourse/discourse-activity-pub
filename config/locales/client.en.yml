@@ -30,7 +30,7 @@ en:
     post:
       discourse_activity_pub:
         title:
-          published: "Post was published at %{time}"
-          scheduled: "Post is scheduled to be published at %{time}"
+          published: "Post was published via ActivityPub at %{time}"
+          scheduled: "Post is scheduled to be published via ActivityPub at %{time}"
         restore:
           not_supported: "Restore is not currently supported for published AcitivtyPub posts."
