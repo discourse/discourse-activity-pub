@@ -10,7 +10,7 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
 
     it "serializes note content with a link to the forum" do
       link_text = I18n.t("discourse_activity_pub.object.note.link_to_forum")
-      link_html = "<a href=\"#{note.model.full_url}\">#{link_text}</a>"
+      link_html = "<a href=\"#{note.model.activity_pub_url}\">#{link_text}</a>"
       expect(note.ap.json[:content]).to eq("#{note.content}<br><br>#{link_html}")
     end
   end

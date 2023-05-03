@@ -49,7 +49,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def url
-    local? && model&.full_url
+    local? && model&.activity_pub_url
   end
 
   def self.ensure_for(model)

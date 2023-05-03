@@ -29,6 +29,10 @@ module DiscourseActivityPub
         'Object'
       end
 
+      def url
+        stored&.respond_to?(:url) && stored.url
+      end
+
       def self.type
         self.new.type
       end

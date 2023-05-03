@@ -10,7 +10,7 @@ module DiscourseActivityPub
     end
 
     def webfinger_aliases
-      [model.full_url]
+      [model.activity_pub_url]
     end
 
     def webfinger_links

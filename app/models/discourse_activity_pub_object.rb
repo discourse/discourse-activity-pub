@@ -6,6 +6,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :model, polymorphic: true, optional: true
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
+  def url
+    local? && model&.activity_pub_url
+  end
+
   def ready?(ap_type)
     return true unless local?
 
