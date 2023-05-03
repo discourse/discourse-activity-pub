@@ -98,6 +98,7 @@ after_initialize do
   register_category_custom_field_type('activity_pub_show_status', :boolean)
   register_category_custom_field_type('activity_pub_username', :string)
   add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
+  add_to_class(:category, :activity_pub_logo_url) { SiteIconManager.large_icon_url }
   add_to_class(:category, :activity_pub_enabled) { Site.activity_pub_enabled && !self.read_restricted && !!custom_fields["activity_pub_enabled"] }
   add_to_class(:category, :activity_pub_show_status) { Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"] }
   add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted? }

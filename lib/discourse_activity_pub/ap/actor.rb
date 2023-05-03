@@ -24,6 +24,14 @@ module DiscourseActivityPub
         stored&.username
       end
 
+      def icon_url
+        stored&.logo_url
+      end
+
+      def icon_media_type
+        "image/png"
+      end
+
       def can_belong_to
         %i()
       end
