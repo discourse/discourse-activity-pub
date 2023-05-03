@@ -11,6 +11,8 @@ en:
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.
         handle_description: Used to follow this category on services using Webfinger (e.g. Mastodon).
+        name: ActivityPub name for this category.
+        name_description: Used as a display name on some services (e.g. Mastodon).
     discourse_activity_pub:
       status:
         title:

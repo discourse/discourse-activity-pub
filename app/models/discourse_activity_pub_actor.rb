@@ -57,10 +57,18 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def self.ensure_for(model)
-    if model.activity_pub_enabled && !model.activity_pub_actor
-      model.build_activity_pub_actor(username: model.activity_pub_username, local: true)
-      model.save!
-      model.activity_pub_publish_state
+    if model.activity_pub_enabled
+      actor = model.activity_pub_actor ||
+        model.build_activity_pub_actor(
+          username: model.activity_pub_username,
+          local: true
+        )
+      actor.name = model.activity_pub_name
+
+      if actor.new_record? || actor.changed?
+        actor.save!
+        model.activity_pub_publish_state
+      end
     end
   end
 

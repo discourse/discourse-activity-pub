@@ -24,6 +24,10 @@ module DiscourseActivityPub
         stored&.username
       end
 
+      def name
+        stored&.name
+      end
+
       def icon_url
         stored&.logo_url
       end

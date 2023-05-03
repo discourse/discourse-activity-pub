@@ -7,7 +7,8 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
              :preferredUsername,
              :publicKey,
              :url,
-             :icon
+             :icon,
+             :name
 
   def followers
     "#{object.id}/followers"
@@ -42,6 +43,10 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
   end
 
   def include_icon?
+    object.stored.local?
+  end
+
+  def include_name?
     object.stored.local?
   end
 end

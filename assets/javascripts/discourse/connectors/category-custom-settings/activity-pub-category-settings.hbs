@@ -44,3 +44,11 @@
     </div>
   </section>
 {{/if}}
+
+<section class='field activity-pub-setting activity-pub-name'>
+  <label for="activity-pub-name">{{i18n 'category.discourse_activity_pub.name'}}</label>
+  <Input id="activity-pub-name" @value={{this.category.custom_fields.activity_pub_name}} />
+  <div class="activity-pub-setting-description">
+    {{i18n 'category.discourse_activity_pub.name_description'}}
+  </div>
+</section>
