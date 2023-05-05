@@ -9,12 +9,15 @@ RSpec.describe PostRevisor do
   describe "revise" do
     subject { PostRevisor.new(post) }
 
+    before do
+      toggle_activity_pub(category, callbacks: true)
+    end
+
     context "when revising a published activity pub post" do
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now) }
 
       before do
-        toggle_activity_pub(category, callbacks: true)
         post.activity_pub_after_publish(activity.published_at)
       end
 
