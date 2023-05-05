@@ -10,6 +10,7 @@ RSpec.describe DiscourseActivityPubObject do
       topic_id: topic.id
     )
   }
+  let!(:reply) { Fabricate(:post, topic_id: topic.id, post_number: 2) }
 
   describe "#create" do
     context "with an invalid model and activity pub type" do
@@ -83,6 +84,20 @@ RSpec.describe DiscourseActivityPubObject do
             ).exists?
           ).to eq(true)
         end
+
+        context "with replies" do
+          before do
+            described_class.handle_model_callback(reply, :create)
+            reply.reload
+          end
+
+          it "does nothing" do
+            expect(reply.activity_pub_enabled).to eq(false)
+            expect(reply.activity_pub_content).to eq(nil)
+            expect(reply.activity_pub_object).to eq(nil)
+            expect(reply.activity_pub_actor).to eq(nil)
+          end
+        end
       end
 
       context "with update" do
@@ -131,6 +146,19 @@ RSpec.describe DiscourseActivityPubObject do
                  ap_type: 'Update'
               ).exists?
             ).to eq(false)
+          end
+        end
+
+        context "with replies" do
+          before do
+            described_class.handle_model_callback(reply, :update)
+          end
+
+          it "does nothing" do
+            expect(reply.activity_pub_enabled).to eq(false)
+            expect(reply.activity_pub_content).to eq(nil)
+            expect(reply.activity_pub_object).to eq(nil)
+            expect(reply.activity_pub_actor).to eq(nil)
           end
         end
       end
@@ -196,6 +224,19 @@ RSpec.describe DiscourseActivityPubObject do
 
           it "does not destroy associated activities" do
             expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+          end
+        end
+
+        context "with replies" do
+          before do
+            described_class.handle_model_callback(reply, :update)
+          end
+
+          it "does nothing" do
+            expect(reply.activity_pub_enabled).to eq(false)
+            expect(reply.activity_pub_content).to eq(nil)
+            expect(reply.activity_pub_object).to eq(nil)
+            expect(reply.activity_pub_actor).to eq(nil)
           end
         end
       end

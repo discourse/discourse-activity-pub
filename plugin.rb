@@ -151,6 +151,7 @@ after_initialize do
   add_to_class(:topic, :activity_pub_enabled) { Site.activity_pub_enabled && category&.activity_pub_ready? }
   add_to_class(:topic, :activity_pub_published?) do
     return false unless activity_pub_enabled
+
     first_post = posts.with_deleted.find_by(post_number: 1)
     first_post&.activity_pub_published?
   end
@@ -163,18 +164,27 @@ after_initialize do
   add_to_class(:post, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:post, :activity_pub_enabled) do
     return false unless Site.activity_pub_enabled && is_first_post?
+
     topic = Topic.with_deleted.find_by(id: self.topic_id)
     topic&.activity_pub_enabled
   end
   add_to_class(:post, :activity_pub_content) do
+    return nil unless activity_pub_enabled
+
     if custom_fields['activity_pub_content'].present?
       custom_fields['activity_pub_content']
     else
       DiscourseActivityPub::ExcerptParser.get_content(self)
     end
   end
-  add_to_class(:post, :activity_pub_actor) { topic.category&.activity_pub_actor }
+  add_to_class(:post, :activity_pub_actor) do
+    return nil unless activity_pub_enabled
+
+    topic.category&.activity_pub_actor
+  end
   add_to_class(:post, :activity_pub_after_publish) do |published_at|
+    return nil unless activity_pub_enabled
+
     custom_fields['activity_pub_published_at'] = published_at
     save_custom_fields(true)
     activity_pub_publish_state
@@ -182,6 +192,8 @@ after_initialize do
   add_to_class(:post, :activity_pub_published_at) { custom_fields['activity_pub_published_at'] }
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_publish_state) do
+    return false unless activity_pub_enabled
+
     message = {
       model: {
         id: self.id,
