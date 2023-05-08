@@ -95,12 +95,14 @@ after_initialize do
 
   register_category_custom_field_type('activity_pub_enabled', :boolean)
   register_category_custom_field_type('activity_pub_show_status', :boolean)
+  register_category_custom_field_type('activity_pub_show_handle', :boolean)
   register_category_custom_field_type('activity_pub_username', :string)
   register_category_custom_field_type('activity_pub_name', :string)
   add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:category, :activity_pub_logo_url) { SiteIconManager.large_icon_url }
   add_to_class(:category, :activity_pub_enabled) { Site.activity_pub_enabled && !self.read_restricted && !!custom_fields["activity_pub_enabled"] }
   add_to_class(:category, :activity_pub_show_status) { Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"] }
+  add_to_class(:category, :activity_pub_show_handle) { Site.activity_pub_enabled && !!custom_fields["activity_pub_show_handle"]}
   add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted? }
   add_to_class(:category, :activity_pub_username) { custom_fields["activity_pub_username"] }
   add_to_class(:category, :activity_pub_name) { custom_fields["activity_pub_name"] }
@@ -135,6 +137,7 @@ after_initialize do
   add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
   add_to_serializer(:basic_category, :activity_pub_ready) { object.activity_pub_ready? }
   add_to_serializer(:basic_category, :activity_pub_show_status) { object.activity_pub_show_status }
+  add_to_serializer(:basic_category, :activity_pub_show_handle) { object.activity_pub_show_handle }
   add_to_serializer(:basic_category, :activity_pub_username) { object.activity_pub_username }
   add_to_serializer(:basic_category, :activity_pub_name) { object.activity_pub_name }
   add_to_serializer(:basic_category, :include_activity_pub_username?) { object.activity_pub_enabled }
@@ -143,6 +146,7 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
     Site.preloaded_category_custom_fields << "activity_pub_ready"
     Site.preloaded_category_custom_fields << "activity_pub_show_status"
+    Site.preloaded_category_custom_fields << "activity_pub_show_handle"
     Site.preloaded_category_custom_fields << "activity_pub_username"
     Site.preloaded_category_custom_fields << "activity_pub_name"
   end

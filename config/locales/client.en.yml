@@ -5,8 +5,10 @@ en:
         settings_heading: ActivityPub
         enable: Enable ActivityPub in this category.
         enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
-        show_status: Show an ActivityPub status label in this category.
+        show_status: Show an ActivityPub status label in this category's composer.
         show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
+        show_handle: Show an ActivityPub handle in this category's topic list.
+        show_handle_description: Shows a dropdown with the handle to the left of the "New Topic" button.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.
@@ -28,7 +30,7 @@ en:
           active: Active
           not_active: Not Active
       discovery:
-        description: Follow %{username} on services that support ActivityPub (e.g Mastodon) using
+        description: Follow %{category_name} on services that support ActivityPub using
     post:
       discourse_activity_pub:
         title:
