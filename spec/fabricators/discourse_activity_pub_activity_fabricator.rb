@@ -42,6 +42,13 @@ Fabricator(:discourse_activity_pub_activity_create, from: :discourse_activity_pu
   actor { Fabricate(:discourse_activity_pub_actor_group) }
   object { Fabricate(:discourse_activity_pub_object_note) }
   local { true }
+
+  after_create do |activity|
+    if activity.published_at
+      object.model.custom_fields['activity_pub_published_at'] = activity.published_at
+      object.model.save_custom_fields(true)
+    end
+  end
 end
 
 Fabricator(:discourse_activity_pub_activity_delete, from: :discourse_activity_pub_activity) do
@@ -49,4 +56,14 @@ Fabricator(:discourse_activity_pub_activity_delete, from: :discourse_activity_pu
   actor { Fabricate(:discourse_activity_pub_actor_group) }
   object { Fabricate(:discourse_activity_pub_object_note) }
   local { true }
+
+  after_create do |activity|
+    object.model.deleted_at = Time.now
+
+    if activity.published_at
+      object.model.custom_fields['activity_pub_deleted_at'] = activity.published_at
+    end
+
+    object.model.save!
+  end
 end

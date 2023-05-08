@@ -113,20 +113,23 @@ end
 #
 # Table name: discourse_activity_pub_actors
 #
-#  id         :bigint           not null, primary key
-#  ap_id      :string           not null
-#  ap_key     :string
-#  ap_type    :string           not null
-#  domain     :string
-#  local      :boolean
-#  inbox      :string
-#  outbox     :string
-#  username   :string
-#  name       :string
-#  model_id   :integer
-#  model_type :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id          :bigint           not null, primary key
+#  ap_id       :string           not null
+#  ap_key      :string
+#  ap_type     :string           not null
+#  domain      :string
+#  local       :boolean
+#  available   :boolean          default(TRUE)
+#  inbox       :string
+#  outbox      :string
+#  username    :string
+#  name        :string
+#  model_id    :integer
+#  model_type  :string
+#  private_key :text
+#  public_key  :text
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 # Indexes
 #

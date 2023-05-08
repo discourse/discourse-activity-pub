@@ -133,7 +133,8 @@ RSpec.describe DiscourseActivityPubObject do
 
         context "after publication" do
           before do
-            note.model.activity_pub_after_publish(Time.now)
+            note.model.custom_fields['activity_pub_published_at'] = Time.now
+            note.model.save_custom_fields(true)
           end
 
           it "does not update the Note content" do
@@ -206,7 +207,8 @@ RSpec.describe DiscourseActivityPubObject do
 
         context "after publication" do
           before do
-            note.model.activity_pub_after_publish(Time.now)
+            note.model.custom_fields['activity_pub_published_at'] = Time.now
+            note.model.save_custom_fields(true)
             perform_delete
           end
 

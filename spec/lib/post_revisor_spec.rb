@@ -17,10 +17,6 @@ RSpec.describe PostRevisor do
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now) }
 
-      before do
-        post.activity_pub_after_publish(activity.published_at)
-      end
-
       describe "with the same note content" do
         it "allows the revision" do
           updated_raw = "[note]#{post.raw}[/note] revision outside note"

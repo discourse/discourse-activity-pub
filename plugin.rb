@@ -76,7 +76,6 @@ after_initialize do
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_site_extension.rb
-    ../extensions/discourse_activity_pub_guardian_extension.rb
   ).each do |path|
     load File.expand_path(path, __FILE__)
   end
@@ -160,6 +159,7 @@ after_initialize do
   Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
 
   register_post_custom_field_type('activity_pub_published_at', :string)
+  register_post_custom_field_type('activity_pub_deleted_at', :string)
 
   add_to_class(:post, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:post, :activity_pub_enabled) do
@@ -182,30 +182,42 @@ after_initialize do
 
     topic.category&.activity_pub_actor
   end
-  add_to_class(:post, :activity_pub_after_publish) do |published_at|
-    return nil unless activity_pub_enabled
+  add_to_class(:post, :activity_pub_after_publish) do |args = {}|
+    return nil if !activity_pub_enabled || (!args[:published_at] && !args[:deleted_at])
 
-    custom_fields['activity_pub_published_at'] = published_at
+    custom_fields['activity_pub_published_at'] = args[:published_at] if args[:published_at]
+    custom_fields['activity_pub_deleted_at'] = args[:deleted_at] if args[:deleted_at]
     save_custom_fields(true)
+
     activity_pub_publish_state
   end
   add_to_class(:post, :activity_pub_published_at) { custom_fields['activity_pub_published_at'] }
+  add_to_class(:post, :activity_pub_deleted_at) { custom_fields['activity_pub_deleted_at'] }
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
+  add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
+
+    topic = Topic.with_deleted.find_by(id: self.topic_id)
+    return false unless topic
 
     message = {
       model: {
         id: self.id,
         type: "post",
-        published_at: self.activity_pub_published_at
+        published_at: self.activity_pub_published_at,
+        deleted_at: self.activity_pub_deleted_at
       }
     }
-    MessageBus.publish("/activity-pub", message)
+    opts = {
+      group_ids: [Group::AUTO_GROUPS[:staff], *topic.category.reviewable_by_group_id]
+    }
+    MessageBus.publish("/activity-pub", message, opts)
   end
 
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
   add_to_serializer(:post, :activity_pub_published_at) { object.activity_pub_published_at }
+  add_to_serializer(:post, :activity_pub_deleted_at) { object.activity_pub_deleted_at }
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
@@ -229,6 +241,4 @@ after_initialize do
   on(:post_destroyed) do |post, opts, user|
     DiscourseActivityPubObject.handle_model_callback(post, :delete)
   end
-
-  Guardian.prepend DiscourseActivityPubGuardianExtension
 end

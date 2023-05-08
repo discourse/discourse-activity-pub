@@ -9,7 +9,10 @@ createWidget("post-activity-pub-indicator", {
     let time;
     let key;
 
-    if (attrs.activity_pub_published_at) {
+    if (attrs.activity_pub_deleted_at) {
+      time = moment(attrs.activity_pub_deleted_at);
+      key = "deleted";
+    } else if (attrs.activity_pub_published_at) {
       time = moment(attrs.activity_pub_published_at);
       key = "published";
     } else {
@@ -22,7 +25,11 @@ createWidget("post-activity-pub-indicator", {
   },
 
   buildClasses(attrs) {
-    return attrs.activity_pub_published_at ? "published" : "not-published";
+    return attrs.activity_pub_deleted_at
+      ? "deleted"
+      : attrs.activity_pub_published_at
+      ? "published"
+      : "scheduled";
   },
 
   html() {

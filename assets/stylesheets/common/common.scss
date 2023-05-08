@@ -110,12 +110,10 @@
   &.published .d-icon {
     color: var(--success);
   }
-
-  &.not-published .d-icon {
+  &.scheduled .d-icon {
     color: var(--primary-medium);
   }
-}
-
-.deleted nav.post-controls button[disabled="true"] .d-icon {
-  color: var(--danger-low) !important;
+  &.deleted .d-icon {
+    color: var(--danger);
+  }
 }

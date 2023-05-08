@@ -207,10 +207,6 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let(:activity) { Fabricate(:discourse_activity_pub_activity_delete) }
       let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
 
-      before do
-        activity.object.model.trash!
-      end
-
       it "performs the right request" do
         body = activity.ap.json
         body[:to] = person.ap.id

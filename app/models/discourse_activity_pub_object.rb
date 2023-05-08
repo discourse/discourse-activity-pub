@@ -3,7 +3,7 @@
 class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::ModelValidations
 
-  belongs_to :model, polymorphic: true, optional: true
+  belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
   def url
@@ -35,6 +35,9 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
     # We don't currently permit updates after publication
     return if model.activity_pub_published? && ap_type_sym == :update
+
+    # We don't current permit further action if object has been deleted
+    return if model.activity_pub_deleted?
 
     # If we're pre-publication destroy all associated objects and activities on delete.
     if !model.activity_pub_published? && ap_type_sym == :delete

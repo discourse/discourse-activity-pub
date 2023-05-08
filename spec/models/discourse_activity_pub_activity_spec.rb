@@ -173,8 +173,19 @@ RSpec.describe DiscourseActivityPubActivity do
       it "calls activity_pub_after_publish on associated object models" do
         freeze_time
         original_time = Time.now
-        Post.any_instance.expects(:activity_pub_after_publish).with(original_time).once
+        Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: original_time }).once
         create_activity.after_deliver
+      end
+    end
+
+    context "with delete activity" do
+      let(:delete_activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: actor) }
+
+      it "calls activity_pub_after_publish on associated object models" do
+        freeze_time
+        original_time = Time.now
+        Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: original_time }).once
+        delete_activity.after_deliver
       end
     end
   end

@@ -11,6 +11,10 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     ap_type === DiscourseActivityPub::AP::Activity::Create.type
   end
 
+  def delete?
+    ap_type === DiscourseActivityPub::AP::Activity::Delete.type
+  end
+
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"
@@ -59,8 +63,11 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       published_at = Time.now
       self.update(published_at: published_at)
 
-      if create? && self.object.model&.respond_to?(:activity_pub_after_publish)
-        self.object.model.activity_pub_after_publish(published_at)
+      if self.object.model&.respond_to?(:activity_pub_after_publish)
+        args = {}
+        args[:published_at] = published_at if create?
+        args[:deleted_at] = published_at if delete?
+        self.object.model.activity_pub_after_publish(args)
       end
     end
   end
@@ -70,17 +77,18 @@ end
 #
 # Table name: discourse_activity_pub_activities
 #
-#  id          :bigint           not null, primary key
-#  ap_id       :string           not null
-#  ap_key      :string
-#  ap_type     :string           not null
-#  local       :boolean
-#  actor_id    :integer          not null
-#  object_id   :string
-#  object_type :string
-#  summary     :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id           :bigint           not null, primary key
+#  ap_id        :string           not null
+#  ap_key       :string
+#  ap_type      :string           not null
+#  local        :boolean
+#  actor_id     :integer          not null
+#  object_id    :string
+#  object_type  :string
+#  summary      :string
+#  published_at :datetime
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
 #
 # Indexes
 #
