@@ -36,4 +36,5 @@ en:
         title:
           published: "Post was published via ActivityPub at %{time}"
           scheduled: "Post is scheduled to be published via ActivityPub at %{time}"
+          scheduled_past: "Post was scheduled to be published via ActivityPub at %{time}"
           deleted: "ActivityPub note was deleted at %{time}"
