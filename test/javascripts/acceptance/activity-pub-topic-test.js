@@ -8,6 +8,7 @@ import { visit } from "@ember/test-helpers";
 import Site from "discourse/models/site";
 import { cloneJSON } from "discourse-common/lib/object";
 import topicFixtures from "discourse/tests/fixtures/topic";
+import I18n from "I18n";
 
 const createdAt = moment().subtract(2, "days");
 const publishedAt = moment().subtract(1, "days");
@@ -92,7 +93,9 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was scheduled to be published via ActivityPub at ${time.format(I18n.t("dates.long_no_year"))}']`
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was scheduled to be published via ActivityPub at ${time.format(
+            I18n.t("dates.long_no_year")
+          )}']`
         ),
         "shows the right title"
       );
@@ -124,7 +127,9 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was published via ActivityPub at ${publishedAt.format(I18n.t("dates.long_no_year"))}']`
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was published via ActivityPub at ${publishedAt.format(
+            I18n.t("dates.long_no_year")
+          )}']`
         ),
         "shows the right title"
       );
@@ -147,7 +152,9 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='ActivityPub note was deleted at ${deletedAt.format(I18n.t("dates.long_no_year"))}']`
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='ActivityPub note was deleted at ${deletedAt.format(
+            I18n.t("dates.long_no_year")
+          )}']`
         ),
         "shows the right title"
       );

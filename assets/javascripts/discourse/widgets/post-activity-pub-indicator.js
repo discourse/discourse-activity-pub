@@ -21,7 +21,9 @@ createWidget("post-activity-pub-indicator", {
       key = moment().isAfter(moment(time)) ? "scheduled_past" : "scheduled";
     }
 
-    return I18n.t(`post.discourse_activity_pub.title.${key}`, { time: time.format(I18n.t("dates.long_no_year")) });
+    return I18n.t(`post.discourse_activity_pub.title.${key}`, {
+      time: time.format(I18n.t("dates.long_no_year")),
+    });
   },
 
   buildClasses(attrs) {
