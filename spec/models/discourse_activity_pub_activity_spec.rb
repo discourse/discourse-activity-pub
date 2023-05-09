@@ -158,12 +158,12 @@ RSpec.describe DiscourseActivityPubActivity do
       original_time = Time.now.utc.iso8601
 
       follow_activity.after_deliver
-      expect(follow_activity.reload.published_at).to eq(original_time)
+      expect(follow_activity.reload.published_at).to eq(original_time) # rubocop:disable Discourse/TimeEqMatcher stored as a string
 
       unfreeze_time
       freeze_time(2.minutes.from_now) do
         follow_activity.after_deliver
-        expect(follow_activity.reload.published_at).to eq(original_time)
+        expect(follow_activity.reload.published_at).to eq(original_time) # rubocop:disable Discourse/TimeEqMatcher stored as a string
       end
     end
 
