@@ -158,12 +158,12 @@ RSpec.describe DiscourseActivityPubActivity do
       original_time = Time.now.utc.iso8601
 
       follow_activity.after_deliver
-      expect(follow_activity.reload.published_at).to eq_time(original_time)
+      expect(follow_activity.reload.published_at).to eq(original_time)
 
       unfreeze_time
       freeze_time(2.minutes.from_now) do
         follow_activity.after_deliver
-        expect(follow_activity.reload.published_at).to eq_time(original_time)
+        expect(follow_activity.reload.published_at).to eq(original_time)
       end
     end
 
