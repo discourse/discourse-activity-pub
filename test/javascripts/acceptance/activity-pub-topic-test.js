@@ -11,6 +11,7 @@ import topicFixtures from "discourse/tests/fixtures/topic";
 import I18n from "I18n";
 
 const createdAt = moment().subtract(2, "days");
+const scheduledAt = moment().subtract(2, "days");
 const publishedAt = moment().subtract(1, "days");
 const deletedAt = moment();
 
@@ -21,6 +22,7 @@ const setupServer = (needs, _publishedAt = null) => {
     firstPost.cooked += '<div class="note">This is my note</div>';
     firstPost.created_at = createdAt;
     firstPost.activity_pub_enabled = true;
+    firstPost.activity_pub_scheduled_at = scheduledAt;
     if (_publishedAt) {
       firstPost.activity_pub_published_at = _publishedAt;
     }
@@ -88,12 +90,9 @@ acceptance(
 
       await visit("/t/280");
 
-      let delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
-      let time = moment(createdAt).add(delay_minutes, "m");
-
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was scheduled to be published via ActivityPub at ${time.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was scheduled to be published via ActivityPub at ${scheduledAt.format(
             I18n.t("dates.long_no_year")
           )}']`
         ),

@@ -155,7 +155,7 @@ RSpec.describe DiscourseActivityPubActivity do
   describe "#after_deliver" do
     it "records published_at if not set" do
       freeze_time
-      original_time = Time.now
+      original_time = Time.now.utc.iso8601
 
       follow_activity.after_deliver
       expect(follow_activity.reload.published_at).to eq_time(original_time)
@@ -172,7 +172,7 @@ RSpec.describe DiscourseActivityPubActivity do
 
       it "calls activity_pub_after_publish on associated object models" do
         freeze_time
-        original_time = Time.now
+        original_time = Time.now.utc.iso8601
         Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: original_time }).once
         create_activity.after_deliver
       end
@@ -183,7 +183,7 @@ RSpec.describe DiscourseActivityPubActivity do
 
       it "calls activity_pub_after_publish on associated object models" do
         freeze_time
-        original_time = Time.now
+        original_time = Time.now.utc.iso8601
         Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: original_time }).once
         delete_activity.after_deliver
       end

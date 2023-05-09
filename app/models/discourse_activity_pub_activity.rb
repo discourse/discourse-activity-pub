@@ -63,7 +63,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def after_scheduled(scheduled_at)
-    if self.object.model&.respond_to?(:activity_pub_after_scheduled)
+    if self.object&.respond_to?(:model) && self.object.model&.respond_to?(:activity_pub_after_scheduled)
       args = {
         scheduled_at: scheduled_at
       }
