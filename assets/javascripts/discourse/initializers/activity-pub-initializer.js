@@ -12,6 +12,10 @@ export default {
 
       api.includePostAttributes("activity_pub_enabled", "activity_pub_enabled");
       api.includePostAttributes(
+        "activity_pub_scheduled_at",
+        "activity_pub_scheduled_at"
+      );
+      api.includePostAttributes(
         "activity_pub_published_at",
         "activity_pub_published_at"
       );
@@ -33,9 +37,31 @@ export default {
             attrs.activity_pub_enabled &&
             currentUser?.staff
           ) {
-            postStatuses.unshift(
-              this.attach("post-activity-pub-indicator", attrs)
-            );
+            let time;
+            let status;
+
+            if (attrs.activity_pub_deleted_at) {
+              time = moment(attrs.activity_pub_deleted_at);
+              status = "deleted";
+            } else if (attrs.activity_pub_published_at) {
+              time = moment(attrs.activity_pub_published_at);
+              status = "published";
+            } else if (attrs.activity_pub_scheduled_at) {
+              time = moment(attrs.activity_pub_scheduled_at);
+              status = moment().isAfter(moment(time))
+                ? "scheduled_past"
+                : "scheduled";
+            }
+
+            if (time && status) {
+              postStatuses.unshift(
+                this.attach("post-activity-pub-indicator", {
+                  post: attrs,
+                  time,
+                  status,
+                })
+              );
+            }
           }
           result[result.length - 1].children = postStatuses;
           return result;
@@ -65,6 +91,7 @@ export default {
         handleActivityPubMessage(data) {
           if (data.model.type === "post") {
             let stateProps = {
+              activity_pub_scheduled_at: data.model.scheduled_at,
               activity_pub_published_at: data.model.published_at,
               activity_pub_deleted_at: data.model.deleted_at,
             };

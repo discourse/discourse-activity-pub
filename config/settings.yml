@@ -22,4 +22,5 @@ plugins:
     list_type: simple
   activity_pub_delivery_delay_minutes:
     default: 5
+    min: 1
     client: true

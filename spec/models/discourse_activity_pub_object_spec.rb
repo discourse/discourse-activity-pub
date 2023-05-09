@@ -178,17 +178,15 @@ RSpec.describe DiscourseActivityPubObject do
         end
 
         context "while in pre publication period" do
-          before do
-            perform_delete
-          end
-
           it "does not create an object" do
+            perform_delete
             expect(
               post.activity_pub_object.present?
             ).to eq(false)
           end
 
           it "does not create an activity" do
+            perform_delete
             expect(
                post.activity_pub_actor.activities.where(
                  ap_type: 'Delete'
@@ -197,11 +195,46 @@ RSpec.describe DiscourseActivityPubObject do
           end
 
           it "destroys associated objects" do
+            perform_delete
             expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
           end
 
           it "destroys associated activities" do
+            perform_delete
             expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(false)
+          end
+
+          it "clears associated data" do
+            perform_delete
+            expect(note.model.custom_fields['activity_pub_scheduled_at']).to eq(nil)
+            expect(note.model.custom_fields['activity_pub_published_at']).to eq(nil)
+            expect(note.model.custom_fields['activity_pub_deleted_at']).to eq(nil)
+          end
+
+          it "clears associated jobs" do
+            DiscourseActivityPubActivity.any_instance.unstub(:deliver_composition)
+
+            follower1 = Fabricate(:discourse_activity_pub_actor_person)
+            follow1 = Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: create.actor)
+            follower2 = Fabricate(:discourse_activity_pub_actor_person)
+            follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: create.actor)
+
+            create.deliver_composition
+            expect(Jobs::DiscourseActivityPubDeliver.jobs.size).to eq(2)
+
+            job1_args = {
+              activity_id: create.id,
+              from_actor_id: create.actor.id,
+              to_actor_id: follower1.id
+            }
+            job2_args = {
+              activity_id: create.id,
+              from_actor_id: create.actor.id,
+              to_actor_id: follower2.id
+            }
+            Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job1_args).once
+            Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
+            perform_delete
           end
         end
 

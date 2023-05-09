@@ -162,6 +162,7 @@ after_initialize do
 
   Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
 
+  register_post_custom_field_type('activity_pub_scheduled_at', :string)
   register_post_custom_field_type('activity_pub_published_at', :string)
   register_post_custom_field_type('activity_pub_deleted_at', :string)
 
@@ -195,10 +196,16 @@ after_initialize do
 
     activity_pub_publish_state
   end
+  add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
+    return nil if !activity_pub_enabled || !args[:scheduled_at]
+    custom_fields['activity_pub_scheduled_at'] = args[:scheduled_at] if args[:scheduled_at]
+    save_custom_fields(true)
+  end
   add_to_class(:post, :activity_pub_published_at) { custom_fields['activity_pub_published_at'] }
   add_to_class(:post, :activity_pub_deleted_at) { custom_fields['activity_pub_deleted_at'] }
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
+  add_to_class(:post, :activity_pub_scheduled_at) { custom_fields['activity_pub_scheduled_at'] }
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
 
@@ -209,6 +216,7 @@ after_initialize do
       model: {
         id: self.id,
         type: "post",
+        scheduled_at: self.activity_pub_scheduled_at,
         published_at: self.activity_pub_published_at,
         deleted_at: self.activity_pub_deleted_at
       }
@@ -220,6 +228,7 @@ after_initialize do
   end
 
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
+  add_to_serializer(:post, :activity_pub_scheduled_at) { object.activity_pub_scheduled_at }
   add_to_serializer(:post, :activity_pub_published_at) { object.activity_pub_published_at }
   add_to_serializer(:post, :activity_pub_deleted_at) { object.activity_pub_deleted_at }
 

@@ -53,14 +53,27 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
     if delay
       Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
+      scheduled_at = (Time.now.utc + delay.minutes).iso8601
     else
       Jobs.enqueue(:discourse_activity_pub_deliver, args)
+      scheduled_at = Time.now.utc.iso8601
+    end
+
+    after_scheduled(scheduled_at)
+  end
+
+  def after_scheduled(scheduled_at)
+    if self.object.model&.respond_to?(:activity_pub_after_scheduled)
+      args = {
+        scheduled_at: scheduled_at
+      }
+      self.object.model.activity_pub_after_scheduled(args)
     end
   end
 
   def after_deliver
     if !self.published_at
-      published_at = Time.now
+      published_at = Time.now.utc.iso8601
       self.update(published_at: published_at)
 
       if self.object.model&.respond_to?(:activity_pub_after_publish)

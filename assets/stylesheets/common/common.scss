@@ -110,7 +110,8 @@
   &.published .d-icon {
     color: var(--success);
   }
-  &.scheduled .d-icon {
+  &.scheduled .d-icon,
+  &.scheduled-past .d-icon {
     color: var(--primary-medium);
   }
   &.deleted .d-icon {

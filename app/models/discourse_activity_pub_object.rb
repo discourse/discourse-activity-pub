@@ -33,17 +33,17 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     ap = DiscourseActivityPub::AP::Object.from_type(ap_type_sym)
     return unless model.activity_pub_enabled && ap&.composition?
 
-    # We don't currently permit updates after publication
-    return if model.activity_pub_published? && ap_type_sym == :update
+    if ap_type_sym == :update
+      # We don't currently permit updates after publication
+      return if model.activity_pub_published?
+      # We don't permit updates if object has been deleted
+      return if model.activity_pub_deleted?
+    end
 
-    # We don't current permit further action if object has been deleted
-    return if model.activity_pub_deleted?
-
-    # If we're pre-publication destroy all associated objects and activities on delete.
+    # If we're pre-publication clear all objects and data.
     if !model.activity_pub_published? && ap_type_sym == :delete
-      objects = DiscourseActivityPubObject.where(model_id: model.id, model_type: model.class.name)
-      objects.each { |object| object.activities.destroy_all }
-      objects.destroy_all
+      clear_all_objects(model)
+      model.activity_pub_publish_state
       return
     end
 
@@ -70,6 +70,34 @@ class DiscourseActivityPubObject < ActiveRecord::Base
           ap_type: ap.type
         )
       end
+    end
+  end
+
+  def self.clear_all_objects(model)
+    ActiveRecord::Base.transaction do
+      model.custom_fields['activity_pub_scheduled_at'] = nil
+      model.custom_fields['activity_pub_published_at'] = nil
+      model.custom_fields['activity_pub_deleted_at'] = nil
+      model.save_custom_fields(true)
+
+      objects = DiscourseActivityPubObject.where(
+        model_id: model.id,
+        model_type: model.class.name
+      )
+      objects.each do |object|
+        object.activities.each do |activity|
+          job_args = {
+            activity_id: activity.id,
+            from_actor_id: activity.actor.id,
+          }
+          activity.actor.followers.each do |follower|
+            job_args[:to_actor_id] = follower.id
+            Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, **job_args)
+          end
+        end
+        object.activities.destroy_all
+      end
+      objects.destroy_all
     end
   end
 end
