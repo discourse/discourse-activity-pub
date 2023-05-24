@@ -15,15 +15,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
   describe '#process_actor_and_object' do
     let(:activity_type) { DiscourseActivityPub::AP::Activity::Follow.type }
 
-    before do
-      @orig_logger = Rails.logger
-      Rails.logger = @fake_logger = FakeLogger.new
-    end
-
-    after do
-      Rails.logger = @orig_logger
-    end
-
     context "with a valid activity" do
       before do
         @json = build_activity_json(object: actor, type: activity_type)
@@ -43,11 +34,26 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           expect(DiscourseActivityPubActor.exists?(ap_id: @json['actor']['id'])).to eq(true)
         end
 
-        it "logs a warning" do
-          perform_process(@json, activity_type)
-          expect(@fake_logger.warnings.last).to match(
-            build_process_warning("object_not_ready", @json['id'])
-          )
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          before do
+            @orig_logger = Rails.logger
+            Rails.logger = @fake_logger = FakeLogger.new
+          end
+
+          after do
+            Rails.logger = @orig_logger
+          end
+
+          it "logs a warning" do
+            perform_process(@json, activity_type)
+            expect(@fake_logger.warnings.last).to match(
+              build_process_warning("object_not_ready", @json['id'])
+            )
+          end
         end
       end
 
@@ -60,9 +66,24 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           expect(perform_process(@json, activity_type)).to eq(true)
         end
 
-        it "does not log a warning" do
-          perform_process(@json, activity_type)
-          expect(@fake_logger.warnings.any?).to eq(false)
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          before do
+            @orig_logger = Rails.logger
+            Rails.logger = @fake_logger = FakeLogger.new
+          end
+
+          after do
+            Rails.logger = @orig_logger
+          end
+
+          it "does not log a warning" do
+            perform_process(@json, activity_type)
+            expect(@fake_logger.warnings.any?).to eq(false)
+          end
         end
       end
     end
@@ -87,11 +108,26 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           ).to eq(false)
         end
 
-        it "logs a warning" do
-          perform_process(@json, activity_type)
-          expect(@fake_logger.warnings.first).to match(
-            build_process_warning("actor_not_supported", @json["actor"]['id'])
-          )
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          before do
+            @orig_logger = Rails.logger
+            Rails.logger = @fake_logger = FakeLogger.new
+          end
+
+          after do
+            Rails.logger = @orig_logger
+          end
+
+          it "logs a warning" do
+            perform_process(@json, activity_type)
+            expect(@fake_logger.warnings.first).to match(
+              build_process_warning("actor_not_supported", @json["actor"]['id'])
+            )
+          end
         end
       end
 
@@ -109,11 +145,26 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           expect(DiscourseActivityPubActor.exists?(ap_id: @json['actor']['id'])).to eq(true)
         end
 
-        it "logs a warning" do
-          perform_process(@json, activity_type)
-          expect(@fake_logger.warnings.last).to match(
-            build_process_warning("cant_find_object", @json["id"])
-          )
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          before do
+            @orig_logger = Rails.logger
+            Rails.logger = @fake_logger = FakeLogger.new
+          end
+
+          after do
+            Rails.logger = @orig_logger
+          end
+
+          it "logs a warning" do
+            perform_process(@json, activity_type)
+            expect(@fake_logger.warnings.last).to match(
+              build_process_warning("cant_find_object", @json["id"])
+            )
+          end
         end
       end
     end

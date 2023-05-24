@@ -67,7 +67,9 @@ module DiscourseActivityPub
       end
 
       def log_warning(action, message)
-        Rails.logger.warn("[Discourse Activity Pub] #{action}: #{message}")
+        if SiteSetting.activity_pub_verbose_logging
+          Rails.logger.warn("[Discourse Activity Pub] #{action}: #{message}")
+        end
       end
 
       def self.factory(json)

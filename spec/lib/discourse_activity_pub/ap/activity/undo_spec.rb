@@ -57,17 +57,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
 
         let(:json) { build_activity_json(actor: person, object: another_activity, type: 'Undo') }
 
-        before do
-          @orig_logger = Rails.logger
-          Rails.logger = @fake_logger = FakeLogger.new
-
-          perform_process(json)
-        end
-
-        after do
-          Rails.logger = @orig_logger
-        end
-
         it "does not undo the effects of the activity" do
           expect(
             DiscourseActivityPubFollow.exists?(
@@ -89,10 +78,27 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
           ).to be(false)
         end
 
-        it "logs a warning" do
-          expect(@fake_logger.warnings.last).to match(
-            build_process_warning("invalid_undo", json['id'])
-          )
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          before do
+            @orig_logger = Rails.logger
+            Rails.logger = @fake_logger = FakeLogger.new
+
+            perform_process(json)
+          end
+
+          after do
+            Rails.logger = @orig_logger
+          end
+
+          it "logs a warning" do
+            expect(@fake_logger.warnings.last).to match(
+              build_process_warning("invalid_undo", json['id'])
+            )
+          end
         end
       end
     end
