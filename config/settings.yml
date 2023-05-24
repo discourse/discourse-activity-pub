@@ -24,3 +24,5 @@ plugins:
     default: 5
     min: 1
     client: true
+  activity_pub_verbose_logging:
+    default: false

@@ -90,3 +90,4 @@ en:
     activity_pub_allowed_request_origins: "List of domains allowed to make ActivityPub requests."
     activity_pub_blocked_request_origins: "List of domains not allowed to make ActivityPub requests."
     activity_pub_delivery_delay_minutes: "Number of minutes to delay delivery of ActivityPub activities ('delete' activities are delivered instantly)."
+    activity_pub_verbose_logging: "Enable verbose ActivityPub logs."
