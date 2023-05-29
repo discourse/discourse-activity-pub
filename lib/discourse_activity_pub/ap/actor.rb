@@ -88,7 +88,13 @@ module DiscourseActivityPub
           stored.public_key = json['publicKey']['publicKeyPem']
         end
 
-        stored.save! if stored.new_record? || stored.changed?
+        if stored.new_record? || stored.changed?
+          begin
+            stored.save!
+          rescue ActiveRecord::RecordInvalid => error
+            log_stored_save_error(error, json)
+          end
+        end
 
         stored
       end
@@ -103,6 +109,15 @@ module DiscourseActivityPub
         ap_actor.update_stored_from_json(stored ? actor_id : nil)
 
         ap_actor
+      end
+
+      protected
+
+      def log_stored_save_error(error, json)
+        prefix = "[Discourse Activity Pub] update_stored_from_json failed to save actor"
+        ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
+        json = "Actor JSON: #{JSON.generate(json)}"
+        Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
       end
     end
   end

@@ -23,11 +23,9 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       actor
     end
 
-    before do
-      subject.update_stored_from_json
-    end
-
     it "creates an actor" do
+      subject.update_stored_from_json
+
       actor = DiscourseActivityPubActor.find_by(ap_id: json['id'])
       expect(actor.present?).to eq(true)
       expect(actor.domain).to eq("external.com")
@@ -39,6 +37,8 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     it "updates an actor if optional attributes have changed" do
+      subject.update_stored_from_json
+
       json['name'] = "Bob McLeod"
       subject.json = json
       subject.update_stored_from_json
@@ -48,6 +48,8 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     it "creates a new actor if required attributes have changed" do
+      subject.update_stored_from_json
+
       original_id = json['id']
       json['id'] = "https://external.com/u/bob"
       subject.json = json
@@ -55,6 +57,24 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
 
       expect(DiscourseActivityPubActor.exists?(ap_id: original_id)).to eq(true)
       expect(DiscourseActivityPubActor.exists?(ap_id: json['id'])).to eq(true)
+    end
+
+    it "logs a detailed error if validations fail" do
+      orig_logger = Rails.logger
+      Rails.logger = fake_logger = FakeLogger.new
+
+      DiscourseActivityPubActor.stubs(:find_by).returns(nil)
+      stored = Fabricate(:discourse_activity_pub_actor_person)
+
+      actor = described_class.new
+      actor.json = stored.ap.json
+      actor.update_stored_from_json
+
+      expect(fake_logger.errors.first).to eq(
+        "[Discourse Activity Pub] update_stored_from_json failed to save actor. AR errors: Ap has already been taken. Actor JSON: #{JSON.generate(stored.ap.json)}"
+      )
+
+      Rails.logger = orig_logger
     end
   end
 end
