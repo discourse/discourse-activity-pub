@@ -243,6 +243,7 @@ after_initialize do
   on(:validate_post) do |post|
     if post.activity_pub_published? && post.activity_pub_content != post.activity_pub_object.content
       post.errors.add(:base, I18n.t("post.discourse_activity_pub.error.edit_after_publication"))
+      raise ActiveRecord::Rollback
     end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|

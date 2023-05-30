@@ -35,6 +35,12 @@ RSpec.describe PostRevisor do
             I18n.t("post.discourse_activity_pub.error.edit_after_publication")
           )
         end
+
+        it "does not perform the edit" do
+          original_raw = post.raw
+          subject.revise!(user, raw: "#{post.raw} revision inside note")
+          expect(post.reload.raw).to eq(original_raw)
+        end
       end
     end
   end
