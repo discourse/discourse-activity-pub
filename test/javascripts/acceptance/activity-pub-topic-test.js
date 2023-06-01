@@ -8,7 +8,6 @@ import { visit } from "@ember/test-helpers";
 import Site from "discourse/models/site";
 import { cloneJSON } from "discourse-common/lib/object";
 import topicFixtures from "discourse/tests/fixtures/topic";
-import I18n from "I18n";
 
 const createdAt = moment().subtract(2, "days");
 const scheduledAt = moment().subtract(2, "days");
