@@ -93,7 +93,7 @@ acceptance(
       assert.ok(
         exists(
           `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was scheduled to be published via ActivityPub at ${scheduledAt.format(
-            I18n.t("dates.long_no_year")
+            "h:mm a, MMM D"
           )}']`
         ),
         "shows the right title"
@@ -127,7 +127,7 @@ acceptance(
       assert.ok(
         exists(
           `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was published via ActivityPub at ${publishedAt.format(
-            I18n.t("dates.long_no_year")
+            "h:mm a, MMM D"
           )}']`
         ),
         "shows the right title"
@@ -152,7 +152,7 @@ acceptance(
       assert.ok(
         exists(
           `.topic-post:nth-of-type(1) .post-info.activity-pub[title='ActivityPub note was deleted at ${deletedAt.format(
-            I18n.t("dates.long_no_year")
+            "h:mm a, MMM D"
           )}']`
         ),
         "shows the right title"
