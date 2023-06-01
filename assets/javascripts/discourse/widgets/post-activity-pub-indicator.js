@@ -8,7 +8,7 @@ createWidget("post-activity-pub-indicator", {
 
   title(attrs) {
     return I18n.t(`post.discourse_activity_pub.title.${attrs.status}`, {
-      time: attrs.time.format(I18n.t("dates.long_no_year")),
+      time: attrs.time.format("h:mm a, MMM D"),
     });
   },
 
