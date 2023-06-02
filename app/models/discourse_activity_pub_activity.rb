@@ -76,7 +76,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       published_at = Time.now.utc.iso8601
       self.update(published_at: published_at)
 
-      if self.object.model&.respond_to?(:activity_pub_after_publish)
+      if self.object.local && self.object.model&.respond_to?(:activity_pub_after_publish)
         args = {}
         args[:published_at] = published_at if create?
         args[:deleted_at] = published_at if delete?

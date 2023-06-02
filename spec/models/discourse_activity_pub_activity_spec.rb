@@ -188,5 +188,15 @@ RSpec.describe DiscourseActivityPubActivity do
         delete_activity.after_deliver
       end
     end
+
+    context "with accept activity" do
+      let(:accept_activity) { Fabricate(:discourse_activity_pub_activity_accept, actor: actor) }
+
+      it "works" do
+        freeze_time
+        accept_activity.after_deliver
+        expect(accept_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
+      end
+    end
   end
 end
