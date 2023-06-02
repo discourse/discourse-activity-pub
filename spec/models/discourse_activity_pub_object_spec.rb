@@ -276,5 +276,57 @@ RSpec.describe DiscourseActivityPubObject do
         end
       end
     end
+
+    context "with a wiki post" do
+      let!(:wiki_topic) { Fabricate(:topic, category: category) }
+      let!(:wiki_post) {
+        PostCreator.create!(
+          Discourse.system_user,
+          raw: "Original wiki content",
+          topic_id: wiki_topic.id
+        )
+      }
+      let!(:wiki_note) { Fabricate(:discourse_activity_pub_object_note, model: wiki_post) }
+      let!(:wiki_create) { Fabricate(:discourse_activity_pub_activity_create, object: wiki_note) }
+
+      before do
+        DiscourseActivityPubActivity.any_instance.stubs(:deliver_composition).returns(true)
+        toggle_activity_pub(category, callbacks: true)
+        wiki_post.wiki = true
+        wiki_post.save!
+      end
+
+      context "with delete" do
+        def perform_wiki_delete
+          wiki_post.delete
+          described_class.handle_model_callback(wiki_post, :delete)
+        end
+
+        context "while in pre publication period" do
+          it "works" do
+            perform_wiki_delete
+            expect(
+              wiki_post.activity_pub_object.present?
+            ).to eq(false)
+          end
+        end
+
+        context "after publication" do
+          before do
+            wiki_note.model.custom_fields['activity_pub_published_at'] = Time.now
+            wiki_note.model.save_custom_fields(true)
+            perform_wiki_delete
+          end
+
+          it "works" do
+            expect(
+               wiki_post.activity_pub_actor.activities.where(
+                 ap_type: 'Delete'
+              ).exists?
+            ).to eq(true)
+          end
+        end
+      end
+    end
   end
 end
