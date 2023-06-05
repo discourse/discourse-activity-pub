@@ -240,8 +240,8 @@ after_initialize do
   on(:before_edit_post) do |post|
     post.custom_fields['activity_pub_content'] = DiscourseActivityPub::ExcerptParser.get_content(post)
   end
-  on(:validate_post) do |post|
-    if post.activity_pub_published? && post.activity_pub_content != post.activity_pub_object.content
+  on(:before_edit_post) do |post, fields|
+    if fields.has_key?(:raw) && post.activity_pub_published? && post.activity_pub_content != post.activity_pub_object.content
       post.errors.add(:base, I18n.t("post.discourse_activity_pub.error.edit_after_publication"))
       raise ActiveRecord::Rollback
     end

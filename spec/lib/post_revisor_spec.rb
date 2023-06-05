@@ -42,6 +42,13 @@ RSpec.describe PostRevisor do
           expect(post.reload.raw).to eq(original_raw)
         end
       end
+
+      it "allows a category change" do
+        category2 = Fabricate(:category)
+        expect { subject.revise!(user, category_id: category2.id) }.not_to raise_error
+        post.topic.reload
+        expect(post.topic.category_id).to eq(category2.id)
+      end
     end
   end
 end
