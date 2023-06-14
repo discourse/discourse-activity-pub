@@ -92,7 +92,7 @@
   padding: 1em;
   z-index: 100;
   background-color: var(--secondary);
-  box-shadow: shadow("dropdown");
+  box-shadow: var(--shadow-dropdown);
   border: 1px solid var(--primary-low);
   max-width: 90vw;
   box-sizing: border-box;
