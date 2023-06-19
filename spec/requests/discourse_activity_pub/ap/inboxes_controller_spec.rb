@@ -38,7 +38,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       it "rate limits requests" do
         SiteSetting.activity_pub_rate_limit_post_to_inbox_per_minute = 1
         RateLimiter.enable
-        RateLimiter.clear_all!
+        RateLimiter.clear_all_global!
 
         post_to_inbox(actor, body: @json)
         post_to_inbox(actor, body: @json)

@@ -9,7 +9,7 @@ register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
 
 after_initialize do
-  %w(
+  %w[
     ../lib/discourse_activity_pub/engine.rb
     ../lib/discourse_activity_pub/json_ld.rb
     ../lib/discourse_activity_pub/uri.rb
@@ -76,9 +76,7 @@ after_initialize do
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_site_extension.rb
-  ).each do |path|
-    load File.expand_path(path, __FILE__)
-  end
+  ].each { |path| load File.expand_path(path, __FILE__) }
 
   # Site.activity_pub_enabled is the single source of truth for whether
   # ActivityPub is enabled on the site level. Using module prepension here
@@ -88,24 +86,53 @@ after_initialize do
   add_to_serializer(:site, :activity_pub_enabled) { Site.activity_pub_enabled }
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
-  Category.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model, dependent: :destroy
-  Category.has_many :activity_pub_followers, class_name: "DiscourseActivityPubActor", through: :activity_pub_actor, source: :followers, dependent: :destroy
-  Category.has_many :activity_pub_activities, class_name: "DiscourseActivityPubActivity", through: :activity_pub_actor, source: :activities, dependent: :destroy
+  Category.has_one :activity_pub_actor,
+                   class_name: "DiscourseActivityPubActor",
+                   as: :model,
+                   dependent: :destroy
+  Category.has_many :activity_pub_followers,
+                    class_name: "DiscourseActivityPubActor",
+                    through: :activity_pub_actor,
+                    source: :followers,
+                    dependent: :destroy
+  Category.has_many :activity_pub_activities,
+                    class_name: "DiscourseActivityPubActivity",
+                    through: :activity_pub_actor,
+                    source: :activities,
+                    dependent: :destroy
   Category.prepend DiscourseActivityPubCategoryExtension
 
-  register_category_custom_field_type('activity_pub_enabled', :boolean)
-  register_category_custom_field_type('activity_pub_show_status', :boolean)
-  register_category_custom_field_type('activity_pub_show_handle', :boolean)
-  register_category_custom_field_type('activity_pub_username', :string)
-  register_category_custom_field_type('activity_pub_name', :string)
-  add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
-  add_to_class(:category, :activity_pub_logo_url) { SiteIconManager.large_icon_url }
-  add_to_class(:category, :activity_pub_enabled) { Site.activity_pub_enabled && !self.read_restricted && !!custom_fields["activity_pub_enabled"] }
-  add_to_class(:category, :activity_pub_show_status) { Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"] }
-  add_to_class(:category, :activity_pub_show_handle) { Site.activity_pub_enabled && !!custom_fields["activity_pub_show_handle"]}
-  add_to_class(:category, :activity_pub_ready?) { activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted? }
-  add_to_class(:category, :activity_pub_username) { custom_fields["activity_pub_username"] }
-  add_to_class(:category, :activity_pub_name) { custom_fields["activity_pub_name"] }
+  register_category_custom_field_type("activity_pub_enabled", :boolean)
+  register_category_custom_field_type("activity_pub_show_status", :boolean)
+  register_category_custom_field_type("activity_pub_show_handle", :boolean)
+  register_category_custom_field_type("activity_pub_username", :string)
+  register_category_custom_field_type("activity_pub_name", :string)
+  add_to_class(:category, :activity_pub_url) do
+    "#{DiscourseActivityPub.base_url}#{self.url}"
+  end
+  add_to_class(:category, :activity_pub_logo_url) do
+    SiteIconManager.large_icon_url
+  end
+  add_to_class(:category, :activity_pub_enabled) do
+    Site.activity_pub_enabled && !self.read_restricted &&
+      !!custom_fields["activity_pub_enabled"]
+  end
+  add_to_class(:category, :activity_pub_show_status) do
+    Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"]
+  end
+  add_to_class(:category, :activity_pub_show_handle) do
+    Site.activity_pub_enabled && !!custom_fields["activity_pub_show_handle"]
+  end
+  add_to_class(:category, :activity_pub_ready?) do
+    activity_pub_enabled && activity_pub_actor.present? &&
+      activity_pub_actor.persisted?
+  end
+  add_to_class(:category, :activity_pub_username) do
+    custom_fields["activity_pub_username"]
+  end
+  add_to_class(:category, :activity_pub_name) do
+    custom_fields["activity_pub_name"]
+  end
   add_to_class(:category, :activity_pub_publish_state) do
     message = {
       model: {
@@ -116,7 +143,10 @@ after_initialize do
       }
     }
     opts = {}
-    opts[:group_ids] = [Group::AUTO_GROUPS[:staff], *self.reviewable_by_group_id] if !activity_pub_show_status
+    opts[:group_ids] = [
+      Group::AUTO_GROUPS[:staff],
+      *self.reviewable_by_group_id
+    ] if !activity_pub_show_status
     MessageBus.publish("/activity-pub", message, opts)
   end
 
@@ -126,21 +156,46 @@ after_initialize do
   end
 
   on(:site_setting_changed) do |name, old_val, new_val|
-    if %i(activity_pub_enabled login_required).include?(name)
+    if %i[activity_pub_enabled login_required].include?(name)
       Category
-        .joins("LEFT JOIN category_custom_fields ON categories.id = category_custom_fields.category_id")
-        .where("category_custom_fields.name = 'activity_pub_enabled' AND category_custom_fields.value IS NOT NULL")
+        .joins(
+          "LEFT JOIN category_custom_fields ON categories.id = category_custom_fields.category_id"
+        )
+        .where(
+          "category_custom_fields.name = 'activity_pub_enabled' AND category_custom_fields.value IS NOT NULL"
+        )
         .each(&:activity_pub_publish_state)
     end
   end
 
-  add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
-  add_to_serializer(:basic_category, :activity_pub_ready) { object.activity_pub_ready? }
-  add_to_serializer(:basic_category, :activity_pub_show_status) { object.activity_pub_show_status }
-  add_to_serializer(:basic_category, :activity_pub_show_handle) { object.activity_pub_show_handle }
-  add_to_serializer(:basic_category, :activity_pub_username) { object.activity_pub_username }
-  add_to_serializer(:basic_category, :activity_pub_name) { object.activity_pub_name }
-  add_to_serializer(:basic_category, :include_activity_pub_username?) { object.activity_pub_enabled }
+  add_to_serializer(:basic_category, :activity_pub_enabled) do
+    object.activity_pub_enabled
+  end
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_ready,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_ready? }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_username,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_username }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_name,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_name }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_show_status,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_show_status }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_show_handle,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_show_handle }
 
   if Site.respond_to? :preloaded_category_custom_fields
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
@@ -151,22 +206,30 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_name"
   end
 
-  add_to_class(:topic, :activity_pub_enabled) { Site.activity_pub_enabled && category&.activity_pub_ready? }
+  add_to_class(:topic, :activity_pub_enabled) do
+    Site.activity_pub_enabled && category&.activity_pub_ready?
+  end
   add_to_class(:topic, :activity_pub_published?) do
     return false unless activity_pub_enabled
 
     first_post = posts.with_deleted.find_by(post_number: 1)
     first_post&.activity_pub_published?
   end
-  add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
+  add_to_serializer(:topic_view, :activity_pub_enabled) do
+    object.topic.activity_pub_enabled
+  end
 
-  Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
+  Post.has_one :activity_pub_object,
+               class_name: "DiscourseActivityPubObject",
+               as: :model
 
-  register_post_custom_field_type('activity_pub_scheduled_at', :string)
-  register_post_custom_field_type('activity_pub_published_at', :string)
-  register_post_custom_field_type('activity_pub_deleted_at', :string)
+  register_post_custom_field_type("activity_pub_scheduled_at", :string)
+  register_post_custom_field_type("activity_pub_published_at", :string)
+  register_post_custom_field_type("activity_pub_deleted_at", :string)
 
-  add_to_class(:post, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
+  add_to_class(:post, :activity_pub_url) do
+    "#{DiscourseActivityPub.base_url}#{self.url}"
+  end
   add_to_class(:post, :activity_pub_enabled) do
     return false unless Site.activity_pub_enabled && is_first_post?
 
@@ -176,8 +239,8 @@ after_initialize do
   add_to_class(:post, :activity_pub_content) do
     return nil unless activity_pub_enabled
 
-    if custom_fields['activity_pub_content'].present?
-      custom_fields['activity_pub_content']
+    if custom_fields["activity_pub_content"].present?
+      custom_fields["activity_pub_content"]
     else
       DiscourseActivityPub::ExcerptParser.get_content(self)
     end
@@ -188,24 +251,38 @@ after_initialize do
     topic.category&.activity_pub_actor
   end
   add_to_class(:post, :activity_pub_after_publish) do |args = {}|
-    return nil if !activity_pub_enabled || (!args[:published_at] && !args[:deleted_at])
+    if !activity_pub_enabled || (!args[:published_at] && !args[:deleted_at])
+      return nil
+    end
 
-    custom_fields['activity_pub_published_at'] = args[:published_at] if args[:published_at]
-    custom_fields['activity_pub_deleted_at'] = args[:deleted_at] if args[:deleted_at]
+    custom_fields["activity_pub_published_at"] = args[:published_at] if args[
+      :published_at
+    ]
+    custom_fields["activity_pub_deleted_at"] = args[:deleted_at] if args[
+      :deleted_at
+    ]
     save_custom_fields(true)
 
     activity_pub_publish_state
   end
   add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
     return nil if !activity_pub_enabled || !args[:scheduled_at]
-    custom_fields['activity_pub_scheduled_at'] = args[:scheduled_at] if args[:scheduled_at]
+    custom_fields["activity_pub_scheduled_at"] = args[:scheduled_at] if args[
+      :scheduled_at
+    ]
     save_custom_fields(true)
   end
-  add_to_class(:post, :activity_pub_published_at) { custom_fields['activity_pub_published_at'] }
-  add_to_class(:post, :activity_pub_deleted_at) { custom_fields['activity_pub_deleted_at'] }
+  add_to_class(:post, :activity_pub_published_at) do
+    custom_fields["activity_pub_published_at"]
+  end
+  add_to_class(:post, :activity_pub_deleted_at) do
+    custom_fields["activity_pub_deleted_at"]
+  end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
-  add_to_class(:post, :activity_pub_scheduled_at) { custom_fields['activity_pub_scheduled_at'] }
+  add_to_class(:post, :activity_pub_scheduled_at) do
+    custom_fields["activity_pub_scheduled_at"]
+  end
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
 
@@ -222,27 +299,46 @@ after_initialize do
       }
     }
     opts = {
-      group_ids: [Group::AUTO_GROUPS[:staff], *topic.category.reviewable_by_group_id]
+      group_ids: [
+        Group::AUTO_GROUPS[:staff],
+        *topic.category.reviewable_by_group_id
+      ]
     }
     MessageBus.publish("/activity-pub", message, opts)
   end
 
-  add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
-  add_to_serializer(:post, :activity_pub_scheduled_at) { object.activity_pub_scheduled_at }
-  add_to_serializer(:post, :activity_pub_published_at) { object.activity_pub_published_at }
-  add_to_serializer(:post, :activity_pub_deleted_at) { object.activity_pub_deleted_at }
+  add_to_serializer(:post, :activity_pub_enabled) do
+    object.activity_pub_enabled
+  end
+  add_to_serializer(:post, :activity_pub_scheduled_at) do
+    object.activity_pub_scheduled_at
+  end
+  add_to_serializer(:post, :activity_pub_published_at) do
+    object.activity_pub_published_at
+  end
+  add_to_serializer(:post, :activity_pub_deleted_at) do
+    object.activity_pub_deleted_at
+  end
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
   on(:before_create_post) do |post|
-    post.custom_fields['activity_pub_content'] = DiscourseActivityPub::ExcerptParser.get_content(post)
+    post.custom_fields[
+      "activity_pub_content"
+    ] = DiscourseActivityPub::ExcerptParser.get_content(post)
   end
   on(:before_edit_post) do |post|
-    post.custom_fields['activity_pub_content'] = DiscourseActivityPub::ExcerptParser.get_content(post)
+    post.custom_fields[
+      "activity_pub_content"
+    ] = DiscourseActivityPub::ExcerptParser.get_content(post)
   end
   on(:before_edit_post) do |post, fields|
-    if fields.has_key?(:raw) && post.activity_pub_published? && post.activity_pub_content != post.activity_pub_object.content
-      post.errors.add(:base, I18n.t("post.discourse_activity_pub.error.edit_after_publication"))
+    if fields.has_key?(:raw) && post.activity_pub_published? &&
+         post.activity_pub_content != post.activity_pub_object.content
+      post.errors.add(
+        :base,
+        I18n.t("post.discourse_activity_pub.error.edit_after_publication")
+      )
       raise ActiveRecord::Rollback
     end
   end
