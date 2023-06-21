@@ -76,5 +76,21 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
 
       Rails.logger = orig_logger
     end
+
+    it "prevents concurrent updates" do
+      orig_logger = Rails.logger
+      Rails.logger = fake_logger = FakeLogger.new
+
+      threads = 5.times.map do
+        Thread.new do
+          subject.update_stored_from_json
+        end
+      end
+      threads.map(&:join)
+
+      expect(fake_logger.errors.empty?).to eq(true)
+
+      Rails.logger = orig_logger
+    end
   end
 end
