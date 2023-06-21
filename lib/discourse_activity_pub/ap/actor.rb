@@ -61,38 +61,41 @@ module DiscourseActivityPub
 
       def update_stored_from_json(stored_id = nil)
         return false unless json
-        @stored = DiscourseActivityPubActor.find_by(ap_id: json[:id])
 
-        # id has changed
-        if !stored && stored_id
-          @stored = DiscourseActivityPubActor.find_by(ap_id: stored_id)
-          stored.ap_id = json[:id]
-        end
+        DiscourseActivityPubActor.transaction do
+          @stored = DiscourseActivityPubActor.find_by(ap_id: json[:id])
 
-        unless stored
-          @stored = DiscourseActivityPubActor.new(
-            ap_id: json[:id],
-            ap_type: json[:type],
-            domain: domain_from_id(json[:id]),
-            username: json[:preferredUsername],
-            inbox: json[:inbox],
-            outbox: json[:outbox]
-          )
-        end
+          # id has changed
+          if !stored && stored_id
+            @stored = DiscourseActivityPubActor.find_by(ap_id: stored_id)
+            stored.ap_id = json[:id]
+          end
 
-        changeable_attributes.each do |column, attribute|
-          stored.send("#{column}=", json[attribute]) if json[attribute].present?
-        end
+          unless stored
+            @stored = DiscourseActivityPubActor.new(
+              ap_id: json[:id],
+              ap_type: json[:type],
+              domain: domain_from_id(json[:id]),
+              username: json[:preferredUsername],
+              inbox: json[:inbox],
+              outbox: json[:outbox]
+            )
+          end
 
-        if json['publicKey'].is_a?(Hash) && json['publicKey']['owner'] == stored.ap_id
-          stored.public_key = json['publicKey']['publicKeyPem']
-        end
+          changeable_attributes.each do |column, attribute|
+            stored.send("#{column}=", json[attribute]) if json[attribute].present?
+          end
 
-        if stored.new_record? || stored.changed?
-          begin
-            stored.save!
-          rescue ActiveRecord::RecordInvalid => error
-            log_stored_save_error(error, json)
+          if json['publicKey'].is_a?(Hash) && json['publicKey']['owner'] == stored.ap_id
+            stored.public_key = json['publicKey']['publicKeyPem']
+          end
+
+          if stored.new_record? || stored.changed?
+            begin
+              stored.save!
+            rescue ActiveRecord::RecordInvalid => error
+              log_stored_save_error(error, json)
+            end
           end
         end
 
