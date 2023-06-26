@@ -59,22 +59,28 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       expect(DiscourseActivityPubActor.exists?(ap_id: json['id'])).to eq(true)
     end
 
-    it "logs a detailed error if validations fail" do
-      orig_logger = Rails.logger
-      Rails.logger = fake_logger = FakeLogger.new
+    context "with verbose logging enabled" do
+      before do
+        SiteSetting.activity_pub_verbose_logging = true
+      end
 
-      DiscourseActivityPubActor.stubs(:find_by).returns(nil)
-      stored = Fabricate(:discourse_activity_pub_actor_person)
+      it "logs a detailed error if validations fail" do
+        orig_logger = Rails.logger
+        Rails.logger = fake_logger = FakeLogger.new
 
-      actor = described_class.new
-      actor.json = stored.ap.json
-      actor.update_stored_from_json
+        DiscourseActivityPubActor.stubs(:find_by).returns(nil)
+        stored = Fabricate(:discourse_activity_pub_actor_person)
 
-      expect(fake_logger.errors.first).to eq(
-        "[Discourse Activity Pub] update_stored_from_json failed to save actor. AR errors: Ap has already been taken. Actor JSON: #{JSON.generate(stored.ap.json)}"
-      )
+        actor = described_class.new
+        actor.json = stored.ap.json
+        actor.update_stored_from_json
 
-      Rails.logger = orig_logger
+        expect(fake_logger.errors.first).to eq(
+          "[Discourse Activity Pub] update_stored_from_json failed to save actor. AR errors: Ap has already been taken. Actor JSON: #{JSON.generate(stored.ap.json)}"
+        )
+
+        Rails.logger = orig_logger
+      end
     end
 
     it "prevents concurrent updates" do

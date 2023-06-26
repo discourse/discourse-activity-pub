@@ -117,6 +117,8 @@ module DiscourseActivityPub
       protected
 
       def log_stored_save_error(error, json)
+        return unless SiteSetting.activity_pub_verbose_logging
+
         prefix = "[Discourse Activity Pub] update_stored_from_json failed to save actor"
         ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
         json = "Actor JSON: #{JSON.generate(json)}"
