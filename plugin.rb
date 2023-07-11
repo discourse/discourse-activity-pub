@@ -351,6 +351,9 @@ after_initialize do
       object.send("activity_pub_#{field_name}")
     end
   end
+  add_to_serializer(:post, :activity_pub_updated_at) do
+    object.activity_pub_updated_at
+  end
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
