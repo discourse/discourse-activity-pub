@@ -150,6 +150,16 @@ RSpec.describe DiscourseActivityPubActivity do
         end
       end
     end
+
+    it "cancels existing scheduled deliveries" do
+      job_args = {
+        activity_id: accept_activity.id,
+        from_actor_id: accept_activity.actor.id,
+        to_actor_id: accept_activity.object.actor.id
+      }
+      Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, job_args).once
+      accept_activity.deliver(to_actor_id: accept_activity.object.actor.id)
+    end
   end
 
   describe "#after_deliver" do
@@ -186,6 +196,17 @@ RSpec.describe DiscourseActivityPubActivity do
         original_time = Time.now.utc.iso8601
         Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: original_time }).once
         delete_activity.after_deliver
+      end
+    end
+
+    context "with update activity" do
+      let(:update_activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
+
+      it "calls activity_pub_after_publish on associated object models" do
+        freeze_time
+        original_time = Time.now.utc.iso8601
+        Post.any_instance.expects(:activity_pub_after_publish).with({ updated_at: original_time }).once
+        update_activity.after_deliver
       end
     end
 

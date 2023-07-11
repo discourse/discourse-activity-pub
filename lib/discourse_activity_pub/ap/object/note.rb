@@ -12,6 +12,10 @@ module DiscourseActivityPub
           stored&.content
         end
 
+        def updated
+          stored&.updated_at.iso8601
+        end
+
         def can_belong_to
           %i(post)
         end

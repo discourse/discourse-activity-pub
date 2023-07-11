@@ -135,18 +135,51 @@ RSpec.describe DiscourseActivityPubObject do
           before do
             note.model.custom_fields['activity_pub_published_at'] = Time.now
             note.model.save_custom_fields(true)
+            perform_update
           end
 
-          it "does not update the Note content" do
-            expect(note.reload.content).to eq("Original content")
+          it "updates the Note content" do
+            expect(note.reload.content).to eq("Updated content")
           end
 
-          it "does not create an Update Activity" do
+          it "creates an Update Activity" do
             expect(
                post.activity_pub_actor.activities.where(
+                 object_id: post.activity_pub_object.id,
+                 object_type: 'DiscourseActivityPubObject',
                  ap_type: 'Update'
               ).exists?
-            ).to eq(false)
+            ).to eq(true)
+          end
+
+          it "doesn't create multiple unpublished activities" do
+            perform_update
+            expect(
+               post.activity_pub_actor.activities.where(
+                 object_id: post.activity_pub_object.id,
+                 object_type: 'DiscourseActivityPubObject',
+                 ap_type: 'Update'
+              ).size
+            ).to eq(1)
+          end
+
+          it "creates multiple published activities" do
+            perform_update
+
+            attrs = {
+              object_id: post.activity_pub_object.id,
+              object_type: 'DiscourseActivityPubObject',
+              ap_type: 'Update'
+            }
+            post.activity_pub_actor.activities
+              .where(attrs)
+              .update_all(published_at: Time.now)
+
+            perform_update
+
+            expect(
+               post.activity_pub_actor.activities.where(attrs).size
+            ).to eq(2)
           end
         end
 

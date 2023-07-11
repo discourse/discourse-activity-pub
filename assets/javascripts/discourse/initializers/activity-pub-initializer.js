@@ -23,6 +23,10 @@ export default {
         "activity_pub_deleted_at",
         "activity_pub_deleted_at"
       );
+      api.includePostAttributes(
+        "activity_pub_updated_at",
+        "activity_pub_updated_at"
+      );
 
       // TODO (future): PR discourse/discourse to add post infos via api
       api.reopenWidget("post-meta-data", {
@@ -43,6 +47,9 @@ export default {
             if (attrs.activity_pub_deleted_at) {
               time = moment(attrs.activity_pub_deleted_at);
               status = "deleted";
+            } else if (attrs.activity_pub_updated_at) {
+              time = moment(attrs.activity_pub_updated_at);
+              status = "updated";
             } else if (attrs.activity_pub_published_at) {
               time = moment(attrs.activity_pub_published_at);
               status = "published";
@@ -94,6 +101,7 @@ export default {
               activity_pub_scheduled_at: data.model.scheduled_at,
               activity_pub_published_at: data.model.published_at,
               activity_pub_deleted_at: data.model.deleted_at,
+              activity_pub_updated_at: data.model.updated_at,
             };
             this.get("model.postStream")
               .triggerActivityPubStateChange(data.model.id, stateProps)

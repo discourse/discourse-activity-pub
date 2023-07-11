@@ -15,6 +15,10 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     ap_type === DiscourseActivityPub::AP::Activity::Delete.type
   end
 
+  def update?
+    ap_type === DiscourseActivityPub::AP::Activity::Update.type
+  end
+
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"
@@ -51,6 +55,8 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       to_actor_id: to_actor_id
     }
 
+    Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
+
     if delay
       Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
       scheduled_at = (Time.now.utc + delay.minutes).iso8601
@@ -80,6 +86,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         args = {}
         args[:published_at] = published_at if create?
         args[:deleted_at] = published_at if delete?
+        args[:updated_at] = published_at if update?
         self.object.model.activity_pub_after_publish(args)
       end
     end

@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe DiscourseActivityPub::DeliveryFailureTracker do
-  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
   subject { described_class.new(actor.inbox) }
+
+  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
 
   after do
     Discourse.redis.flushdb
