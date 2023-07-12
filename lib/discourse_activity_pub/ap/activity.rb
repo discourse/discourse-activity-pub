@@ -62,6 +62,18 @@ module DiscourseActivityPub
         type && Compose.types.include?(type)
       end
 
+      def create?
+        type == Create.type
+      end
+
+      def delete?
+        type == Delete.type
+      end
+
+      def update?
+        type == Update.type
+      end
+
       def self.types
         activity = self.new
         raise NotImplementedError unless activity.respond_to?(:types)
