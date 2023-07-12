@@ -162,6 +162,35 @@ RSpec.describe DiscourseActivityPubActivity do
     end
   end
 
+  describe "#after_scheduled" do
+    let(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
+
+    before do
+      freeze_time
+    end
+
+    it "calls activity_pub_after_scheduled with correct arguments" do
+      Post.any_instance.expects(:activity_pub_after_scheduled).with({
+        scheduled_at: Time.now.utc.iso8601
+      }).once
+      activity.after_scheduled(Time.now.utc.iso8601)
+    end
+
+    context "with create activity" do
+      let(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
+
+      it "calls activity_pub_after_scheduled with correct arguments" do
+        Post.any_instance.expects(:activity_pub_after_scheduled).with({
+          scheduled_at: Time.now.utc.iso8601,
+          published_at: nil,
+          deleted_at: nil,
+          updated_at: nil
+        }).once
+        activity.after_scheduled(Time.now.utc.iso8601)
+      end
+    end
+  end
+
   describe "#after_deliver" do
     it "records published_at if not set" do
       freeze_time
