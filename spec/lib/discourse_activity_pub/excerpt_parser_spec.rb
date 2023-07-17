@@ -23,5 +23,20 @@ RSpec.describe DiscourseActivityPub::ExcerptParser do
       post.rebake!
       expect(described_class.get_content(post)).to eq(expected_excerpt)
     end
+
+    it "does not convert local hashtags" do
+      Fabricate(:category, name: 'pavilion')
+      Fabricate(:tag, name: 'Discourse')
+      content = "This plugin is being developed by #pavilion for #Discourse"
+      post = Fabricate(:post, raw: content)
+      expect(described_class.get_content(post)).to eq(content)
+    end
+
+    it "does not convert local mentions" do
+      Fabricate(:user, username: 'angus')
+      content = "This plugin is being developed by @angus@mastodon.pavilion.tech"
+      post = Fabricate(:post, raw: content)
+      expect(described_class.get_content(post)).to eq(content)
+    end
   end
 end

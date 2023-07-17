@@ -5,8 +5,59 @@
 class DiscourseActivityPub::ExcerptParser < ExcerptParser
   CUSTOM_NOTE_REGEX = /<\s*(div)[^>]*class\s*=\s*['"]note['"][^>]*>/
 
+  MARKDOWN_FEATURES = %w[
+    activity-pub
+    anchor
+    bbcode-block
+    bbcode-inline
+    code
+    censored
+    emoji
+    emojiShortcuts
+    inlineEmoji
+    html-img
+    unicodeUsernames
+    quotes
+    upload-protocol
+    watched-words
+  ]
+
+  # Compare with https://docs.joinmastodon.org/spec/activitypub/#sanitization
+
+  MARKDOWN_IT_RULES = %w[
+    autolink
+    list
+    backticks
+    newline
+    code
+    fence
+    image
+    linkify
+    link
+    blockquote
+    emphasis
+  ]
+
+  def self.cook(text, opts = {})
+    html = PrettyText.markdown(
+      text,
+      opts.merge(
+        features_override: MARKDOWN_FEATURES,
+        markdown_it_rules: MARKDOWN_IT_RULES,
+      )
+    )
+    doc = Nokogiri::HTML5.fragment(html)
+    scrubbed_html(doc)
+  end
+
+  def self.scrubbed_html(doc)
+    scrubber = Loofah::Scrubber.new { |node| node.remove if node.name == "script" }
+    loofah_fragment = Loofah.html5_fragment(doc.to_html)
+    loofah_fragment.scrub!(scrubber).to_html
+  end
+
   def self.get_content(post)
-    cooked = PrettyText.cook(post.raw, topic_id: post.topic_id, user_id: post.user_id)
+    cooked = cook(post.raw, topic_id: post.topic_id, user_id: post.user_id)
     max_length = SiteSetting.activity_pub_note_excerpt_maxlength
     get_excerpt(cooked, max_length, post: post)
   end
