@@ -7,6 +7,20 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   after_create :deliver_composition, if: Proc.new { ap&.composition? }
 
+  DEFAULT_VISIBILITY = 'private'
+
+  def self.visibilities
+    @visibilities ||= Enum.new(private: 1, public: 2)
+  end
+
+  def public?
+    visibility === DiscourseActivityPubActivity.visibilities[:public]
+  end
+
+  def private?
+    visibility === DiscourseActivityPubActivity.visibilities[:private]
+  end
+
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"

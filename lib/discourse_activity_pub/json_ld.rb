@@ -8,6 +8,7 @@ module DiscourseActivityPub
     LD_CONTENT_TYPE = "application/ld+json"
     ACTIVITY_CONTENT_TYPE = "application/activity+json"
     CONTENT_TYPES = [LD_CONTENT_TYPE, ACTIVITY_CONTENT_TYPE]
+    PUBLIC_COLLECTION_IDS = %w(https://www.w3.org/ns/activitystreams#Public as:Public Public)
 
     def validate_json_ld(json)
       parsed_json = parse_json_ld(json)
@@ -77,6 +78,10 @@ module DiscourseActivityPub
       CONTENT_TYPES.first + '; profile="' + ACTIVITY_STREAMS_CONTEXT + '"'
     end
 
+    def public_collection_id
+      PUBLIC_COLLECTION_IDS.first
+    end
+
     module_function :validate_json_ld
     module_function :parse_json_ld
     module_function :format_jsonld
@@ -89,5 +94,6 @@ module DiscourseActivityPub
     module_function :valid_content_type?
     module_function :valid_accept?
     module_function :content_type_header
+    module_function :public_collection_id
   end
 end

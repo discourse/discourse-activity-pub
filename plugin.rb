@@ -109,6 +109,7 @@ after_initialize do
   register_category_custom_field_type("activity_pub_show_handle", :boolean)
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
+  register_category_custom_field_type("activity_pub_default_visibility", :string)
   add_to_class(:category, :activity_pub_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
@@ -150,6 +151,9 @@ after_initialize do
       *self.reviewable_by_group_id
     ] if !activity_pub_show_status
     MessageBus.publish("/activity-pub", message, opts)
+  end
+  add_to_class(:category, :activity_pub_default_visibility) do
+    custom_fields["activity_pub_default_visibility"] || DiscourseActivityPubActivity::DEFAULT_VISIBILITY
   end
 
   add_model_callback(:category, :after_save) do
@@ -198,6 +202,11 @@ after_initialize do
     :activity_pub_show_handle,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_show_handle }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_default_visibility,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_default_visibility }
 
   if Site.respond_to? :preloaded_category_custom_fields
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
@@ -206,6 +215,7 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_show_handle"
     Site.preloaded_category_custom_fields << "activity_pub_username"
     Site.preloaded_category_custom_fields << "activity_pub_name"
+    Site.preloaded_category_custom_fields << "activity_pub_default_visibility"
   end
 
   add_to_class(:topic, :activity_pub_enabled) do
@@ -227,10 +237,18 @@ after_initialize do
   Post.include DiscourseActivityPub::AP::ModelCallbacks
   Post.include DiscourseActivityPub::AP::ModelHelpers
 
-  activity_pub_custom_fields = %i[scheduled_at published_at deleted_at updated_at]
-  activity_pub_custom_fields.each do |field_name|
+  activity_pub_post_custom_fields = %i[
+    scheduled_at
+    published_at
+    deleted_at
+    updated_at
+    visibility
+  ]
+  activity_pub_post_custom_fields.each do |field_name|
     register_post_custom_field_type("activity_pub_#{field_name.to_s}", :string)
   end
+
+  add_permitted_post_create_param(:activity_pub_visibility)
 
   add_to_class(:post, :activity_pub_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
@@ -256,7 +274,7 @@ after_initialize do
     topic.category&.activity_pub_actor
   end
   add_to_class(:post, :activity_pub_update_custom_fields) do |args = {}|
-    return nil if !activity_pub_enabled || (args.keys & activity_pub_custom_fields).empty?
+    return nil if !activity_pub_enabled || (args.keys & activity_pub_post_custom_fields).empty?
     args.keys.each do |key|
       custom_fields["activity_pub_#{key.to_s}"] = args[key]
     end
@@ -269,10 +287,20 @@ after_initialize do
   add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
     activity_pub_update_custom_fields(args)
   end
-  activity_pub_custom_fields.each do |field_name|
-    add_to_class(:post, "activity_pub_#{field_name}".to_sym) do
-      custom_fields["activity_pub_#{field_name}"]
-    end
+  add_to_class(:post, :activity_pub_scheduled_at) do
+    custom_fields["activity_pub_scheduled_at"]
+  end
+  add_to_class(:post, :activity_pub_published_at) do
+    custom_fields["activity_pub_published_at"]
+  end
+  add_to_class(:post, :activity_pub_deleted_at) do
+    custom_fields["activity_pub_deleted_at"]
+  end
+  add_to_class(:post, :activity_pub_updated_at) do
+    custom_fields["activity_pub_updated_at"]
+  end
+  add_to_class(:post, :activity_pub_visibility) do
+    custom_fields["activity_pub_visibility"] || topic.category&.activity_pub_default_visibility
   end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
@@ -287,7 +315,7 @@ after_initialize do
       type: "post"
     }
 
-    activity_pub_custom_fields.each do |field_name|
+    activity_pub_post_custom_fields.each do |field_name|
       model[field_name.to_sym] = self.send("activity_pub_#{field_name.to_s}")
     end
 
@@ -299,7 +327,7 @@ after_initialize do
     MessageBus.publish("/activity-pub", { model: model }, { group_ids: group_ids })
   end
   add_to_class(:post, :before_clear_all_activity_pub_objects) do
-    activity_pub_custom_fields.each do |field_name|
+    activity_pub_post_custom_fields.each do |field_name|
       self.custom_fields["activity_pub_#{field_name.to_s}"] = nil
     end
     self.save_custom_fields(true)
@@ -319,7 +347,7 @@ after_initialize do
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
   end
-  activity_pub_custom_fields.each do |field_name|
+  activity_pub_post_custom_fields.each do |field_name|
     add_to_serializer(:post, "activity_pub_#{field_name}".to_sym) do
       object.send("activity_pub_#{field_name}")
     end
@@ -327,26 +355,33 @@ after_initialize do
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
-  on(:before_create_post) do |post|
-    post.custom_fields[
-      "activity_pub_content"
-    ] = DiscourseActivityPub::ExcerptParser.get_content(post)
-  end
   on(:before_edit_post) do |post|
-    post.custom_fields[
-      "activity_pub_content"
-    ] = DiscourseActivityPub::ExcerptParser.get_content(post)
+    if post.activity_pub_enabled
+      post.custom_fields[
+        "activity_pub_content"
+      ] = DiscourseActivityPub::ExcerptParser.get_content(post)
+    end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
-    post.perform_activity_pub_activity(:update)
+    post.perform_activity_pub_activity(:update) if post.activity_pub_enabled
   end
-  on(:post_created) do |post, opts, user|
-    post.perform_activity_pub_activity(:create)
+  on(:post_created) do |post, post_opts, user|
+    if post.activity_pub_enabled
+      post.custom_fields[
+        "activity_pub_content"
+      ] = DiscourseActivityPub::ExcerptParser.get_content(post)
+      post.custom_fields[
+        "activity_pub_visibility"
+      ] = post_opts[:activity_pub_visibility] ||
+        post.topic&.category.activity_pub_default_visibility
+      post.save_custom_fields(true)
+      post.perform_activity_pub_activity(:create)
+    end
   end
   on(:post_destroyed) do |post, opts, user|
-    post.perform_activity_pub_activity(:delete)
+    post.perform_activity_pub_activity(:delete) if post.activity_pub_enabled
   end
   on(:post_recovered) do |post, opts, user|
-    post.perform_activity_pub_activity(:create)
+    post.perform_activity_pub_activity(:create) if post.activity_pub_enabled
   end
 end

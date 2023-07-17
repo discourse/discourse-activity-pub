@@ -54,6 +54,14 @@ module DiscourseActivityPub
       def respond_to_activity
       end
 
+      def addressed_json(to_ap_actor)
+        return json unless to_ap_actor&.class.superclass.name === "DiscourseActivityPub::AP::Actor"
+
+        _json = json
+        _json[:to] = stored&.public? ? public_collection_id : to_ap_actor.id
+        _json
+      end
+
       def response?
         type && Response.types.include?(type)
       end

@@ -1,6 +1,7 @@
 import { createWidget } from "discourse/widgets/widget";
 import { iconNode } from "discourse-common/lib/icon-library";
 import { dasherize } from "@ember/string";
+import { h } from "virtual-dom";
 import I18n from "I18n";
 
 createWidget("post-activity-pub-indicator", {
@@ -16,7 +17,20 @@ createWidget("post-activity-pub-indicator", {
     return dasherize(attrs.status);
   },
 
-  html() {
-    return iconNode("discourse-activity-pub");
+  html(attrs) {
+    const visibility = attrs.post.activity_pub_visibility;
+    const visibilityHtml = h(
+      "div.activity-pub-visibility",
+      {
+        attributes: {
+          title: I18n.t(
+            `discourse_activity_pub.visibility.${visibility}.description`
+          ),
+        },
+      },
+      visibility === "public" ? iconNode("globe-americas") : iconNode("lock")
+    );
+
+    return [iconNode("discourse-activity-pub"), visibilityHtml];
   },
 });

@@ -1,5 +1,6 @@
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import {
+  currentUser,
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
@@ -8,6 +9,8 @@ import { render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import I18n from "I18n";
 import Site from "discourse/models/site";
+import AppEvents from "discourse/services/app-events";
+import { getOwner } from "discourse-common/lib/get-owner";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
@@ -27,6 +30,17 @@ function setCategory(context, attrs = {}) {
   });
 
   context.set("category", category);
+}
+
+function setComposer(context, opts = {}) {
+  opts.user ??= currentUser();
+  opts.appEvents = AppEvents.create();
+  const store = getOwner(this).lookup("service:store");
+  const composer = store.createRecord("composer", opts);
+  if (opts.category) {
+    composer.set("category", opts.category);
+  }
+  context.set("composer", composer);
 }
 
 module(
@@ -136,7 +150,7 @@ module(
       assert.strictEqual(
         status.title,
         I18n.t("discourse_activity_pub.status.title.model_active.first_post", {
-          model_name: this.category.name,
+          category_name: this.category.name,
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
@@ -178,6 +192,34 @@ module(
         status.innerText.trim(),
         I18n.t("discourse_activity_pub.status.label.not_active"),
         "has the right label"
+      );
+    });
+
+    test("when in the composer", async function (assert) {
+      const composerTemplate = hbs`<ActivityPubStatus @model={{this.composer}} @modelType="composer" />`;
+
+      setSite(this, { activity_pub_enabled: true });
+      setCategory(this, {
+        activity_pub_enabled: true,
+        activity_pub_ready: true,
+        activity_pub_default_visibility: "public",
+      });
+      setComposer(this, {
+        category: this.category,
+      });
+
+      await render(composerTemplate);
+
+      assert.ok(
+        query(".activity-pub-visibility-dropdown"),
+        "displays the visibility dropdown"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-visibility-dropdown .select-kit-header-wrapper .name"
+        ).innerText.trim(),
+        I18n.t("discourse_activity_pub.visibility.public.label"),
+        "has the right default visibility"
       );
     });
   }

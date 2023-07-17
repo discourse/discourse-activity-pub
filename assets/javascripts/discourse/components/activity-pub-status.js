@@ -9,15 +9,28 @@ export default class ActivityPubStatus extends Component {
   @service site;
   @service messageBus;
 
+  @tracked forComposer;
+  @tracked category;
   @tracked ready;
   @tracked enabled;
 
   constructor() {
     super(...arguments);
 
-    this.ready = this.args.model.activity_pub_ready;
-    this.enabled = this.args.model.activity_pub_enabled;
-    this.messageBus.subscribe("/activity-pub", this.handleMessage);
+    this.forComposer = this.args.modelType === "composer";
+    this.category = this.forComposer
+      ? this.args.model.category
+      : this.args.model;
+
+    if (this.category) {
+      this.ready = this.category.activity_pub_ready;
+      this.enabled = this.category.activity_pub_enabled;
+      this.messageBus.subscribe("/activity-pub", this.handleMessage);
+
+      if (this.forComposer && !this.args.model.activity_pub_visibility) {
+        this.args.model.activity_pub_visibility = this.category.activity_pub_default_visibility;
+      }
+    }
   }
 
   willDestroy() {
@@ -47,7 +60,7 @@ export default class ActivityPubStatus extends Component {
       model_type: this.args.modelType,
     };
     if (this.active) {
-      args.model_name = this.args.model.name;
+      args.category_name = this.category.name;
       args.delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
     }
     return I18n.t(

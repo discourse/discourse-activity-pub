@@ -1,4 +1,13 @@
 <div class="activity-pub-status {{this.statusClass}}" title={{this.translatedTitle}}>
   {{d-icon "discourse-activity-pub"}}
-  <span>{{i18n (concat "discourse_activity_pub.status.label." this.labelKey)}}</span>
+  {{#unless forComposer}}
+    <span class="label">{{i18n (concat "discourse_activity_pub.status.label." this.labelKey)}}</span>
+  {{/unless}}
 </div>
+
+{{#if forComposer}}
+  <ActivityPubVisibilityDropdown
+    @value={{this.args.model.activity_pub_visibility}}
+    @onChange={{action (mut this.args.model.activity_pub_visibility)}}
+  />
+{{/if}}
