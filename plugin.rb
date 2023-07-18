@@ -16,7 +16,7 @@ after_initialize do
     ../lib/discourse_activity_pub/request.rb
     ../lib/discourse_activity_pub/webfinger.rb
     ../lib/discourse_activity_pub/username_validator.rb
-    ../lib/discourse_activity_pub/excerpt_parser.rb
+    ../lib/discourse_activity_pub/content_parser.rb
     ../lib/discourse_activity_pub/signature_parser.rb
     ../lib/discourse_activity_pub/delivery_failure_tracker.rb
     ../lib/discourse_activity_pub/ap.rb
@@ -36,6 +36,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/activity/update.rb
     ../lib/discourse_activity_pub/ap/activity/undo.rb
     ../lib/discourse_activity_pub/ap/object/note.rb
+    ../lib/discourse_activity_pub/ap/object/article.rb
     ../lib/discourse_activity_pub/ap/collection.rb
     ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb
     ../app/models/concerns/discourse_activity_pub/ap/identifier_validations.rb
@@ -72,6 +73,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/actor/group_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/person_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/object/note_serializer.rb
+    ../app/serializers/discourse_activity_pub/ap/object/article_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
@@ -110,6 +112,7 @@ after_initialize do
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
+  register_category_custom_field_type("activity_pub_post_object_type", :string)
   add_to_class(:category, :activity_pub_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
@@ -154,6 +157,12 @@ after_initialize do
   end
   add_to_class(:category, :activity_pub_default_visibility) do
     custom_fields["activity_pub_default_visibility"] || DiscourseActivityPubActivity.default_visibility
+  end
+  add_to_class(:category, :activity_pub_post_object_type) do
+    custom_fields["activity_pub_post_object_type"]
+  end
+  add_to_class(:category, :activity_pub_default_object_type) do
+    DiscourseActivityPub::AP::Actor::Group.type
   end
 
   add_model_callback(:category, :after_save) do
@@ -265,7 +274,7 @@ after_initialize do
     if custom_fields["activity_pub_content"].present?
       custom_fields["activity_pub_content"]
     else
-      DiscourseActivityPub::ExcerptParser.get_content(self)
+      DiscourseActivityPub::ContentParser.get_content(self)
     end
   end
   add_to_class(:post, :activity_pub_actor) do
@@ -342,6 +351,13 @@ after_initialize do
 
     performing_activity
   end
+  add_to_class(:post, :activity_pub_object_type) do
+    self.activity_pub_object&.ap_type || self.activity_pub_default_object_type
+  end
+  add_to_class(:post, :activity_pub_default_object_type) do
+    self.topic&.category&.activity_pub_post_object_type ||
+    DiscourseActivityPub::AP::Object::Note.type
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -361,7 +377,7 @@ after_initialize do
     if post.activity_pub_enabled
       post.custom_fields[
         "activity_pub_content"
-      ] = DiscourseActivityPub::ExcerptParser.get_content(post)
+      ] = DiscourseActivityPub::ContentParser.get_content(post)
     end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
@@ -371,7 +387,7 @@ after_initialize do
     if post.activity_pub_enabled
       post.custom_fields[
         "activity_pub_content"
-      ] = DiscourseActivityPub::ExcerptParser.get_content(post)
+      ] = DiscourseActivityPub::ContentParser.get_content(post)
       post.custom_fields[
         "activity_pub_visibility"
       ] = post.topic&.category.activity_pub_default_visibility
