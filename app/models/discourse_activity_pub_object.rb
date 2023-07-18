@@ -57,7 +57,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
       object.save!
 
-      unless ap_type_sym == :update && !model.activity_pub_published?
+      unless !model.activity_pub_published? && ap_type_sym == :update
         activity_attrs = {
           local: true,
           actor_id: model.activity_pub_actor.id,
