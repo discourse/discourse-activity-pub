@@ -92,7 +92,7 @@ RSpec.describe Post do
       end
     end
 
-    context "with activity pub enabled on the model and a valid activity" do
+    context "with activity pub enabled on the model and a valid activity type" do
       before do
         DiscourseActivityPubActivity.any_instance.stubs(:deliver_composition).returns(true)
         toggle_activity_pub(category, callbacks: true)
@@ -249,7 +249,7 @@ RSpec.describe Post do
           it "does not create an object" do
             perform_delete
             expect(
-              post.activity_pub_object.present?
+              DiscourseActivityPubObject.exists?(model_id: post.id)
             ).to eq(false)
           end
 
@@ -340,6 +340,77 @@ RSpec.describe Post do
             expect(reply.activity_pub_content).to eq(nil)
             expect(reply.activity_pub_object).to eq(nil)
             expect(reply.activity_pub_actor).to eq(nil)
+          end
+        end
+      end
+
+      context "when Article is set as the post object type" do
+        before do
+          category.custom_fields['activity_pub_post_object_type'] = 'Article'
+          category.save_custom_fields(true)
+        end
+
+        context 'with create' do
+          before do
+            post.perform_activity_pub_activity(:create)
+          end
+
+          it "creates the right object" do
+            expect(
+              post.reload.activity_pub_object.ap_type
+            ).to eq('Article')
+          end
+        end
+
+        context 'with update' do
+          def perform_update
+            post.custom_fields['activity_pub_content'] = "Updated content"
+            post.perform_activity_pub_activity(:update)
+          end
+
+          context 'with an existing Note' do
+            let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+
+            it "does not change the object type" do
+              perform_update
+              expect(post.activity_pub_object.ap_type).to eq('Note')
+            end
+          end
+
+          context 'with an existing Article' do
+            let!(:article) { Fabricate(:discourse_activity_pub_object_article, model: post) }
+
+            it "creates the right object" do
+              perform_update
+              expect(
+                post.reload.activity_pub_object.ap_type
+              ).to eq('Article')
+            end
+          end
+        end
+
+        context 'with delete' do
+          def perform_delete
+            post.delete
+            post.perform_activity_pub_activity(:delete)
+          end
+
+          context 'with an existing Note' do
+            let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+
+            it "destroys the Note" do
+              perform_delete
+              expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
+            end
+          end
+
+          context 'with an existing Article' do
+            let!(:article) { Fabricate(:discourse_activity_pub_object_article, model: post) }
+
+            it "destroys the Article" do
+              perform_delete
+              expect(DiscourseActivityPubObject.exists?(id: article.id)).to eq(false)
+            end
           end
         end
       end

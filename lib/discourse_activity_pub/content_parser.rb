@@ -2,7 +2,7 @@
 
 # TODO (future): PR discourse/discourse to support alternate excerpts
 
-class DiscourseActivityPub::ExcerptParser < ExcerptParser
+class DiscourseActivityPub::ContentParser < ExcerptParser
   CUSTOM_NOTE_REGEX = /<\s*(div)[^>]*class\s*=\s*['"]note['"][^>]*>/
 
   MARKDOWN_FEATURES = %w[
@@ -46,26 +46,34 @@ class DiscourseActivityPub::ExcerptParser < ExcerptParser
         markdown_it_rules: MARKDOWN_IT_RULES,
       )
     )
-    doc = Nokogiri::HTML5.fragment(html)
-    scrubbed_html(doc)
+    scrubbed_html(html)
   end
 
-  def self.scrubbed_html(doc)
+  def self.scrubbed_html(html)
+    doc = Nokogiri::HTML5.fragment(html)
     scrubber = Loofah::Scrubber.new { |node| node.remove if node.name == "script" }
     loofah_fragment = Loofah.html5_fragment(doc.to_html)
     loofah_fragment.scrub!(scrubber).to_html
   end
 
   def self.get_content(post)
-    cooked = cook(post.raw, topic_id: post.topic_id, user_id: post.user_id)
-    max_length = SiteSetting.activity_pub_note_excerpt_maxlength
-    get_excerpt(cooked, max_length, post: post)
+    html = cook(post.raw, topic_id: post.topic_id, user_id: post.user_id)
+    type = post.activity_pub_object_type.downcase
+    return nil unless self.respond_to?("get_#{type}") && html
+    self.send("get_#{type}", html)
   end
 
-  def self.get_excerpt(html, length, options)
-    html ||= ""
-    length = html.length if html.include?("note") && CUSTOM_NOTE_REGEX === html
-    me = self.new(length, options)
+  def self.get_article(html)
+    html
+  end
+
+  def self.get_note(html)
+    length = if html.include?("note") && CUSTOM_NOTE_REGEX === html
+               html.length
+             else
+               SiteSetting.activity_pub_note_excerpt_maxlength
+             end
+    me = self.new(length, {})
     parser = Nokogiri::HTML::SAX::Parser.new(me)
     catch(:done) { parser.parse(html) }
     me.excerpt.strip

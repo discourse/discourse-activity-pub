@@ -28,12 +28,7 @@ module DiscourseActivityPub
       end
 
       def ensure_ap_type
-        if !self.ap_type
-          self.ap_type = case _model.class.name
-                         when 'Category' then AP::Actor::Group.type
-                         when 'Post' then AP::Object::Note.type
-                         end
-        end
+        self.ap_type = _model.activity_pub_default_object_type if !self.ap_type
 
         unless ap
           self.errors.add(
@@ -43,6 +38,8 @@ module DiscourseActivityPub
 
           raise ActiveRecord::RecordInvalid
         end
+
+        self.ap_type = ap.type
       end
 
       def ensure_ap_key

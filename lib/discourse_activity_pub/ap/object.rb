@@ -92,7 +92,7 @@ module DiscourseActivityPub
 
       def self.get_klass(type)
         self.descendants.find do |klass|
-          klass.to_s.demodulize === type
+          klass.to_s.demodulize.downcase === type.downcase
         end
       end
 
