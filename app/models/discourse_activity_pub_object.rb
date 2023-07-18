@@ -14,7 +14,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     return true unless local?
 
     case ap_type
-    when DiscourseActivityPub::AP::Activity::Create.type
+    when DiscourseActivityPub::AP::Activity::Create.type, DiscourseActivityPub::AP::Activity::Update.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
       !model || model.trashed?
@@ -33,12 +33,8 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     ap = DiscourseActivityPub::AP::Object.from_type(ap_type_sym)
     return unless model.activity_pub_enabled && ap&.composition?
 
-    if ap_type_sym == :update
-      # We don't currently permit updates after publication
-      return if model.activity_pub_published?
-      # We don't permit updates if object has been deleted
-      return if model.activity_pub_deleted?
-    end
+    # We don't permit updates if object has been deleted
+    return if model.activity_pub_deleted? && ap_type_sym == :update
 
     # If we're pre-publication clear all objects and data.
     if !model.activity_pub_published? && ap_type_sym == :delete
@@ -61,14 +57,19 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
       object.save!
 
-      if ap_type_sym != :update
-        DiscourseActivityPubActivity.create!(
+      unless !model.activity_pub_published? && ap_type_sym == :update
+        activity_attrs = {
           local: true,
           actor_id: model.activity_pub_actor.id,
           object_id: object.id,
           object_type: 'DiscourseActivityPubObject',
           ap_type: ap.type
+        }
+        unless DiscourseActivityPubActivity.exists?(
+          activity_attrs.merge(published_at: nil)
         )
+          DiscourseActivityPubActivity.create!(activity_attrs)
+        end
       end
     end
   end

@@ -28,18 +28,16 @@ RSpec.describe PostRevisor do
       end
 
       describe "with different note content" do
-        it "adds the right error" do
+        it "does not add an error" do
           subject.revise!(user, raw: "#{post.raw} revision inside note")
-          expect(post.errors.present?).to eq(true)
-          expect(post.errors.messages[:base].first).to eq(
-            I18n.t("post.discourse_activity_pub.error.edit_after_publication")
-          )
+          expect(post.errors.present?).to eq(false)
         end
 
-        it "does not perform the edit" do
-          original_raw = post.raw
-          subject.revise!(user, raw: "#{post.raw} revision inside note")
-          expect(post.reload.raw).to eq(original_raw)
+        it "performs the edit" do
+          updated_raw = "#{post.raw} revision inside note"
+          subject.revise!(user, raw: updated_raw)
+          expect(post.reload.raw).to eq(updated_raw)
+          expect(post.activity_pub_content).to eq(updated_raw)
         end
       end
 

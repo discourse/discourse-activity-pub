@@ -226,6 +226,7 @@ after_initialize do
   register_post_custom_field_type("activity_pub_scheduled_at", :string)
   register_post_custom_field_type("activity_pub_published_at", :string)
   register_post_custom_field_type("activity_pub_deleted_at", :string)
+  register_post_custom_field_type("activity_pub_updated_at", :string)
 
   add_to_class(:post, :activity_pub_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
@@ -251,7 +252,7 @@ after_initialize do
     topic.category&.activity_pub_actor
   end
   add_to_class(:post, :activity_pub_after_publish) do |args = {}|
-    if !activity_pub_enabled || (!args[:published_at] && !args[:deleted_at])
+    if !activity_pub_enabled || (args.keys & %i[published_at deleted_at updated_at]).empty?
       return nil
     end
 
@@ -260,6 +261,9 @@ after_initialize do
     ]
     custom_fields["activity_pub_deleted_at"] = args[:deleted_at] if args[
       :deleted_at
+    ]
+    custom_fields["activity_pub_updated_at"] = args[:updated_at] if args[
+      :updated_at
     ]
     save_custom_fields(true)
 
@@ -278,6 +282,9 @@ after_initialize do
   add_to_class(:post, :activity_pub_deleted_at) do
     custom_fields["activity_pub_deleted_at"]
   end
+  add_to_class(:post, :activity_pub_updated_at) do
+    custom_fields["activity_pub_updated_at"]
+  end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
   add_to_class(:post, :activity_pub_scheduled_at) do
@@ -295,7 +302,8 @@ after_initialize do
         type: "post",
         scheduled_at: self.activity_pub_scheduled_at,
         published_at: self.activity_pub_published_at,
-        deleted_at: self.activity_pub_deleted_at
+        deleted_at: self.activity_pub_deleted_at,
+        updated_at: self.activity_pub_updated_at
       }
     }
     opts = {
@@ -319,6 +327,9 @@ after_initialize do
   add_to_serializer(:post, :activity_pub_deleted_at) do
     object.activity_pub_deleted_at
   end
+  add_to_serializer(:post, :activity_pub_updated_at) do
+    object.activity_pub_updated_at
+  end
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
@@ -331,16 +342,6 @@ after_initialize do
     post.custom_fields[
       "activity_pub_content"
     ] = DiscourseActivityPub::ExcerptParser.get_content(post)
-  end
-  on(:before_edit_post) do |post, fields|
-    if fields.has_key?(:raw) && post.activity_pub_published? &&
-         post.activity_pub_content != post.activity_pub_object.content
-      post.errors.add(
-        :base,
-        I18n.t("post.discourse_activity_pub.error.edit_after_publication")
-      )
-      raise ActiveRecord::Rollback
-    end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
     DiscourseActivityPubObject.handle_model_callback(post, :update)

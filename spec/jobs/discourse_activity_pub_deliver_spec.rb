@@ -238,5 +238,26 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         end
       end
     end
+
+    context "when delivering an Update" do
+      let(:activity) { Fabricate(:discourse_activity_pub_activity_update) }
+      let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+
+      it "performs the right request" do
+        body = activity.ap.json
+        body[:to] = person.ap.id
+
+        expect_request(
+          actor_id: activity.actor.id,
+          uri: person.inbox,
+          body: body
+        )
+        execute_job(
+          activity_id: activity.id,
+          from_actor_id: activity.actor.id,
+          to_actor_id: person.id
+        )
+      end
+    end
   end
 end

@@ -51,6 +51,18 @@ Fabricator(:discourse_activity_pub_activity_create, from: :discourse_activity_pu
   end
 end
 
+Fabricator(:discourse_activity_pub_activity_update, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Update.type }
+  actor { Fabricate(:discourse_activity_pub_actor_group) }
+  object { Fabricate(:discourse_activity_pub_object_note) }
+  local { true }
+
+  after_create do |activity|
+    object.model.custom_fields['activity_pub_published_at'] = Time.now
+    object.model.save_custom_fields(true)
+  end
+end
+
 Fabricator(:discourse_activity_pub_activity_delete, from: :discourse_activity_pub_activity) do
   ap_type { DiscourseActivityPub::AP::Activity::Delete.type }
   actor { Fabricate(:discourse_activity_pub_actor_group) }

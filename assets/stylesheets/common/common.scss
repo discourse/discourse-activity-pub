@@ -107,7 +107,8 @@
 }
 
 .post-info.activity-pub {
-  &.published .d-icon {
+  &.published .d-icon,
+  &.updated .d-icon {
     color: var(--success);
   }
   &.scheduled .d-icon,
