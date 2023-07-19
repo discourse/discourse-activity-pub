@@ -7,18 +7,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   after_create :deliver_composition, if: Proc.new { ap&.composition? }
 
-  def create?
-    ap_type === DiscourseActivityPub::AP::Activity::Create.type
-  end
-
-  def delete?
-    ap_type === DiscourseActivityPub::AP::Activity::Delete.type
-  end
-
-  def update?
-    ap_type === DiscourseActivityPub::AP::Activity::Update.type
-  end
-
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"
@@ -38,7 +26,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         to_actor_id: follower.id
       }
 
-      if ap.type != DiscourseActivityPub::AP::Activity::Delete.type
+      if ap.create? || ap.update?
         opts[:delay] = SiteSetting.activity_pub_delivery_delay_minutes.to_i
       end
 
@@ -73,6 +61,11 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       args = {
         scheduled_at: scheduled_at
       }
+      if ap.create?
+        args[:published_at] = nil
+        args[:deleted_at] = nil
+        args[:updated_at] = nil
+      end
       self.object.model.activity_pub_after_scheduled(args)
     end
   end
@@ -84,9 +77,9 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
       if self.object.local && self.object.model&.respond_to?(:activity_pub_after_publish)
         args = {}
-        args[:published_at] = published_at if create?
-        args[:deleted_at] = published_at if delete?
-        args[:updated_at] = published_at if update?
+        args[:published_at] = published_at if ap.create?
+        args[:deleted_at] = published_at if ap.delete?
+        args[:updated_at] = published_at if ap.update?
         self.object.model.activity_pub_after_publish(args)
       end
     end
