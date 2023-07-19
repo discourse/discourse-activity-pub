@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Activity::Create do
-  let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
+  let(:category) { Fabricate(:category) }
+  let(:topic) { Fabricate(:topic, category: category) }
+  let!(:post) { Fabricate(:post, topic: topic) }
+  let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Activity }
@@ -14,13 +17,13 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       klass.process
     end
 
-    context 'with activity pub enabled' do
+    context 'with full topic enabled' do
       before do
-        toggle_activity_pub(group.model, callbacks: true)
+        toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
       end
 
       context "with Note inReplyTo to a Note" do
-        let!(:original_object) { Fabricate(:discourse_activity_pub_object_note) }
+        let!(:original_object) { Fabricate(:discourse_activity_pub_object_note, model: post) }
         let(:reply_json) {
           build_activity_json(
             actor: person,
@@ -41,14 +44,24 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           ).to be(true)
         end
 
-        it "creates an activity" do
+        it "creates a single activity" do
           expect(
-            DiscourseActivityPubActivity.exists?(
+            DiscourseActivityPubActivity.where(
               ap_id: reply_json[:id],
               ap_type: "Create",
               actor_id: person.id
-            )
-          ).to be(true)
+            ).size
+          ).to be(1)
+        end
+
+        it "creates a single object" do
+          expect(
+            DiscourseActivityPubObject.where(
+              ap_type: "Note",
+              model_id: Post.find_by(raw: reply_json[:object][:content]).id,
+              model_type: 'Post'
+            ).size
+          ).to be(1)
         end
       end
 

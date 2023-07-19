@@ -22,7 +22,8 @@ module DiscourseActivityPub
             user,
             raw: object.content,
             topic_id: reply_to.topic.id,
-            reply_to_post_number: reply_to.post_number
+            reply_to_post_number: reply_to.post_number,
+            skip_events: true
           )
         rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
           log_failure("create", e.message)

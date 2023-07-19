@@ -56,6 +56,45 @@ RSpec.describe PostCreator do
           )
         end
       end
+
+      context "with activity pub set to full topic on category" do
+        before do
+          toggle_activity_pub(category, publication_type: 'full_topic')
+        end
+
+        context "with a reply" do
+          let!(:topic) { Fabricate(:topic, category: category)}
+          let!(:post) { Fabricate(:post, topic: topic, post_number: 1) }
+
+          before do
+            post.custom_fields['activity_pub_visibility'] = 'public'
+            post.save_custom_fields(true)
+          end
+
+          context "when passed a visibility" do
+            it "saves the first post's visibility" do
+              reply = PostCreator.create(user, params.merge(
+                topic_id: topic.id,
+                reply_to_post_number: 1,
+                activity_pub_visibility: 'private'
+              ))
+              expect(reply.custom_fields['activity_pub_visibility']).to eq('public')
+            end
+          end
+
+          context "when not passed a visibility" do
+            it "saves the first post's visibility" do
+              reply = PostCreator.create(user, params.merge(
+                topic_id: topic.id,
+                reply_to_post_number: 1
+              ))
+              expect(reply.custom_fields['activity_pub_visibility']).to eq(
+                'public'
+              )
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -54,7 +54,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         to_actor_id: follower.id
       }
 
-      if ap.create? || ap.update?
+      if object_model&.is_first_post? && (ap.create? || ap.update?)
         opts[:delay] = SiteSetting.activity_pub_delivery_delay_minutes.to_i
       end
 
@@ -85,7 +85,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def after_scheduled(scheduled_at)
-    if self.object&.respond_to?(:model) && self.object.model&.respond_to?(:activity_pub_after_scheduled)
+    if object_model&.respond_to?(:activity_pub_after_scheduled)
       args = {
         scheduled_at: scheduled_at
       }
@@ -94,7 +94,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         args[:deleted_at] = nil
         args[:updated_at] = nil
       end
-      self.object.model.activity_pub_after_scheduled(args)
+      object_model.activity_pub_after_scheduled(args)
     end
   end
 
@@ -103,14 +103,18 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       published_at = Time.now.utc.iso8601
       self.update(published_at: published_at)
 
-      if self.object.local && self.object.model&.respond_to?(:activity_pub_after_publish)
+      if self.object.local && object_model&.respond_to?(:activity_pub_after_publish)
         args = {}
         args[:published_at] = published_at if ap.create?
         args[:deleted_at] = published_at if ap.delete?
         args[:updated_at] = published_at if ap.update?
-        self.object.model.activity_pub_after_publish(args)
+        object_model.activity_pub_after_publish(args)
       end
     end
+  end
+
+  def object_model
+    self.object&.respond_to?(:model) && self.object.model
   end
 end
 

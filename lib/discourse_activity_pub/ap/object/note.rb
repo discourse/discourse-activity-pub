@@ -17,7 +17,7 @@ module DiscourseActivityPub
         end
 
         def in_reply_to
-          stored&.in_reply_to || json['inReplyTo']
+          stored&.in_reply_to
         end
 
         def can_belong_to

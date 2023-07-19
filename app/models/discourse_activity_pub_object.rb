@@ -43,16 +43,17 @@ end
 #
 # Table name: discourse_activity_pub_objects
 #
-#  id         :bigint           not null, primary key
-#  ap_id      :string           not null
-#  ap_key     :string
-#  ap_type    :string           not null
-#  local      :boolean
-#  model_id   :integer
-#  model_type :string
-#  content    :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id          :bigint           not null, primary key
+#  ap_id       :string           not null
+#  ap_key      :string
+#  ap_type     :string           not null
+#  local       :boolean
+#  model_id    :integer
+#  model_type  :string
+#  content     :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  in_reply_to :string
 #
 # Indexes
 #

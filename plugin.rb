@@ -115,6 +115,8 @@ after_initialize do
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
   register_category_custom_field_type("activity_pub_post_object_type", :string)
+  register_category_custom_field_type("activity_pub_publication_type", :string)
+
   add_to_class(:category, :activity_pub_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
@@ -165,6 +167,15 @@ after_initialize do
   end
   add_to_class(:category, :activity_pub_default_object_type) do
     DiscourseActivityPub::AP::Actor::Group.type
+  end
+  add_to_class(:category, :activity_pub_publication_type) do
+    custom_fields["activity_pub_publication_type"] || 'first_post'
+  end
+  add_to_class(:category, :activity_pub_first_post) do
+    activity_pub_publication_type === 'first_post'
+  end
+  add_to_class(:category, :activity_pub_full_topic) do
+    activity_pub_publication_type === 'full_topic'
   end
 
   add_model_callback(:category, :after_save) do
@@ -265,10 +276,12 @@ after_initialize do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
   add_to_class(:post, :activity_pub_enabled) do
-    return false unless Site.activity_pub_enabled && is_first_post?
+    return false unless Site.activity_pub_enabled
 
     topic = Topic.with_deleted.find_by(id: self.topic_id)
-    topic&.activity_pub_enabled
+    return false unless topic&.activity_pub_enabled
+
+    is_first_post? || topic.category.activity_pub_full_topic
   end
   add_to_class(:post, :activity_pub_content) do
     return nil unless activity_pub_enabled
@@ -390,9 +403,15 @@ after_initialize do
       post.custom_fields[
         "activity_pub_content"
       ] = DiscourseActivityPub::ContentParser.get_content(post)
-      post.custom_fields[
-        "activity_pub_visibility"
-      ] = post.topic&.category.activity_pub_default_visibility
+      if post.is_first_post?
+        post.custom_fields[
+          "activity_pub_visibility"
+        ] = post.topic&.category.activity_pub_default_visibility
+      else
+        post.custom_fields[
+          "activity_pub_visibility"
+        ] = post.topic.first_post.activity_pub_visibility
+      end
       post.save_custom_fields(true)
       post.perform_activity_pub_activity(:create)
     end

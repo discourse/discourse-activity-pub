@@ -4,9 +4,10 @@ RSpec.configure do |config|
   config.include DiscourseActivityPub::JsonLd
 end
 
-def toggle_activity_pub(category, callbacks: false, disable: false, username: nil)
+def toggle_activity_pub(category, callbacks: false, disable: false, username: nil, publication_type: nil)
   category.custom_fields['activity_pub_enabled'] = !disable
   category.custom_fields['activity_pub_username'] = username || category.slug
+  category.custom_fields['activity_pub_publication_type'] = publication_type if publication_type
 
   if callbacks
     category.save!

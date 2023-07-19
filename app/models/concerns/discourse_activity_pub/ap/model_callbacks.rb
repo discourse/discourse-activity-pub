@@ -49,7 +49,13 @@ module DiscourseActivityPub
         when :update, :delete
           self.activity_pub_object
         when :create
-          self.build_activity_pub_object(local: true)
+          attrs = {
+            local: true
+          }
+          if self.reply_to_post&.activity_pub_object
+            attrs[:in_reply_to] = self.reply_to_post&.activity_pub_object.ap_id
+          end
+          self.build_activity_pub_object(attrs)
         else
           nil
         end
