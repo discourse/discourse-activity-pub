@@ -4,6 +4,7 @@ module DiscourseActivityPub
     class Object
       include JsonLd
       include ActiveModel::SerializerSupport
+      include HasErrors
 
       attr_writer :json
       attr_accessor :stored
@@ -59,9 +60,44 @@ module DiscourseActivityPub
         end
       end
 
+      def update_stored_from_json
+        return false unless json
+
+        DiscourseActivityPubObject.transaction do
+          @stored = DiscourseActivityPubObject.find_by(ap_id: json[:id])
+
+          unless stored
+            params = {
+              local: false,
+              ap_id: json[:id],
+              ap_type: json[:type],
+              content: json[:content]
+            }
+
+            params[:in_reply_to] = json[:inReplyTo] if json[:inReplyTo]
+
+            @stored = DiscourseActivityPubObject.new(params)
+          end
+
+          if stored.new_record? || stored.changed?
+            begin
+              stored.save!
+            rescue ActiveRecord::RecordInvalid => error
+              log_stored_save_error(error, json)
+            end
+          end
+        end
+
+        stored
+      end
+
       def process_failed(warning_key)
         action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
-        message = I18n.t("discourse_activity_pub.process.warning.#{warning_key}")
+        if errors.any?
+          message = errors.map { |e| e.full_message }.join(",")
+        else
+          message = I18n.t("discourse_activity_pub.process.warning.#{warning_key}")
+        end
         log_warning(action, message)
         false
       end
@@ -77,6 +113,8 @@ module DiscourseActivityPub
       end
 
       def self.factory(json)
+        return nil unless json&.is_a?(Hash)
+
         json = json.with_indifferent_access
         klass = AP::Object.get_klass(json[:type])
         return nil unless klass
@@ -91,22 +129,44 @@ module DiscourseActivityPub
       end
 
       def self.get_klass(type)
-        self.descendants.find do |klass|
+        ([self] + self.descendants).find do |klass|
           klass.to_s.demodulize.downcase === type.downcase
         end
       end
 
-      def self.find_local(raw_object, activity_type)
+      def self.resolve_and_store(raw_object, activity)
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
-        stored = case activity_type
-          when AP::Activity::Follow.type
-            DiscourseActivityPubActor.find_by(ap_id: object_id)
-          when AP::Activity::Undo.type
-            DiscourseActivityPubActivity.find_by(ap_id: object_id)
-          else
-            nil
-          end
+        return process_failed(object_id, "cant_resolve_object") unless object_id.present?
+
+        if activity.composition?
+          object = factory(raw_object)
+          return process_failed(object_id, "cant_resolve_object") unless object.present?
+          return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)
+
+          stored = object.update_stored_from_json
+        else
+          stored = case activity.type
+            when AP::Activity::Follow.type
+              DiscourseActivityPubActor.find_by(ap_id: object_id)
+            when AP::Activity::Undo.type
+              DiscourseActivityPubActivity.find_by(ap_id: object_id)
+            else
+              nil
+            end
+        end
+
         stored&.ap
+      end
+
+      protected
+
+      def log_stored_save_error(error, json)
+        return unless SiteSetting.activity_pub_verbose_logging
+
+        prefix = "[Discourse Activity Pub] failed to save object"
+        ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
+        json = "JSON: #{JSON.generate(json)}"
+        Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
       end
     end
   end

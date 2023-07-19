@@ -50,6 +50,10 @@ module DiscourseActivityPub
         }
       end
 
+      def person?
+        type == Person.type
+      end
+
       def public_key
         return nil unless stored&.public_key
         {
@@ -112,17 +116,6 @@ module DiscourseActivityPub
         ap_actor.update_stored_from_json(stored ? actor_id : nil)
 
         ap_actor
-      end
-
-      protected
-
-      def log_stored_save_error(error, json)
-        return unless SiteSetting.activity_pub_verbose_logging
-
-        prefix = "[Discourse Activity Pub] update_stored_from_json failed to save actor"
-        ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
-        json = "Actor JSON: #{JSON.generate(json)}"
-        Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
       end
     end
   end

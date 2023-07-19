@@ -16,8 +16,12 @@ module DiscourseActivityPub
           stored&.updated_at.iso8601
         end
 
+        def in_reply_to
+          stored&.in_reply_to || json['inReplyTo']
+        end
+
         def can_belong_to
-          %i(post)
+          %i(post remote)
         end
       end
     end

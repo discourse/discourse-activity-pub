@@ -9,13 +9,14 @@ module DiscourseActivityPub
         end
 
         def can_belong_to
-          %i(remote)
+          %i(remote user)
         end
 
         def can_perform_activity
           {
             follow: [:group],
-            undo: [:follow]
+            undo: [:follow],
+            create: [:note, :article]
           }
         end
       end

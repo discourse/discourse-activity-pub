@@ -19,6 +19,8 @@ after_initialize do
     ../lib/discourse_activity_pub/content_parser.rb
     ../lib/discourse_activity_pub/signature_parser.rb
     ../lib/discourse_activity_pub/delivery_failure_tracker.rb
+    ../lib/discourse_activity_pub/user_handler.rb
+    ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -400,5 +402,63 @@ after_initialize do
   end
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_enabled
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |actor, object|
+    case object.type
+    when DiscourseActivityPub::AP::Activity::Follow.type
+      DiscourseActivityPubFollow.where(
+        follower_id: actor.stored.id,
+        followed_id: object.object.stored.id
+      ).destroy_all
+    else
+      false
+    end
+  end
+
+  User.has_one :activity_pub_actor,
+               class_name: "DiscourseActivityPubActor",
+               as: :model,
+               dependent: :destroy
+
+  # TODO: This should just be part of discourse/discourse.
+  User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
+
+  DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |actor, object|
+    unless actor.person?
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.invalid_create_actor')
+    end
+
+    unless object.stored.in_reply_to_post
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.not_a_reply')
+    end
+
+    if object.stored.in_reply_to_post.trashed?
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
+    end
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |actor, object|
+    user = DiscourseActivityPub::UserHandler.find_or_create(actor)
+
+    unless user
+      raise DiscourseActivityPub::AP::Activity::PerformanceError,
+        I18n.t('discourse_activity_pub.create.failed_to_create_user',
+          actor_id: actor.id
+        )
+    end
+
+    post = DiscourseActivityPub::PostHandler.create(user, object)
+
+    unless post
+      raise DiscourseActivityPub::AP::Activity::PerformanceError,
+        I18n.t('discourse_activity_pub.create.failed_to_create_post',
+          user_id: user.id,
+          object_id: object.id
+        )
+    end
   end
 end

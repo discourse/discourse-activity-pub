@@ -17,7 +17,7 @@ module DiscourseActivityPub
         end
 
         def can_belong_to
-          %i(post)
+          %i(post remote)
         end
       end
     end

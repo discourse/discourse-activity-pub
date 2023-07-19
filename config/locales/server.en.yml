@@ -63,12 +63,21 @@ en:
       warning:
         failed_to_process: "Failed to process %{object_id}"
         cant_resolve_actor: "Could not resolve actor"
+        cant_resolve_object: "Could not resolve object"
         actor_not_supported: "Actor is not supported"
         cant_create_actor: "Could not create actor"
         cant_find_object: "Could not find object"
         object_not_ready: "Object is not ready"
         activity_not_supported: "Activity is not supported for actor and object"
+        activity_not_valid: "Activity is not valid"
+        invalid_create_actor: "Actor cannot create posts"
+        not_a_reply: "Cannot create an object that is not inReplyTo a Post"
+        cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
+        undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
     activity:
+      create:
+        failed_to_create_user: "Failed to create user for %{actor_id}"
+        failed_to_create_post: "%{user_id} failed to create post for %{object_id}"
       reject:
         actor_already_following: "Actor is already following that object"
     webfinger:

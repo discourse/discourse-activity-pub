@@ -3,6 +3,11 @@
 module DiscourseActivityPub
   module AP
     class Activity < Object
+      class ValidationError < StandardError; end
+      class PerformanceError < StandardError; end
+
+      HANDLER_TYPES = %w(validate perform)
+
       def base_type
         'Activity'
       end
@@ -25,7 +30,7 @@ module DiscourseActivityPub
 
       def process
         return false unless process_actor_and_object
-        return false unless validate_activity
+        return false unless perform_validate_activity
 
         ActiveRecord::Base.transaction do
           perform_activity
@@ -34,11 +39,34 @@ module DiscourseActivityPub
         end
       end
 
+      def perform_validate_activity
+        return true if validate_activity
+        process_failed("activity_not_valid")
+        false
+      end
+
       def validate_activity
-        true
+        Activity.handlers(type.to_sym, :validate).all? do |proc|
+          begin
+            proc.call(actor, object)
+            true
+          rescue ValidationError => error
+            add_error(error)
+            false
+          end
+        end
       end
 
       def perform_activity
+        Activity.handlers(type.to_sym, :perform).all? do |proc|
+          begin
+            proc.call(actor, object)
+            true
+          rescue PerformanceError => error
+            add_error(error)
+            false
+          end
+        end
       end
 
       def store_activity
@@ -80,13 +108,42 @@ module DiscourseActivityPub
         activity.types
       end
 
+      def self.sorted_handlers
+        @@sorted_handlers ||= clear_handlers!
+      end
+
+      def self.clear_handlers!
+        @@sorted_handlers = {}
+      end
+
+      def self.handler_keys(activity_type, handler_type)
+        return nil unless HANDLER_TYPES.include?(handler_type.to_s)
+        klass = get_klass(activity_type.to_s)
+        [klass.type.downcase.to_sym, handler_type.to_sym]
+      end
+
+      def self.handlers(activity_type, handler_type)
+        type, handler = handler_keys(activity_type, handler_type)
+        return [] unless type && handler
+        (sorted_handlers.dig(*[type, handler]) || []).map { |h| h[:proc] }
+      end
+
+      def self.add_handler(activity_type, handler_type, priority = 0, &block)
+        type, handler = handler_keys(activity_type, handler_type)
+        return nil unless type && handler
+        sorted_handlers[type] ||= {}
+        sorted_handlers[type][handler] ||= []
+        sorted_handlers[type][handler] << { priority: priority, proc: block }
+        @@sorted_handlers[type][handler].sort_by! { |h| -h[:priority] }
+      end
+
       protected
 
       def process_actor_and_object
         @actor = AP::Actor.resolve_and_store(json[:actor])
         return process_failed("cant_create_actor") unless actor.present?
 
-        @object = AP::Object.find_local(json[:object], type)
+        @object = AP::Object.resolve_and_store(json[:object], self)
         return process_failed("cant_find_object") unless object.present?
         return process_failed("object_not_ready") unless object.stored.ready?
         return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)

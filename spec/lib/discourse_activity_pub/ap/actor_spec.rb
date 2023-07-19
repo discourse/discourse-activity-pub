@@ -76,7 +76,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
         actor.update_stored_from_json
 
         expect(fake_logger.errors.first).to eq(
-          "[Discourse Activity Pub] update_stored_from_json failed to save actor. AR errors: Ap has already been taken. Actor JSON: #{JSON.generate(stored.ap.json)}"
+          "[Discourse Activity Pub] failed to save object. AR errors: Ap has already been taken. JSON: #{JSON.generate(stored.ap.json)}"
         )
 
         Rails.logger = orig_logger

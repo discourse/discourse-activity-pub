@@ -61,13 +61,29 @@ def build_actor_json(public_key = nil)
   _json
 end
 
+def build_object_json(type: 'Note', content: 'My cool note', in_reply_to: nil)
+  {
+    '@context': 'https://www.w3.org/ns/activitystreams',
+    id: "https://external.com/object/note/#{SecureRandom.hex(8)}",
+    type: type,
+    content: content,
+    inReplyTo: in_reply_to
+  }
+end
+
 def build_activity_json(actor: nil, object: nil, type: 'Follow')
   {
     '@context': 'https://www.w3.org/ns/activitystreams',
-    id: "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
+    id: "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     actor: actor ? actor.ap.json : build_actor_json,
-    object: object ? object.ap_id : DiscourseActivityPub::JsonLd.json_ld_id('Actor', SecureRandom.hex(16))
+    object: if object&.respond_to?(:ap)
+        object.ap.json
+      elsif object.present?
+        object
+      else
+        build_object_json
+      end
   }.with_indifferent_access
 end
 

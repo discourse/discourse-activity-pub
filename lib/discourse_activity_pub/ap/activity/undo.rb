@@ -9,20 +9,12 @@ module DiscourseActivityPub
         end
 
         def validate_activity
-          return true if actor.id === object.actor.id
-          process_failed("invalid_undo")
-        end
-
-        def perform_activity
-          case object.type
-          when AP::Activity::Follow.type
-            DiscourseActivityPubFollow.where(
-              follower_id: actor.stored.id,
-              followed_id: object.object.stored.id
-            ).destroy_all
-          else
-            false
+          if actor.id != object.actor.id
+            process_failed("undo_actor_must_match_object_actor")
+            return false
           end
+
+          super
         end
       end
     end

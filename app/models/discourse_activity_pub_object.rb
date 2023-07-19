@@ -6,13 +6,16 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
+  belongs_to :parent, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'in_reply_to'
+  has_many :replies, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'in_reply_to'
+
   attr_accessor :to
 
   def url
     local? && model&.activity_pub_url
   end
 
-  def ready?(ap_type)
+  def ready?(ap_type = nil)
     return true unless local?
 
     case ap_type
@@ -29,6 +32,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     return unless model && !model.trashed?
     self.content = model.activity_pub_content
     self.save!
+  end
+
+  def in_reply_to_post
+    parent&.model_type == 'Post' && parent.model
   end
 end
 

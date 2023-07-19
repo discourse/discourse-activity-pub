@@ -95,8 +95,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
           end
 
           it "logs a warning" do
-            expect(@fake_logger.warnings.last).to match(
-              build_process_warning("invalid_undo", json['id'])
+            expect(@fake_logger.warnings).to include(
+              build_process_warning("undo_actor_must_match_object_actor", json['id'])
             )
           end
         end
