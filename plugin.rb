@@ -290,7 +290,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_scheduled_at) do
     custom_fields["activity_pub_scheduled_at"]
   end
-  activity_pub_custom_fields.each do |field_name|
+  activity_pub_post_custom_fields.each do |field_name|
     add_to_class(:post, "activity_pub_#{field_name}".to_sym) do
       custom_fields["activity_pub_#{field_name}"]
     end

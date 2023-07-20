@@ -7,7 +7,7 @@
 
 {{#if forComposer}}
   <ActivityPubVisibilityDropdown
-    @value={{this.args.model.activity_pub_visibility}}
-    @onChange={{action (mut this.args.model.activity_pub_visibility)}}
+    @value={{@model.activity_pub_visibility}}
+    @onChange={{action (mut @model.activity_pub_visibility)}}
   />
 {{/if}}
