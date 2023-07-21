@@ -14,6 +14,7 @@ module DiscourseActivityPub
             model_id: self.id,
             model_type: self.class.name
           )
+
           objects.each do |object|
             object.activities.each do |activity|
               job_args = {

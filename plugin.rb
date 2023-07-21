@@ -21,6 +21,7 @@ after_initialize do
     ../lib/discourse_activity_pub/delivery_failure_tracker.rb
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
+    ../lib/discourse_activity_pub/delivery_handler.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -31,6 +32,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/activity/follow.rb
     ../lib/discourse_activity_pub/ap/activity/response.rb
     ../lib/discourse_activity_pub/ap/activity/accept.rb
+    ../lib/discourse_activity_pub/ap/activity/announce.rb
     ../lib/discourse_activity_pub/ap/activity/reject.rb
     ../lib/discourse_activity_pub/ap/activity/compose.rb
     ../lib/discourse_activity_pub/ap/activity/create.rb
@@ -71,6 +73,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/activity/create_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/delete_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/update_serializer.rb
+    ../app/serializers/discourse_activity_pub/ap/activity/announce_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/group_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/person_serializer.rb
@@ -120,7 +123,7 @@ after_initialize do
   add_to_class(:category, :activity_pub_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
-  add_to_class(:category, :activity_pub_logo_url) do
+  add_to_class(:category, :activity_pub_icon_url) do
     SiteIconManager.large_icon_url
   end
   add_to_class(:category, :activity_pub_enabled) do
@@ -294,8 +297,13 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_actor) do
     return nil unless activity_pub_enabled
+    return nil unless topic.category
 
-    topic.category&.activity_pub_actor
+    if topic.category.activity_pub_full_topic
+      user.activity_pub_actor
+    else
+      topic.category.activity_pub_actor
+    end
   end
   add_to_class(:post, :activity_pub_update_custom_fields) do |args = {}|
     return nil if !activity_pub_enabled || (args.keys & activity_pub_post_custom_fields).empty?
@@ -373,6 +381,9 @@ after_initialize do
     self.topic&.category&.activity_pub_post_object_type ||
     DiscourseActivityPub::AP::Object::Note.type
   end
+  add_to_class(:post, :activity_pub_delivery_actor) do
+    topic.category.activity_pub_actor
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -400,6 +411,10 @@ after_initialize do
   end
   on(:post_created) do |post, post_opts, user|
     if post.activity_pub_enabled
+      if post.topic.category.activity_pub_full_topic
+        DiscourseActivityPub::UserHandler.update_or_create_actor(user)
+      end
+
       post.custom_fields[
         "activity_pub_content"
       ] = DiscourseActivityPub::ContentParser.get_content(post)
@@ -443,6 +458,16 @@ after_initialize do
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
 
+  add_to_class(:user, :activity_pub_ready?) do
+    true
+  end
+  add_to_class(:user, :activity_pub_url) do
+    full_url
+  end
+  add_to_class(:user, :activity_pub_icon_url) do
+    avatar_template_url.gsub("{size}", "96")
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |actor, object|
     unless actor.person?
       raise DiscourseActivityPub::AP::Activity::ValidationError,
@@ -461,7 +486,7 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |actor, object|
-    user = DiscourseActivityPub::UserHandler.find_or_create(actor)
+    user = DiscourseActivityPub::UserHandler.update_or_create_user(actor.stored)
 
     unless user
       raise DiscourseActivityPub::AP::Activity::PerformanceError,
@@ -470,7 +495,7 @@ after_initialize do
         )
     end
 
-    post = DiscourseActivityPub::PostHandler.create(user, object)
+    post = DiscourseActivityPub::PostHandler.create(user, object.stored)
 
     unless post
       raise DiscourseActivityPub::AP::Activity::PerformanceError,

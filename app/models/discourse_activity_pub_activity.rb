@@ -5,8 +5,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
   belongs_to :object, polymorphic: true
 
-  after_create :deliver_composition, if: Proc.new { ap&.composition? }
-
   attr_accessor :to
 
   def self.visibilities
@@ -44,44 +42,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     addressed_to = public? ? public_collection_id : to_actor.ap_id
     @to = addressed_to
     object.to = addressed_to if public?
-  end
-
-  def deliver_composition
-    return unless ap&.composition?
-
-    actor.followers.each do |follower|
-      opts = {
-        to_actor_id: follower.id
-      }
-
-      if object_model&.is_first_post? && (ap.create? || ap.update?)
-        opts[:delay] = SiteSetting.activity_pub_delivery_delay_minutes.to_i
-      end
-
-      deliver(**opts)
-    end
-  end
-
-  def deliver(to_actor_id: nil, delay: nil)
-    return unless to_actor_id
-
-    args = {
-      activity_id: self.id,
-      from_actor_id: actor.id,
-      to_actor_id: to_actor_id
-    }
-
-    Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
-
-    if delay
-      Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
-      scheduled_at = (Time.now.utc + delay.minutes).iso8601
-    else
-      Jobs.enqueue(:discourse_activity_pub_deliver, args)
-      scheduled_at = Time.now.utc.iso8601
-    end
-
-    after_scheduled(scheduled_at)
   end
 
   def after_scheduled(scheduled_at)

@@ -11,9 +11,9 @@ module DiscourseActivityPub
 
     def create
       # We only create posts from objects in reply to other objects
-      return nil unless user && object.stored&.in_reply_to_post
+      return nil unless user && object.in_reply_to_post
 
-      reply_to = object.stored&.in_reply_to_post
+      reply_to = object.in_reply_to_post
       post = nil
 
       ActiveRecord::Base.transaction do
@@ -30,7 +30,7 @@ module DiscourseActivityPub
           raise ActiveRecord::Rollback
         end
 
-        object.stored.update(model_type: 'Post', model_id: post.id)
+        object.update(model_type: 'Post', model_id: post.id)
       end
 
       post

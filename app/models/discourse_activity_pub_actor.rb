@@ -52,8 +52,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     local? && model&.activity_pub_url
   end
 
-  def logo_url
-    local? && model&.activity_pub_logo_url
+  def icon_url
+    if local?
+      model.activity_pub_icon_url
+    else
+      super
+    end
   end
 
   def self.ensure_for(model)

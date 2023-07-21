@@ -76,11 +76,11 @@ module Jobs
     end
 
     def actors_ready?
-      from_actor && to_actor && from_actor.ready? && to_actor.ready?
+      from_actor&.ready? && to_actor&.ready?
     end
 
     def activity_ready?
-      activity && activity.ready?
+      activity&.ready?
     end
   end
 end

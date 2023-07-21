@@ -82,6 +82,13 @@ module DiscourseActivityPub
       PUBLIC_COLLECTION_IDS.first
     end
 
+    def resolve_icon_url(value)
+      return nil if value.nil?
+      return value if value.is_a?(String)
+      return value['url'] if value.is_a?(Hash)
+      return value.first['url'] if value.is_a?(Array)
+    end
+
     module_function :validate_json_ld
     module_function :parse_json_ld
     module_function :format_jsonld
@@ -95,5 +102,6 @@ module DiscourseActivityPub
     module_function :valid_accept?
     module_function :content_type_header
     module_function :public_collection_id
+    module_function :resolve_icon_url
   end
 end

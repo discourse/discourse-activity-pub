@@ -28,6 +28,7 @@ module DiscourseActivityPub
           create_activity_pub_activity
         end
 
+        activity_pub_deliver_activity
         perform_activity_pub_activity_cleanup
       end
 
@@ -38,6 +39,9 @@ module DiscourseActivityPub
 
         # We don't permit updates if object has been deleted.
         return false if self.activity_pub_deleted? && performing_activity.update?
+
+        # Can't have an activity without an actor.
+        return false unless self.activity_pub_actor
 
         true
       end
@@ -98,7 +102,24 @@ module DiscourseActivityPub
           activity_attrs.merge(published_at: nil)
         )
 
-        DiscourseActivityPubActivity.create!(activity_attrs)
+        @performing_activity.stored =
+          DiscourseActivityPubActivity.create!(activity_attrs)
+      end
+
+      def activity_pub_deliver_activity
+        return unless @performing_activity.stored
+
+        delay = nil
+
+        if self.is_first_post? && (@performing_activity.create? || @performing_activity.update?)
+          delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+        end
+
+        DiscourseActivityPub::DeliveryHandler.perform(
+          activity_pub_delivery_actor,
+          @performing_activity.stored,
+          delay
+        )
       end
 
       def perform_activity_pub_activity_cleanup

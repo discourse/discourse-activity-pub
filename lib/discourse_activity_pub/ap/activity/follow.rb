@@ -29,7 +29,11 @@ module DiscourseActivityPub
             )
           end
 
-          response.stored.deliver(to_actor_id: actor.stored.id)
+          DiscourseActivityPub::DeliveryHandler.perform(
+            object.stored,
+            response.stored,
+            0
+          )
         end
       end
     end

@@ -16,7 +16,9 @@ module DiscourseActivityPub
           {
             follow: [:group],
             undo: [:follow],
-            create: [:note, :article]
+            create: [:note, :article],
+            update: [:note, :article],
+            delete: [:note, :article]
           }
         end
       end
