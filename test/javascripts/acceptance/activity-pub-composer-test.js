@@ -59,30 +59,15 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
       exists("#reply-control .activity-pub-status"),
       "the status label is visible"
     );
-    assert.ok(
-      exists("#reply-control .activity-pub-visibility-dropdown"),
-      "the visibility dropdown is visible"
+    assert.strictEqual(
+      query("#reply-control .activity-pub-status .label").innerText.trim(),
+      I18n.t("discourse_activity_pub.visibility.label.public"),
+      "the status label has the right text"
     );
     assert.strictEqual(
-      query(
-        "#reply-control .activity-pub-visibility-dropdown .select-kit-header-wrapper .name"
-      ).innerText.trim(),
-      I18n.t("discourse_activity_pub.visibility.public.label"),
-      "has the right default visibility"
-    );
-
-    const dropdown = selectKit(
-      "#reply-control .activity-pub-visibility-dropdown"
-    );
-    await dropdown.expand();
-    await dropdown.selectRowByValue("private");
-
-    assert.strictEqual(
-      query(
-        "#reply-control .activity-pub-visibility-dropdown .select-kit-header-wrapper .name"
-      ).innerText.trim(),
-      I18n.t("discourse_activity_pub.visibility.private.label"),
-      "successfully changes the visibility"
+      query("#reply-control .activity-pub-status .label").title,
+      I18n.t("discourse_activity_pub.visibility.description.public"),
+      "the status label has the right title"
     );
   });
 

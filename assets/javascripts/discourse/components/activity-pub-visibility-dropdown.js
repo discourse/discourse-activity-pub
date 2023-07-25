@@ -9,13 +9,13 @@ export default DropdownSelectBoxComponent.extend({
     return [
       {
         id: "private",
-        label: I18n.t("discourse_activity_pub.visibility.private.label"),
-        title: I18n.t("discourse_activity_pub.visibility.private.description"),
+        label: I18n.t("discourse_activity_pub.visibility.label.private"),
+        title: I18n.t("discourse_activity_pub.visibility.description.private"),
       },
       {
         id: "public",
-        label: I18n.t("discourse_activity_pub.visibility.public.label"),
-        title: I18n.t("discourse_activity_pub.visibility.public.description"),
+        label: I18n.t("discourse_activity_pub.visibility.label.public"),
+        title: I18n.t("discourse_activity_pub.visibility.description.public"),
       },
     ];
   }),

@@ -92,11 +92,27 @@ export default class ActivityPubStatus extends Component {
     }
   }
 
-  get labelKey() {
+  get statusKey() {
     return this.active ? "active" : "not_active";
   }
 
   get statusClass() {
     return this.active ? "active" : "not-active";
+  }
+
+  labelKey(type) {
+    let attribute = this.forComposer ? "visibility" : "status";
+    let key = this.forComposer
+      ? this.args.model.activity_pub_visibility
+      : this.statusKey;
+    return `discourse_activity_pub.${attribute}.${type}.${key}`;
+  }
+
+  get translatedLabel() {
+    return I18n.t(this.labelKey("label"));
+  }
+
+  get translatedLabelTitle() {
+    return I18n.t(this.labelKey("description"));
   }
 }

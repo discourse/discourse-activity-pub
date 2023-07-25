@@ -210,16 +210,16 @@ module(
 
       await render(composerTemplate);
 
-      assert.ok(
-        query(".activity-pub-visibility-dropdown"),
-        "displays the visibility dropdown"
+      const label = query(".activity-pub-status .label");
+      assert.strictEqual(
+        label.title,
+        I18n.t("discourse_activity_pub.visibility.description.public"),
+        "has the right label title"
       );
       assert.strictEqual(
-        query(
-          ".activity-pub-visibility-dropdown .select-kit-header-wrapper .name"
-        ).innerText.trim(),
-        I18n.t("discourse_activity_pub.visibility.public.label"),
-        "has the right default visibility"
+        label.innerText.trim(),
+        I18n.t("discourse_activity_pub.visibility.label.public"),
+        "has the right label text"
       );
     });
   }
