@@ -169,33 +169,4 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       end
     end
   end
-
-  describe '#addressed_json' do
-    let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
-    let(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
-    let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-    let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor) }
-
-    context "when activity is private" do
-      before do
-        activity.update(visibility: DiscourseActivityPubActivity.visibilities[:private])
-      end
-
-      it "addresses activity json to followers only" do
-        json = activity.ap.addressed_json(follower1.ap)
-        expect(json[:to]).to eq(follower1.ap.id)
-      end
-    end
-
-    context "when activity is public" do
-      before do
-        activity.update(visibility: DiscourseActivityPubActivity.visibilities[:public])
-      end
-
-      it "addresses activity json to public" do
-        json = activity.ap.addressed_json(follower1.ap)
-        expect(json[:to]).to eq(DiscourseActivityPub::JsonLd.public_collection_id)
-      end
-    end
-  end
 end
