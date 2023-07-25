@@ -13,34 +13,33 @@ RSpec.describe PostsController do
           toggle_activity_pub(category, callbacks: true)
         end
 
-        it "saves activity_pub_visibility params" do
-          post "/posts.json",
-               params: {
-                 raw: "This is my note",
-                 title: "This is my title",
-                 activity_pub_visibility: "public",
-                 category: category.id
-               }
-          expect(response.status).to eq(200)
-          expect(response.parsed_body['activity_pub_visibility']).to eq('public')
-        end
+        context "when passed activity_pub_visibility params" do
+          let!(:params) {
+            {
+              raw: "This is my note",
+              title: "This is my title",
+              activity_pub_visibility: "public",
+              category: category.id
+            }
+          }
 
-        context "when the category has a default visibility" do
-          before do
-            category.custom_fields['activity_pub_default_visibility'] = 'public'
-            category.save_custom_fields(true)
+          it "saves the server's default visibility" do
+            post "/posts.json", params: params
+            expect(response.status).to eq(200)
+            expect(response.parsed_body['activity_pub_visibility']).to eq(DiscourseActivityPubActivity::DEFAULT_VISIBILITY)
           end
 
-          it "saves activity_pub_visibility params" do
-            post "/posts.json",
-                 params: {
-                   raw: "This is my note",
-                   title: "This is my title",
-                   activity_pub_visibility: "private",
-                   category: category.id
-                 }
-            expect(response.status).to eq(200)
-            expect(response.parsed_body['activity_pub_visibility']).to eq('private')
+          context "when the category has a default visibility" do
+            before do
+              category.custom_fields['activity_pub_default_visibility'] = 'public'
+              category.save_custom_fields(true)
+            end
+
+            it "saves the category's default visibility" do
+              post "/posts.json", params: params
+              expect(response.status).to eq(200)
+              expect(response.parsed_body['activity_pub_visibility']).to eq(category.activity_pub_default_visibility)
+            end
           end
         end
       end
