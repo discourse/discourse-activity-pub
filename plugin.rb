@@ -371,8 +371,7 @@ after_initialize do
       ] = DiscourseActivityPub::ExcerptParser.get_content(post)
       post.custom_fields[
         "activity_pub_visibility"
-      ] = post_opts[:activity_pub_visibility] ||
-        post.topic&.category.activity_pub_default_visibility
+      ] = post.topic&.category.activity_pub_default_visibility
       post.save_custom_fields(true)
       post.perform_activity_pub_activity(:create)
     end

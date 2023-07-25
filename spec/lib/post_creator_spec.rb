@@ -38,11 +38,13 @@ RSpec.describe PostCreator do
       end
 
       context "when passed a visibility" do
-        it "saves the visibility" do
+        it "saves the category's default visibility" do
           post = PostCreator.create(user, params.merge(
             activity_pub_visibility: 'public'
           ))
-          expect(post.custom_fields['activity_pub_visibility']).to eq('public')
+          expect(post.custom_fields['activity_pub_visibility']).to eq(
+            category.activity_pub_default_visibility
+          )
         end
       end
 
