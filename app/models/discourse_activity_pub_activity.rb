@@ -7,6 +7,8 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   after_create :deliver_composition, if: Proc.new { ap&.composition? }
 
+  attr_accessor :to
+
   DEFAULT_VISIBILITY = 'private'
 
   def self.visibilities
@@ -30,6 +32,12 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     when "DiscourseActivityPubActor"
       object.ready?
     end
+  end
+
+  def address!(to_actor)
+    addressed_to = public? ? public_collection_id : to_actor.ap_id
+    @to = addressed_to
+    object.to = addressed_to if public?
   end
 
   def deliver_composition

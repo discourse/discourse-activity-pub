@@ -3,6 +3,7 @@ module DiscourseActivityPub
   module AP
     module IdentifierValidations
       extend ActiveSupport::Concern
+      include JsonLd
 
       included do
         before_validation :ensure_ap_type
@@ -49,7 +50,7 @@ module DiscourseActivityPub
       end
 
       def ensure_ap_id
-        self.ap_id = DiscourseActivityPub::JsonLd.json_ld_id(ap.base_type, ap_key) if !self.ap_id
+        self.ap_id = json_ld_id(ap.base_type, ap_key) if !self.ap_id
       end
     end
   end

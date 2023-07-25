@@ -19,11 +19,13 @@ module Jobs
       @performed = false
       retry_count = @args[:retry_count] || 0
 
+      activity.address!(to_actor)
+
       # TODO (future): use request in a Request Pool
       request = DiscourseActivityPub::Request.new(
         actor_id: from_actor.id,
         uri: to_actor.inbox,
-        body: activity.ap.addressed_json(to_actor.ap)
+        body: activity.ap.json
       )
 
       # TODO (future): raise redirects from Request and resolve with FinalDestination
