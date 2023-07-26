@@ -56,8 +56,8 @@ module DiscourseActivityPub
           attrs = {
             local: true
           }
-          if self.reply_to_post&.activity_pub_object
-            attrs[:in_reply_to] = self.reply_to_post&.activity_pub_object.ap_id
+          if self.activity_pub_reply_to_object
+            attrs[:in_reply_to] = self.activity_pub_reply_to_object.ap_id
           end
           self.build_activity_pub_object(attrs)
         else

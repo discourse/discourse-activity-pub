@@ -133,18 +133,52 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
               activity.save!
             end
 
-            it "wraps activity in announce" do
-              result = perform_delivery
-              announce = DiscourseActivityPubActivity.find_by(
+            def find_announce
+              DiscourseActivityPubActivity.find_by(
                 local: true,
                 actor_id: delivery_actor.id,
                 object_id: activity.id,
                 object_type: activity.class.name,
                 ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-                visibility: 0
+                visibility: DiscourseActivityPubActivity.visibilities[:public]
               )
-              expect(result).to eq(announce)
-              expect_job(activity_id: announce.id)
+            end
+
+            context "when activity is private" do
+              before do
+                activity.visibility = DiscourseActivityPubActivity.visibilities[:private]
+                activity.save!
+              end
+
+              it "returns false" do
+                expect(perform_delivery).to eq(false)
+              end
+
+              it "does not enqueue any delivery jobs" do
+                expect_job(enqueued: false)
+              end
+
+              it "logs the right warning" do
+                perform_delivery
+                expect_log("can't announce private activities")
+              end
+            end
+
+            context "when activity is public" do
+              before do
+                activity.visibility = DiscourseActivityPubActivity.visibilities[:public]
+                activity.save!
+              end
+
+              it "wraps the activity in an announce" do
+                perform_delivery
+                expect(find_announce.present?).to eq(true)
+              end
+
+              it "delivers the announce activity" do
+                perform_delivery
+                expect_job(activity_id: find_announce.id)
+              end
             end
           end
         end

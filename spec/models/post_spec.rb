@@ -620,93 +620,111 @@ RSpec.describe Post do
             end
           end
         end
-      end
 
-      context "with delete" do
-        let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: reply) }
-        let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+        context "with delete" do
+          let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: reply) }
+          let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
 
-        def perform_delete
-          reply.delete
-          reply.perform_activity_pub_activity(:delete)
+          def perform_delete
+            reply.delete
+            reply.perform_activity_pub_activity(:delete)
+          end
+
+          context "while in pre publication period" do
+            it "does not create an object" do
+              perform_delete
+              expect(
+                DiscourseActivityPubObject.exists?(model_id: reply.id)
+              ).to eq(false)
+            end
+
+            it "does not create an activity" do
+              perform_delete
+              expect(
+                 reply.activity_pub_actor.activities.where(
+                   ap_type: 'Delete'
+                ).exists?
+              ).to eq(false)
+            end
+
+            it "destroys associated objects" do
+              perform_delete
+              expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
+            end
+
+            it "destroys associated activities" do
+              perform_delete
+              expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(false)
+            end
+
+            it "clears associated data" do
+              perform_delete
+              expect(note.model.custom_fields['activity_pub_scheduled_at']).to eq(nil)
+              expect(note.model.custom_fields['activity_pub_published_at']).to eq(nil)
+              expect(note.model.custom_fields['activity_pub_deleted_at']).to eq(nil)
+            end
+
+            it "clears associated jobs" do
+              follower1 = Fabricate(:discourse_activity_pub_actor_person)
+              follow1 = Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: create.actor)
+              follower2 = Fabricate(:discourse_activity_pub_actor_person)
+              follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: create.actor)
+              job1_args = {
+                activity_id: create.id,
+                from_actor_id: create.actor.id,
+                to_actor_id: follower1.id
+              }
+              job2_args = {
+                activity_id: create.id,
+                from_actor_id: create.actor.id,
+                to_actor_id: follower2.id
+              }
+              Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job1_args).once
+              Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
+              perform_delete
+            end
+          end
+
+          context "after publication" do
+            before do
+              note.model.custom_fields['activity_pub_published_at'] = Time.now
+              note.model.save_custom_fields(true)
+              perform_delete
+            end
+
+            it "creates the right activity" do
+              expect(
+                 reply.activity_pub_actor.activities.where(
+                   ap_type: 'Delete'
+                ).exists?
+              ).to eq(true)
+            end
+
+            it "does not destroy associated objects" do
+              expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+            end
+
+            it "does not destroy associated activities" do
+              expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+            end
+          end
         end
 
-        context "while in pre publication period" do
-          it "does not create an object" do
-            perform_delete
-            expect(
-              DiscourseActivityPubObject.exists?(model_id: reply.id)
-            ).to eq(false)
-          end
-
-          it "does not create an activity" do
-            perform_delete
-            expect(
-               reply.activity_pub_actor.activities.where(
-                 ap_type: 'Delete'
-              ).exists?
-            ).to eq(false)
-          end
-
-          it "destroys associated objects" do
-            perform_delete
-            expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
-          end
-
-          it "destroys associated activities" do
-            perform_delete
-            expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(false)
-          end
-
-          it "clears associated data" do
-            perform_delete
-            expect(note.model.custom_fields['activity_pub_scheduled_at']).to eq(nil)
-            expect(note.model.custom_fields['activity_pub_published_at']).to eq(nil)
-            expect(note.model.custom_fields['activity_pub_deleted_at']).to eq(nil)
-          end
-
-          it "clears associated jobs" do
-            follower1 = Fabricate(:discourse_activity_pub_actor_person)
-            follow1 = Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: create.actor)
-            follower2 = Fabricate(:discourse_activity_pub_actor_person)
-            follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: create.actor)
-            job1_args = {
-              activity_id: create.id,
-              from_actor_id: create.actor.id,
-              to_actor_id: follower1.id
-            }
-            job2_args = {
-              activity_id: create.id,
-              from_actor_id: create.actor.id,
-              to_actor_id: follower2.id
-            }
-            Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job1_args).once
-            Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
-            perform_delete
-          end
-        end
-
-        context "after publication" do
+        context "with no reply_to_post_number" do
           before do
-            note.model.custom_fields['activity_pub_published_at'] = Time.now
-            note.model.save_custom_fields(true)
-            perform_delete
+            reply.reply_to_post_number = nil
+            reply.save!
+            reply.perform_activity_pub_activity(:create)
+            reply.reload
           end
 
-          it "creates the right activity" do
+          it "creates the right object" do
             expect(
-               reply.activity_pub_actor.activities.where(
-                 ap_type: 'Delete'
-              ).exists?
-            ).to eq(true)
-          end
-
-          it "does not destroy associated objects" do
-            expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
-          end
-
-          it "does not destroy associated activities" do
-            expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+              reply.activity_pub_object&.content
+            ).to eq(reply.activity_pub_content)
+            expect(
+              reply.activity_pub_object&.in_reply_to
+            ).to eq(post_note.ap_id)
           end
         end
       end

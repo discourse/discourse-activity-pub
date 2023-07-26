@@ -1,9 +1,13 @@
 import ComboBoxComponent from "select-kit/components/combo-box";
 import I18n from "I18n";
 import { computed } from "@ember/object";
+import { observes, on } from "discourse-common/utils/decorators";
+import { equal } from "@ember/object/computed";
+import { scheduleOnce } from "@ember/runloop";
 
-export default ComboBoxComponent.extend({
-  classNames: ["activity-pub-visibility-dropdown"],
+export default DropdownSelectBoxComponent.extend({
+  classNames: ["activity-pub-visibility-dropdown", "activity-pub-dropdown"],
+  fullTopicPublication: equal("publicationType", "full_topic"),
 
   content: computed(function () {
     return [
@@ -19,6 +23,17 @@ export default ComboBoxComponent.extend({
       },
     ];
   }),
+
+  @on("didReceiveAttrs")
+  @observes("fullTopicPublication")
+  handleFullTopicPublication() {
+    if (this.fullTopicPublication) {
+      this.set("value", "public");
+    }
+    scheduleOnce("afterRender", () => {
+      this.set("selectKit.options.disabled", this.fullTopicPublication);
+    });
+  },
 
   actions: {
     onChange(value) {

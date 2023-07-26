@@ -3,7 +3,10 @@ import I18n from "I18n";
 import { computed } from "@ember/object";
 
 export default DropdownSelectBoxComponent.extend({
-  classNames: ["activity-pub-post-object-type-dropdown"],
+  classNames: [
+    "activity-pub-post-object-type-dropdown",
+    "activity-pub-dropdown",
+  ],
 
   content: computed(function () {
     return [

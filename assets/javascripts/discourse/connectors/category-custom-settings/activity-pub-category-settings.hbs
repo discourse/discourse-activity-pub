@@ -68,6 +68,7 @@
   <ActivityPubVisibilityDropdown
     @value={{this.category.custom_fields.activity_pub_default_visibility}}
     @onChange={{action (mut this.category.custom_fields.activity_pub_default_visibility)}}
+    @publicationType={{this.category.custom_fields.activity_pub_publication_type}}
   />
   <div class="activity-pub-setting-description">
     {{i18n 'category.discourse_activity_pub.default_visibility_description'}}

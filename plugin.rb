@@ -62,6 +62,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/inboxes_controller.rb
     ../app/controllers/discourse_activity_pub/ap/outboxes_controller.rb
     ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
+    ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
@@ -163,7 +164,11 @@ after_initialize do
     MessageBus.publish("/activity-pub", message, opts)
   end
   add_to_class(:category, :activity_pub_default_visibility) do
-    custom_fields["activity_pub_default_visibility"] || DiscourseActivityPubActivity.default_visibility
+    if activity_pub_full_topic
+      "public"
+    else
+      custom_fields["activity_pub_default_visibility"] || DiscourseActivityPubActivity.default_visibility
+    end
   end
   add_to_class(:category, :activity_pub_post_object_type) do
     custom_fields["activity_pub_post_object_type"]
@@ -241,6 +246,7 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_username"
     Site.preloaded_category_custom_fields << "activity_pub_name"
     Site.preloaded_category_custom_fields << "activity_pub_default_visibility"
+    Site.preloaded_category_custom_fields << "activity_pub_publication_type"
   end
 
   add_to_class(:topic, :activity_pub_enabled) do
@@ -331,7 +337,11 @@ after_initialize do
     custom_fields["activity_pub_updated_at"]
   end
   add_to_class(:post, :activity_pub_visibility) do
-    custom_fields["activity_pub_visibility"] || topic.category&.activity_pub_default_visibility
+    if topic.category&.activity_pub_full_topic
+      "public"
+    else
+      custom_fields["activity_pub_visibility"] || topic.category&.activity_pub_default_visibility
+    end
   end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
@@ -383,6 +393,17 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_delivery_actor) do
     topic.category.activity_pub_actor
+  end
+  add_to_class(:post, :activity_pub_reply_to_object) do
+    return if is_first_post?
+    @activity_pub_reply_to_object ||= begin
+      post = Post.find_by(
+        "topic_id = :topic_id AND post_number = :post_number",
+        topic_id: topic_id,
+        post_number: reply_to_post_number || 1,
+      )
+      post&.activity_pub_object
+    end
   end
 
   add_to_serializer(:post, :activity_pub_enabled) do

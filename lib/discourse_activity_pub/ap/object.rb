@@ -30,6 +30,10 @@ module DiscourseActivityPub
         'Object'
       end
 
+      def activity?
+        base_type == "Activity"
+      end
+
       def url
         stored&.respond_to?(:url) && stored.url
       end

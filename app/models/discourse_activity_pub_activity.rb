@@ -38,10 +38,13 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     end
   end
 
-  def address!(to_actor)
-    addressed_to = public? ? public_collection_id : to_actor.ap_id
+  def address!(to_actor = nil)
+    addressed_to = public? ? public_collection_id : (
+      to_actor ? to_actor.ap_id : actor.followers.map(&:ap_id)
+    )
     @to = addressed_to
-    object.to = addressed_to if public?
+    object.to = addressed_to
+    object.object.to = addressed_to if object.respond_to?(:object)
   end
 
   def after_scheduled(scheduled_at)
@@ -61,20 +64,27 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   def after_deliver
     if !self.published_at
       published_at = Time.now.utc.iso8601
-      self.update(published_at: published_at)
-
-      if self.object.local && object_model&.respond_to?(:activity_pub_after_publish)
-        args = {}
-        args[:published_at] = published_at if ap.create?
-        args[:deleted_at] = published_at if ap.delete?
-        args[:updated_at] = published_at if ap.update?
-        object_model.activity_pub_after_publish(args)
+      self.class.set_published_at(self, published_at)
+      if self.object.is_a?(DiscourseActivityPubActivity)
+        self.class.set_published_at(object, published_at)
       end
     end
   end
 
   def object_model
     self.object&.respond_to?(:model) && self.object.model
+  end
+
+  def self.set_published_at(activity, published_at)
+    activity.update(published_at: published_at)
+
+    if activity.object.local && activity.object_model&.respond_to?(:activity_pub_after_publish)
+      args = {}
+      args[:published_at] = published_at if activity.ap.create?
+      args[:deleted_at] = published_at if activity.ap.delete?
+      args[:updated_at] = published_at if activity.ap.update?
+      activity.object_model.activity_pub_after_publish(args)
+    end
   end
 end
 

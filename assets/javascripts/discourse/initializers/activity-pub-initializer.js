@@ -101,14 +101,15 @@ export default {
 
         @bind
         handleActivityPubMessage(data) {
-          if (data.model.type === "post") {
+          const postStream = this.get("model.postStream");
+          if (data.model.type === "post" && postStream) {
             let stateProps = {
               activity_pub_scheduled_at: data.model.scheduled_at,
               activity_pub_published_at: data.model.published_at,
               activity_pub_deleted_at: data.model.deleted_at,
               activity_pub_updated_at: data.model.updated_at,
             };
-            this.get("model.postStream")
+            postStream
               .triggerActivityPubStateChange(data.model.id, stateProps)
               .then(() =>
                 this.appEvents.trigger("post-stream:refresh", {
