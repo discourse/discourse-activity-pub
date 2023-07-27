@@ -14,7 +14,8 @@ createWidget("post-activity-pub-indicator", {
   },
 
   buildClasses(attrs) {
-    return dasherize(attrs.status);
+    let placeClass = attrs.post.activity_pub_local ? "local" : "remote";
+    return [dasherize(attrs.status), placeClass];
   },
 
   html(attrs) {
@@ -30,7 +31,19 @@ createWidget("post-activity-pub-indicator", {
       },
       visibility === "public" ? iconNode("globe-americas") : iconNode("lock")
     );
+    let result = [iconNode("discourse-activity-pub"), visibilityHtml];
 
-    return [iconNode("discourse-activity-pub"), visibilityHtml];
+    if (!attrs.post.activity_pub_local) {
+      result.push(
+        this.attach("link", {
+          href: attrs.post.activity_pub_url,
+          icon: "external-link-alt",
+          attributes: {
+            target: "_blank",
+          },
+        })
+      );
+    }
+    return result;
   },
 });

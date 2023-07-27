@@ -62,17 +62,20 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_object_json(type: 'Note', content: 'My cool note', in_reply_to: nil)
-  {
+def build_object_json(type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil)
+  _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: "https://external.com/object/note/#{SecureRandom.hex(8)}",
     type: type,
     content: content,
-    inReplyTo: in_reply_to
+    inReplyTo: in_reply_to,
+    published: published || Time.now.iso8601
   }
+  _json[:url] = url if url
+  _json
 end
 
-def build_activity_json(actor: nil, object: nil, type: 'Follow')
+def build_activity_json(actor: nil, object: nil, type: 'Follow', published: nil)
   {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
@@ -84,7 +87,8 @@ def build_activity_json(actor: nil, object: nil, type: 'Follow')
         object
       else
         build_object_json
-      end
+      end,
+    published: published || Time.now.iso8601
   }.with_indifferent_access
 end
 

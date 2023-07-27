@@ -75,11 +75,11 @@ module DiscourseActivityPub
               local: false,
               ap_id: json[:id],
               ap_type: json[:type],
-              content: json[:content]
+              content: json[:content],
+              published_at: json[:published]
             }
-
             params[:in_reply_to] = json[:inReplyTo] if json[:inReplyTo]
-
+            params[:url] = json[:url] if json[:url]
             @stored = DiscourseActivityPubObject.new(params)
           end
 

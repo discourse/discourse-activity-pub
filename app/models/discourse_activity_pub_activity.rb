@@ -44,7 +44,9 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     )
     @to = addressed_to
     object.to = addressed_to
-    object.object.to = addressed_to if object.respond_to?(:object)
+    if object.respond_to?(:object) && object.is_a?(DiscourseActivityPubObject)
+      object.object.to = addressed_to
+    end
   end
 
   def after_scheduled(scheduled_at)

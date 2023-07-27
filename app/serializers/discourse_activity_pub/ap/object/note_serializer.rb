@@ -3,6 +3,7 @@
 class DiscourseActivityPub::AP::Object::NoteSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :content,
              :url,
+             :published,
              :updated,
              :inReplyTo
 

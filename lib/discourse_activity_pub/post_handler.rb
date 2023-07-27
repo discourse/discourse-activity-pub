@@ -18,13 +18,17 @@ module DiscourseActivityPub
 
       ActiveRecord::Base.transaction do
         begin
-          post = PostCreator.create!(
-            user,
+          params = {
             raw: object.content,
             topic_id: reply_to.topic.id,
             reply_to_post_number: reply_to.post_number,
-            skip_events: true
-          )
+            skip_events: true,
+            custom_fields: {}
+          }
+          if object.published_at
+            params[:custom_fields][:activity_pub_published_at] = object.published_at&.to_datetime.utc.iso8601
+          end
+          post = PostCreator.create!(user, params)
         rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
           log_failure("create", e.message)
           raise ActiveRecord::Rollback

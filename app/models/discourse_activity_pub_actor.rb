@@ -56,7 +56,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     if local?
       model.activity_pub_icon_url
     else
-      super
+      self.read_attribute(:icon_url)
     end
   end
 
@@ -134,6 +134,7 @@ end
 #  public_key  :text
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  icon_url    :string
 #
 # Indexes
 #

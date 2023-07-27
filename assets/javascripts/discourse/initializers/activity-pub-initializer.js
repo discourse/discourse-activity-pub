@@ -31,6 +31,8 @@ export default {
         "activity_pub_visibility",
         "activity_pub_visibility"
       );
+      api.includePostAttributes("activity_pub_local", "activity_pub_local");
+      api.includePostAttributes("activity_pub_url", "activity_pub_url");
       api.serializeOnCreate("activity_pub_visibility");
 
       // TODO (future): PR discourse/discourse to add post infos via api
@@ -66,7 +68,12 @@ export default {
             }
 
             if (time && status) {
-              postStatuses.unshift(
+              let replyToTabIndex = postStatuses.findIndex((postStatus) => {
+                return postStatus.name === "reply-to-tab";
+              });
+              postStatuses.splice(
+                replyToTabIndex !== -1 ? replyToTabIndex + 1 : 0,
+                0,
                 this.attach("post-activity-pub-indicator", {
                   post: attrs,
                   time,

@@ -3,6 +3,7 @@
 class DiscourseActivityPub::AP::Object::ArticleSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :content,
              :url,
+             :published,
              :updated,
              :inReplyTo
 
@@ -15,7 +16,7 @@ class DiscourseActivityPub::AP::Object::ArticleSerializer < DiscourseActivityPub
   end
 
   def include_url?
-    object.stored.local? && !deleted?
+    object.url.present?
   end
 
   def include_updated?

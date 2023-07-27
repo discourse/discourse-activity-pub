@@ -24,24 +24,29 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
       context "with Note inReplyTo to a Note" do
         let!(:original_object) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+        let!(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
         let(:reply_json) {
           build_activity_json(
             actor: person,
             object: build_object_json(
-              in_reply_to: original_object.ap_id
+              in_reply_to: original_object.ap_id,
+              url: reply_external_url
             ),
             type: 'Create'
           )
         }
 
         before do
+          freeze_time
           perform_process(reply_json)
         end
 
-        it "creates a post" do
-          expect(
-            Post.exists?(raw: reply_json[:object][:content])
-          ).to be(true)
+        it "creates a post with the right fields" do
+          reply = Post.find_by(raw: reply_json[:object][:content])
+          expect(reply.present?).to be(true)
+          expect(reply.reply_to_post_number).to eq(post.post_number)
+          expect(reply.activity_pub_published_at.to_datetime.to_i).to eq_time(Time.now.utc.to_i)
+          expect(reply.activity_pub_url).to eq(reply_external_url)
         end
 
         it "creates a single activity" do

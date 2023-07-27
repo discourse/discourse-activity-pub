@@ -282,6 +282,9 @@ after_initialize do
   add_permitted_post_create_param(:activity_pub_visibility)
 
   add_to_class(:post, :activity_pub_url) do
+    self.activity_pub_object&.url
+  end
+  add_to_class(:post, :activity_pub_full_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
   add_to_class(:post, :activity_pub_enabled) do
@@ -405,6 +408,9 @@ after_initialize do
       post&.activity_pub_object
     end
   end
+  add_to_class(:post, :activity_pub_local?) do
+    self.activity_pub_object&.local
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -414,9 +420,16 @@ after_initialize do
       object.send("activity_pub_#{field_name}")
     end
   end
-  add_to_serializer(:post, :activity_pub_updated_at) do
-    object.activity_pub_updated_at
-  end
+  add_to_serializer(
+    :post,
+    :activity_pub_local,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_local? }
+  add_to_serializer(
+    :post,
+    :activity_pub_url,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_url }
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
@@ -459,12 +472,12 @@ after_initialize do
     post.perform_activity_pub_activity(:create) if post.activity_pub_enabled
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |actor, object|
-    case object.type
+  DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |activity|
+    case activity.object.type
     when DiscourseActivityPub::AP::Activity::Follow.type
       DiscourseActivityPubFollow.where(
-        follower_id: actor.stored.id,
-        followed_id: object.object.stored.id
+        follower_id: activity.actor.stored.id,
+        followed_id: activity.object.object.stored.id
       ).destroy_all
     else
       false
@@ -489,41 +502,83 @@ after_initialize do
     avatar_template_url.gsub("{size}", "96")
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |actor, object|
-    unless actor.person?
+  DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
+    unless activity.actor.person?
       raise DiscourseActivityPub::AP::Activity::ValidationError,
         I18n.t('discourse_activity_pub.process.warning.invalid_create_actor')
     end
 
-    unless object.stored.in_reply_to_post
+    unless activity.object.stored.in_reply_to_post
       raise DiscourseActivityPub::AP::Activity::ValidationError,
         I18n.t('discourse_activity_pub.process.warning.not_a_reply')
     end
 
-    if object.stored.in_reply_to_post.trashed?
+    if activity.object.stored.in_reply_to_post.trashed?
       raise DiscourseActivityPub::AP::Activity::ValidationError,
         I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
     end
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |actor, object|
-    user = DiscourseActivityPub::UserHandler.update_or_create_user(actor.stored)
+  DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|
+    user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
 
     unless user
       raise DiscourseActivityPub::AP::Activity::PerformanceError,
         I18n.t('discourse_activity_pub.create.failed_to_create_user',
-          actor_id: actor.id
+          actor_id: activity.actor.id
         )
     end
 
-    post = DiscourseActivityPub::PostHandler.create(user, object.stored)
+    post = DiscourseActivityPub::PostHandler.create(user, activity.object.stored)
 
     unless post
       raise DiscourseActivityPub::AP::Activity::PerformanceError,
         I18n.t('discourse_activity_pub.create.failed_to_create_post',
           user_id: user.id,
-          object_id: object.id
+          object_id: activity.object.id
         )
     end
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:all, :store) do |activity|
+    public = DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
+    visibility = public ? :public : :private
+
+    activity.stored = DiscourseActivityPubActivity.create!(
+      ap_id: activity.json[:id],
+      ap_type: activity.type,
+      actor_id: activity.actor.stored.id,
+      object_id: activity.object.stored.id,
+      object_type: activity.object.stored.class.name,
+      visibility: DiscourseActivityPubActivity.visibilities[visibility],
+      published_at: activity.json[:published]
+    )
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:follow, :respond_to) do |activity|
+    response = DiscourseActivityPub::AP::Activity::Response.new
+    response.reject(message: activity.stored.errors.full_messages.join(', ')) if activity.stored&.errors.present?
+    response.reject(key: "actor_already_following") if activity.actor.stored.following?(activity.object.stored)
+
+    response.stored = DiscourseActivityPubActivity.create!(
+      local: true,
+      ap_type: response.type,
+      actor_id: activity.object.stored.id,
+      object_id: activity.stored&.id,
+      object_type: 'DiscourseActivityPubActivity',
+      summary: response.summary
+    )
+
+    if response.accepted?
+      DiscourseActivityPubFollow.create!(
+        follower_id: activity.actor.stored.id,
+        followed_id: activity.object.stored.id
+      )
+    end
+
+    DiscourseActivityPub::DeliveryHandler.perform(
+      activity.object.stored,
+      response.stored
+    )
   end
 end

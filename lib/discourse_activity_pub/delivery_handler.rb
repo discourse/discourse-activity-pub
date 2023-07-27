@@ -10,7 +10,7 @@ module DiscourseActivityPub
       @activity = activity
     end
 
-    def perform(delay: nil)
+    def perform(delay: 0)
       return false unless can_deliver?
       return nil unless recipient_actors.present?
       set_delivery_activity
@@ -18,7 +18,7 @@ module DiscourseActivityPub
       activity
     end
 
-    def self.perform(delivery_actor, activity, delay = nil)
+    def self.perform(delivery_actor, activity, delay = 0)
       new(delivery_actor, activity).perform(delay: delay)
     end
 

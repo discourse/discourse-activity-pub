@@ -12,7 +12,11 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   attr_accessor :to
 
   def url
-    local? && model&.activity_pub_url
+    if local?
+      model&.activity_pub_full_url
+    else
+      self.read_attribute(:url)
+    end
   end
 
   def ready?(ap_type = nil)
@@ -43,17 +47,19 @@ end
 #
 # Table name: discourse_activity_pub_objects
 #
-#  id          :bigint           not null, primary key
-#  ap_id       :string           not null
-#  ap_key      :string
-#  ap_type     :string           not null
-#  local       :boolean
-#  model_id    :integer
-#  model_type  :string
-#  content     :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  in_reply_to :string
+#  id           :bigint           not null, primary key
+#  ap_id        :string           not null
+#  ap_key       :string
+#  ap_type      :string           not null
+#  local        :boolean
+#  model_id     :integer
+#  model_type   :string
+#  content      :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  in_reply_to  :string
+#  published_at :datetime
+#  url          :string
 #
 # Indexes
 #
