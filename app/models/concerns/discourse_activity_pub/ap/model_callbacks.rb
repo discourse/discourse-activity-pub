@@ -69,20 +69,18 @@ module DiscourseActivityPub
           performing_activity.update? && !self.activity_pub_published?
         )
 
-        visibility = DiscourseActivityPubActivity.visibilities[
-          self.activity_pub_visibility.to_sym
-        ] || DiscourseActivityPubActivity.visibilities[
-          DiscourseActivityPubActivity::DEFAULT_VISIBILITY.to_sym
-        ]
-
         activity_attrs = {
           local: true,
           actor_id: self.activity_pub_actor.id,
           object_id: performing_activity_object.id,
           object_type: performing_activity_object.class.name,
-          ap_type: performing_activity.type,
-          visibility: visibility
+          ap_type: performing_activity.type
         }
+
+        activity_attrs[:visibility] = DiscourseActivityPubActivity.visibilities[
+          self.activity_pub_visibility.to_sym
+        ] if self.activity_pub_visibility
+
         return if DiscourseActivityPubActivity.exists?(
           activity_attrs.merge(published_at: nil)
         )

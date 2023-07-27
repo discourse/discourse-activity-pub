@@ -153,7 +153,7 @@ after_initialize do
     MessageBus.publish("/activity-pub", message, opts)
   end
   add_to_class(:category, :activity_pub_default_visibility) do
-    custom_fields["activity_pub_default_visibility"] || DiscourseActivityPubActivity::DEFAULT_VISIBILITY
+    custom_fields["activity_pub_default_visibility"] || DiscourseActivityPubActivity.default_visibility
   end
 
   add_model_callback(:category, :after_save) do
