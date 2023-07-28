@@ -2,6 +2,7 @@ import {
   acceptance,
   exists,
   publishToMessageBus,
+  query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { test } from "qunit";
 import { visit } from "@ember/test-helpers";
@@ -22,6 +23,7 @@ const setupServer = (needs, attrs = {}) => {
     firstPost.created_at = createdAt;
     firstPost.activity_pub_enabled = true;
     firstPost.activity_pub_scheduled_at = scheduledAt;
+    firstPost.activity_pub_object_type = "Note";
     Object.keys(attrs).forEach((attr) => {
       firstPost[attr] = attrs[attr];
     });
@@ -85,12 +87,6 @@ acceptance(
         ),
         "displays the ActivityPub icon"
       );
-      assert.ok(
-        exists(
-          ".topic-post:nth-of-type(1) .post-info.activity-pub .activity-pub-visibility"
-        ),
-        "displays the visibility html"
-      );
     });
   }
 );
@@ -108,9 +104,9 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was scheduled to be published via ActivityPub at ${scheduledAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was scheduled to be published from this site at ${scheduledAt.format(
             "h:mm a, MMM D"
-          )}']`
+          )}.']`
         ),
         "shows the right title"
       );
@@ -119,12 +115,13 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Published ActivityPub topic as staff",
+  "Discourse Activity Pub | Published ActivityPub topic as staff with a local Note",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
       activity_pub_published_at: publishedAt,
       activity_pub_visibility: "public",
+      activity_pub_local: true,
     });
 
     test("When the plugin is disabled", async function (assert) {
@@ -145,9 +142,9 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Post was published via ActivityPub at ${publishedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published from this site at ${publishedAt.format(
             "h:mm a, MMM D"
-          )}']`
+          )}.']`
         ),
         "shows the right title"
       );
@@ -170,24 +167,113 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='ActivityPub note was deleted at ${deletedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was deleted at ${deletedAt.format(
             "h:mm a, MMM D"
-          )}']`
+          )}.']`
         ),
         "shows the right title"
       );
     });
 
-    test("ActivityPub visibility element", async function (assert) {
+    test("ActivityPub post info modal", async function (assert) {
+      Site.current().set("activity_pub_enabled", true);
+
+      await visit("/t/280");
+
+      await click(".topic-post:nth-of-type(1) .post-info.activity-pub");
+      assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-info-modal .activity-pub-status"
+        ).innerText.trim(),
+        `Note was published from this site at ${publishedAt.format(
+          "h:mm a, MMM D"
+        )}.`,
+        "shows the right status text"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-info-modal .activity-pub-visibility"
+        ).innerText.trim(),
+        "Note is publicly addressed.",
+        "shows the right visibility text"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Published ActivityPub topic as staff with a remote Note",
+  function (needs) {
+    needs.user({ moderator: true, admin: false });
+    setupServer(needs, {
+      activity_pub_published_at: publishedAt,
+      activity_pub_visibility: "public",
+      activity_pub_local: false,
+      activity_pub_domain: "external.com",
+      activity_pub_url: "https://external.com/note/1",
+    });
+
+    test("When the plugin is disabled", async function (assert) {
+      Site.current().set("activity_pub_enabled", false);
+
+      await visit("/t/280");
+
+      assert.ok(
+        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+        "the activity pub indicator is not visible"
+      );
+    });
+
+    test("ActivityPub indicator element", async function (assert) {
       Site.current().set("activity_pub_enabled", true);
 
       await visit("/t/280");
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info .activity-pub-visibility[title='ActivityPub Note is publicly addressed']`
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published from external.com at ${publishedAt.format(
+            "h:mm a, MMM D"
+          )}.']`
         ),
         "shows the right title"
+      );
+    });
+
+    test("ActivityPub post info modal", async function (assert) {
+      Site.current().set("activity_pub_enabled", true);
+
+      await visit("/t/280");
+
+      await click(".topic-post:nth-of-type(1) .post-info.activity-pub");
+      assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-info-modal .activity-pub-status"
+        ).innerText.trim(),
+        `Note was published from external.com at ${publishedAt.format(
+          "h:mm a, MMM D"
+        )}.`,
+        "shows the right status text"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-info-modal .activity-pub-visibility"
+        ).innerText.trim(),
+        "Note is publicly addressed.",
+        "shows the right visibility text"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-info-modal .activity-pub-url a"
+        ).innerText.trim(),
+        "Original Note on external.com.",
+        "shows the right url text"
+      );
+      assert.strictEqual(
+        query(".activity-pub-post-info-modal .activity-pub-url a").href,
+        "https://external.com/note/1",
+        "shows the right url href"
       );
     });
   }

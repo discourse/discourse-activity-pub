@@ -76,7 +76,8 @@ module DiscourseActivityPub
               ap_id: json[:id],
               ap_type: json[:type],
               content: json[:content],
-              published_at: json[:published]
+              published_at: json[:published],
+              domain: domain_from_id(json[:id])
             }
             params[:in_reply_to] = json[:inReplyTo] if json[:inReplyTo]
             params[:url] = json[:url] if json[:url]

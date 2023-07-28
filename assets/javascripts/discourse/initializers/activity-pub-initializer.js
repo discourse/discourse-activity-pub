@@ -33,6 +33,11 @@ export default {
       );
       api.includePostAttributes("activity_pub_local", "activity_pub_local");
       api.includePostAttributes("activity_pub_url", "activity_pub_url");
+      api.includePostAttributes(
+        "activity_pub_object_type",
+        "activity_pub_object_type"
+      );
+      api.includePostAttributes("activity_pub_domain", "activity_pub_domain");
       api.serializeOnCreate("activity_pub_visibility");
 
       // TODO (future): PR discourse/discourse to add post infos via api
@@ -59,7 +64,9 @@ export default {
               status = "updated";
             } else if (attrs.activity_pub_published_at) {
               time = moment(attrs.activity_pub_published_at);
-              status = "published";
+              status = attrs.activity_pub_local
+                ? "published"
+                : "published_remote";
             } else if (attrs.activity_pub_scheduled_at) {
               time = moment(attrs.activity_pub_scheduled_at);
               status = moment().isAfter(moment(time))

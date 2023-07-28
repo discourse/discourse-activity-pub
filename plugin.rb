@@ -287,6 +287,9 @@ after_initialize do
   add_to_class(:post, :activity_pub_full_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
+  add_to_class(:post, :activity_pub_domain) do
+    self.activity_pub_object&.domain
+  end
   add_to_class(:post, :activity_pub_enabled) do
     return false unless Site.activity_pub_enabled
 
@@ -430,6 +433,16 @@ after_initialize do
     :activity_pub_url,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_url }
+  add_to_serializer(
+    :post,
+    :activity_pub_domain,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_domain }
+  add_to_serializer(
+    :post,
+    :activity_pub_object_type,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_object_type }
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.

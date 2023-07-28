@@ -1,0 +1,20 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-post-info-modal"
+>
+  <:body>
+    <div class="activity-pub-post-info-list">
+      <span class="activity-pub-status">{{d-icon this.statusIcon}}{{this.statusText}}</span>
+      <span class="activity-pub-visibility">{{d-icon this.visibilityIcon}}{{this.visibilityText}}</span>
+      {{#unless @model.post.activity_pub_local}}
+        <span class="activity-pub-url">
+          <a href={{@model.post.activity_pub_url}} target="_blank">
+            {{d-icon "external-link-alt"}}
+            {{this.urlText}}
+          </a>
+        </span>
+      {{/unless}}
+    </div>
+  </:body>
+</DModal>

@@ -64,7 +64,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             DiscourseActivityPubObject.where(
               ap_type: "Note",
               model_id: Post.find_by(raw: reply_json[:object][:content]).id,
-              model_type: 'Post'
+              model_type: "Post",
+              domain: "external.com"
             ).size
           ).to be(1)
         end

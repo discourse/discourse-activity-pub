@@ -18,7 +18,7 @@ module DiscourseActivityPub
     end
 
     def self.domain_from_uri(uri)
-      uri && Addressable::URI.parse(uri).domain
+      uri && Addressable::URI.parse(uri).host
     rescue Addressable::URI::InvalidURIError
       nil
     end
