@@ -126,7 +126,7 @@ end
 #  published_at :datetime
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
-#  visibility   :integer          default(1)
+#  visibility   :integer          default(2)
 #
 # Indexes
 #
