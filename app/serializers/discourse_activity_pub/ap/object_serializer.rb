@@ -2,7 +2,8 @@
 
 class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   attributes :id,
-             :type
+             :type,
+             :to
 
   def attributes(*args)
     hash = super
@@ -12,5 +13,13 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
 
   def context
     object.context
+  end
+
+  def to
+    object.to
+  end
+
+  def include_to?
+    object.to.present?
   end
 end

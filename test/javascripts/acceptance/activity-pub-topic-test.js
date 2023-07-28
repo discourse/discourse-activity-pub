@@ -14,7 +14,7 @@ const scheduledAt = moment().subtract(2, "days");
 const publishedAt = moment().subtract(1, "days");
 const deletedAt = moment();
 
-const setupServer = (needs, _publishedAt = null) => {
+const setupServer = (needs, attrs = {}) => {
   needs.pretender((server, helper) => {
     const topicResponse = cloneJSON(topicFixtures["/t/280/1.json"]);
     const firstPost = topicResponse.post_stream.posts[0];
@@ -22,9 +22,9 @@ const setupServer = (needs, _publishedAt = null) => {
     firstPost.created_at = createdAt;
     firstPost.activity_pub_enabled = true;
     firstPost.activity_pub_scheduled_at = scheduledAt;
-    if (_publishedAt) {
-      firstPost.activity_pub_published_at = _publishedAt;
-    }
+    Object.keys(attrs).forEach((attr) => {
+      firstPost[attr] = attrs[attr];
+    });
     server.get("/t/280.json", () => helper.response(topicResponse));
   });
 };
@@ -33,7 +33,9 @@ acceptance(
   "Discourse Activity Pub | ActivityPub topic as user",
   function (needs) {
     needs.user({ moderator: false, admin: false });
-    setupServer(needs, publishedAt);
+    setupServer(needs, {
+      activity_pub_published_at: publishedAt,
+    });
 
     test("ActivityPub indicator element", async function (assert) {
       Site.current().set("activity_pub_enabled", true);
@@ -52,7 +54,10 @@ acceptance(
   "Discourse Activity Pub | ActivityPub topic as staff",
   function (needs) {
     needs.user({ moderator: true, admin: false });
-    setupServer(needs, publishedAt);
+    setupServer(needs, {
+      activity_pub_published_at: publishedAt,
+      activity_pub_visibility: "public",
+    });
 
     test("When the plugin is disabled", async function (assert) {
       Site.current().set("activity_pub_enabled", false);
@@ -73,6 +78,18 @@ acceptance(
       assert.ok(
         exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
         "is visible"
+      );
+      assert.ok(
+        exists(
+          ".topic-post:nth-of-type(1) .post-info.activity-pub .d-icon-discourse-activity-pub"
+        ),
+        "displays the ActivityPub icon"
+      );
+      assert.ok(
+        exists(
+          ".topic-post:nth-of-type(1) .post-info.activity-pub .activity-pub-visibility"
+        ),
+        "displays the visibility html"
       );
     });
   }
@@ -105,7 +122,10 @@ acceptance(
   "Discourse Activity Pub | Published ActivityPub topic as staff",
   function (needs) {
     needs.user({ moderator: true, admin: false });
-    setupServer(needs, publishedAt);
+    setupServer(needs, {
+      activity_pub_published_at: publishedAt,
+      activity_pub_visibility: "public",
+    });
 
     test("When the plugin is disabled", async function (assert) {
       Site.current().set("activity_pub_enabled", false);
@@ -153,6 +173,19 @@ acceptance(
           `.topic-post:nth-of-type(1) .post-info.activity-pub[title='ActivityPub note was deleted at ${deletedAt.format(
             "h:mm a, MMM D"
           )}']`
+        ),
+        "shows the right title"
+      );
+    });
+
+    test("ActivityPub visibility element", async function (assert) {
+      Site.current().set("activity_pub_enabled", true);
+
+      await visit("/t/280");
+
+      assert.ok(
+        exists(
+          `.topic-post:nth-of-type(1) .post-info .activity-pub-visibility[title='ActivityPub Note is publicly addressed']`
         ),
         "shows the right title"
       );

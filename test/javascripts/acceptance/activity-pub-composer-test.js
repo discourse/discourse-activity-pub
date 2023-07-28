@@ -1,9 +1,14 @@
-import { acceptance, exists } from "discourse/tests/helpers/qunit-helpers";
+import {
+  acceptance,
+  exists,
+  query,
+} from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { test } from "qunit";
 import { visit } from "@ember/test-helpers";
 import Category from "discourse/models/category";
 import Site from "discourse/models/site";
+import I18n from "I18n";
 
 acceptance("Discourse Activity Pub | composer", function (needs) {
   needs.user();
@@ -38,7 +43,10 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
 
   test("with a category with show status enabled", async function (assert) {
     Site.current().set("activity_pub_enabled", true);
-    Category.findById(2).set("activity_pub_show_status", true);
+    Category.findById(2).setProperties({
+      activity_pub_show_status: true,
+      activity_pub_default_visibility: "public",
+    });
 
     await visit("/");
     await click("#create-topic");
@@ -50,6 +58,16 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     assert.ok(
       exists("#reply-control .activity-pub-status"),
       "the status label is visible"
+    );
+    assert.strictEqual(
+      query("#reply-control .activity-pub-status .label").innerText.trim(),
+      I18n.t("discourse_activity_pub.visibility.label.public"),
+      "the status label has the right text"
+    );
+    assert.strictEqual(
+      query("#reply-control .activity-pub-status .label").title,
+      I18n.t("discourse_activity_pub.visibility.description.public"),
+      "the status label has the right title"
     );
   });
 

@@ -7,6 +7,24 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   after_create :deliver_composition, if: Proc.new { ap&.composition? }
 
+  attr_accessor :to
+
+  def self.visibilities
+    @visibilities ||= Enum.new(private: 1, public: 2)
+  end
+
+  def self.default_visibility
+    visibilities[column_defaults["visibility"]].to_s
+  end
+
+  def public?
+    visibility === DiscourseActivityPubActivity.visibilities[:public]
+  end
+
+  def private?
+    visibility === DiscourseActivityPubActivity.visibilities[:private]
+  end
+
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"
@@ -16,6 +34,12 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     when "DiscourseActivityPubActor"
       object.ready?
     end
+  end
+
+  def address!(to_actor)
+    addressed_to = public? ? public_collection_id : to_actor.ap_id
+    @to = addressed_to
+    object.to = addressed_to if public?
   end
 
   def deliver_composition
@@ -102,6 +126,7 @@ end
 #  published_at :datetime
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  visibility   :integer          default(2)
 #
 # Indexes
 #

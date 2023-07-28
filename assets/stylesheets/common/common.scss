@@ -13,6 +13,7 @@
   border-radius: var(--d-border-radius);
   font-size: 0.9em;
   line-height: 0.9em;
+  min-height: 23px;
   background-color: var(--primary-200);
   display: inline-flex;
   align-items: center;
@@ -20,12 +21,15 @@
   .svg-icon {
     height: 1.5em;
     width: 1.5em;
-    margin-right: 0.5em;
     color: var(--danger) !important;
   }
 
   &.active .svg-icon {
     color: var(--success) !important;
+  }
+
+  .label {
+    margin-left: 0.5em;
   }
 }
 
@@ -107,15 +111,23 @@
 }
 
 .post-info.activity-pub {
-  &.published .d-icon,
-  &.updated .d-icon {
-    color: var(--success);
-  }
-  &.scheduled .d-icon,
-  &.scheduled-past .d-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+
+  .d-icon {
     color: var(--primary-medium);
   }
-  &.deleted .d-icon {
+
+  &.published .d-icon-discourse-activity-pub,
+  &.updated .d-icon-discourse-activity-pub {
+    color: var(--success);
+  }
+  &.deleted .d-icon-discourse-activity-pub {
     color: var(--danger);
+  }
+
+  .activity-pub-visibility .d-icon {
+    font-size: 0.85em;
   }
 }

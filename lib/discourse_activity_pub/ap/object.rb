@@ -33,6 +33,10 @@ module DiscourseActivityPub
         stored&.respond_to?(:url) && stored.url
       end
 
+      def to
+        stored&.respond_to?(:to) && stored.to
+      end
+
       def self.type
         self.new.type
       end

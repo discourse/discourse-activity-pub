@@ -48,6 +48,39 @@ RSpec.describe DiscourseActivityPubActivity do
     end
   end
 
+  describe '#address!' do
+    let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+    let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
+    let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+    let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor) }
+
+    context "when activity is private" do
+      before do
+        activity.update(visibility: DiscourseActivityPubActivity.visibilities[:private])
+        activity.address!(follower1)
+      end
+
+      it "addresses activity to followers only" do
+        expect(activity.ap.json[:to]).to eq(follower1.ap.id)
+      end
+    end
+
+    context "when activity is public" do
+      before do
+        activity.update(visibility: DiscourseActivityPubActivity.visibilities[:public])
+        activity.address!(follower1)
+      end
+
+      it "addresses activity to public" do
+        expect(activity.ap.json[:to]).to eq(DiscourseActivityPub::JsonLd.public_collection_id)
+      end
+
+      it "addresses object to public" do
+        expect(activity.ap.json[:object][:to]).to eq(DiscourseActivityPub::JsonLd.public_collection_id)
+      end
+    end
+  end
+
   describe "#deliver_composition" do
     before do
       toggle_activity_pub(actor.model)

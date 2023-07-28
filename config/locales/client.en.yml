@@ -5,7 +5,7 @@ en:
         settings_heading: ActivityPub
         enable: Enable ActivityPub in this category.
         enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
-        show_status: Show an ActivityPub status label in this category's composer.
+        show_status: Show the ActivityPub status and visibility in this category's composer.
         show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
         show_handle: Show an ActivityPub handle in this category's topic list.
         show_handle_description: Shows a dropdown with the handle to the left of the "New Topic" button.
@@ -15,6 +15,8 @@ en:
         handle_description: Used to follow this category on services using Webfinger (e.g. Mastodon).
         name: ActivityPub name for this category.
         name_description: Used as a display name on some services (e.g. Mastodon).
+        default_visibility: ActivityPub visibility for this category.
+        default_visibility_description: All posts will be published via ActivityPub with this visibility.
     discourse_activity_pub:
       status:
         title:
@@ -25,12 +27,19 @@ en:
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
           model_active:
-            first_post: The first post of a new topic in %{model_name} will be published %{delay_minutes} minutes after being posted
+            first_post: The first post of a new topic in %{category_name} will be published %{delay_minutes} minutes after being posted
         label:
           active: Active
           not_active: Not Active
       discovery:
         description: Follow %{category_name} on services that support ActivityPub using
+      visibility:
+        label:
+          private: Followers Only
+          public: Public
+        description:
+          private: ActivityPub Note is addressed to followers
+          public: ActivityPub Note is publicly addressed
     post:
       discourse_activity_pub:
         title:

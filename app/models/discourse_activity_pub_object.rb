@@ -6,6 +6,8 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
+  attr_accessor :to
+
   def url
     local? && model&.activity_pub_url
   end
