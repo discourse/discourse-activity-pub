@@ -23,10 +23,12 @@ RSpec.describe PostsController do
             }
           }
 
-          it "saves the server's default visibility" do
+          it "saves the default visibility" do
             post "/posts.json", params: params
             expect(response.status).to eq(200)
-            expect(response.parsed_body['activity_pub_visibility']).to eq(DiscourseActivityPubActivity::DEFAULT_VISIBILITY)
+            expect(response.parsed_body['activity_pub_visibility']).to eq(
+              DiscourseActivityPubActivity.default_visibility
+            )
           end
 
           context "when the category has a default visibility" do

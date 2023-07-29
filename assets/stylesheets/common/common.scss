@@ -131,14 +131,3 @@
     font-size: 0.85em;
   }
 }
-
-.activity-pub-visibility-dropdown,
-.activity-pub-post-object-type-dropdown {
-  .select-kit-header {
-    padding: 4px 6px;
-  }
-
-  &.select-kit.single-select.dropdown-select-box .select-kit-row .texts .name {
-    font-weight: 400;
-  }
-}
