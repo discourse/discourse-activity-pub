@@ -43,12 +43,12 @@ en:
           private: ActivityPub Note is addressed to followers
           public: ActivityPub Note is publicly addressed
       post_object_type:
-        note:
-          label: Note
-          description: Best for microblogging platforms (e.g. Mastodon).
-        article:
-          label: Article
-          description: Best for longform platforms (e.g. Lemmy).
+        label:
+          note: Note
+          article: Article
+        description:
+          note: Best for microblogging platforms (e.g. Mastodon).
+          article: Best for longform platforms (e.g. Lemmy).
     post:
       discourse_activity_pub:
         title:
