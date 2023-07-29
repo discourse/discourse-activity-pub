@@ -5,8 +5,8 @@ import { observes, on } from "discourse-common/utils/decorators";
 import { equal } from "@ember/object/computed";
 import { scheduleOnce } from "@ember/runloop";
 
-export default DropdownSelectBoxComponent.extend({
-  classNames: ["activity-pub-visibility-dropdown", "activity-pub-dropdown"],
+export default ComboBoxComponent.extend({
+  classNames: ["activity-pub-visibility-dropdown"],
   fullTopicPublication: equal("publicationType", "full_topic"),
 
   content: computed(function () {

@@ -23,10 +23,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     visibility === DiscourseActivityPubActivity.visibilities[:private]
   end
 
-  def update?
-    ap_type === DiscourseActivityPub::AP::Activity::Update.type
-  end
-
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"

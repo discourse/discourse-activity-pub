@@ -1,12 +1,9 @@
-import DropdownSelectBoxComponent from "select-kit/components/dropdown-select-box";
+import ComboBoxComponent from "select-kit/components/combo-box";
 import I18n from "I18n";
 import { computed } from "@ember/object";
 
-export default DropdownSelectBoxComponent.extend({
-  classNames: [
-    "activity-pub-post-object-type-dropdown",
-    "activity-pub-dropdown",
-  ],
+export default ComboBoxComponent.extend({
+  classNames: ["activity-pub-post-object-type-dropdown"],
 
   content: computed(function () {
     return [

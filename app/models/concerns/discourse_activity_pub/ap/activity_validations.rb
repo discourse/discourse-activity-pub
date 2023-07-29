@@ -25,7 +25,6 @@ module DiscourseActivityPub
       def validate_ap_type
         return unless actor
         object_ap_type = object&.respond_to?(:ap_type) ? object.ap_type : nil
-
         unless actor.can_perform_activity?(ap_type, object_ap_type)
           self.errors.add(
             :ap_type,
