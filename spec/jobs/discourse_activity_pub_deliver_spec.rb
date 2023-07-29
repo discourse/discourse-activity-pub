@@ -1,24 +1,21 @@
 # frozen_string_literal: true
 
 RSpec.describe Jobs::DiscourseActivityPubDeliver do
-  let(:activity) { Fabricate(:discourse_activity_pub_activity_accept) }
+  let!(:activity) { Fabricate(:discourse_activity_pub_activity_accept) }
+  let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
 
   def expect_no_request
     DiscourseActivityPub::Request.expects(:new).never
   end
 
-  def expect_request(actor_id: nil, uri: nil, body: nil)
-    if !body
-      body = activity.ap.json
-      body[:to] = activity.object.actor.ap.id
-    end
-
+  def expect_request(activity)
+    activity.address!(person)
     DiscourseActivityPub::Request
       .expects(:new)
       .with(
-        actor_id: actor_id || activity.actor.id,
-        uri: uri || activity.object.actor.inbox,
-        body: body
+        actor_id: activity.actor.id,
+        uri: person.inbox,
+        body: activity.ap.json
       )
       .once
   end
@@ -50,7 +47,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     {
       activity_id: args.key?(:activity_id) ? args[:activity_id] : activity.id,
       from_actor_id: args.key?(:from_actor_id) ? args[:from_actor_id] : activity.actor.id,
-      to_actor_id: args.key?(:to_actor_id) ? args[:to_actor_id] : activity.object.actor.id,
+      to_actor_id: args.key?(:to_actor_id) ? args[:to_actor_id] : person.id,
       retry_count: args.key?(:retry_count) ? args[:retry_count] : nil
     }
   end
@@ -122,7 +119,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     it "initializes the right request" do
-      expect_request
+      expect_request(activity)
       execute_job
     end
 
@@ -168,18 +165,10 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     context "when delivering a Create" do
-      let(:activity) { Fabricate(:discourse_activity_pub_activity_create) }
-      let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:activity) { Fabricate(:discourse_activity_pub_activity_create) }
 
       it "performs the right request" do
-        body = activity.ap.json
-        body[:to] = person.ap.id
-
-        expect_request(
-          actor_id: activity.actor.id,
-          uri: person.inbox,
-          body: body
-        )
+        expect_request(activity)
         execute_job(
           activity_id: activity.id,
           from_actor_id: activity.actor.id,
@@ -204,18 +193,10 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     context "when delivering a Delete" do
-      let(:activity) { Fabricate(:discourse_activity_pub_activity_delete) }
-      let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:activity) { Fabricate(:discourse_activity_pub_activity_delete) }
 
       it "performs the right request" do
-        body = activity.ap.json
-        body[:to] = person.ap.id
-
-        expect_request(
-          actor_id: activity.actor.id,
-          uri: person.inbox,
-          body: body
-        )
+        expect_request(activity)
         execute_job(
           activity_id: activity.id,
           from_actor_id: activity.actor.id,
@@ -240,18 +221,10 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     context "when delivering an Update" do
-      let(:activity) { Fabricate(:discourse_activity_pub_activity_update) }
-      let(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:activity) { Fabricate(:discourse_activity_pub_activity_update) }
 
       it "performs the right request" do
-        body = activity.ap.json
-        body[:to] = person.ap.id
-
-        expect_request(
-          actor_id: activity.actor.id,
-          uri: person.inbox,
-          body: body
-        )
+        expect_request(activity)
         execute_job(
           activity_id: activity.id,
           from_actor_id: activity.actor.id,

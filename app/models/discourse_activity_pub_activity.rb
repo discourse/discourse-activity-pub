@@ -9,10 +9,12 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   attr_accessor :to
 
-  DEFAULT_VISIBILITY = 'private'
-
   def self.visibilities
     @visibilities ||= Enum.new(private: 1, public: 2)
+  end
+
+  def self.default_visibility
+    visibilities[column_defaults["visibility"]].to_s
   end
 
   def public?
@@ -124,6 +126,7 @@ end
 #  published_at :datetime
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  visibility   :integer          default(2)
 #
 # Indexes
 #

@@ -24,7 +24,7 @@ createWidget("post-activity-pub-indicator", {
       {
         attributes: {
           title: I18n.t(
-            `discourse_activity_pub.visibility.${visibility}.description`
+            `discourse_activity_pub.visibility.description.${visibility}`
           ),
         },
       },

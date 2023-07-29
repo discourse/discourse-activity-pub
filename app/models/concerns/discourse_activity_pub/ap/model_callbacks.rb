@@ -83,6 +83,11 @@ module DiscourseActivityPub
           ap_type: performing_activity.type,
           visibility: visibility
         }
+
+        activity_attrs[:visibility] = DiscourseActivityPubActivity.visibilities[
+          self.activity_pub_visibility.to_sym
+        ] if self.activity_pub_visibility
+
         return if DiscourseActivityPubActivity.exists?(
           activity_attrs.merge(published_at: nil)
         )

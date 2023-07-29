@@ -124,6 +124,7 @@ acceptance(
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
       activity_pub_published_at: publishedAt,
+      activity_pub_visibility: "public",
     });
 
     test("When the plugin is disabled", async function (assert) {
@@ -172,6 +173,19 @@ acceptance(
           `.topic-post:nth-of-type(1) .post-info.activity-pub[title='ActivityPub note was deleted at ${deletedAt.format(
             "h:mm a, MMM D"
           )}']`
+        ),
+        "shows the right title"
+      );
+    });
+
+    test("ActivityPub visibility element", async function (assert) {
+      Site.current().set("activity_pub_enabled", true);
+
+      await visit("/t/280");
+
+      assert.ok(
+        exists(
+          `.topic-post:nth-of-type(1) .post-info .activity-pub-visibility[title='ActivityPub Note is publicly addressed']`
         ),
         "shows the right title"
       );
