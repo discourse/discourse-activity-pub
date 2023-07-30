@@ -8,9 +8,9 @@ export default class ActivityPubPostInfo extends Component {
     });
   }
 
-  get statusText() {
+  get stateText() {
     return I18n.t(
-      `post.discourse_activity_pub.title.${this.args.model.status}`,
+      `post.discourse_activity_pub.title.${this.args.model.state}`,
       {
         time: this.args.model.time.format("h:mm a, MMM D"),
         domain: this.args.model.post.activity_pub_domain,
@@ -19,7 +19,7 @@ export default class ActivityPubPostInfo extends Component {
     );
   }
 
-  get statusIcon() {
+  get stateIcon() {
     return this.args.model.post.activity_pub_local ? "upload" : "download";
   }
 

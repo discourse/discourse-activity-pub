@@ -150,12 +150,12 @@ acceptance(
       );
     });
 
-    test("ActivityPub status update", async function (assert) {
+    test("ActivityPub state update", async function (assert) {
       Site.current().set("activity_pub_enabled", true);
 
       await visit("/t/280");
 
-      const statusUpdate = {
+      const stateUpdate = {
         model: {
           id: 398,
           type: "post",
@@ -163,7 +163,7 @@ acceptance(
           deleted_at: deletedAt,
         },
       };
-      await publishToMessageBus("/activity-pub", statusUpdate);
+      await publishToMessageBus("/activity-pub", stateUpdate);
 
       assert.ok(
         exists(
@@ -184,12 +184,12 @@ acceptance(
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-status"
+          ".activity-pub-post-info-modal .activity-pub-state"
         ).innerText.trim(),
         `Note was published from this site at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
-        "shows the right status text"
+        "shows the right state text"
       );
       assert.strictEqual(
         query(
@@ -249,12 +249,12 @@ acceptance(
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-status"
+          ".activity-pub-post-info-modal .activity-pub-state"
         ).innerText.trim(),
         `Note was published from external.com at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
-        "shows the right status text"
+        "shows the right state text"
       );
       assert.strictEqual(
         query(

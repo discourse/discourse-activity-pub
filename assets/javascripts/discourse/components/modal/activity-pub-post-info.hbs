@@ -5,7 +5,7 @@
 >
   <:body>
     <div class="activity-pub-post-info-list">
-      <span class="activity-pub-status">{{d-icon this.statusIcon}}{{this.statusText}}</span>
+      <span class="activity-pub-state">{{d-icon this.stateIcon}}{{this.stateText}}</span>
       <span class="activity-pub-visibility">{{d-icon this.visibilityIcon}}{{this.visibilityText}}</span>
       {{#unless @model.post.activity_pub_local}}
         <span class="activity-pub-url">

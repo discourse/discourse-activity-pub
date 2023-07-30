@@ -54,27 +54,27 @@ export default {
             currentUser?.staff
           ) {
             let time;
-            let status;
+            let state;
 
             if (attrs.activity_pub_deleted_at) {
               time = moment(attrs.activity_pub_deleted_at);
-              status = "deleted";
+              state = "deleted";
             } else if (attrs.activity_pub_updated_at) {
               time = moment(attrs.activity_pub_updated_at);
-              status = "updated";
+              state = "updated";
             } else if (attrs.activity_pub_published_at) {
               time = moment(attrs.activity_pub_published_at);
-              status = attrs.activity_pub_local
+              state = attrs.activity_pub_local
                 ? "published"
                 : "published_remote";
             } else if (attrs.activity_pub_scheduled_at) {
               time = moment(attrs.activity_pub_scheduled_at);
-              status = moment().isAfter(moment(time))
+              state = moment().isAfter(moment(time))
                 ? "scheduled_past"
                 : "scheduled";
             }
 
-            if (time && status) {
+            if (time && state) {
               let replyToTabIndex = postStatuses.findIndex((postStatus) => {
                 return postStatus.name === "reply-to-tab";
               });
@@ -84,7 +84,7 @@ export default {
                 this.attach("post-activity-pub-indicator", {
                   post: attrs,
                   time,
-                  status,
+                  state,
                 })
               );
             }

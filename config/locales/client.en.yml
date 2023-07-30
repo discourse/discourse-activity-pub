@@ -22,7 +22,7 @@ en:
         publication_type: ActivityPub publication type.
         publication_type_description: First Post publishes the first post in each topic. Full Topic publishes all posts and ingests replies.
     discourse_activity_pub:
-      status:
+      state:
         title:
           login_required_enabled: ActivityPub does not work with login required
           plugin_disabled: The ActivityPub plugin is disabled

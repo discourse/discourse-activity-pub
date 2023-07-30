@@ -9,7 +9,7 @@ createWidget("post-activity-pub-indicator", {
   services: ["modal"],
 
   title(attrs) {
-    return I18n.t(`post.discourse_activity_pub.title.${attrs.status}`, {
+    return I18n.t(`post.discourse_activity_pub.title.${attrs.state}`, {
       time: attrs.time.format("h:mm a, MMM D"),
       domain: attrs.post.activity_pub_domain,
       object_type: attrs.post.activity_pub_object_type,
@@ -18,7 +18,7 @@ createWidget("post-activity-pub-indicator", {
 
   buildClasses(attrs) {
     let placeClass = attrs.post.activity_pub_local ? "local" : "remote";
-    return [dasherize(attrs.status), placeClass];
+    return [dasherize(attrs.state), placeClass];
   },
 
   html() {
