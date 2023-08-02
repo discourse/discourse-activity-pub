@@ -73,3 +73,14 @@
     {{i18n 'category.discourse_activity_pub.default_visibility_description'}}
   </div>
 </section>
+
+<section class='field activity-pub-setting activity-pub-post-object-type'>
+  <label for="activity-pub-post-object-type">{{i18n 'category.discourse_activity_pub.post_object_type'}}</label>
+  <ActivityPubPostObjectTypeDropdown
+    @value={{this.category.custom_fields.activity_pub_post_object_type}}
+    @onChange={{action (mut this.category.custom_fields.activity_pub_post_object_type)}}
+  />
+  <div class="activity-pub-setting-description">
+    {{i18n 'category.discourse_activity_pub.post_object_type_description'}}
+  </div>
+</section>
