@@ -31,6 +31,7 @@ RSpec.describe Post do
       context "with activity pub set to full topic on category" do
         before do
           toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+          topic.create_activity_pub_collection!
         end
 
         context "when first post in topic" do
@@ -129,7 +130,7 @@ RSpec.describe Post do
             post.activity_pub_object.content
           ).to eq(post.activity_pub_content)
           expect(
-            post.activity_pub_object.in_reply_to
+            post.activity_pub_object.reply_to_id
           ).to eq(nil)
         end
 
@@ -156,12 +157,14 @@ RSpec.describe Post do
             activity = category.activity_pub_actor.activities.find_by(ap_type: "Create")
             delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
             job1_args = {
-              activity_id: activity.id,
+              object_id: activity.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: category.activity_pub_actor.id,
               to_actor_id: follower1.id
             }
             job2_args = {
-              activity_id: activity.id,
+              object_id: activity.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: category.activity_pub_actor.id,
               to_actor_id: follower2.id
             }
@@ -339,12 +342,14 @@ RSpec.describe Post do
             follower2 = Fabricate(:discourse_activity_pub_actor_person)
             follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: create.actor)
             job1_args = {
-              activity_id: create.id,
+              object_id: create.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: create.actor.id,
               to_actor_id: follower1.id
             }
             job2_args = {
-              activity_id: create.id,
+              object_id: create.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: create.actor.id,
               to_actor_id: follower2.id
             }
@@ -391,12 +396,14 @@ RSpec.describe Post do
                 ap_type: 'Delete'
               ).first
               job1_args = {
-                activity_id: activity.id,
+                object_id: activity.id,
+                object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: category.activity_pub_actor.id,
                 to_actor_id: follower1.id
               }
               job2_args = {
-                activity_id: activity.id,
+                object_id: activity.id,
+                object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: category.activity_pub_actor.id,
                 to_actor_id: follower2.id
               }
@@ -441,7 +448,7 @@ RSpec.describe Post do
               post.activity_pub_object.ap_type
             ).to eq('Article')
             expect(
-              post.activity_pub_object.in_reply_to
+              post.activity_pub_object.reply_to_id
             ).to eq(nil)
           end
         end
@@ -503,34 +510,74 @@ RSpec.describe Post do
     context "with full_topic enabled on the category" do
       before do
         toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+        DiscourseActivityPub::UserHandler.update_or_create_actor(post.user)
         DiscourseActivityPub::UserHandler.update_or_create_actor(reply.user)
+        post.topic.create_activity_pub_collection!
       end
 
-      it "acts as the reply user actor" do
-        reply.perform_activity_pub_activity(:create)
-        reply.reload
-        expect(reply.activity_pub_actor.model_id).to eq(reply.user_id)
+      it "acts as the post user actor" do
+        post.perform_activity_pub_activity(:create)
+        post.reload
+        expect(post.activity_pub_actor.model_id).to eq(post.user_id)
+      end
+
+      context "with the first post" do
+        context "with create" do
+          def perform_create
+            post.perform_activity_pub_activity(:create)
+            post.reload
+          end
+
+          it "creates the right object" do
+            perform_create
+            expect(
+              post.activity_pub_object&.content
+            ).to eq(post.activity_pub_content)
+            expect(
+              post.activity_pub_object&.reply_to_id
+            ).to eq(nil)
+            expect(
+              post.activity_pub_object&.collection_id
+            ).to eq(topic.activity_pub_object.ap_id)
+          end
+
+          it "sends the topic collection for delayed delivery" do
+            DiscourseActivityPub::DeliveryHandler
+              .expects(:perform)
+              .with(
+                category.activity_pub_actor,
+                instance_of(DiscourseActivityPubObject),
+                SiteSetting.activity_pub_delivery_delay_minutes.to_i
+              )
+            perform_create
+          end
+        end
       end
 
       context "with replies" do
         let!(:post_note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
 
         context "with create" do
-          before do
+          def perform_create
             reply.perform_activity_pub_activity(:create)
             reply.reload
           end
 
           it "creates the right object" do
+            perform_create
             expect(
               reply.activity_pub_object&.content
             ).to eq(reply.activity_pub_content)
             expect(
-              reply.activity_pub_object&.in_reply_to
+              reply.activity_pub_object&.reply_to_id
             ).to eq(post_note.ap_id)
+            expect(
+              reply.activity_pub_object&.collection_id
+            ).to eq(topic.activity_pub_object.ap_id)
           end
 
           it "creates the right activity" do
+            perform_create
             expect(
                reply.activity_pub_actor.activities.where(
                  object_id: reply.activity_pub_object.id,
@@ -538,6 +585,33 @@ RSpec.describe Post do
                  ap_type: 'Create'
               ).exists?
             ).to eq(true)
+          end
+
+          context "while not published" do
+            it "does not send anything for delivery" do
+              DiscourseActivityPub::DeliveryHandler
+                .expects(:perform)
+                .never
+              perform_create
+            end
+          end
+
+          context "after topic publication" do
+            before do
+              post.custom_fields['activity_pub_published_at'] = Time.now
+              post.save_custom_fields(true)
+            end
+
+            it "sends the activity for delivery without delay" do
+              DiscourseActivityPub::DeliveryHandler
+                .expects(:perform)
+                .with(
+                  category.activity_pub_actor,
+                  instance_of(DiscourseActivityPubActivity),
+                  nil
+                )
+              perform_create
+            end
           end
         end
 
@@ -670,12 +744,14 @@ RSpec.describe Post do
               follower2 = Fabricate(:discourse_activity_pub_actor_person)
               follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: create.actor)
               job1_args = {
-                activity_id: create.id,
+                object_id: create.id,
+                object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: create.actor.id,
                 to_actor_id: follower1.id
               }
               job2_args = {
-                activity_id: create.id,
+                object_id: create.id,
+                object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: create.actor.id,
                 to_actor_id: follower2.id
               }
@@ -723,7 +799,7 @@ RSpec.describe Post do
               reply.activity_pub_object&.content
             ).to eq(reply.activity_pub_content)
             expect(
-              reply.activity_pub_object&.in_reply_to
+              reply.activity_pub_object&.reply_to_id
             ).to eq(post_note.ap_id)
           end
         end

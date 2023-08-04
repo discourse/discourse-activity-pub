@@ -30,8 +30,16 @@ module DiscourseActivityPub
         'Object'
       end
 
+      def object?
+        base_type == "Object"
+      end
+
       def activity?
         base_type == "Activity"
+      end
+
+      def collection?
+        base_type == "Collection"
       end
 
       def url
@@ -40,6 +48,18 @@ module DiscourseActivityPub
 
       def to
         stored&.respond_to?(:to) && stored.to
+      end
+
+      def start_time
+        stored&.respond_to?(:created_at) && stored.created_at.iso8601
+      end
+
+      def updated
+        stored&.respond_to?(:updated_at) && stored.updated_at.iso8601
+      end
+
+      def published
+        stored&.respond_to?(:published_at) && stored.published_at&.iso8601
       end
 
       def self.type
@@ -79,7 +99,7 @@ module DiscourseActivityPub
               published_at: json[:published],
               domain: domain_from_id(json[:id])
             }
-            params[:in_reply_to] = json[:inReplyTo] if json[:inReplyTo]
+            params[:reply_to_id] = json[:inReplyTo] if json[:inReplyTo]
             params[:url] = json[:url] if json[:url]
             @stored = DiscourseActivityPubObject.new(params)
           end

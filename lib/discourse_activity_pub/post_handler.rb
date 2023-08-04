@@ -10,8 +10,8 @@ module DiscourseActivityPub
     end
 
     def create
-      # We only create posts from objects in reply to other objects
-      return nil unless user && object.in_reply_to_post
+      # We only create posts from objects with a model in reply to other objects
+      return nil unless user && !object.model_id && object.in_reply_to_post
 
       reply_to = object.in_reply_to_post
       post = nil
@@ -23,6 +23,7 @@ module DiscourseActivityPub
             topic_id: reply_to.topic.id,
             reply_to_post_number: reply_to.post_number,
             skip_events: true,
+            skip_validations: true,
             custom_fields: {}
           }
           if object.published_at
@@ -34,7 +35,13 @@ module DiscourseActivityPub
           raise ActiveRecord::Rollback
         end
 
-        object.update(model_type: 'Post', model_id: post.id)
+        if post
+          object.update(
+            model_type: 'Post',
+            model_id: post.id,
+            collection_id: post.topic.activity_pub_object.ap_id
+          )
+        end
       end
 
       post

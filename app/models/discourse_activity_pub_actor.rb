@@ -42,9 +42,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)
     return false unless ap && activity_ap_type
 
-    activities = ap.can_perform_activity[activity_ap_type.downcase.to_sym]
+    activities = ap.can_perform_activity[activity_ap_type.underscore.to_sym]
     activities.present? && (
-      object_ap_type.nil? || activities.include?(object_ap_type.downcase.to_sym)
+      object_ap_type.nil? || activities.include?(object_ap_type.underscore.to_sym)
     )
   end
 
@@ -58,6 +58,20 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     else
       self.read_attribute(:icon_url)
     end
+  end
+
+  def followers_collection
+    @followers_collection ||= DiscourseActivityPub::CollectionStruct.new(
+      ap_id: "#{self.ap_id}#followers",
+      items: followers
+    )
+  end
+
+  def outbox_collection
+    @outbox_collection ||= DiscourseActivityPub::CollectionStruct.new(
+      ap_id: "#{self.ap_id}#activities",
+      items: activities
+    )
   end
 
   def self.ensure_for(model)

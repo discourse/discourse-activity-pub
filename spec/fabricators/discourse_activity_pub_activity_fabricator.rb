@@ -79,3 +79,10 @@ Fabricator(:discourse_activity_pub_activity_delete, from: :discourse_activity_pu
     object.model.save!
   end
 end
+
+Fabricator(:discourse_activity_pub_activity_announce, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Announce.type }
+  actor { Fabricate(:discourse_activity_pub_actor_group) }
+  object { Fabricate(:discourse_activity_pub_activity_create) }
+  local { true }
+end

@@ -2,9 +2,6 @@
 
 class DiscourseActivityPub::AP::Object::NoteSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :content,
-             :url,
-             :published,
-             :updated,
              :inReplyTo
 
   def content
@@ -29,14 +26,6 @@ class DiscourseActivityPub::AP::Object::NoteSerializer < DiscourseActivityPub::A
 
   def include_content?
     object.content.present? && !deleted?
-  end
-
-  def include_url?
-    object.stored.local? && !deleted?
-  end
-
-  def include_updated?
-    object.updated.present?
   end
 
   def deleted?

@@ -17,7 +17,8 @@ module DiscourseActivityPub
           objects.each do |object|
             object.activities.each do |activity|
               job_args = {
-                activity_id: activity.id,
+                object_id: activity.id,
+                object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: activity.actor.id,
               }
               activity.actor.followers.each do |follower|

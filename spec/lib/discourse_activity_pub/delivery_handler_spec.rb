@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::DeliveryHandler do
-  let!(:delivery_actor) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:category) { Fabricate(:category) }
+  let!(:delivery_actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: delivery_actor) }
   let!(:follower) { Fabricate(:discourse_activity_pub_actor_person) }
   let!(:follow) { Fabricate(:discourse_activity_pub_follow, follower: follower, followed: delivery_actor) }
 
-  def expect_job(enqueued: true, activity_id: nil, delay: nil)
+  def expect_job(enqueued: true, object_id: nil, object_type: nil, delay: nil)
     args = {
       args: {
-        activity_id: activity_id || activity.id,
+        object_id: object_id || activity.id,
+        object_type: object_type || 'DiscourseActivityPubActivity',
         from_actor_id: delivery_actor.id,
         to_actor_id: follower.id
       },
@@ -25,8 +27,8 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
     )
   end
 
-  def perform_delivery(delay: SiteSetting.activity_pub_delivery_delay_minutes)
-    described_class.perform(delivery_actor, activity, delay)
+  def perform_delivery(object: activity, delay: SiteSetting.activity_pub_delivery_delay_minutes)
+    described_class.perform(delivery_actor, object, delay)
   end
 
   before do
@@ -78,7 +80,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
 
         it "logs the right warning" do
           perform_delivery
-          expect_log("activity not ready")
+          expect_log("object not ready")
         end
       end
 
@@ -110,7 +112,8 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
 
           it "cancels existing scheduled deliveries" do
             job_args = {
-              activity_id: activity.id,
+              object_id: activity.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: delivery_actor.id,
               to_actor_id: follower.id
             }
@@ -125,60 +128,21 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
             end
           end
 
-          context "when delivery actor and activity actor are different" do
-            let!(:activity_actor) { Fabricate(:discourse_activity_pub_actor_person) }
+          context "when activities are in a collection" do
+            let!(:topic) { Fabricate(:topic, category: category) }
+            let!(:user) { Fabricate(:user) }
+            let!(:post1) { Fabricate(:post, user: user, topic: topic) }
+            let!(:post2) { Fabricate(:post, user: user, topic: topic) }
+            let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
+            let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection, model: topic) }
+            let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.ap_id) }
+            let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.ap_id) }
+            let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note1) }
+            let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note2) }
 
-            before do
-              activity.actor_id = activity_actor.id
-              activity.save!
-            end
-
-            def find_announce
-              DiscourseActivityPubActivity.find_by(
-                local: true,
-                actor_id: delivery_actor.id,
-                object_id: activity.id,
-                object_type: activity.class.name,
-                ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-                visibility: DiscourseActivityPubActivity.visibilities[:public]
-              )
-            end
-
-            context "when activity is private" do
-              before do
-                activity.visibility = DiscourseActivityPubActivity.visibilities[:private]
-                activity.save!
-              end
-
-              it "returns false" do
-                expect(perform_delivery).to eq(false)
-              end
-
-              it "does not enqueue any delivery jobs" do
-                expect_job(enqueued: false)
-              end
-
-              it "logs the right warning" do
-                perform_delivery
-                expect_log("can't announce private activities")
-              end
-            end
-
-            context "when activity is public" do
-              before do
-                activity.visibility = DiscourseActivityPubActivity.visibilities[:public]
-                activity.save!
-              end
-
-              it "wraps the activity in an announce" do
-                perform_delivery
-                expect(find_announce.present?).to eq(true)
-              end
-
-              it "delivers the announce activity" do
-                perform_delivery
-                expect_job(activity_id: find_announce.id)
-              end
+            it "delivers the collection" do
+              perform_delivery(object: collection)
+              expect_job(object_id: collection.id, object_type: 'DiscourseActivityPubObject')
             end
           end
         end

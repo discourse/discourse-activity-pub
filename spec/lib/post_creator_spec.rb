@@ -62,6 +62,21 @@ RSpec.describe PostCreator do
           toggle_activity_pub(category, publication_type: 'full_topic')
         end
 
+        context "with the first post" do
+          it "creates a topic collection" do
+            post = PostCreator.create(user, params)
+            expect(post.topic.activity_pub_object.ap_type).to eq(
+              DiscourseActivityPub::AP::Collection::OrderedCollection.type
+            )
+            expect(post.topic.activity_pub_objects_collection.items.first.ap_id).to eq(
+              post.activity_pub_object.ap_id
+            )
+            expect(post.activity_pub_object.collection_id).to eq(
+              post.topic.activity_pub_object.ap_id
+            )
+          end
+        end
+
         context "with a reply" do
           let!(:topic) { Fabricate(:topic, category: category)}
           let!(:post) { Fabricate(:post, topic: topic, post_number: 1) }
@@ -69,6 +84,7 @@ RSpec.describe PostCreator do
           before do
             post.custom_fields['activity_pub_visibility'] = 'public'
             post.save_custom_fields(true)
+            topic.create_activity_pub_collection!
           end
 
           context "when passed a visibility" do

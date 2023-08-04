@@ -4,8 +4,18 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
   belongs_to :object, polymorphic: true
+  has_one :parent, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
-  attr_accessor :to
+  def ready?
+    case object_type
+    when "DiscourseActivityPubActivity"
+      object&.ready?
+    when "DiscourseActivityPubObject"
+      object&.ready?(ap_type)
+    when "DiscourseActivityPubActor"
+      object&.ready?
+    end
+  end
 
   def self.visibilities
     @visibilities ||= Enum.new(private: 1, public: 2)
@@ -23,66 +33,46 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     visibility === DiscourseActivityPubActivity.visibilities[:private]
   end
 
-  def ready?
-    case object_type
-    when "DiscourseActivityPubActivity"
-      object.ready?
-    when "DiscourseActivityPubObject"
-      object.ready?(ap_type)
-    when "DiscourseActivityPubActor"
-      object.ready?
+  def to
+    if public?
+      public_collection_id
+    else
+      primary_actor.followers_collection.ap_id
     end
   end
 
-  def address!(to_actor = nil)
-    addressed_to = public? ? public_collection_id : (
-      to_actor ? to_actor.ap_id : actor.followers.map(&:ap_id)
+  def primary_actor
+    if parent && parent.parent && parent.parent.ap.activity?
+      parent.parent.actor
+    elsif parent && parent.ap.activity?
+      parent.actor
+    else
+      actor
+    end
+  end
+
+  def announce!(actor_id)
+    DiscourseActivityPubActivity.create!(
+      local: true,
+      actor_id: actor_id,
+      object_id: self.id,
+      object_type: self.class.name,
+      ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
+      visibility: DiscourseActivityPubActivity.visibilities[:public]
     )
-    @to = addressed_to
-    object.to = addressed_to
-    if object.respond_to?(:object) && object.is_a?(DiscourseActivityPubObject)
-      object.object.to = addressed_to
-    end
-  end
-
-  def after_scheduled(scheduled_at)
-    if object_model&.respond_to?(:activity_pub_after_scheduled)
-      args = {
-        scheduled_at: scheduled_at
-      }
-      if ap.create?
-        args[:published_at] = nil
-        args[:deleted_at] = nil
-        args[:updated_at] = nil
-      end
-      object_model.activity_pub_after_scheduled(args)
-    end
   end
 
   def after_deliver
-    if !self.published_at
-      published_at = Time.now.utc.iso8601
-      self.class.set_published_at(self, published_at)
-      if self.object.is_a?(DiscourseActivityPubActivity)
-        self.class.set_published_at(object, published_at)
-      end
-    end
+    after_published(Time.now.utc.iso8601, self)
   end
 
-  def object_model
-    self.object&.respond_to?(:model) && self.object.model
+  def after_scheduled(scheduled_at, _activity = nil)
+    object.after_scheduled(scheduled_at, self) if object.respond_to?(:after_scheduled)
   end
 
-  def self.set_published_at(activity, published_at)
-    activity.update(published_at: published_at)
-
-    if activity.object.local && activity.object_model&.respond_to?(:activity_pub_after_publish)
-      args = {}
-      args[:published_at] = published_at if activity.ap.create?
-      args[:deleted_at] = published_at if activity.ap.delete?
-      args[:updated_at] = published_at if activity.ap.update?
-      activity.object_model.activity_pub_after_publish(args)
-    end
+  def after_published(published_at, _activity = nil)
+    self.update(published_at: published_at) if !self.published_at
+    object.after_published(published_at, self) if object.respond_to?(:after_published)
   end
 end
 

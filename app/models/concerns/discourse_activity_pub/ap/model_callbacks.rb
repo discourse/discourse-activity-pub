@@ -57,7 +57,10 @@ module DiscourseActivityPub
             local: true
           }
           if self.activity_pub_reply_to_object
-            attrs[:in_reply_to] = self.activity_pub_reply_to_object.ap_id
+            attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
+          end
+          if self.activity_pub_full_topic
+            attrs[:collection_id] = self.topic.activity_pub_object.ap_id
           end
           self.build_activity_pub_object(attrs)
         else
@@ -100,18 +103,29 @@ module DiscourseActivityPub
       end
 
       def activity_pub_deliver_activity
-        return unless @performing_activity.stored
+        return if !@performing_activity.stored
 
-        delay = nil
+        if topic.activity_pub_full_topic && !topic.activity_pub_published? && !is_first_post?
+          return activity_pub_after_scheduled(
+            scheduled_at: topic.first_post.activity_pub_scheduled_at
+          )
+        end
 
-        if self.is_first_post? && (@performing_activity.create? || @performing_activity.update?)
-          delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+        delivery_delay = nil
+        delivery_object = @performing_activity.stored
+
+        if !self.topic.activity_pub_published?
+          delivery_delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+
+          if self.activity_pub_full_topic
+            delivery_object = self.topic.activity_pub_activities_collection
+          end
         end
 
         DiscourseActivityPub::DeliveryHandler.perform(
           activity_pub_delivery_actor,
-          @performing_activity.stored,
-          delay
+          delivery_object,
+          delivery_delay
         )
       end
 

@@ -8,7 +8,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionSerializer do
   end
 
   def get_ap_collection(actor)
-    DiscourseActivityPub::AP::Collection.new(stored: actor, collection_for: 'outbox')
+    DiscourseActivityPub::AP::Collection.new(stored: actor.outbox_collection)
   end
 
   it "serializes collection attributes correctly" do
@@ -18,7 +18,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionSerializer do
     expect(serialized_collection['@context']).to eq(DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT)
     expect(serialized_collection[:id]).to eq(collection.id)
     expect(serialized_collection[:type]).to eq(collection.type)
-    expect(serialized_collection[:total_items]).to eq(collection.total_items)
+    expect(serialized_collection[:totalItems]).to eq(collection.total_items)
     expect(serialized_collection[:items]).to eq([
       DiscourseActivityPub::AP::Activity::AcceptSerializer.new(
         DiscourseActivityPub::AP::Activity::Accept.new(stored: accept),

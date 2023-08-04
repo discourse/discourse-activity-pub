@@ -22,6 +22,7 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
+    ../lib/discourse_activity_pub/collection_struct.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -100,16 +101,6 @@ after_initialize do
                    class_name: "DiscourseActivityPubActor",
                    as: :model,
                    dependent: :destroy
-  Category.has_many :activity_pub_followers,
-                    class_name: "DiscourseActivityPubActor",
-                    through: :activity_pub_actor,
-                    source: :followers,
-                    dependent: :destroy
-  Category.has_many :activity_pub_activities,
-                    class_name: "DiscourseActivityPubActivity",
-                    through: :activity_pub_actor,
-                    source: :activities,
-                    dependent: :destroy
   Category.prepend DiscourseActivityPubCategoryExtension
 
   register_category_custom_field_type("activity_pub_enabled", :boolean)
@@ -249,14 +240,43 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_publication_type"
   end
 
+  Topic.has_one :activity_pub_object,
+                class_name: "DiscourseActivityPubObject",
+                as: :model,
+                dependent: :destroy
+
   add_to_class(:topic, :activity_pub_enabled) do
     Site.activity_pub_enabled && category&.activity_pub_ready?
+  end
+  add_to_class(:topic, :activity_pub_full_url) do
+    "#{DiscourseActivityPub.base_url}#{self.relative_url}"
   end
   add_to_class(:topic, :activity_pub_published?) do
     return false unless activity_pub_enabled
 
     first_post = posts.with_deleted.find_by(post_number: 1)
     first_post&.activity_pub_published?
+  end
+  add_to_class(:topic, :activity_pub_first_post) do
+    category&.activity_pub_first_post
+  end
+  add_to_class(:topic, :activity_pub_full_topic) do
+    category&.activity_pub_full_topic
+  end
+  add_to_class(:topic, :create_activity_pub_collection!) do
+    create_activity_pub_object!(
+      local: true,
+      ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type
+    )
+  end
+  add_to_class(:topic, :activity_pub_activities_collection) do
+    activity_pub_object.collection_of(:activities)
+  end
+  add_to_class(:topic, :activity_pub_objects_collection) do
+    activity_pub_object.collection_of(:objects)
+  end
+  add_to_class(:topic, :activity_pub_actor) do
+    category&.activity_pub_actor
   end
   add_to_serializer(:topic_view, :activity_pub_enabled) do
     object.topic.activity_pub_enabled
@@ -290,13 +310,19 @@ after_initialize do
   add_to_class(:post, :activity_pub_domain) do
     self.activity_pub_object&.domain
   end
+  add_to_class(:post, :activity_pub_full_topic) do
+    topic&.activity_pub_full_topic && topic.activity_pub_object.present?
+  end
+  add_to_class(:post, :activity_pub_first_post) do
+    !activity_pub_full_topic
+  end
   add_to_class(:post, :activity_pub_enabled) do
     return false unless Site.activity_pub_enabled
 
     topic = Topic.with_deleted.find_by(id: self.topic_id)
     return false unless topic&.activity_pub_enabled
 
-    is_first_post? || topic.category.activity_pub_full_topic
+    is_first_post? || activity_pub_full_topic
   end
   add_to_class(:post, :activity_pub_content) do
     return nil unless activity_pub_enabled
@@ -311,10 +337,10 @@ after_initialize do
     return nil unless activity_pub_enabled
     return nil unless topic.category
 
-    if topic.category.activity_pub_full_topic
+    if activity_pub_full_topic
       user.activity_pub_actor
     else
-      topic.category.activity_pub_actor
+      topic.activity_pub_actor
     end
   end
   add_to_class(:post, :activity_pub_update_custom_fields) do |args = {}|
@@ -331,9 +357,6 @@ after_initialize do
   add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
     activity_pub_update_custom_fields(args)
   end
-  add_to_class(:post, :activity_pub_scheduled_at) do
-    custom_fields["activity_pub_scheduled_at"]
-  end
   activity_pub_post_custom_fields.each do |field_name|
     add_to_class(:post, "activity_pub_#{field_name}".to_sym) do
       custom_fields["activity_pub_#{field_name}"]
@@ -343,7 +366,7 @@ after_initialize do
     custom_fields["activity_pub_updated_at"]
   end
   add_to_class(:post, :activity_pub_visibility) do
-    if topic.category&.activity_pub_full_topic
+    if activity_pub_full_topic
       "public"
     else
       custom_fields["activity_pub_visibility"] || topic.category&.activity_pub_default_visibility
@@ -458,7 +481,7 @@ after_initialize do
   end
   on(:post_created) do |post, post_opts, user|
     if post.activity_pub_enabled
-      if post.topic.category.activity_pub_full_topic
+      if post.activity_pub_full_topic
         DiscourseActivityPub::UserHandler.update_or_create_actor(user)
       end
 
@@ -483,6 +506,11 @@ after_initialize do
   end
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_enabled
+  end
+  on(:topic_created) do |topic, opts, user|
+    if topic.activity_pub_enabled && topic.activity_pub_full_topic
+      topic.create_activity_pub_collection!
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |activity|

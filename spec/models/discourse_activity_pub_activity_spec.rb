@@ -48,7 +48,7 @@ RSpec.describe DiscourseActivityPubActivity do
     end
   end
 
-  describe '#address!' do
+  describe '#to' do
     let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
     let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
     let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
@@ -57,18 +57,16 @@ RSpec.describe DiscourseActivityPubActivity do
     context "when activity is private" do
       before do
         activity.update(visibility: DiscourseActivityPubActivity.visibilities[:private])
-        activity.address!(follower1)
       end
 
       it "addresses activity to followers only" do
-        expect(activity.ap.json[:to]).to eq(follower1.ap.id)
+        expect(activity.ap.json[:to]).to eq(actor.followers_collection.ap_id)
       end
     end
 
     context "when activity is public" do
       before do
         activity.update(visibility: DiscourseActivityPubActivity.visibilities[:public])
-        activity.address!(follower1)
       end
 
       it "addresses activity to public" do
@@ -82,7 +80,7 @@ RSpec.describe DiscourseActivityPubActivity do
   end
 
   describe "#after_scheduled" do
-    let(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
+    let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
 
     before do
       freeze_time
@@ -108,11 +106,31 @@ RSpec.describe DiscourseActivityPubActivity do
         activity.after_scheduled(Time.now.utc.iso8601)
       end
     end
+
+    context "when delivering a collection" do
+      let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection) }
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.ap_id) }
+      let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
+
+      it "calls activity_pub_after_scheduled with correct arguments" do
+        Post.any_instance.expects(:activity_pub_after_scheduled).with({
+          scheduled_at: Time.now.utc.iso8601,
+          published_at: nil,
+          deleted_at: nil,
+          updated_at: nil
+        }).once
+        collection.after_scheduled(Time.now.utc.iso8601)
+      end
+    end
   end
 
   describe "#after_deliver" do
-    it "records published_at if not set" do
+    before do
       freeze_time
+    end
+
+    it "records published_at if not set" do
       original_time = Time.now.utc.iso8601
 
       follow_activity.after_deliver
@@ -129,9 +147,7 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
 
       it "calls activity_pub_after_publish on associated object models" do
-        freeze_time
-        original_time = Time.now.utc.iso8601
-        Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: original_time }).once
+        Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once
         create_activity.after_deliver
       end
     end
@@ -140,9 +156,7 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:delete_activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: actor) }
 
       it "calls activity_pub_after_publish on associated object models" do
-        freeze_time
-        original_time = Time.now.utc.iso8601
-        Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: original_time }).once
+        Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: Time.now.utc.iso8601 }).once
         delete_activity.after_deliver
       end
     end
@@ -151,9 +165,7 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:update_activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
 
       it "calls activity_pub_after_publish on associated object models" do
-        freeze_time
-        original_time = Time.now.utc.iso8601
-        Post.any_instance.expects(:activity_pub_after_publish).with({ updated_at: original_time }).once
+        Post.any_instance.expects(:activity_pub_after_publish).with({ updated_at: Time.now.utc.iso8601 }).once
         update_activity.after_deliver
       end
     end
@@ -162,9 +174,21 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:accept_activity) { Fabricate(:discourse_activity_pub_activity_accept, actor: actor) }
 
       it "works" do
-        freeze_time
         accept_activity.after_deliver
         expect(accept_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
+      end
+    end
+
+    context "when announcing a collection" do
+      let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection) }
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.ap_id) }
+      let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:create) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
+      let!(:activity) { Fabricate(:discourse_activity_pub_activity_announce, actor: actor, object: collection) }
+
+      it "calls activity_pub_after_publish with correct arguments" do
+        Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once
+        activity.after_deliver
       end
     end
   end

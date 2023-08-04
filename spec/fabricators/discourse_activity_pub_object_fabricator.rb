@@ -12,8 +12,10 @@ Fabricator(:discourse_activity_pub_object_note, from: :discourse_activity_pub_ob
   after_create do |object|
     if object.model.respond_to?(:activity_pub_content)
       object.content = object.model.activity_pub_content
-      object.save!
+    else
+      object.content = "I'm a note without a post"
     end
+    object.save!
   end
 end
 
@@ -28,4 +30,9 @@ Fabricator(:discourse_activity_pub_object_article, from: :discourse_activity_pub
       object.save!
     end
   end
+end
+
+Fabricator(:discourse_activity_pub_object_ordered_collection, from: :discourse_activity_pub_object) do
+  ap_type { DiscourseActivityPub::AP::Collection::OrderedCollection.type }
+  local { true }
 end

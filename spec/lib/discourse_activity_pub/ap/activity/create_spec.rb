@@ -20,6 +20,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
     context 'with full topic enabled' do
       before do
         toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+        topic.create_activity_pub_collection!
       end
 
       context "with Note inReplyTo to a Note" do

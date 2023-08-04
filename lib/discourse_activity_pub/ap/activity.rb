@@ -25,10 +25,6 @@ module DiscourseActivityPub
           @object
       end
 
-      def start_time
-        stored&.created_at
-      end
-
       def process
         return false unless process_actor_and_object
         return false unless perform_validate_activity

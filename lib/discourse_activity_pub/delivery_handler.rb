@@ -1,81 +1,56 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   class DeliveryHandler
-    attr_reader :activity,
-                :delivery_actor,
-                :delivery_activity
+    attr_reader :actor,
+                :object,
+                :scheduled_at
 
-    def initialize(delivery_actor, activity)
-      @delivery_actor = delivery_actor
-      @activity = activity
+    def initialize(actor, object)
+      @actor = actor
+      @object = object
     end
 
     def perform(delay: 0)
       return false unless can_deliver?
-      return nil unless recipient_actors.present?
-      set_delivery_activity
-      deliver_to_recipients(delay)
-      activity
+      return nil unless recipients.present?
+      schedule_deliveries(delay)
+      after_scheduled
+      object
     end
 
-    def self.perform(delivery_actor, activity, delay = 0)
-      new(delivery_actor, activity).perform(delay: delay)
+    def self.perform(actor, object, delay = 0)
+      new(actor, object).perform(delay: delay)
     end
 
     protected
 
     def can_deliver?
-      return log_failure("delivery actor not ready") unless delivery_actor&.ready?
-      return log_failure("activity not ready") unless activity&.ready?
-      return log_failure("can't announce private activities") if announcing? && activity.private?
+      return log_failure("delivery actor not ready") unless actor&.ready?
+      return log_failure("object not ready") unless object&.ready?
       true
     end
 
-    def announcing?
-      # If an actor is delivering activities they didn't perform they announce (share) them.
-      # See further https://codeberg.org/fediverse/fep/src/branch/main/fep/1b12/fep-1b12.md#the-announce-activity
-      @announcing ||= delivery_actor.id != activity.actor.id
+    def recipients
+      @recipients ||= actor.followers
     end
 
-    def recipient_actors
-      @recipient_actors ||= delivery_actor.followers
-    end
-
-    def set_delivery_activity
-      @delivery_activity = if announcing?
-        begin
-          DiscourseActivityPubActivity.create!(
-            local: true,
-            actor_id: delivery_actor.id,
-            object_id: activity.id,
-            object_type: activity.class.name,
-            ap_type: AP::Activity::Announce.type,
-            visibility: DiscourseActivityPubActivity.visibilities[:public]
-          )
-        rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
-          log_failure(e.message)
-        end
-      else
-        activity
-      end
-    end
-
-    def deliver_to_recipients(delay = nil)
-      recipient_actors.each do |actor|
+    def schedule_deliveries(delay = nil)
+      recipients.each do |actor|
         opts = {
           to_actor_id: actor.id,
         }
         opts[:delay] = delay unless delay.nil?
-        deliver(**opts)
+        schedule_delivery(**opts)
       end
     end
 
-    def deliver(to_actor_id: nil, delay: nil)
+    def schedule_delivery(to_actor_id: nil, delay: nil)
       return unless to_actor_id
 
       args = {
-        activity_id: delivery_activity.id,
-        from_actor_id: delivery_actor.id,
+        object_id: object.id,
+        object_type: object.class.name,
+        from_actor_id: actor.id,
         to_actor_id: to_actor_id
       }
 
@@ -83,19 +58,20 @@ module DiscourseActivityPub
 
       if delay
         Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
-        scheduled_at = (Time.now.utc + delay.minutes).iso8601
+        @scheduled_at = (Time.now.utc + delay.minutes).iso8601
       else
         Jobs.enqueue(:discourse_activity_pub_deliver, args)
-        scheduled_at = Time.now.utc.iso8601
+        @scheduled_at = Time.now.utc.iso8601
       end
+    end
 
-      activity.after_scheduled(scheduled_at)
+    def after_scheduled
+      object.after_scheduled(scheduled_at) if object.respond_to?(:after_scheduled)
     end
 
     def log_failure(message)
       return false unless SiteSetting.activity_pub_verbose_logging
-
-      prefix = "#{delivery_actor.ap_id} failed to schedule #{activity&.ap_id} for delivery"
+      prefix = "#{actor.ap_id} failed to schedule #{object&.ap_id} for delivery"
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
       false
     end
