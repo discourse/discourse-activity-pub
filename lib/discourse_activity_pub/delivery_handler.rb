@@ -3,23 +3,24 @@ module DiscourseActivityPub
   class DeliveryHandler
     attr_reader :actor,
                 :object,
+                :recipients,
                 :scheduled_at
 
-    def initialize(actor, object)
+    def initialize(actor, object, recipients)
       @actor = actor
       @object = object
+      @recipients = recipients
     end
 
     def perform(delay: 0)
       return false unless can_deliver?
-      return nil unless recipients.present?
       schedule_deliveries(delay)
       after_scheduled
       object
     end
 
-    def self.perform(actor, object, delay = 0)
-      new(actor, object).perform(delay: delay)
+    def self.perform(actor: nil, object: nil, recipients: nil, delay: 0)
+      new(actor, object, recipients).perform(delay: delay)
     end
 
     protected
@@ -27,11 +28,8 @@ module DiscourseActivityPub
     def can_deliver?
       return log_failure("delivery actor not ready") unless actor&.ready?
       return log_failure("object not ready") unless object&.ready?
+      return log_failure("no recipients") unless recipients.present?
       true
-    end
-
-    def recipients
-      @recipients ||= actor.followers
     end
 
     def schedule_deliveries(delay = nil)

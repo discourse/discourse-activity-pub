@@ -93,6 +93,26 @@ RSpec.describe Post do
   end
 
   describe "#perform_activity_pub_activity" do
+
+    def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil)
+      DiscourseActivityPub::DeliveryHandler
+        .expects(:perform)
+        .with do |args|
+          args[:actor].id == actor.id &&
+          (!actor || args[:actor].id == actor.id) &&
+          (!object || args[:object].id == object.id) &&
+          (!object_type || args[:object].ap_type == object_type) &&
+          args[:delay] == delay
+        end
+        .once
+    end
+
+    def expect_no_delivery
+      DiscourseActivityPub::DeliveryHandler
+        .expects(:perform)
+        .never
+    end
+
     context "without activty pub enabled on the category" do
       it "does nothing" do
         expect(post.perform_activity_pub_activity(:create)).to eq(nil)
@@ -298,7 +318,7 @@ RSpec.describe Post do
         end
 
         def perform_delete
-          post.delete
+          post.trash!
           post.perform_activity_pub_activity(:delete)
         end
 
@@ -482,7 +502,7 @@ RSpec.describe Post do
 
         context 'with delete' do
           def perform_delete
-            post.delete
+            post.trash!
             post.perform_activity_pub_activity(:delete)
           end
 
@@ -536,20 +556,233 @@ RSpec.describe Post do
             expect(
               post.activity_pub_object&.reply_to_id
             ).to eq(nil)
-            expect(
-              post.activity_pub_object&.collection_id
-            ).to eq(topic.activity_pub_object.ap_id)
           end
 
-          it "sends the topic collection for delayed delivery" do
-            DiscourseActivityPub::DeliveryHandler
-              .expects(:perform)
-              .with(
-                category.activity_pub_actor,
-                instance_of(DiscourseActivityPubObject),
-                SiteSetting.activity_pub_delivery_delay_minutes.to_i
-              )
+          it "creates the right activity" do
             perform_create
+            expect(
+               post.activity_pub_actor.activities.where(
+                 object_id: post.activity_pub_object.id,
+                 object_type: 'DiscourseActivityPubObject',
+                 ap_type: 'Create'
+              ).exists?
+            ).to eq(true)
+          end
+
+          it "includes the object in the topic's object collection" do
+            perform_create
+            expect(
+              post.activity_pub_object.ap_id
+            ).to eq(topic.activity_pub_object.collection_objects.first.ap_id)
+          end
+
+          it "includes the activity in the topic's activity collection" do
+            perform_create
+            expect(
+              post.activity_pub_actor.activities.first.ap_id
+            ).to eq(topic.activity_pub_object.collection_activities.first.ap_id)
+          end
+
+          it "sends the topic collection as the topic actor for delayed delivery" do
+            expect_delivery(
+              actor: topic.activity_pub_actor,
+              object: topic.activity_pub_object,
+              delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i
+            )
+            perform_create
+          end
+        end
+
+        context "with delete" do
+          let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+          let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+          def perform_delete
+            post.trash!
+            post.perform_activity_pub_activity(:delete)
+          end
+
+          context "while in pre publication period" do
+            it "does not create an activity" do
+              perform_delete
+              expect(
+                 post.activity_pub_actor.activities.where(
+                   ap_type: 'Delete'
+                ).exists?
+              ).to eq(false)
+            end
+
+            it "destroys associated objects" do
+              perform_delete
+              expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
+              expect(DiscourseActivityPubObject.exists?(id: topic.activity_pub_object.id)).to eq(false)
+            end
+
+            it "destroys associated activities" do
+              perform_delete
+              expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(false)
+            end
+
+            it "clears associated data" do
+              perform_delete
+              expect(note.model.custom_fields['activity_pub_scheduled_at']).to eq(nil)
+              expect(note.model.custom_fields['activity_pub_published_at']).to eq(nil)
+              expect(note.model.custom_fields['activity_pub_deleted_at']).to eq(nil)
+            end
+
+            it "clears associated jobs" do
+              follower1 = Fabricate(:discourse_activity_pub_actor_person)
+              follow1 = Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor)
+              follower2 = Fabricate(:discourse_activity_pub_actor_person)
+              follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: category.activity_pub_actor)
+              job1_args = {
+                object_id: topic.activity_pub_object.id,
+                object_type: 'DiscourseActivityPubObject',
+                from_actor_id: topic.activity_pub_actor.id,
+                to_actor_id: follower1.id
+              }
+              job2_args = {
+                object_id: topic.activity_pub_object.id,
+                object_type: 'DiscourseActivityPubObject',
+                from_actor_id: topic.activity_pub_actor.id,
+                to_actor_id: follower2.id
+              }
+              Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job1_args).once
+              Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
+              perform_delete
+            end
+
+            it "does not send anything for delivery" do
+              expect_no_delivery
+              perform_delete
+            end
+          end
+
+          context "after publication" do
+            before do
+              note.model.custom_fields['activity_pub_published_at'] = Time.now
+              note.model.save_custom_fields(true)
+            end
+
+            it "creates the right activity" do
+              perform_delete
+              expect(
+                 post.activity_pub_actor.activities.where(
+                   ap_type: 'Delete'
+                ).exists?
+              ).to eq(true)
+            end
+
+            it "does not destroy associated objects" do
+              perform_delete
+              expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+              expect(DiscourseActivityPubObject.exists?(id: topic.activity_pub_object.id)).to eq(true)
+            end
+
+            it "does not destroy associated activities" do
+              perform_delete
+              expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+            end
+
+            it "sends the activity as the post actor for delivery without delay" do
+              expect_delivery(
+                actor: post.activity_pub_actor,
+                object_type: "Delete"
+              )
+              perform_delete
+            end
+          end
+        end
+
+        context "with update" do
+          let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+          let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+          def perform_update
+            post.custom_fields['activity_pub_content'] = "Updated content"
+            post.perform_activity_pub_activity(:update)
+          end
+
+          context "while not published" do
+            it "updates the Note content" do
+              perform_update
+              expect(note.reload.content).to eq("Updated content")
+            end
+
+            it "does not create an Update Activity" do
+              perform_update
+              expect(
+                 post.activity_pub_actor.activities.where(
+                   ap_type: 'Update'
+                ).exists?
+              ).to eq(false)
+            end
+
+            it "does not send anything for delivery" do
+              expect_no_delivery
+              perform_update
+            end
+          end
+
+          context "after publication" do
+            before do
+              note.model.custom_fields['activity_pub_published_at'] = Time.now
+              note.model.save_custom_fields(true)
+            end
+
+            it "updates the Note content" do
+              perform_update
+              expect(note.reload.content).to eq("Updated content")
+            end
+
+            it "creates an Update Activity" do
+              perform_update
+              expect(
+                 post.activity_pub_actor.activities.where(
+                   object_id: post.activity_pub_object.id,
+                   object_type: 'DiscourseActivityPubObject',
+                   ap_type: 'Update'
+                ).exists?
+              ).to eq(true)
+            end
+
+            it "doesn't create multiple unpublished activities" do
+              perform_update
+              expect(
+                 post.activity_pub_actor.activities.where(
+                   object_id: post.activity_pub_object.id,
+                   object_type: 'DiscourseActivityPubObject',
+                   ap_type: 'Update'
+                ).size
+              ).to eq(1)
+            end
+
+            it "creates multiple published activities" do
+              perform_update
+
+              attrs = {
+                object_id: post.activity_pub_object.id,
+                object_type: 'DiscourseActivityPubObject',
+                ap_type: 'Update'
+              }
+              post.activity_pub_actor.activities
+                .where(attrs)
+                .update_all(published_at: Time.now)
+
+              perform_update
+
+              expect(
+                 post.activity_pub_actor.activities.where(attrs).size
+              ).to eq(2)
+            end
+
+            it "sends the activity as the post actor for delivery without delay" do
+              expect_delivery(
+                actor: post.activity_pub_actor,
+                object_type: "Update"
+              )
+              perform_update
+            end
           end
         end
       end
@@ -589,9 +822,7 @@ RSpec.describe Post do
 
           context "while not published" do
             it "does not send anything for delivery" do
-              DiscourseActivityPub::DeliveryHandler
-                .expects(:perform)
-                .never
+              expect_no_delivery
               perform_create
             end
           end
@@ -602,14 +833,11 @@ RSpec.describe Post do
               post.save_custom_fields(true)
             end
 
-            it "sends the activity for delivery without delay" do
-              DiscourseActivityPub::DeliveryHandler
-                .expects(:perform)
-                .with(
-                  category.activity_pub_actor,
-                  instance_of(DiscourseActivityPubActivity),
-                  nil
-                )
+            it "sends the activity as the topic actor for delivery without delay" do
+              expect_delivery(
+                actor: topic.activity_pub_actor,
+                object_type: "Create"
+              )
               perform_create
             end
           end
@@ -625,35 +853,41 @@ RSpec.describe Post do
           end
 
           context "while not published" do
-            before do
-              perform_update
-            end
-
             it "updates the Note content" do
+              perform_update
               expect(note.reload.content).to eq("Updated content")
             end
 
             it "does not create an Update Activity" do
+              perform_update
               expect(
                  reply.activity_pub_actor.activities.where(
                    ap_type: 'Update'
                 ).exists?
               ).to eq(false)
             end
+
+            it "does not send anything for delivery" do
+              expect_no_delivery
+              perform_update
+            end
           end
 
           context "after publication" do
             before do
-              note.model.custom_fields['activity_pub_published_at'] = Time.now
-              note.model.save_custom_fields(true)
-              perform_update
+              post.custom_fields['activity_pub_published_at'] = Time.now
+              post.save_custom_fields(true)
+              reply.custom_fields['activity_pub_published_at'] = Time.now
+              reply.save_custom_fields(true)
             end
 
             it "updates the Note content" do
+              perform_update
               expect(note.reload.content).to eq("Updated content")
             end
 
             it "creates an Update Activity" do
+              perform_update
               expect(
                  reply.activity_pub_actor.activities.where(
                    object_id: reply.activity_pub_object.id,
@@ -689,8 +923,16 @@ RSpec.describe Post do
               perform_update
 
               expect(
-                 reply.activity_pub_actor.activities.where(attrs).size
+                reply.activity_pub_actor.activities.where(attrs).size
               ).to eq(2)
+            end
+
+            it "sends the activity as the post actor for delivery without delay" do
+              expect_delivery(
+                actor: reply.activity_pub_actor,
+                object_type: "Update"
+              )
+              perform_update
             end
           end
         end
@@ -759,16 +1001,23 @@ RSpec.describe Post do
               Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
               perform_delete
             end
+
+            it "does not send anything for delivery" do
+              expect_no_delivery
+              perform_delete
+            end
           end
 
           context "after publication" do
             before do
-              note.model.custom_fields['activity_pub_published_at'] = Time.now
-              note.model.save_custom_fields(true)
-              perform_delete
+              post.custom_fields['activity_pub_published_at'] = Time.now
+              post.save_custom_fields(true)
+              reply.custom_fields['activity_pub_published_at'] = Time.now
+              reply.save_custom_fields(true)
             end
 
             it "creates the right activity" do
+              perform_delete
               expect(
                  reply.activity_pub_actor.activities.where(
                    ap_type: 'Delete'
@@ -777,11 +1026,21 @@ RSpec.describe Post do
             end
 
             it "does not destroy associated objects" do
+              perform_delete
               expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
             end
 
             it "does not destroy associated activities" do
+              perform_delete
               expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+            end
+
+            it "sends the activity as the post actor for delivery without delay" do
+              expect_delivery(
+                actor: reply.activity_pub_actor,
+                object_type: "Delete"
+              )
+              perform_delete
             end
           end
         end

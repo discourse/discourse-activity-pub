@@ -28,7 +28,12 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
   end
 
   def perform_delivery(object: activity, delay: SiteSetting.activity_pub_delivery_delay_minutes)
-    described_class.perform(delivery_actor, object, delay)
+    described_class.perform(
+      actor: delivery_actor,
+      object: object,
+      recipients: delivery_actor.followers,
+      delay: delay
+    )
   end
 
   before do
@@ -91,8 +96,8 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
             follow.destroy!
           end
 
-          it "returns nil" do
-            expect(perform_delivery).to eq(nil)
+          it "returns false" do
+            expect(perform_delivery).to eq(false)
           end
 
           it "does not enqueue any delivery jobs" do

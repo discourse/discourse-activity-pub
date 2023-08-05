@@ -244,6 +244,7 @@ after_initialize do
                 class_name: "DiscourseActivityPubObject",
                 as: :model,
                 dependent: :destroy
+  Topic.include DiscourseActivityPub::AP::ModelHelpers
 
   add_to_class(:topic, :activity_pub_enabled) do
     Site.activity_pub_enabled && category&.activity_pub_ready?
@@ -407,6 +408,7 @@ after_initialize do
 
     if performing_activity.delete?
       self.clear_all_activity_pub_objects
+      self.topic.clear_all_activity_pub_objects if is_first_post? && activity_pub_full_topic
       self.activity_pub_publish_state
       return nil
     end
@@ -419,9 +421,6 @@ after_initialize do
   add_to_class(:post, :activity_pub_default_object_type) do
     self.topic&.category&.activity_pub_post_object_type ||
     DiscourseActivityPub::AP::Object::Note.type
-  end
-  add_to_class(:post, :activity_pub_delivery_actor) do
-    topic.category.activity_pub_actor
   end
   add_to_class(:post, :activity_pub_reply_to_object) do
     return if is_first_post?
@@ -618,8 +617,9 @@ after_initialize do
     end
 
     DiscourseActivityPub::DeliveryHandler.perform(
-      activity.object.stored,
-      response.stored
+      actor: activity.object.stored,
+      object: response.stored,
+      recipients: activity.object.stored.followers
     )
   end
 end

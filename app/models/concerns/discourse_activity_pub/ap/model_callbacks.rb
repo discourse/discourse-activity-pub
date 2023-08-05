@@ -103,7 +103,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_deliver_activity
-        return if !@performing_activity.stored
+        return if !performing_activity.stored
 
         if topic.activity_pub_full_topic && !topic.activity_pub_published? && !is_first_post?
           return activity_pub_after_scheduled(
@@ -111,8 +111,12 @@ module DiscourseActivityPub
           )
         end
 
+        delivery_actor = performing_activity.create? ?
+          self.topic.activity_pub_actor :
+          self.activity_pub_actor
+        delivery_recipients = self.topic.activity_pub_actor.followers
+        delivery_object = performing_activity.stored
         delivery_delay = nil
-        delivery_object = @performing_activity.stored
 
         if !self.topic.activity_pub_published?
           delivery_delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
@@ -123,9 +127,10 @@ module DiscourseActivityPub
         end
 
         DiscourseActivityPub::DeliveryHandler.perform(
-          activity_pub_delivery_actor,
-          delivery_object,
-          delivery_delay
+          actor: delivery_actor,
+          object: delivery_object,
+          recipients: delivery_recipients,
+          delay: delivery_delay
         )
       end
 

@@ -83,7 +83,7 @@ module Jobs
     end
 
     def announcing?
-      # If an actor is delivering a collection of activities, or delivering activities they didn't perform they announce (share) them.
+      # If an actor is delivering a collection of activities, or delivering a create activity they didn't perform they announce (share) them.
       # See further https://codeberg.org/fediverse/fep/src/branch/main/fep/1b12/fep-1b12.md#the-announce-activity
       @announcing ||= object.ap.collection? || from_actor.id != object.actor.id
     end
