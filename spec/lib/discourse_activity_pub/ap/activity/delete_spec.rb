@@ -5,36 +5,31 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
   let!(:topic) { Fabricate(:topic, category: category) }
   let!(:post) { Fabricate(:post, topic: topic) }
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-  let!(:object_json) { build_object_json }
-  let!(:activity_json) {
-    build_activity_json(
-      object: object_json,
-      type: 'Delete'
-    )
-  }
-  let!(:note) {
-    Fabricate(:discourse_activity_pub_object_note,
-      ap_id: object_json[:id],
-      local: false,
-      model: post
-    )
-  }
 
-  it { expect(described_class).to be < DiscourseActivityPub::AP::Activity }
-
-  before do
-    toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
-  end
-
-  def perform_process(json)
-    klass = described_class.new
-    klass.json = json
-    klass.process
-  end
+  it { expect(described_class).to be < DiscourseActivityPub::AP::Activity::Compose }
 
   describe '#process' do
+    before do
+      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+      topic.create_activity_pub_collection!
+    end
 
-    context "with valid activity json" do
+    context "with valid Delete json" do
+      let!(:object_json) { build_object_json }
+      let!(:activity_json) {
+        build_activity_json(
+          object: object_json,
+          type: 'Delete'
+        )
+      }
+      let!(:note) {
+        Fabricate(:discourse_activity_pub_object_note,
+          ap_id: object_json[:id],
+          local: false,
+          model: post
+        )
+      }
+
       before do
         perform_process(activity_json)
       end
@@ -57,49 +52,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
             ap_id: activity_json[:id]
           )
         ).to be(true)
-      end
-    end
-
-    context "with an activity and object from different hosts" do
-      before do
-        SiteSetting.activity_pub_verbose_logging = true
-        @orig_logger = Rails.logger
-        Rails.logger = @fake_logger = FakeLogger.new
-
-        @mismatched_json = activity_json.dup
-        @mismatched_json[:id] = "https://other-external.com/activity/delete/#{SecureRandom.hex(8)}"
-        perform_process(@mismatched_json)
-      end
-
-      after do
-        Rails.logger = @orig_logger
-        SiteSetting.activity_pub_verbose_logging = false
-      end
-
-      it "does not delete the post" do
-        expect(
-          Post.exists?(post.id)
-        ).to be(true)
-      end
-
-      it "does not delete the object" do
-        expect(
-          DiscourseActivityPubObject.exists?(note.id)
-        ).to be(true)
-      end
-
-      it "does not create an activity" do
-        expect(
-          DiscourseActivityPubActivity.exists?(
-            ap_id: @mismatched_json[:id]
-          )
-        ).to be(false)
-      end
-
-      it "logs a warning" do
-        expect(@fake_logger.warnings.first).to match(
-          I18n.t('discourse_activity_pub.process.warning.activity_host_must_match_object_host')
-        )
       end
     end
   end

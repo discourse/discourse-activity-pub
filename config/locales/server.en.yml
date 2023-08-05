@@ -76,8 +76,9 @@ en:
         cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
         undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
         activity_host_must_match_object_host: "Activity host must match Object host"
-        no_post_to_delete: "No post to delete"
-        post_already_deleted: "Post is already deleted"
+        cant_find_post: "Can't find post"
+        post_is_deleted: "Post is deleted"
+        full_topic_not_enabled: "Full topic is not enabled"
     activity:
       create:
         failed_to_create_user: "Failed to create user for %{actor_id}"

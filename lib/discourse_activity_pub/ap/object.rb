@@ -94,7 +94,9 @@ module DiscourseActivityPub
         return false unless json
 
         DiscourseActivityPubObject.transaction do
-          unless stored
+          if stored
+            stored.content = json[:content] if json[:content].present?
+          else
             params = {
               local: false,
               ap_id: json[:id],

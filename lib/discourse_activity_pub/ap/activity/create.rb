@@ -7,11 +7,6 @@ module DiscourseActivityPub
         def type
           'Create'
         end
-
-        def validate_activity
-          return false unless activity_host_matches_object_host?
-          super
-        end
       end
     end
   end

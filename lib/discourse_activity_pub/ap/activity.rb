@@ -114,7 +114,7 @@ module DiscourseActivityPub
       def self.handlers(activity_type, handler_type)
         type, handler = handler_keys(activity_type, handler_type)
         return [] unless type && handler
-        [*([*sorted_handlers.dig(*[:all, handler])] + [*sorted_handlers.dig(*[type, handler])])]
+        [*([*sorted_handlers.dig(*[type, handler])] + [*sorted_handlers.dig(*[:all, handler])])]
           .map { |h| h[:proc] }
           .compact
       end

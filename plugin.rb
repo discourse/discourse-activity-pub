@@ -542,6 +542,19 @@ after_initialize do
     avatar_template_url.gsub("{size}", "96")
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:all, :validate) do |activity|
+    if activity.composition?
+      post = activity.create? ?
+        activity.object.stored.in_reply_to_post :
+        activity.object.stored.model
+
+      unless post.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Activity::ValidationError,
+          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
+      end
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
     unless activity.actor.person?
       raise DiscourseActivityPub::AP::Activity::ValidationError,
@@ -564,12 +577,26 @@ after_initialize do
 
     unless post
       raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.no_post_to_delete')
+        I18n.t('discourse_activity_pub.process.warning.cant_find_post')
     end
 
     if post.trashed?
       raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.post_already_deleted')
+        I18n.t('discourse_activity_pub.process.warning.post_is_deleted')
+    end
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:update, :validate) do |activity|
+    post = activity.object.stored.model
+
+    unless post
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.cant_find_post')
+    end
+
+    if post.trashed?
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.post_is_deleted')
     end
   end
 
@@ -598,6 +625,12 @@ after_initialize do
     post = activity.object.stored.model
     PostDestroyer.new(post.user, post, force_destroy: true).destroy
     activity.object.stored.destroy!
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:update, :perform) do |activity|
+    post = activity.object.stored.model
+    revisor = PostRevisor.new(post)
+    revisor.revise!(post.user, { raw: activity.object.content })
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:all, :store) do |activity|

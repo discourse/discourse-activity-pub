@@ -10,12 +10,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
 
   describe '#process' do
 
-    def perform_process(json)
-      klass = described_class.new
-      klass.json = json
-      klass.process
-    end
-
     context 'with activity pub enabled' do
       before do
         toggle_activity_pub(group.model, callbacks: true)

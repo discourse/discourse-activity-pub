@@ -13,7 +13,7 @@ module DiscourseActivityPub
             process_failed("undo_actor_must_match_object_actor")
             return false
           end
-          return false unless activity_host_matches_object_host?
+
           super
         end
       end

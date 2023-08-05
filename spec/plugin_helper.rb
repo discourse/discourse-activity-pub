@@ -97,3 +97,9 @@ def build_process_warning(key, object_id)
   message = I18n.t("discourse_activity_pub.process.warning.#{key}")
   "[Discourse Activity Pub] #{action}: #{message}"
 end
+
+def perform_process(json)
+  klass = described_class.new
+  klass.json = json
+  klass.process
+end
