@@ -62,10 +62,10 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_object_json(type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil)
+def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
-    id: "https://external.com/object/note/#{SecureRandom.hex(8)}",
+    id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     content: content,
     inReplyTo: in_reply_to,
@@ -75,10 +75,10 @@ def build_object_json(type: 'Note', content: 'My cool note', in_reply_to: nil, p
   _json
 end
 
-def build_activity_json(actor: nil, object: nil, type: 'Follow', published: nil)
+def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil)
   {
     '@context': 'https://www.w3.org/ns/activitystreams',
-    id: "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
+    id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     actor: actor ? actor.ap.json : build_actor_json,
     object: if object&.respond_to?(:ap)

@@ -75,6 +75,9 @@ en:
         not_a_reply: "Cannot create an object that is not inReplyTo a Post"
         cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
         undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
+        activity_host_must_match_object_host: "Activity host must match Object host"
+        no_post_to_delete: "No post to delete"
+        post_already_deleted: "Post is already deleted"
     activity:
       create:
         failed_to_create_user: "Failed to create user for %{actor_id}"

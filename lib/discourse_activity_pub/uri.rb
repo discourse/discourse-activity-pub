@@ -23,6 +23,10 @@ module DiscourseActivityPub
       nil
     end
 
+    def self.matching_hosts?(uri1, uri2)
+      domain_from_uri(uri1) == domain_from_uri(uri2)
+    end
+
     def self.local?(uri)
       uri = parse(uri)
       return false unless uri

@@ -17,6 +17,52 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       klass.process
     end
 
+    context "with an activity and object from different hosts" do
+      let(:json) {
+        build_activity_json(
+          id: "https://external1.com/activity/create/#{SecureRandom.hex(8)}",
+          object: build_object_json(
+            id: "https://external2.com/object/note/#{SecureRandom.hex(8)}"
+          ),
+          type: 'Create'
+        )
+      }
+
+      before do
+        SiteSetting.activity_pub_verbose_logging = true
+        @orig_logger = Rails.logger
+        Rails.logger = @fake_logger = FakeLogger.new
+        perform_process(json)
+      end
+
+      after do
+        Rails.logger = @orig_logger
+        SiteSetting.activity_pub_verbose_logging = false
+      end
+
+      it "does not create a post" do
+        expect(
+          Post.exists?(raw: json[:object][:content])
+        ).to be(false)
+      end
+
+      it "does not create an activity" do
+        expect(
+          DiscourseActivityPubActivity.exists?(
+            ap_id: json[:id],
+            ap_type: "Create",
+            actor_id: person.id
+          )
+        ).to be(false)
+      end
+
+      it "logs a warning" do
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t('discourse_activity_pub.process.warning.activity_host_must_match_object_host')
+        )
+      end
+    end
+
     context 'with full topic enabled' do
       before do
         toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
@@ -25,7 +71,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
       context "with Note inReplyTo to a Note" do
         let!(:original_object) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-        let!(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
+        let(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
         let(:reply_json) {
           build_activity_json(
             actor: person,

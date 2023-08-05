@@ -559,6 +559,20 @@ after_initialize do
     end
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
+    post = activity.object.stored.model
+
+    unless post
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.no_post_to_delete')
+    end
+
+    if post.trashed?
+      raise DiscourseActivityPub::AP::Activity::ValidationError,
+        I18n.t('discourse_activity_pub.process.warning.post_already_deleted')
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|
     user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
 
@@ -578,6 +592,12 @@ after_initialize do
           object_id: activity.object.id
         )
     end
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:delete, :perform) do |activity|
+    post = activity.object.stored.model
+    PostDestroyer.new(post.user, post, force_destroy: true).destroy
+    activity.object.stored.destroy!
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:all, :store) do |activity|

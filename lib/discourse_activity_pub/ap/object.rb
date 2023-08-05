@@ -84,12 +84,16 @@ module DiscourseActivityPub
         end
       end
 
+      def find_stored_from_json
+        return false unless json
+
+        @stored = DiscourseActivityPubObject.find_by(ap_id: json[:id])
+      end
+
       def update_stored_from_json
         return false unless json
 
         DiscourseActivityPubObject.transaction do
-          @stored = DiscourseActivityPubObject.find_by(ap_id: json[:id])
-
           unless stored
             params = {
               local: false,
@@ -168,7 +172,11 @@ module DiscourseActivityPub
           return process_failed(object_id, "cant_resolve_object") unless object.present?
           return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)
 
-          stored = object.update_stored_from_json
+          stored = object.find_stored_from_json
+
+          if activity.create? || activity.update?
+            stored = object.update_stored_from_json
+          end
         else
           stored = case activity.type
             when AP::Activity::Follow.type

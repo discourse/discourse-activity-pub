@@ -141,6 +141,12 @@ module DiscourseActivityPub
 
         true
       end
+
+      def activity_host_matches_object_host?
+        return true if DiscourseActivityPub::URI.matching_hosts?(json[:id], object.id)
+        process_failed("activity_host_must_match_object_host")
+        false
+      end
     end
   end
 end
