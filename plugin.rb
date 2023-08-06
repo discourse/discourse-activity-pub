@@ -86,6 +86,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
+    ../extensions/discourse_activity_pub_guardian_extension.rb
     ../extensions/discourse_activity_pub_site_extension.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
 
@@ -288,6 +289,7 @@ after_initialize do
                as: :model
   Post.include DiscourseActivityPub::AP::ModelCallbacks
   Post.include DiscourseActivityPub::AP::ModelHelpers
+  Guardian.prepend DiscourseActivityPubGuardianExtension
 
   activity_pub_post_custom_fields = %i[
     scheduled_at
@@ -434,7 +436,10 @@ after_initialize do
     end
   end
   add_to_class(:post, :activity_pub_local?) do
-    self.activity_pub_object&.local
+    activity_pub_enabled && activity_pub_object && activity_pub_object.local
+  end
+  add_to_class(:post, :activity_pub_remote?) do
+    activity_pub_enabled && activity_pub_object && !activity_pub_object.local
   end
 
   add_to_serializer(:post, :activity_pub_enabled) do
@@ -469,14 +474,14 @@ after_initialize do
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
   on(:before_edit_post) do |post|
-    if post.activity_pub_enabled
+    if post.activity_pub_local?
       post.custom_fields[
         "activity_pub_content"
       ] = DiscourseActivityPub::ContentParser.get_content(post)
     end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
-    post.perform_activity_pub_activity(:update) if post.activity_pub_enabled
+    post.perform_activity_pub_activity(:update) if post.activity_pub_local?
   end
   on(:post_created) do |post, post_opts, user|
     if post.activity_pub_enabled
@@ -501,7 +506,7 @@ after_initialize do
     end
   end
   on(:post_destroyed) do |post, opts, user|
-    post.perform_activity_pub_activity(:delete) if post.activity_pub_enabled
+    post.perform_activity_pub_activity(:delete) if post.activity_pub_local?
   end
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_enabled

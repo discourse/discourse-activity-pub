@@ -94,6 +94,19 @@ export default {
         },
       });
 
+      // TODO (future): PR discourse/discourse to add a proper guardian condition for changing post owners.
+      api.reopenWidget("post-admin-menu", {
+        html(attrs) {
+          let result = this._super(attrs);
+          if (attrs.activity_pub_enabled) {
+            result.children = result.children.filter(
+              (widget) => widget.attrs.action !== "changePostOwner"
+            );
+          }
+          return result;
+        },
+      });
+
       api.modifyClass("model:post-stream", {
         pluginId: "discourse-activity-pub",
 
