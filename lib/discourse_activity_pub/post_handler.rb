@@ -39,7 +39,7 @@ module DiscourseActivityPub
           object.update(
             model_type: 'Post',
             model_id: post.id,
-            collection_id: post.topic.activity_pub_object.ap_id
+            collection_id: post.topic.activity_pub_object.id
           )
         end
       end

@@ -22,7 +22,6 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
-    ../lib/discourse_activity_pub/collection_struct.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -45,7 +44,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/collection.rb
     ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb
     ../app/models/concerns/discourse_activity_pub/ap/identifier_validations.rb
-    ../app/models/concerns/discourse_activity_pub/ap/activity_validations.rb
+    ../app/models/concerns/discourse_activity_pub/ap/object_validations.rb
     ../app/models/concerns/discourse_activity_pub/ap/model_validations.rb
     ../app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
     ../app/models/concerns/discourse_activity_pub/ap/model_helpers.rb
@@ -54,6 +53,7 @@ after_initialize do
     ../app/models/discourse_activity_pub_activity.rb
     ../app/models/discourse_activity_pub_follow.rb
     ../app/models/discourse_activity_pub_object.rb
+    ../app/models/discourse_activity_pub_collection.rb
     ../app/jobs/discourse_activity_pub_process.rb
     ../app/jobs/discourse_activity_pub_deliver.rb
     ../app/controllers/concerns/discourse_activity_pub/domain_verification.rb
@@ -242,7 +242,7 @@ after_initialize do
   end
 
   Topic.has_one :activity_pub_object,
-                class_name: "DiscourseActivityPubObject",
+                class_name: "DiscourseActivityPubCollection",
                 as: :model,
                 dependent: :destroy
   Topic.include DiscourseActivityPub::AP::ModelHelpers
@@ -272,13 +272,16 @@ after_initialize do
     )
   end
   add_to_class(:topic, :activity_pub_activities_collection) do
-    activity_pub_object.collection_of(:activities)
+    activity_pub_object.activities_collection
   end
   add_to_class(:topic, :activity_pub_objects_collection) do
-    activity_pub_object.collection_of(:objects)
+    activity_pub_object.objects_collection
   end
   add_to_class(:topic, :activity_pub_actor) do
     category&.activity_pub_actor
+  end
+  add_to_class(:topic, :activity_pub_summary) do
+    topic.title
   end
   add_to_serializer(:topic_view, :activity_pub_enabled) do
     object.topic.activity_pub_enabled
@@ -287,6 +290,7 @@ after_initialize do
   Post.has_one :activity_pub_object,
                class_name: "DiscourseActivityPubObject",
                as: :model
+
   Post.include DiscourseActivityPub::AP::ModelCallbacks
   Post.include DiscourseActivityPub::AP::ModelHelpers
   Guardian.prepend DiscourseActivityPubGuardianExtension

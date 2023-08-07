@@ -72,7 +72,7 @@ RSpec.describe PostCreator do
               post.activity_pub_object.ap_id
             )
             expect(post.activity_pub_object.collection_id).to eq(
-              post.topic.activity_pub_object.ap_id
+              post.topic.activity_pub_object.id
             )
           end
         end

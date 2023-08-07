@@ -1,10 +1,23 @@
 # frozen_string_literal: true
 class DiscourseActivityPubActivity < ActiveRecord::Base
-  include DiscourseActivityPub::AP::ActivityValidations
+  include DiscourseActivityPub::AP::IdentifierValidations
+  include DiscourseActivityPub::AP::ObjectValidations
 
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
   belongs_to :object, polymorphic: true
+
   has_one :parent, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_one :announcement, -> {
+    where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
+  }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+
+  scope :announcements, -> {
+    where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
+  }
+
+  validates :actor_id, presence: true
+  validate :validate_ap_type,
+           if: Proc.new { |a| a.will_save_change_to_ap_type? || a.will_save_change_to_object_type? }
 
   def ready?
     case object_type
@@ -73,6 +86,19 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   def after_published(published_at, _activity = nil)
     self.update(published_at: published_at) if !self.published_at
     object.after_published(published_at, self) if object.respond_to?(:after_published)
+  end
+
+  protected
+
+  def validate_ap_type
+    return unless actor
+    object_ap_type = object&.respond_to?(:ap_type) ? object.ap_type : nil
+    unless actor.can_perform_activity?(ap_type, object_ap_type)
+      self.errors.add(
+        :ap_type,
+        I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
+      )
+    end
   end
 end
 

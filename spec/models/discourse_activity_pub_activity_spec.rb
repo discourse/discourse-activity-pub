@@ -108,8 +108,8 @@ RSpec.describe DiscourseActivityPubActivity do
     end
 
     context "when delivering a collection" do
-      let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection) }
-      let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.ap_id) }
+      let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection) }
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.id) }
       let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
 
@@ -180,11 +180,11 @@ RSpec.describe DiscourseActivityPubActivity do
     end
 
     context "when announcing a collection" do
-      let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection) }
-      let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.ap_id) }
+      let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection) }
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.id) }
       let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:create) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_announce, actor: actor, object: collection) }
+      let!(:activity) { Fabricate(:discourse_activity_pub_activity_announce, actor: actor, object: create) }
 
       it "calls activity_pub_after_publish with correct arguments" do
         Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once

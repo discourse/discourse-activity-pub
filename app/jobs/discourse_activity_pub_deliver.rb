@@ -6,7 +6,7 @@ module Jobs
 
     MAX_RETRY_COUNT = 4
     RETRY_BACKOFF = 5
-    DELIVERABLE_OBJECTS = %w(DiscourseActivityPubActivity DiscourseActivityPubObject)
+    DELIVERABLE_OBJECTS = %w(DiscourseActivityPubActivity DiscourseActivityPubCollection)
 
     def execute(args)
       @args = args
@@ -93,6 +93,7 @@ module Jobs
         if announcing?
           begin
             object.announce!(from_actor.id)
+            object.announcement
           rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
             log_failure(e.message)
           end

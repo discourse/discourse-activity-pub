@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 class DiscourseActivityPubActor < ActiveRecord::Base
+  include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
   include DiscourseActivityPub::WebfingerActorAttributes
 
@@ -61,17 +62,31 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def followers_collection
-    @followers_collection ||= DiscourseActivityPub::CollectionStruct.new(
-      ap_id: "#{self.ap_id}#followers",
-      items: followers
-    )
+    @followers_collection ||= begin
+      collection = DiscourseActivityPubCollection.new(
+        ap_id: "#{self.ap_id}#followers",
+        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+        created_at: self.created_at,
+        updated_at: self.updated_at
+      )
+      collection.items = followers
+      collection.context = :followers
+      collection
+    end
   end
 
   def outbox_collection
-    @outbox_collection ||= DiscourseActivityPub::CollectionStruct.new(
-      ap_id: "#{self.ap_id}#activities",
-      items: activities
-    )
+    @outbox_collection ||= begin
+      collection = DiscourseActivityPubCollection.new(
+        ap_id: "#{self.ap_id}#activities",
+        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+        created_at: self.created_at,
+        updated_at: self.updated_at
+      )
+      collection.items = activities
+      collection.context = :outbox
+      collection
+    end
   end
 
   def self.ensure_for(model)

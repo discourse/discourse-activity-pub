@@ -573,14 +573,14 @@ RSpec.describe Post do
             perform_create
             expect(
               post.activity_pub_object.ap_id
-            ).to eq(topic.activity_pub_object.collection_objects.first.ap_id)
+            ).to eq(topic.activity_pub_object.objects_collection.items.first.ap_id)
           end
 
           it "includes the activity in the topic's activity collection" do
             perform_create
             expect(
               post.activity_pub_actor.activities.first.ap_id
-            ).to eq(topic.activity_pub_object.collection_activities.first.ap_id)
+            ).to eq(topic.activity_pub_object.activities_collection.items.first.ap_id)
           end
 
           it "sends the topic collection as the topic actor for delayed delivery" do
@@ -637,13 +637,13 @@ RSpec.describe Post do
               follow2 = Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: category.activity_pub_actor)
               job1_args = {
                 object_id: topic.activity_pub_object.id,
-                object_type: 'DiscourseActivityPubObject',
+                object_type: 'DiscourseActivityPubCollection',
                 from_actor_id: topic.activity_pub_actor.id,
                 to_actor_id: follower1.id
               }
               job2_args = {
                 object_id: topic.activity_pub_object.id,
-                object_type: 'DiscourseActivityPubObject',
+                object_type: 'DiscourseActivityPubCollection',
                 from_actor_id: topic.activity_pub_actor.id,
                 to_actor_id: follower2.id
               }
@@ -676,7 +676,7 @@ RSpec.describe Post do
             it "does not destroy associated objects" do
               perform_delete
               expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
-              expect(DiscourseActivityPubObject.exists?(id: topic.activity_pub_object.id)).to eq(true)
+              expect(DiscourseActivityPubCollection.exists?(id: topic.activity_pub_object.id)).to eq(true)
             end
 
             it "does not destroy associated activities" do
@@ -806,7 +806,7 @@ RSpec.describe Post do
             ).to eq(post_note.ap_id)
             expect(
               reply.activity_pub_object&.collection_id
-            ).to eq(topic.activity_pub_object.ap_id)
+            ).to eq(topic.activity_pub_object.id)
           end
 
           it "creates the right activity" do

@@ -14,16 +14,16 @@ RSpec.describe DiscourseActivityPub::AP::Collection do
       )
     end
 
-    context "with a topic collection" do
+    context "with an topic collection" do
       let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:topic) { Fabricate(:topic, category: category) }
-      let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection, model: topic) }
+      let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
       let!(:post1) { Fabricate(:post, topic: topic) }
       let!(:post2) { Fabricate(:post, topic: topic) }
       let!(:post3) { Fabricate(:post, topic: topic) }
-      let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.ap_id) }
-      let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.ap_id) }
-      let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3, collection_id: collection.ap_id) }
+      let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id) }
+      let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id) }
+      let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3, collection_id: collection.id) }
       let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note1) }
       let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note2) }
       let!(:activity3) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note3) }
@@ -32,7 +32,7 @@ RSpec.describe DiscourseActivityPub::AP::Collection do
       let!(:announce3) { Fabricate(:discourse_activity_pub_activity_announce, object: activity3, actor: group) }
 
       it "returns announced post activities" do
-        expect(described_class.new(stored: collection).items.map(&:id)).to match_array(
+        expect(described_class.new(stored: collection.announcements_collection).items.map(&:id)).to match_array(
           [announce1.ap.id, announce2.ap.id, announce3.ap.id]
         )
       end

@@ -51,17 +51,17 @@ RSpec.describe DiscourseActivityPubObject do
       end
     end
 
-    context "with a topic collection" do
+    context "with an announced topic collection" do
       let!(:follower) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:poster) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-      let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection, model: topic) }
+      let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
       let!(:post1) { Fabricate(:post, topic: topic) }
       let!(:post2) { Fabricate(:post, topic: topic) }
       let!(:post3) { Fabricate(:post, topic: topic) }
-      let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.ap_id) }
-      let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.ap_id) }
-      let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3, collection_id: collection.ap_id) }
+      let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id) }
+      let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id) }
+      let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3, collection_id: collection.id) }
       let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, actor: poster, object: note1) }
       let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, actor: poster, object: note2) }
       let!(:activity3) { Fabricate(:discourse_activity_pub_activity_create, actor: poster, object: note3) }
@@ -69,6 +69,10 @@ RSpec.describe DiscourseActivityPubObject do
       let!(:announce2) { Fabricate(:discourse_activity_pub_activity_announce, object: activity2, actor: group) }
       let!(:announce3) { Fabricate(:discourse_activity_pub_activity_announce, object: activity3, actor: group) }
       let!(:public_collection_id) { DiscourseActivityPub::JsonLd.public_collection_id }
+
+      before do
+        collection.context = :announcement
+      end
 
       it "publicly addresses the collection" do
         expect(collection.to).to eq(public_collection_id)

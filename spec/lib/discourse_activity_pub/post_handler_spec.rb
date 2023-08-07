@@ -55,7 +55,7 @@ RSpec.describe DiscourseActivityPub::PostHandler do
       object.reload
       expect(object.model_id).to eq(reply.id)
       expect(object.model_type).to eq("Post")
-      expect(object.collection_id).to eq(topic.activity_pub_object.ap_id)
+      expect(object.collection_id).to eq(topic.activity_pub_object.id)
     end
   end
 end

@@ -273,9 +273,9 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         let!(:topic) { Fabricate(:topic, category: category) }
         let!(:post1) { Fabricate(:post, topic: topic) }
         let!(:post2) { Fabricate(:post, topic: topic) }
-        let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection, model: topic) }
-        let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.ap_id) }
-        let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.ap_id) }
+        let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
+        let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id) }
+        let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id) }
         let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note1) }
         let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note2) }
 
@@ -283,7 +283,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           expect_request
           execute_job(
             object_id: collection.id,
-            object_type: 'DiscourseActivityPubObject',
+            object_type: 'DiscourseActivityPubCollection',
             from_actor_id: group.id,
             to_actor_id: person.id
           )
@@ -313,7 +313,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           expect_request(body_type: 'OrderedCollection')
           execute_job(
             object_id: collection.id,
-            object_type: 'DiscourseActivityPubObject',
+            object_type: 'DiscourseActivityPubCollection',
             from_actor_id: group.id,
             to_actor_id: person.id
           )

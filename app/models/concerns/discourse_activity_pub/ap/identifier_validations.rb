@@ -43,7 +43,7 @@ module DiscourseActivityPub
       end
 
       def ensure_ap_key
-        self.ap_key = SecureRandom.hex(16) if !self.ap_key
+        self.ap_key = generate_key if !self.ap_key
       end
 
       def ensure_ap_id

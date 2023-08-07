@@ -139,15 +139,15 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
             let!(:post1) { Fabricate(:post, user: user, topic: topic) }
             let!(:post2) { Fabricate(:post, user: user, topic: topic) }
             let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
-            let!(:collection) { Fabricate(:discourse_activity_pub_object_ordered_collection, model: topic) }
-            let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.ap_id) }
-            let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.ap_id) }
+            let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
+            let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id) }
+            let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id) }
             let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note1) }
             let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note2) }
 
             it "delivers the collection" do
               perform_delivery(object: collection)
-              expect_job(object_id: collection.id, object_type: 'DiscourseActivityPubObject')
+              expect_job(object_id: collection.id, object_type: 'DiscourseActivityPubCollection')
             end
           end
         end

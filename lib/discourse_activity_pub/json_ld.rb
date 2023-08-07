@@ -93,6 +93,10 @@ module DiscourseActivityPub
       (([*json[:to]] + [*json[:cc]]) & PUBLIC_COLLECTION_IDS).any?
     end
 
+    def generate_key
+      SecureRandom.hex(16)
+    end
+
     module_function :validate_json_ld
     module_function :parse_json_ld
     module_function :format_jsonld
@@ -108,5 +112,6 @@ module DiscourseActivityPub
     module_function :public_collection_id
     module_function :resolve_icon_url
     module_function :publicly_addressed?
+    module_function :generate_key
   end
 end

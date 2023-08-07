@@ -60,7 +60,7 @@ module DiscourseActivityPub
             attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
           end
           if self.activity_pub_full_topic
-            attrs[:collection_id] = self.topic.activity_pub_object.ap_id
+            attrs[:collection_id] = self.topic.activity_pub_object.id
           end
           self.build_activity_pub_object(attrs)
         else
