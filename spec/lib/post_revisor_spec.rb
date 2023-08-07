@@ -47,6 +47,22 @@ RSpec.describe PostRevisor do
         post.topic.reload
         expect(post.topic.category_id).to eq(category2.id)
       end
+
+      context "with full_topic enabled" do
+        before do
+          toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+          topic.create_activity_pub_collection!
+        end
+
+        context "with a topic title change" do
+          it "updates the topic collection summary" do
+            new_title = "New topic title"
+            expect { subject.revise!(user, title: new_title) }.not_to raise_error
+            expect(post.topic.reload.title).to eq(new_title)
+            expect(post.topic.activity_pub_object.reload.summary).to eq(new_title)
+          end
+        end
+      end
     end
   end
 end

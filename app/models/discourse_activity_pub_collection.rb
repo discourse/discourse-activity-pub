@@ -83,8 +83,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
             actor_id: actor_id,
             object_id: item.id,
             object_type: item.class.name,
-            visibility: DiscourseActivityPubActivity.visibilities[:public],
-            collection_id: self.id
+            visibility: DiscourseActivityPubActivity.visibilities[:public]
           }
         end
     )

@@ -22,6 +22,10 @@ module DiscourseActivityPub
       def total_items
         items.size
       end
+
+      def summary
+        stored&.summary
+      end
     end
   end
 end

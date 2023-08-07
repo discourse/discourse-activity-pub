@@ -7,12 +7,12 @@ RSpec.describe DiscourseActivityPub::AP::CollectionSerializer do
     DiscourseActivityPub::AP::CollectionSerializer.new(object, root: false).as_json
   end
 
-  def get_ap_collection(actor)
-    DiscourseActivityPub::AP::Collection.new(stored: actor.outbox_collection)
+  def get_ap_collection(stored)
+    DiscourseActivityPub::AP::Collection.new(stored: stored)
   end
 
   it "serializes collection attributes correctly" do
-    collection = get_ap_collection(accept.actor)
+    collection = get_ap_collection(accept.actor.outbox_collection)
     serialized_collection = get_ap_serialized_collection(collection)
 
     expect(serialized_collection['@context']).to eq(DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT)
@@ -25,5 +25,8 @@ RSpec.describe DiscourseActivityPub::AP::CollectionSerializer do
         root: false
       ).as_json.with_indifferent_access
     ])
+    expect(serialized_collection[:summary]).to eq(
+      I18n.t("discourse_activity_pub.actor.outbox.summary", actor: accept.actor.username)
+    )
   end
 end

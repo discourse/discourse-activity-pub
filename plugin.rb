@@ -268,7 +268,8 @@ after_initialize do
   add_to_class(:topic, :create_activity_pub_collection!) do
     create_activity_pub_object!(
       local: true,
-      ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type
+      ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+      summary: activity_pub_summary
     )
   end
   add_to_class(:topic, :activity_pub_activities_collection) do
@@ -281,7 +282,7 @@ after_initialize do
     category&.activity_pub_actor
   end
   add_to_class(:topic, :activity_pub_summary) do
-    topic.title
+    title
   end
   add_to_serializer(:topic_view, :activity_pub_enabled) do
     object.topic.activity_pub_enabled
@@ -485,6 +486,11 @@ after_initialize do
     end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
+    if post.activity_pub_full_topic && post_revisor.topic_title_changed?
+      post.topic.activity_pub_object.summary = post.topic.activity_pub_summary
+      post.topic.activity_pub_object.save!
+    end
+
     post.perform_activity_pub_activity(:update) if post.activity_pub_local?
   end
   on(:post_created) do |post, post_opts, user|

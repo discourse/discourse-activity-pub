@@ -5,6 +5,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::ModelValidations
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
+
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
   has_many :announcements, class_name: "DiscourseActivityPubActivity", through: :activities, source: :announcement
 

@@ -67,7 +67,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
         ap_id: "#{self.ap_id}#followers",
         ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
         created_at: self.created_at,
-        updated_at: self.updated_at
+        updated_at: self.updated_at,
+        summary: I18n.t("discourse_activity_pub.actor.followers.summary", actor: username)
       )
       collection.items = followers
       collection.context = :followers
@@ -81,7 +82,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
         ap_id: "#{self.ap_id}#activities",
         ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
         created_at: self.created_at,
-        updated_at: self.updated_at
+        updated_at: self.updated_at,
+        summary: I18n.t("discourse_activity_pub.actor.outbox.summary", actor: username)
       )
       collection.items = activities
       collection.context = :outbox

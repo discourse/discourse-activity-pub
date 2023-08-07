@@ -2,7 +2,8 @@
 
 class DiscourseActivityPub::AP::CollectionSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :items,
-             :totalItems
+             :totalItems,
+             :summary
 
   def items
     object.items.map(&:json)
@@ -10,5 +11,9 @@ class DiscourseActivityPub::AP::CollectionSerializer < DiscourseActivityPub::AP:
 
   def totalItems
     object.total_items
+  end
+
+  def include_summary?
+    object.summary.present?
   end
 end

@@ -11,10 +11,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
   }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
-  scope :announcements, -> {
-    where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
-  }
-
   validates :actor_id, presence: true
   validate :validate_ap_type,
            if: Proc.new { |a| a.will_save_change_to_ap_type? || a.will_save_change_to_object_type? }
