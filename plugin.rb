@@ -490,8 +490,10 @@ after_initialize do
       post.topic.activity_pub_object.summary = post.topic.activity_pub_summary
       post.topic.activity_pub_object.save!
     end
-
-    post.perform_activity_pub_activity(:update) if post.activity_pub_local?
+    opts = post_revisor.instance_variable_get("@opts")
+    if !opts[:deleting_post] && post.activity_pub_local?
+      post.perform_activity_pub_activity(:update)
+    end
   end
   on(:post_created) do |post, post_opts, user|
     # TODO (future): PR discourse/discourse to add a better context flag for different post_created scenarios.
@@ -521,7 +523,7 @@ after_initialize do
     post.perform_activity_pub_activity(:delete) if post.activity_pub_local?
   end
   on(:post_recovered) do |post, opts, user|
-    post.perform_activity_pub_activity(:create) if post.activity_pub_enabled
+    post.perform_activity_pub_activity(:create) if post.activity_pub_local?
   end
   on(:topic_created) do |topic, opts, user|
     if topic.activity_pub_enabled && topic.activity_pub_full_topic
