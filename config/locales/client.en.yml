@@ -57,7 +57,8 @@ en:
           full_topic: Full Topic
         description:
           first_post: First post of every topic in this category is published via ActivityPub.
-          full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies.    post:
+          full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies.
+    post:
       discourse_activity_pub:
         title:
           published: "%{object_type} was published from this site at %{time}."
