@@ -10,19 +10,19 @@ export default ComboBoxComponent.extend({
       {
         id: "first_post",
         label: I18n.t(
-          "discourse_activity_pub.publication_type.first_post.label"
+          "discourse_activity_pub.publication_type.label.first_post"
         ),
         title: I18n.t(
-          "discourse_activity_pub.publication_type.first_post.description"
+          "discourse_activity_pub.publication_type.description.first_post"
         ),
       },
       {
         id: "full_topic",
         label: I18n.t(
-          "discourse_activity_pub.publication_type.full_topic.label"
+          "discourse_activity_pub.publication_type.label.full_topic"
         ),
         title: I18n.t(
-          "discourse_activity_pub.publication_type.full_topic.description"
+          "discourse_activity_pub.publication_type.description.full_topic"
         ),
       },
     ];
