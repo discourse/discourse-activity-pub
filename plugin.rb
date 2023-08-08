@@ -494,7 +494,9 @@ after_initialize do
     post.perform_activity_pub_activity(:update) if post.activity_pub_local?
   end
   on(:post_created) do |post, post_opts, user|
-    if post.activity_pub_enabled
+    # TODO (future): PR discourse/discourse to add a better context flag for different post_created scenarios.
+    # Currently we're using skip_validations as an inverse flag for a "normal" post creation scenario.
+    if !post_opts[:skip_validations] && post.activity_pub_enabled
       if post.activity_pub_full_topic
         DiscourseActivityPub::UserHandler.update_or_create_actor(user)
       end
@@ -524,6 +526,31 @@ after_initialize do
   on(:topic_created) do |topic, opts, user|
     if topic.activity_pub_enabled && topic.activity_pub_full_topic
       topic.create_activity_pub_collection!
+    end
+  end
+  on(:post_moved) do |post, original_topic_id|
+    topic = post.topic
+    full_topic_enabled = topic&.activity_pub_enabled && topic.activity_pub_full_topic
+
+    if full_topic_enabled
+      topic.create_activity_pub_collection! if !topic.activity_pub_object
+    end
+
+    # The post mover creates a new post for a moved first post
+    note = if post.is_first_post?
+      original_topic = Topic.find_by(id: original_topic_id)
+      original_first_post = original_topic&.first_post
+      original_first_post&.activity_pub_object
+    else
+      post.activity_pub_object
+    end
+
+    if note
+      note.model_id = post.id unless note.model_id == post.id
+      note.collection_id = full_topic_enabled ?
+        topic.activity_pub_object.id :
+        nil
+      note.save! if note.changed?
     end
   end
 
