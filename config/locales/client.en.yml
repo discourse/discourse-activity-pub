@@ -45,20 +45,19 @@ en:
           private: "%{object_type} is addressed to followers."
           public: "%{object_type} is publicly addressed."
       post_object_type:
-        note:
-          label: Note
-          description: Best for microblogging platforms (e.g. Mastodon).
-        article:
-          label: Article
-          description: Best for longform platforms (e.g. Lemmy).
+        label:
+          note: Note
+          article: Article
+        description:
+          note: Best for microblogging platforms (e.g. Mastodon).
+          article: Best for longform platforms (e.g. Lemmy).
       publication_type:
-        first_post:
-          label: First Post
-          description: First post of every topic in this category is published via ActivityPub.
-        full_topic:
-          label: Full Topic
-          description: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies.
-    post:
+        label:
+          first_post: First Post
+          full_topic: Full Topic
+        description:
+          first_post: First post of every topic in this category is published via ActivityPub.
+          full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies.    post:
       discourse_activity_pub:
         title:
           published: "%{object_type} was published from this site at %{time}."

@@ -177,6 +177,12 @@ after_initialize do
   add_to_class(:category, :activity_pub_full_topic) do
     activity_pub_publication_type === 'full_topic'
   end
+  add_to_class(:category, :activity_pub_post_object_type) do
+    custom_fields["activity_pub_post_object_type"]
+  end
+  add_to_class(:category, :activity_pub_default_object_type) do
+    DiscourseActivityPub::AP::Actor::Group.type
+  end
 
   add_model_callback(:category, :after_save) do
     DiscourseActivityPubActor.ensure_for(self)

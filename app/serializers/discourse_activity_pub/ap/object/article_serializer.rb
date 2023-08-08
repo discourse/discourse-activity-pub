@@ -2,7 +2,9 @@
 
 class DiscourseActivityPub::AP::Object::ArticleSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :content,
-             :inReplyTo
+             :inReplyTo,
+             :url,
+             :updated
 
   def inReplyTo
     object.in_reply_to
