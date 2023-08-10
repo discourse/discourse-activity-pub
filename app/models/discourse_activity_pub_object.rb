@@ -8,6 +8,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
   has_many :announcements, class_name: "DiscourseActivityPubActivity", through: :activities, source: :announcement
+  has_many :likes, -> { likes }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
   belongs_to :reply_to, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
   has_many :replies, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
@@ -24,7 +25,9 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     return true unless local?
 
     case ap_type
-    when DiscourseActivityPub::AP::Activity::Create.type, DiscourseActivityPub::AP::Activity::Update.type
+    when DiscourseActivityPub::AP::Activity::Create.type,
+         DiscourseActivityPub::AP::Activity::Update.type,
+         DiscourseActivityPub::AP::Activity::Like.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
       !model || model.trashed?
@@ -73,6 +76,20 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def to
     @to ||= activities.first.present? ? activities.first.to : public_collection_id
+  end
+
+  def likes_collection
+    @likes_collection ||= begin
+      collection = DiscourseActivityPubCollection.new(
+        ap_id: "#{self.ap_id}#likes",
+        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+        created_at: self.created_at,
+        updated_at: self.updated_at
+      )
+      collection.items = likes
+      collection.context = :likes
+      collection
+    end
   end
 end
 

@@ -15,6 +15,10 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   validate :validate_ap_type,
            if: Proc.new { |a| a.will_save_change_to_ap_type? || a.will_save_change_to_object_type? }
 
+  scope :likes, -> {
+    where(ap_type: DiscourseActivityPub::AP::Activity::Like.type)
+  }
+
   def ready?
     case object_type
     when "DiscourseActivityPubActivity"

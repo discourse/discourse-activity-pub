@@ -78,6 +78,14 @@ module DiscourseActivityPub
         type == Update.type
       end
 
+      def like?
+        type == Like.type
+      end
+
+      def undo?
+        type == Undo.type
+      end
+
       def apply_handlers(handler_type)
         Activity.handlers(type.to_sym, handler_type).all? do |proc|
           begin
