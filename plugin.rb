@@ -22,6 +22,8 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
+    ../lib/discourse_activity_pub/oauth.rb
+    ../lib/discourse_activity_pub/oauth/app.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
