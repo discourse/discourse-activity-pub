@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class CastDiscourseActivityPubActivityObjectIdToIngeter < ActiveRecord::Migration[7.0]
+class CastDiscourseActivityPubActivityObjectIdToInteger < ActiveRecord::Migration[7.0]
   def up
     change_column :discourse_activity_pub_activities, :object_id, :integer, using: 'object_id::integer'
   end
