@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe DiscourseActivityPub::OAuth do
+RSpec.describe DiscourseActivityPub::Auth::OAuth do
   let!(:domain1) { "external.com" }
-  let!(:redirect_uri) { "#{Discourse.base_url}/#{DiscourseActivityPub::OAuth::REDIRECT_PATH}" }
+  let!(:redirect_uri) { "#{Discourse.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}" }
   let!(:client_id) { "TWhM-tNSuncnqN7DBJmoyeLnk6K3iJJ71KKXxgL1hPM" }
   let!(:client_secret) { "ZEaFUFmF0umgBX1qKJDjaU99Q31lDkOU8NutzTOoliw" }
   let!(:code) { "qDFUEaYrRK5c-HNmTCJbAzazwLRInJ7VHFat0wcMgCU" }
@@ -88,7 +88,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
         path: 'api/v1/apps',
         body: app_request_body
       )
-      DiscourseActivityPub::OAuth.create_app(domain1)
+      DiscourseActivityPub::Auth::OAuth.create_app(domain1)
     end
 
     context "with a successful response" do
@@ -105,7 +105,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
       end
 
       it "saves the response" do
-        DiscourseActivityPub::OAuth.create_app(domain1)
+        DiscourseActivityPub::Auth::OAuth.create_app(domain1)
         expect(
           PluginStoreRow.exists?(
             plugin_name: DiscourseActivityPub::PLUGIN_NAME,
@@ -116,7 +116,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
       end
 
       it "returns a modelled app" do
-        app = DiscourseActivityPub::OAuth.create_app(domain1)
+        app = DiscourseActivityPub::Auth::OAuth.create_app(domain1)
         expect(app&.domain).to eq(domain1)
         expect(app.client_id).to eq(client_id)
         expect(app.client_secret).to eq(client_secret)
@@ -137,7 +137,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
       end
 
       it "does not save the response" do
-        DiscourseActivityPub::OAuth.create_app(domain1)
+        DiscourseActivityPub::Auth::OAuth.create_app(domain1)
         expect(
           PluginStoreRow.exists?(
             plugin_name: DiscourseActivityPub::PLUGIN_NAME,
@@ -148,12 +148,12 @@ RSpec.describe DiscourseActivityPub::OAuth do
 
       it "returns nil" do
         expect(
-          DiscourseActivityPub::OAuth.create_app(domain1)
+          DiscourseActivityPub::Auth::OAuth.create_app(domain1)
         ).to eq(nil)
       end
 
       it "adds returned errors to the instance" do
-        oauth = DiscourseActivityPub::OAuth.new(domain1)
+        oauth = DiscourseActivityPub::Auth::OAuth.new(domain1)
         oauth.create_app
         expect(oauth.errors.full_messages.first).to eq(
           "Validation failed: Redirect URI must be an absolute URI."
@@ -165,7 +165,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
   describe "#get_authorize_url" do
     it "returns nil without an app for the domain" do
       expect(
-        DiscourseActivityPub::OAuth.get_authorize_url(domain1)
+        DiscourseActivityPub::Auth::OAuth.get_authorize_url(domain1)
       ).to eq(nil)
     end
 
@@ -176,7 +176,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
 
       it "returns an authorize url" do
         expect(
-          DiscourseActivityPub::OAuth.get_authorize_url(domain1)
+          DiscourseActivityPub::Auth::OAuth.get_authorize_url(domain1)
         ).to eq(
           # https://docs.joinmastodon.org/methods/oauth/#query-parameters
           "https://external.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=read&force_login=true"
@@ -189,7 +189,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
     context "without an app for the domain" do
       it "returns nil" do
         expect(
-          DiscourseActivityPub::OAuth.get_token(domain1, code)
+          DiscourseActivityPub::Auth::OAuth.get_token(domain1, code)
         ).to eq(nil)
       end
     end
@@ -214,7 +214,7 @@ RSpec.describe DiscourseActivityPub::OAuth do
 
         it "returns an access token" do
           expect(
-            DiscourseActivityPub::OAuth.get_token(domain1, code)
+            DiscourseActivityPub::Auth::OAuth.get_token(domain1, code)
           ).to eq(access_token)
         end
       end
@@ -234,12 +234,12 @@ RSpec.describe DiscourseActivityPub::OAuth do
 
         it "returns nil" do
           expect(
-            DiscourseActivityPub::OAuth.get_token(domain1, code)
+            DiscourseActivityPub::Auth::OAuth.get_token(domain1, code)
           ).to eq(nil)
         end
 
         it "adds errors to the instance" do
-          oauth = DiscourseActivityPub::OAuth.new(domain1)
+          oauth = DiscourseActivityPub::Auth::OAuth.new(domain1)
           oauth.get_token(code)
           expect(
             oauth.errors.full_messages

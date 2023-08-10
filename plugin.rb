@@ -22,8 +22,10 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
-    ../lib/discourse_activity_pub/oauth.rb
-    ../lib/discourse_activity_pub/oauth/app.rb
+    ../lib/discourse_activity_pub/auth.rb
+    ../lib/discourse_activity_pub/auth/oauth.rb
+    ../lib/discourse_activity_pub/auth/oauth/app.rb
+    ../lib/discourse_activity_pub/auth/authorization.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -67,6 +69,9 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
     ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
+    ../app/controllers/discourse_activity_pub/auth_controller.rb
+    ../app/controllers/discourse_activity_pub/auth/authorizations_controller.rb
+    ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -86,6 +91,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
+    ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_guardian_extension.rb
@@ -592,6 +598,30 @@ after_initialize do
   end
   add_to_class(:user, :activity_pub_icon_url) do
     avatar_template_url.gsub("{size}", "96")
+  end
+  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token = ''|
+    tokens = activity_pub_access_tokens
+    tokens[domain] = access_token
+    custom_fields['activity_pub_access_tokens'] = tokens
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_access_tokens) do
+    if custom_fields['activity_pub_access_tokens']
+      JSON.parse(custom_fields['activity_pub_access_tokens'])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_authorizations) do
+    return [] unless activity_pub_access_tokens.is_a?(Hash)
+    activity_pub_access_tokens.map do |key, value|
+      DiscourseActivityPub::Auth::Authorization.new(
+        {
+          domain: key,
+          access_token: value
+        }
+      )
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:all, :validate) do |activity|
