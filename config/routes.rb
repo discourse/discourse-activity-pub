@@ -14,6 +14,7 @@ DiscourseActivityPub::Engine.routes.draw do
   scope module: "auth", path: "auth", defaults: { format: :json } do
     get "authorizations" => "authorizations#index"
     post "oauth" => "o_auth#create"
+    get "authorize" => "o_auth#authorize"
     get "oauth/redirect" => "o_auth#redirect"
   end
 end

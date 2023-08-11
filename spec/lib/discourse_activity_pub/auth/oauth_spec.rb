@@ -12,7 +12,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
     {
       client_name: Discourse.current_hostname,
       redirect_uris: redirect_uri,
-      scopes: 'read',
+      scopes: DiscourseActivityPub::Auth::OAuth::SCOPES,
       website: Discourse.base_url
     }
   }
@@ -42,7 +42,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
       client_id: client_id,
       client_secret: client_secret,
       redirect_uri: redirect_uri,
-      scope: 'read'
+      scope: DiscourseActivityPub::Auth::OAuth::SCOPES
     }
   }
   # https://docs.joinmastodon.org/methods/oauth/#200-ok-1
@@ -50,7 +50,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
     {
       "access_token": access_token,
       "token_type": "Bearer",
-      "scope": "read",
+      "scope": DiscourseActivityPub::Auth::OAuth::SCOPES,
       "created_at": 1573979017
     }
   }
@@ -61,6 +61,22 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
       "error_description": "Client authentication failed due to unknown client, no client authentication included, or unsupported authentication method."
     }
   }
+  # https://docs.joinmastodon.org/methods/accounts/#200-ok-1
+  let!(:account_response_body) {
+    {
+      "id": "14715",
+      "username": "angus",
+      "acct": "angus",
+      "display_name": "Angus McLeod",
+      "url": "https://mastodon.social/@angus"
+    }
+  }
+  # https://docs.joinmastodon.org/methods/accounts/#401-unauthorized-1
+  let!(:account_error_body) {
+    {
+      "error": "The access token is invalid"
+    }
+  }
 
   def build_response(body: {}, status: 200)
     Excon::Response.new(
@@ -69,11 +85,16 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
     )
   end
 
-  def expect_request(domain: '', path: '', body: nil, verb: :post, response: nil)
+  def expect_request(domain: '', path: '', body: nil, verb: :post, response: nil, headers: nil)
     opts = {}
     opts[:body] = body.to_json if body
     opts[:headers] = {}
     opts[:headers]['Content-Type'] = 'application/json' if body
+    if headers
+      headers.each do |k,v|
+        opts[:headers][k] = v
+      end
+    end
 
     Excon
       .expects(:send)
@@ -85,7 +106,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
     it "sends the right request to create an app" do
       expect_request(
         domain: domain1,
-        path: 'api/v1/apps',
+        path: DiscourseActivityPub::Auth::OAuth::APP_PATH,
         body: app_request_body
       )
       DiscourseActivityPub::Auth::OAuth.create_app(domain1)
@@ -95,7 +116,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
       before do
         expect_request(
           domain: domain1,
-          path: 'api/v1/apps',
+          path: DiscourseActivityPub::Auth::OAuth::APP_PATH,
           body: app_request_body,
           response: build_response(
             body: app_response_body,
@@ -108,7 +129,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
         DiscourseActivityPub::Auth::OAuth.create_app(domain1)
         expect(
           PluginStoreRow.exists?(
-            plugin_name: DiscourseActivityPub::PLUGIN_NAME,
+            plugin_name: DiscourseActivityPub::Auth::OAuth::PLUGIN_STORE_KEY,
             key: domain1,
             value: app_response_body.to_json
           )
@@ -127,7 +148,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
       before do
         expect_request(
           domain: domain1,
-          path: 'api/v1/apps',
+          path: DiscourseActivityPub::Auth::OAuth::APP_PATH,
           body: app_request_body,
           response: build_response(
             body: app_error_body,
@@ -171,7 +192,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
 
     context "with an app for the domain" do
       before do
-        PluginStore.set(DiscourseActivityPub::PLUGIN_NAME, domain1, app_response_body)
+        PluginStore.set(DiscourseActivityPub::Auth::OAuth::PLUGIN_STORE_KEY, domain1, app_response_body)
       end
 
       it "returns an authorize url" do
@@ -179,7 +200,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
           DiscourseActivityPub::Auth::OAuth.get_authorize_url(domain1)
         ).to eq(
           # https://docs.joinmastodon.org/methods/oauth/#query-parameters
-          "https://external.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=read&force_login=true"
+          "https://external.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::OAuth::SCOPES)}&force_login=true"
         )
       end
     end
@@ -196,14 +217,14 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
 
     context "with an app for the domain" do
       before do
-        PluginStore.set(DiscourseActivityPub::PLUGIN_NAME, domain1, app_response_body)
+        PluginStore.set(DiscourseActivityPub::Auth::OAuth::PLUGIN_STORE_KEY, domain1, app_response_body)
       end
 
       context "with a successful response" do
         before do
           expect_request(
             domain: domain1,
-            path: 'oauth/token',
+            path: DiscourseActivityPub::Auth::OAuth::TOKEN_PATH,
             body: token_request_body,
             response: build_response(
               body: token_response_body,
@@ -223,7 +244,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
         before do
           expect_request(
             domain: domain1,
-            path: 'oauth/token',
+            path: DiscourseActivityPub::Auth::OAuth::TOKEN_PATH,
             body: token_request_body,
             response: build_response(
               body: token_error_body,
@@ -247,6 +268,58 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
             "Client authentication failed due to unknown client, no client authentication included, or unsupported authentication method."
           )
         end
+      end
+    end
+  end
+
+  describe "#get_actor_id" do
+    context "with a successful account response" do
+      before do
+        expect_request(
+          domain: domain1,
+          path: DiscourseActivityPub::Auth::OAuth::ACCOUNT_PATH,
+          headers: { 'Authorization' => "Bearer #{access_token}" },
+          response: build_response(
+            body: account_response_body,
+            status: 200
+          )
+        )
+      end
+
+      it "returns an actor id" do
+        expect(
+          DiscourseActivityPub::Auth::OAuth.get_actor_id(domain1, access_token)
+        ).to eq("https://#{domain1}/users/#{account_response_body[:username]}")
+      end
+    end
+
+    context "with an error response" do
+      before do
+        expect_request(
+          domain: domain1,
+          path: DiscourseActivityPub::Auth::OAuth::ACCOUNT_PATH,
+          headers: { 'Authorization' => "Bearer #{access_token}" },
+          response: build_response(
+            body: account_error_body,
+            status: 401
+          )
+        )
+      end
+
+      it "returns nil" do
+        expect(
+          DiscourseActivityPub::Auth::OAuth.get_actor_id(domain1, access_token)
+        ).to eq(nil)
+      end
+
+      it "adds errors to the instance" do
+        oauth = DiscourseActivityPub::Auth::OAuth.new(domain1)
+        oauth.get_actor_id(access_token)
+        expect(
+          oauth.errors.full_messages
+        ).to include(
+          "The access token is invalid"
+        )
       end
     end
   end

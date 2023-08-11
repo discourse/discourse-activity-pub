@@ -50,9 +50,9 @@ RSpec.describe DiscourseActivityPub::AuthController do
           end
         end
 
-        it "succeeds" do
+        it "redirects to authorizations" do
           get "/ap/auth"
-          expect(response).to be_successful
+          expect(response).to redirect_to("/ap/auth/authorizations")
         end
       end
     end

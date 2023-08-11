@@ -27,27 +27,46 @@ module DiscourseActivityPub
 
         if authorize_url
           secure_session.set(AUTHORIZE_DOMAIN_KEY, params[:domain], expires: 10.minutes)
-          redirect_to authorize_url
+          redirect_to authorize_url, allow_other_host: true
         else
-          render_oauth_error("invalid_oauth_domain", 404)
+          render_auth_error("invalid_oauth_domain", 404)
         end
       end
 
       def redirect
         params.require(:code)
-        domain = secure_session.get(AUTHORIZE_DOMAIN_KEY)
+        domain = secure_session[AUTHORIZE_DOMAIN_KEY]
 
         raise Discourse::InvalidAccess.new(
-          I18n.t("discourse_activity_pub.oauth.error.oauth_session_expired")
+          I18n.t("discourse_activity_pub.auth.error.oauth_session_expired")
         ) unless domain
 
-        access_token = OAuth.get_token(domain, code)
+        access_token = OAuth.get_token(domain, params[:code])
 
         raise Discourse::InvalidAccess.new(
-          I18n.t("discourse_activity_pub.oauth.error.failed_to_authorize")
-        ) unless domain
+          I18n.t("discourse_activity_pub.auth.error.failed_to_authorize")
+        ) unless access_token
 
         current_user.activity_pub_save_access_token(domain, access_token)
+
+        actor_id = OAuth.get_actor_id(domain, access_token)
+
+        raise Discourse::NotFound.new(
+          I18n.t("discourse_activity_pub.auth.error.failed_to_get_actor")
+        ) unless actor_id
+
+        current_user.activity_pub_save_actor_id(domain, actor_id)
+
+        user = DiscourseActivityPub::UserHandler.find_user_by_stored_actor_id(actor_id)
+
+        if user
+          Jobs.enqueue(
+            :merge_user,
+            user_id: user.id,
+            target_user_id: current_user.id,
+            current_user_id: current_user.id,
+          )
+        end
 
         redirect_to "/u/#{current_user.username}/activity-pub"
       end

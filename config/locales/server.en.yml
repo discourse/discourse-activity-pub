@@ -106,6 +106,7 @@ en:
         invalid_oauth_domain: "Invalid ActivityPub OAuth domain"
         oauth_session_expired: "ActivityPub OAuth session expired"
         failed_to_authorize: "ActivityPub OAuth failed to authorize"
+        failed_to_get_actor: "ActivityPub OAuth failed to get actor"
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."

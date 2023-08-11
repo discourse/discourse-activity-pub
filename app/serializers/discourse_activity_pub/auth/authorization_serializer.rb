@@ -3,7 +3,8 @@
 module DiscourseActivityPub
   module Auth
     class AuthorizationSerializer < ActiveModel::Serializer
-      attributes :domain,
+      attributes :actor_id,
+                 :domain,
                  :access
     end
   end

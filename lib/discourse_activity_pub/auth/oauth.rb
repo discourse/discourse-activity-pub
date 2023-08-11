@@ -10,6 +10,9 @@ module DiscourseActivityPub
       REDIRECT_PATH = "ap/oauth/authorization/redirect"
       APP_PATH = "api/v1/apps"
       TOKEN_PATH = "oauth/token"
+      ACCOUNT_PATH = "api/v1/accounts/verify_credentials"
+      SCOPES = "read:accounts"
+      PLUGIN_STORE_KEY = "#{DiscourseActivityPub::PLUGIN_NAME}-oauth-app"
 
       attr_reader :domain
 
@@ -24,7 +27,7 @@ module DiscourseActivityPub
         response = request(APP_PATH, body: {
           client_name: Discourse.current_hostname,
           redirect_uris: "#{Discourse.base_url}/#{REDIRECT_PATH}",
-          scopes: 'read',
+          scopes: SCOPES,
           website: Discourse.base_url
         })
         return unless response
@@ -46,7 +49,7 @@ module DiscourseActivityPub
           client_id: app.client_id,
           response_type: 'code',
           redirect_uri: "#{Discourse.base_url}/#{REDIRECT_PATH}",
-          scope: 'read',
+          scope: SCOPES,
           force_login: true
         )
         uri.to_s
@@ -62,11 +65,25 @@ module DiscourseActivityPub
           client_id: app.client_id,
           client_secret: app.client_secret,
           redirect_uri: "#{Discourse.base_url}/#{REDIRECT_PATH}",
-          scope: 'read'
+          scope: SCOPES
         })
         return unless response
 
         response.dig(:access_token)
+      end
+
+      def get_actor_id(access_token)
+        account = get_account(access_token)
+        account_to_actor_id(account) if account
+      end
+
+      def get_account(access_token)
+        request(
+          ACCOUNT_PATH,
+          headers: {
+            'Authorization' => "Bearer #{access_token}"
+          }
+        )
       end
 
       def self.create_app(domain)
@@ -81,24 +98,33 @@ module DiscourseActivityPub
         new(domain).get_token(code)
       end
 
+      def self.get_actor_id(domain, access_token)
+        new(domain).get_actor_id(access_token)
+      end
+
       protected
 
       def save_app(response)
-        PluginStore.set(DiscourseActivityPub::PLUGIN_NAME, domain, response)
+        PluginStore.set(PLUGIN_STORE_KEY, domain, response)
       end
 
       def get_app
-        data = PluginStore.get(DiscourseActivityPub::PLUGIN_NAME, domain)
+        data = PluginStore.get(PLUGIN_STORE_KEY, domain)
         data ? App.new(domain, data) : nil
       end
 
-      def request(path, verb: :post, body: nil)
+      def request(path, verb: :post, body: nil, headers: nil)
         url = "https://#{domain}/#{path}"
 
         opts = {}
         opts[:body] = body.to_json if body
         opts[:headers] = {}
         opts[:headers]['Content-Type'] = 'application/json' if body
+        if headers
+          headers.each do |k, v|
+            opts[:headers][k] = v
+          end
+        end
 
         begin
           response = Excon.send(verb, url, opts)
@@ -120,6 +146,12 @@ module DiscourseActivityPub
         end
 
         errors.blank? && body_hash
+      end
+
+      # May support other platforms other than standard Mastodon in the future
+      def account_to_actor_id(account)
+        # Standard Mastodon actor id.
+        "https://#{domain}/users/#{account['username']}"
       end
     end
   end

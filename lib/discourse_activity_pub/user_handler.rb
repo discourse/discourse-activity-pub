@@ -23,18 +23,22 @@ module DiscourseActivityPub
       @actor ||= user&.activity_pub_actor
     end
 
-    def create_user
-      begin
-        @user =
-          User.create!(
-            username: UserNameSuggester.suggest(actor.username.presence || actor.id),
-            name: actor.name,
-            staged: true,
-            skip_email_validation: true
-          )
-      rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => error
-        log_failure("find_or_create", e.message)
-        raise ActiveRecord::Rollback
+    def find_or_create_user
+      @user = self.class.find_user_by_authorized_actor_id(actor.ap_id)
+
+      unless user
+        begin
+          @user =
+            User.create!(
+              username: UserNameSuggester.suggest(actor.username.presence || actor.id),
+              name: actor.name,
+              staged: true,
+              skip_email_validation: true
+            )
+        rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => error
+          log_failure("find_or_create", e.message)
+          raise ActiveRecord::Rollback
+        end
       end
 
       actor.update(model_id: user.id, model_type: 'User')
@@ -65,7 +69,7 @@ module DiscourseActivityPub
       return nil unless validate_actor
 
       ActiveRecord::Base.transaction do
-        create_user unless user
+        find_or_create_user unless user
         update_user
       end
 
@@ -90,6 +94,30 @@ module DiscourseActivityPub
 
     def self.update_or_create_actor(user)
       new(user: user).update_or_create_actor
+    end
+
+    def self.find_user_by_stored_actor_id(actor_id)
+      return nil unless actor_id
+
+      User
+        .joins(:activity_pub_actor)
+        .where("discourse_activity_pub_actors.ap_id = :actor_id",
+          actor_id: actor_id
+        )
+        .first
+    end
+
+    def self.find_user_by_authorized_actor_id(actor_id)
+      return nil unless actor_id
+
+      User
+        .joins(:user_custom_fields)
+        .where("
+          user_custom_fields.name = 'activity_pub_actor_ids' AND
+          user_custom_fields.value::jsonb ? :actor_id",
+          actor_id: actor_id.to_s
+        )
+        .first
     end
 
     protected

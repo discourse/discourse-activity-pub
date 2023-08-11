@@ -6,7 +6,7 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
 
     def index
-      head :ok
+      redirect_to "/ap/auth/authorizations"
     end
 
     protected

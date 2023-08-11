@@ -599,10 +599,18 @@ after_initialize do
   add_to_class(:user, :activity_pub_icon_url) do
     avatar_template_url.gsub("{size}", "96")
   end
-  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token = ''|
+  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
+    return unless domain && access_token
     tokens = activity_pub_access_tokens
     tokens[domain] = access_token
     custom_fields['activity_pub_access_tokens'] = tokens
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_save_actor_id) do |domain, actor_id|
+    return unless domain && actor_id
+    actor_ids = activity_pub_actor_ids
+    actor_ids[actor_id] = domain
+    custom_fields['activity_pub_actor_ids'] = actor_ids
     save_custom_fields(true)
   end
   add_to_class(:user, :activity_pub_access_tokens) do
@@ -612,13 +620,21 @@ after_initialize do
       {}
     end
   end
+  add_to_class(:user, :activity_pub_actor_ids) do
+    if custom_fields['activity_pub_actor_ids']
+      JSON.parse(custom_fields['activity_pub_actor_ids'])
+    else
+      {}
+    end
+  end
   add_to_class(:user, :activity_pub_authorizations) do
-    return [] unless activity_pub_access_tokens.is_a?(Hash)
-    activity_pub_access_tokens.map do |key, value|
+    tokens = activity_pub_access_tokens
+    activity_pub_actor_ids.map do |actor_id, domain|
       DiscourseActivityPub::Auth::Authorization.new(
         {
-          domain: key,
-          access_token: value
+          actor_id: actor_id,
+          domain: domain,
+          access_token: tokens[domain]
         }
       )
     end
