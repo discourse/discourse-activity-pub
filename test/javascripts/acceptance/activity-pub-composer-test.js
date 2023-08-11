@@ -64,11 +64,6 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
       I18n.t("discourse_activity_pub.visibility.label.public"),
       "the status label has the right text"
     );
-    assert.strictEqual(
-      query("#reply-control .activity-pub-status .label").title,
-      I18n.t("discourse_activity_pub.visibility.description.public"),
-      "the status label has the right title"
-    );
   });
 
   test("when the plugin is disabled", async function (assert) {

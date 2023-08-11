@@ -212,11 +212,6 @@ module(
 
       const label = query(".activity-pub-status .label");
       assert.strictEqual(
-        label.title,
-        I18n.t("discourse_activity_pub.visibility.description.public"),
-        "has the right label title"
-      );
-      assert.strictEqual(
         label.innerText.trim(),
         I18n.t("discourse_activity_pub.visibility.label.public"),
         "has the right label text"

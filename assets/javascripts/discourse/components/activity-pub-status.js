@@ -111,8 +111,4 @@ export default class ActivityPubStatus extends Component {
   get translatedLabel() {
     return I18n.t(this.labelKey("label"));
   }
-
-  get translatedLabelTitle() {
-    return I18n.t(this.labelKey("description"));
-  }
 }
