@@ -9,7 +9,7 @@ module DiscourseActivityPub
         end
 
         def can_belong_to
-          %i(remote)
+          %i()
         end
 
         def can_perform_activity
