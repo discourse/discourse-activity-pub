@@ -12,7 +12,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
   has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
 
-  validates :username, presence: true, uniqueness: true, if: :local?
+  validates :username, presence: true
+  validate :local_username_uniqueness, if: :local?
 
   before_save :ensure_keys, if: :local?
   before_save :ensure_inbox_and_outbox, if: :local?
@@ -141,6 +142,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def ensure_inbox_and_outbox
     self.inbox = "#{self.ap_id}/inbox" if !self.inbox
     self.outbox = "#{self.ap_id}/outbox" if !self.outbox
+  end
+
+  def local_username_uniqueness
+    if will_save_change_to_username?
+      existing = DiscourseActivityPubActor
+        .where.not(id: self.id)
+        .where(local: true, username: self.username)
+        .exists?
+      errors.add(:username, "Username taken by local actor") if existing
+    end
   end
 end
 
