@@ -12,7 +12,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
   has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
 
-  validates :username, presence: true
+  validates :username, presence: true, if: :local?
   validate :local_username_uniqueness, if: :local?
 
   before_save :ensure_keys, if: :local?
