@@ -7,11 +7,11 @@ import { module, test } from "qunit";
 import sinon from "sinon";
 
 module(
-  "Discourse Activity Pub | Component | activity-pub-authorize-account",
+  "Discourse Activity Pub | Component | activity-pub-authorize",
   function (hooks) {
     setupRenderingTest(hooks);
 
-    const template = hbs`<ActivityPubAuthorizeAccount />`;
+    const template = hbs`<ActivityPubAuthorize />`;
 
     test("verifies a domain", async function (assert) {
       let domain = "test.com";
@@ -28,22 +28,21 @@ module(
       });
 
       await render(template);
-      await fillIn("#user_activity_pub_authorize_account_domain", domain);
-      await click("#user_activity_pub_authorize_account_verify_domain");
+      await fillIn("#user_activity_pub_authorize_domain", domain);
+      await click("#user_activity_pub_authorize_verify_domain");
 
       assert.strictEqual(requests, 1, "performs one request");
       assert.strictEqual(
-        query(".activity-pub-authorize-account-verified-domain label")
-          .textContent,
+        query(".activity-pub-authorize-verified-domain label").textContent,
         domain,
         "displays the verified domain"
       );
       assert.ok(
-        exists("#user_activity_pub_authorize_account_clear_domain"),
+        exists("#user_activity_pub_authorize_clear_domain"),
         "displays the clear verified domain button"
       );
       assert.ok(
-        exists("#user_activity_pub_authorize_account_authorize_domain"),
+        exists("#user_activity_pub_authorize_authorize_domain"),
         "displays the authorize domain button"
       );
     });
@@ -54,21 +53,21 @@ module(
       });
 
       await render(template);
-      await fillIn("#user_activity_pub_authorize_account_domain", "test.com");
-      await click("#user_activity_pub_authorize_account_verify_domain");
-      await click("#user_activity_pub_authorize_account_clear_domain");
+      await fillIn("#user_activity_pub_authorize_domain", "test.com");
+      await click("#user_activity_pub_authorize_verify_domain");
+      await click("#user_activity_pub_authorize_clear_domain");
 
       assert.ok(
-        exists("#user_activity_pub_authorize_account_domain"),
+        exists("#user_activity_pub_authorize_domain"),
         "displays the domain input"
       );
       assert.strictEqual(
-        query("#user_activity_pub_authorize_account_domain").textContent,
+        query("#user_activity_pub_authorize_domain").textContent,
         "",
         "the domain input is empty"
       );
       assert.ok(
-        exists("#user_activity_pub_authorize_account_verify_domain"),
+        exists("#user_activity_pub_authorize_verify_domain"),
         "displays the verify domain button"
       );
     });
@@ -81,9 +80,9 @@ module(
       const openStub = sinon.stub(window, "open").returns(null);
 
       await render(template);
-      await fillIn("#user_activity_pub_authorize_account_domain", "test.com");
-      await click("#user_activity_pub_authorize_account_verify_domain");
-      await click("#user_activity_pub_authorize_account_authorize_domain");
+      await fillIn("#user_activity_pub_authorize_domain", "test.com");
+      await click("#user_activity_pub_authorize_verify_domain");
+      await click("#user_activity_pub_authorize_authorize_domain");
 
       assert.strictEqual(
         openStub.calledWith("/ap/auth/oauth/authorize", "_self"),

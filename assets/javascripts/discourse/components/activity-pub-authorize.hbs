@@ -1,0 +1,47 @@
+<div class="activity-pub-authorize">
+  <h4>{{i18n "user.discourse_activity_pub.authorize.title"}}</h4>
+  <label class="activity-pub-authorize-description">
+    {{i18n "user.discourse_activity_pub.authorize.description"}}
+  </label>
+  <div class="activity-pub-authorize-controls">
+    {{#if verifiedDomain}}
+      <span class="activity-pub-authorize-verified-domain">
+        <label>{{this.domain}}</label>
+        <DButton
+          @id="user_activity_pub_authorize_clear_domain"
+          @class="activity-pub-authorize-clear-domain"
+          @icon="times"
+          @action={{action "clearDomain"}}
+          @title="user.discourse_activity_pub.clear_domain_button.title"
+        />
+      </span>
+      <DButton
+        @id="user_activity_pub_authorize_authorize_domain"
+        @class="activity-pub-authorize-domain"
+        @icon="fingerprint"
+        @action={{action "authorizeDomain"}}
+        @label="user.discourse_activity_pub.authorize_button.label"
+        @title="user.discourse_activity_pub.authorize_button.title"
+      />
+    {{else}}
+      <Input
+        id="user_activity_pub_authorize_domain"
+        @value={{this.domain}}
+        disabled={{this.verifyingDomain}}
+        placeholder={{i18n "user.discourse_activity_pub.authorize.placeholder"}}
+      />
+      <DButton
+        @id="user_activity_pub_authorize_verify_domain"
+        @class="activity-pub-authorize-verify-domain"
+        @icon="check"
+        @action={{action "verifyDomain"}}
+        @label="user.discourse_activity_pub.verify_domain_button.label"
+        @title="user.discourse_activity_pub.verify_domain_button.title"
+        @disabled={{this.verifyingDomain}}
+      />
+    {{/if}}
+  </div>
+  <span class="control-instructions">
+    {{i18n "user.discourse_activity_pub.authorize.instructions"}}
+  </span>
+</div>

@@ -5,7 +5,7 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import { tracked } from "@glimmer/tracking";
 import getURL from "discourse-common/lib/get-url";
 
-export default class ActivityPubAuthorizeAccount extends Component {
+export default class ActivityPubAuthorize extends Component {
   @tracked domain = null;
   @tracked verifyingDomain = false;
   @tracked verifiedDomain = false;

@@ -73,9 +73,9 @@ en:
     user:
       discourse_activity_pub:
         title: ActivityPub
-        authorize_account:
-          title: Authorize Account
-          description: Authorize an account to associate its activities on this Discourse with your user account.
+        authorize:
+          title: Authorize
+          description: Authorize an account on another domain to associate its activities with your user.
           placeholder: Enter a domain
           instructions: "e.g. mastodon.social"
         clear_domain_button:
@@ -83,9 +83,11 @@ en:
         verify_domain_button:
           label: Verify
           title: Verify the domain where you will authorize an account.
-        authorize_account_button:
+        authorize_button:
           label: Authorize
           title: Authorize an account on the domain.
-        authorized_accounts:
-          title: Authorized Accounts
-          description: Activities attributed to these accounts on this Discourse will be associated with your user account.
+        authorizations:
+          title: Authorizations
+          description: Activities of these accounts will be associated with your user.
+        authorization:
+          confirm_remove: Are you sure you want to remove the authorization for %{actor_id}?

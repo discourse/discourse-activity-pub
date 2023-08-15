@@ -72,6 +72,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
     ../app/controllers/discourse_activity_pub/auth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
+    ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -610,6 +611,14 @@ after_initialize do
     return unless domain && actor_id
     actor_ids = activity_pub_actor_ids
     actor_ids[actor_id] = domain
+    custom_fields['activity_pub_actor_ids'] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_remove_actor_id) do |actor_id|
+    return unless actor_id
+    actor_ids = activity_pub_actor_ids
+    return unless actor_ids[actor_id].present?
+    actor_ids.delete(actor_id)
     custom_fields['activity_pub_actor_ids'] = actor_ids
     save_custom_fields(true)
   end

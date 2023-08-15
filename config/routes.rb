@@ -12,7 +12,8 @@ DiscourseActivityPub::Engine.routes.draw do
 
   get "auth" => "auth#index", defaults: { format: :json }
   scope module: "auth", path: "auth", defaults: { format: :json } do
-    get "authorizations" => "authorizations#index"
+    delete "authorization" => "authorization#destroy"
+
     post "oauth/verify" => "o_auth#verify"
     get "oauth/authorize" => "o_auth#authorize"
     get "oauth/redirect" => "o_auth#redirect"

@@ -11,6 +11,6 @@ export default class PreferencesActivityPubRoute extends RestrictedUserRoute {
     if (!this.site.activity_pub_enabled) {
       return this.router.transitionTo(`discovery.${defaultHomepage()}`);
     }
-    controller.set("model", user);
+    controller.set("authorizations", user.activity_pub_authorizations);
   }
 }

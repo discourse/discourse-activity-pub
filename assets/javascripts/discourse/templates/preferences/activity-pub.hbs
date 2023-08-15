@@ -1,22 +1,18 @@
 <DSection @pageClass="user-preferences-activity-pub" />
 
-<ActivityPubAuthorizeAccount />
+<ActivityPubAuthorize />
 
 {{#if hasAuthorizations}}
-  <div class="activity-pub-authorized-accounts">
-    <h4>{{i18n "user.discourse_activity_pub.authorized_accounts.title"}}</h4>
-    <label>{{i18n "user.discourse_activity_pub.authorized_accounts.description"}}</label>
+  <div class="activity-pub-authorizations">
+    <h4>{{i18n "user.discourse_activity_pub.authorizations.title"}}</h4>
+    <label>{{i18n "user.discourse_activity_pub.authorizations.description"}}</label>
     <ul>
     {{#each authorizations as |authorization|}}
       <li>
-        <a
-          href={{authorization.actor_id}}
-          class="activity-pub-authorized-account"
-          target="_blank"
-          rel="noopener noreferrer">
-          {{d-icon "external-link-alt"}}
-          {{authorization.actor_id}}
-        </a>
+        <ActivityPubAuthorization
+          @authorization={{authorization}}
+          @remove={{action "removeAuthorization"}}
+          />
       </li>
     {{/each}}
     </ul>

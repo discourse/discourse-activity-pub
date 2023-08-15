@@ -2,7 +2,6 @@ import {
   acceptance,
   exists,
   loggedInUser,
-  query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { test } from "qunit";
 import { visit } from "@ember/test-helpers";
@@ -18,26 +17,22 @@ acceptance("Discourse Activity Pub | Preferences", function (needs) {
 
   test("displays account authorization section", async function (assert) {
     await visit(`/u/${loggedInUser().username}/preferences/activity-pub`);
-    assert.ok(exists(".activity-pub-authorize-account"));
+    assert.ok(exists(".activity-pub-authorize"));
   });
 
-  test("displays user's account authorizations", async function (assert) {
+  test("displays account authorizations", async function (assert) {
     await visit(`/u/${loggedInUser().username}/preferences/activity-pub`);
 
-    const first = query(
-      `a.activity-pub-authorized-account[href='https://external1.com/user/1']`
+    assert.ok(exists(".activity-pub-authorizations"));
+    assert.ok(
+      exists(
+        "a.activity-pub-authorization-link[href='https://external1.com/user/1']"
+      )
     );
-    const second = query(
-      `a.activity-pub-authorized-account[href='https://external2.com/user/1']`
-    );
-
-    assert.strictEqual(
-      first.textContent.trim(),
-      "https://external1.com/user/1"
-    );
-    assert.strictEqual(
-      second.textContent.trim(),
-      "https://external2.com/user/1"
+    assert.ok(
+      exists(
+        "a.activity-pub-authorization-link[href='https://external2.com/user/1']"
+      )
     );
   });
 });

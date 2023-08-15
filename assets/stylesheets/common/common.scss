@@ -1,3 +1,5 @@
+@import "common/components/buttons";
+
 .activity-pub-category-settings-title {
   display: flex;
   align-items: center;
@@ -155,22 +157,21 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-authorize-account-controls {
+.activity-pub-authorize-controls {
   display: flex;
   gap: 0.5em;
 }
 
-.activity-pub-authorize-account-verified-domain {
+.activity-pub-authorize-verified-domain {
   display: flex;
 
   label {
-    margin: 0;
-    background-color: var(--primary-low);
-    padding: 0.5em 0.65em;
+    @include btn;
+    cursor: unset;
   }
 }
 
-.activity-pub-authorized-accounts {
+.activity-pub-authorizations {
   margin-top: 1em;
 
   ul {
@@ -178,16 +179,16 @@ body.user-preferences-activity-pub-page {
     margin: 0;
 
     li {
-      margin: 0.5em 0;
+      margin: 1em 0;
     }
   }
 
-  .activity-pub-authorized-account {
-    color: var(--primary);
-    background-color: var(--primary-low);
-    padding: 0.5em 0.65em;
+  .activity-pub-authorization {
     display: inline-flex;
     align-items: center;
-    gap: 0.5em;
+  }
+
+  .activity-pub-authorization-link {
+    @include btn;
   }
 }
