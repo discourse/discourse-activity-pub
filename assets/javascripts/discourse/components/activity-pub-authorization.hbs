@@ -1,11 +1,11 @@
 <div class="activity-pub-authorization">
   <a
-    href={{this.args.authorization.actor_id}}
+    href={{@authorization.actor_id}}
     class="activity-pub-authorization-link"
     target="_blank"
     rel="noopener noreferrer">
     {{d-icon "external-link-alt"}}
-    {{this.args.authorization.actor_id}}
+    {{@authorization.actor_id}}
   </a>
   <DButton
     @id="user_activity_pub_authorize_remove_authorization"
