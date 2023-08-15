@@ -4,7 +4,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
   let!(:user) { Fabricate(:user) }
   let!(:domain1) { "https://external1.com" }
   let!(:domain2) { "https://external2.com" }
-  let!(:redirect_uri) { "#{Discourse.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}" }
+  let!(:redirect_uri) { "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}" }
   let!(:client_id) { "TWhM-tNSuncnqN7DBJmoyeLnk6K3iJJ71KKXxgL1hPM" }
   let!(:client_secret) { "ZEaFUFmF0umgBX1qKJDjaU99Q31lDkOU8NutzTOoliw" }
   let!(:access_token1) { "ZA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
@@ -34,10 +34,10 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AuthController }
 
-  describe "#create" do
+  describe "#verify" do
     context "without a domain param" do
       it "returns a missing param error" do
-        post "/ap/auth/oauth"
+        post "/ap/auth/oauth/verify"
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"].first).to include(
           "param is missing or the value is empty: domain",
@@ -53,9 +53,16 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
         end
 
         it "creates an app and returns the domain" do
-          post "/ap/auth/oauth", params: { domain: domain1 }
+          post "/ap/auth/oauth/verify", params: { domain: domain1 }
           expect(response.status).to eq(200)
           expect(response.parsed_body['domain']).to eq(domain1)
+        end
+
+        it "sets the domain as the verified domain in the session" do
+          post "/ap/auth/oauth/verify", params: { domain: domain1 }
+          expect(
+            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY]
+          ).to eq(domain1)
         end
       end
 
@@ -68,41 +75,45 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
         end
 
         it "does not create an app and returns the error" do
-          post "/ap/auth/oauth", params: { domain: domain2 }
+          post "/ap/auth/oauth/verify", params: { domain: domain2 }
           expect(response.status).to eq(422)
           expect(response.parsed_body['errors'].first).to eq("Not a valid domain")
+        end
+
+        it "does not set the domain as the verified domain in the session" do
+          get "/ap/auth/oauth/authorize", params: { domain: domain1 }
+          expect(
+            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY]
+          ).to eq(nil)
         end
       end
     end
   end
 
   describe "#authorize" do
-    context "without a domain param" do
-      it "returns a missing param error" do
-        get "/ap/auth/authorize"
-        expect(response.status).to eq(400)
-        expect(response.parsed_body["errors"].first).to include(
-          "param is missing or the value is empty: domain",
-        )
+    context "without a verified domain in the session" do
+      it "raises an invalid access error" do
+        get "/ap/auth/oauth/authorize"
+        expect(response.status).to eq(403)
       end
     end
 
-    context "with a domain param" do
+    context "with a verified domain in the session" do
+      before do
+        write_secure_session(
+          DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY,
+          domain1
+        )
+      end
+
       context "when domain has an app" do
         before do
           app = DiscourseActivityPub::Auth::OAuth::App.new(domain1, app_json)
           DiscourseActivityPub::Auth::OAuth.any_instance.stubs(:get_app).returns(app)
         end
 
-        it "sets the domain as the authorize domain in the session" do
-          get "/ap/auth/authorize", params: { domain: domain1 }
-          expect(
-            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY]
-          ).to eq(domain1)
-        end
-
         it "redirects to the authorize url for the app" do
-          get "/ap/auth/authorize", params: { domain: domain1 }
+          get "/ap/auth/oauth/authorize"
           expect(response).to redirect_to(
             DiscourseActivityPub::Auth::OAuth.get_authorize_url(domain1)
           )
@@ -115,7 +126,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
         end
 
         it "does not redirect and returns an error" do
-          get "/ap/auth/authorize", params: { domain: domain1 }
+          get "/ap/auth/oauth/authorize"
           expect(response.status).to eq(404)
           expect(response.parsed_body['errors'].first).to eq(
             I18n.t("discourse_activity_pub.auth.error.invalid_oauth_domain")
@@ -126,29 +137,29 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
   end
 
   describe "#redirect" do
-    context "without a code param" do
-      it "returns a missing param error" do
-        get "/ap/auth/oauth/redirect"
-        expect(response.status).to eq(400)
-        expect(response.parsed_body["errors"].first).to include(
-          "param is missing or the value is empty: code",
-        )
-      end
-    end
-
-    context "without an authorize domain in the session" do
+    context "without an verified domain in the session" do
       it "raises an invalid access error" do
         get "/ap/auth/oauth/redirect", params: { code: code }
         expect(response.status).to eq(403)
       end
     end
 
-    context "with an authorize domain in the session" do
+    context "with an verified domain in the session" do
       before do
         write_secure_session(
           DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY,
           domain1
         )
+      end
+
+      context "without a code param" do
+        it "returns a missing param error" do
+          get "/ap/auth/oauth/redirect"
+          expect(response.status).to eq(400)
+          expect(response.parsed_body["errors"].first).to include(
+            "param is missing or the value is empty: code",
+          )
+        end
       end
 
       context "with an unsuccessful request for an access token for the domain" do
@@ -208,7 +219,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
 
           it "redirects to the current user's activity pub settings" do
             get "/ap/auth/oauth/redirect", params: { code: code }
-            expect(response).to redirect_to("/u/#{user.username}/activity-pub")
+            expect(response).to redirect_to("/u/#{user.username}/preferences/activity-pub")
           end
         end
 

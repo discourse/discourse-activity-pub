@@ -2,7 +2,7 @@
 
 RSpec.describe DiscourseActivityPub::Auth::OAuth do
   let!(:domain1) { "external.com" }
-  let!(:redirect_uri) { "#{Discourse.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}" }
+  let!(:redirect_uri) { "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}" }
   let!(:client_id) { "TWhM-tNSuncnqN7DBJmoyeLnk6K3iJJ71KKXxgL1hPM" }
   let!(:client_secret) { "ZEaFUFmF0umgBX1qKJDjaU99Q31lDkOU8NutzTOoliw" }
   let!(:code) { "qDFUEaYrRK5c-HNmTCJbAzazwLRInJ7VHFat0wcMgCU" }
@@ -10,10 +10,10 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
   # https://docs.joinmastodon.org/methods/apps/#form-data-parameters
   let!(:app_request_body) {
     {
-      client_name: Discourse.current_hostname,
+      client_name: DiscourseActivityPub.host,
       redirect_uris: redirect_uri,
       scopes: DiscourseActivityPub::Auth::OAuth::SCOPES,
-      website: Discourse.base_url
+      website: DiscourseActivityPub.base_url
     }
   }
   # https://docs.joinmastodon.org/methods/apps/#200-ok
@@ -277,6 +277,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
       before do
         expect_request(
           domain: domain1,
+          verb: :get,
           path: DiscourseActivityPub::Auth::OAuth::ACCOUNT_PATH,
           headers: { 'Authorization' => "Bearer #{access_token}" },
           response: build_response(
@@ -297,6 +298,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuth do
       before do
         expect_request(
           domain: domain1,
+          verb: :get,
           path: DiscourseActivityPub::Auth::OAuth::ACCOUNT_PATH,
           headers: { 'Authorization' => "Bearer #{access_token}" },
           response: build_response(

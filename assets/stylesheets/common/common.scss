@@ -148,3 +148,46 @@
     gap: 0.5em;
   }
 }
+
+body.user-preferences-activity-pub-page {
+  .form-vertical {
+    width: 100%;
+  }
+}
+
+.activity-pub-authorize-account-controls {
+  display: flex;
+  gap: 0.5em;
+}
+
+.activity-pub-authorize-account-verified-domain {
+  display: flex;
+
+  label {
+    margin: 0;
+    background-color: var(--primary-low);
+    padding: 0.5em 0.65em;
+  }
+}
+
+.activity-pub-authorized-accounts {
+  margin-top: 1em;
+
+  ul {
+    list-style: none;
+    margin: 0;
+
+    li {
+      margin: 0.5em 0;
+    }
+  }
+
+  .activity-pub-authorized-account {
+    color: var(--primary);
+    background-color: var(--primary-low);
+    padding: 0.5em 0.65em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+}

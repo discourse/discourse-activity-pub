@@ -7,7 +7,7 @@ module DiscourseActivityPub
       include JsonLd
       include HasErrors
 
-      REDIRECT_PATH = "ap/oauth/authorization/redirect"
+      REDIRECT_PATH = "ap/auth/oauth/redirect"
       APP_PATH = "api/v1/apps"
       TOKEN_PATH = "oauth/token"
       ACCOUNT_PATH = "api/v1/accounts/verify_credentials"
@@ -25,10 +25,10 @@ module DiscourseActivityPub
         return app if app
 
         response = request(APP_PATH, body: {
-          client_name: Discourse.current_hostname,
-          redirect_uris: "#{Discourse.base_url}/#{REDIRECT_PATH}",
+          client_name: DiscourseActivityPub.host,
+          redirect_uris: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
           scopes: SCOPES,
-          website: Discourse.base_url
+          website: DiscourseActivityPub.base_url
         })
         return unless response
 
@@ -48,7 +48,7 @@ module DiscourseActivityPub
         uri.query = ::URI.encode_www_form(
           client_id: app.client_id,
           response_type: 'code',
-          redirect_uri: "#{Discourse.base_url}/#{REDIRECT_PATH}",
+          redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
           scope: SCOPES,
           force_login: true
         )
@@ -64,7 +64,7 @@ module DiscourseActivityPub
           code: code,
           client_id: app.client_id,
           client_secret: app.client_secret,
-          redirect_uri: "#{Discourse.base_url}/#{REDIRECT_PATH}",
+          redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
           scope: SCOPES
         })
         return unless response
@@ -80,6 +80,7 @@ module DiscourseActivityPub
       def get_account(access_token)
         request(
           ACCOUNT_PATH,
+          verb: :get,
           headers: {
             'Authorization' => "Bearer #{access_token}"
           }

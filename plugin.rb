@@ -7,6 +7,7 @@
 
 register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
+register_svg_icon "fingerprint"
 
 after_initialize do
   %w[
@@ -70,7 +71,6 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
     ../app/controllers/discourse_activity_pub/auth_controller.rb
-    ../app/controllers/discourse_activity_pub/auth/authorizations_controller.rb
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
@@ -640,6 +640,12 @@ after_initialize do
     end
   end
 
+  add_to_serializer(:user, :activity_pub_authorizations) do
+    object.activity_pub_authorizations.map do |authorization|
+      DiscourseActivityPub::Auth::AuthorizationSerializer.new(authorization, root: false).as_json
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:all, :validate) do |activity|
     if activity.composition?
       post = activity.create? ?
@@ -772,5 +778,15 @@ after_initialize do
       object: response.stored,
       recipients: activity.object.stored.followers
     )
+  end
+
+  Discourse::Application.routes.prepend do
+    mount DiscourseActivityPub::Engine, at: "ap"
+
+    get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+    get "u/:username/preferences/activity-pub" => "users#preferences",
+        :constraints => {
+          username: RouteFormat.username,
+        }
   end
 end
