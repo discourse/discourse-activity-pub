@@ -114,6 +114,7 @@
   display: flex;
   align-items: center;
   gap: 0.3em;
+  cursor: pointer;
 
   .d-icon {
     color: var(--primary-medium);
@@ -126,8 +127,24 @@
   &.deleted .d-icon-discourse-activity-pub {
     color: var(--danger);
   }
+  &.published-remote .d-icon-discourse-activity-pub {
+    color: var(--tertiary);
+  }
 
   .activity-pub-visibility .d-icon {
     font-size: 0.85em;
+  }
+}
+
+.activity-pub-post-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+
+  span,
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
   }
 }

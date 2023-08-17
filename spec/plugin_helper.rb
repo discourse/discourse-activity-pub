@@ -4,9 +4,10 @@ RSpec.configure do |config|
   config.include DiscourseActivityPub::JsonLd
 end
 
-def toggle_activity_pub(category, callbacks: false, disable: false, username: nil)
+def toggle_activity_pub(category, callbacks: false, disable: false, username: nil, publication_type: nil)
   category.custom_fields['activity_pub_enabled'] = !disable
   category.custom_fields['activity_pub_username'] = username || category.slug
+  category.custom_fields['activity_pub_publication_type'] = publication_type if publication_type
 
   if callbacks
     category.save!
@@ -61,13 +62,33 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_activity_json(actor: nil, object: nil, type: 'Follow')
+def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil)
+  _json = {
+    '@context': 'https://www.w3.org/ns/activitystreams',
+    id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
+    type: type,
+    content: content,
+    inReplyTo: in_reply_to,
+    published: published || Time.now.iso8601
+  }
+  _json[:url] = url if url
+  _json
+end
+
+def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil)
   {
     '@context': 'https://www.w3.org/ns/activitystreams',
-    id: "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
+    id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     actor: actor ? actor.ap.json : build_actor_json,
-    object: object ? object.ap_id : DiscourseActivityPub::JsonLd.json_ld_id('Actor', SecureRandom.hex(16))
+    object: if object&.respond_to?(:ap)
+        object.ap.json
+      elsif object.present?
+        object
+      else
+        build_object_json
+      end,
+    published: published || Time.now.iso8601
   }.with_indifferent_access
 end
 
@@ -75,4 +96,10 @@ def build_process_warning(key, object_id)
   action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: object_id)
   message = I18n.t("discourse_activity_pub.process.warning.#{key}")
   "[Discourse Activity Pub] #{action}: #{message}"
+end
+
+def perform_process(json)
+  klass = described_class.new
+  klass.json = json
+  klass.process
 end

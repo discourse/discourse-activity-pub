@@ -28,6 +28,7 @@ module DiscourseActivityPub
           create_activity_pub_activity
         end
 
+        activity_pub_deliver_activity
         perform_activity_pub_activity_cleanup
       end
 
@@ -39,6 +40,9 @@ module DiscourseActivityPub
         # We don't permit updates if object has been deleted.
         return false if self.activity_pub_deleted? && performing_activity.update?
 
+        # Can't have an activity without an actor.
+        return false unless self.activity_pub_actor
+
         true
       end
 
@@ -49,7 +53,16 @@ module DiscourseActivityPub
         when :update, :delete
           self.activity_pub_object
         when :create
-          self.build_activity_pub_object(local: true)
+          attrs = {
+            local: true
+          }
+          if self.activity_pub_reply_to_object
+            attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
+          end
+          if self.activity_pub_full_topic
+            attrs[:collection_id] = self.topic.activity_pub_object.id
+          end
+          self.build_activity_pub_object(attrs)
         else
           nil
         end
@@ -85,7 +98,40 @@ module DiscourseActivityPub
           activity_attrs.merge(published_at: nil)
         )
 
-        DiscourseActivityPubActivity.create!(activity_attrs)
+        @performing_activity.stored =
+          DiscourseActivityPubActivity.create!(activity_attrs)
+      end
+
+      def activity_pub_deliver_activity
+        return if !performing_activity.stored
+
+        if topic.activity_pub_full_topic && !topic.activity_pub_published? && !is_first_post?
+          return activity_pub_after_scheduled(
+            scheduled_at: topic.first_post.activity_pub_scheduled_at
+          )
+        end
+
+        delivery_actor = performing_activity.create? ?
+          self.topic.activity_pub_actor :
+          self.activity_pub_actor
+        delivery_recipients = self.topic.activity_pub_actor.followers
+        delivery_object = performing_activity.stored
+        delivery_delay = nil
+
+        if !self.topic.activity_pub_published?
+          delivery_delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+
+          if self.activity_pub_full_topic
+            delivery_object = self.topic.activity_pub_activities_collection
+          end
+        end
+
+        DiscourseActivityPub::DeliveryHandler.perform(
+          actor: delivery_actor,
+          object: delivery_object,
+          recipients: delivery_recipients,
+          delay: delivery_delay
+        )
       end
 
       def perform_activity_pub_activity_cleanup

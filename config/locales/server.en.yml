@@ -10,13 +10,15 @@ en:
           attributes:
             ap_type:
               invalid: "is not valid"
-            object_type:
-              invalid: "is not valid"
-            object_id:
-              invalid: "is not valid"
         discourse_activity_pub_object:
           attributes:
             ap_type:
+              invalid: "is not valid"
+            object_type:
+              invalid: "is not valid"
+        discourse_activity_pub:
+          attributes:
+            model_type:
               invalid: "is not valid"
   category:
     discourse_activity_pub:
@@ -24,6 +26,7 @@ en:
         enable_without_username: An ActivityPub username is required to enable ActivityPub.
         no_change_when_set: An ActivityPub username can't be changed once set.
         username_taken: "That username is already taken on this server."
+        full_topic_must_be_public: "Full topic publication requires public publication."
 
   post:
     discourse_activity_pub:
@@ -63,12 +66,25 @@ en:
       warning:
         failed_to_process: "Failed to process %{object_id}"
         cant_resolve_actor: "Could not resolve actor"
+        cant_resolve_object: "Could not resolve object"
         actor_not_supported: "Actor is not supported"
         cant_create_actor: "Could not create actor"
         cant_find_object: "Could not find object"
         object_not_ready: "Object is not ready"
         activity_not_supported: "Activity is not supported for actor and object"
+        activity_not_valid: "Activity is not valid"
+        invalid_create_actor: "Actor cannot create posts"
+        not_a_reply: "Cannot create an object that is not inReplyTo a Post"
+        cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
+        undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
+        activity_host_must_match_object_host: "Activity host must match Object host"
+        cant_find_post: "Can't find post"
+        post_is_deleted: "Post is deleted"
+        full_topic_not_enabled: "Full topic is not enabled"
     activity:
+      create:
+        failed_to_create_user: "Failed to create user for %{actor_id}"
+        failed_to_create_post: "%{user_id} failed to create post for %{object_id}"
       reject:
         actor_already_following: "Actor is already following that object"
     webfinger:
@@ -79,7 +95,11 @@ en:
     object:
       note:
         link_to_forum: Discuss this on our forum.
-
+    actor:
+      followers:
+        summary: "%{actor}'s followers"
+      outbox:
+        summary: "%{actor}'s activities"
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."

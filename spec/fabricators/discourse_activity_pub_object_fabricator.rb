@@ -2,6 +2,12 @@
 
 Fabricator(:discourse_activity_pub_object) do
   ap_type { "Object" }
+
+  before_create do |object|
+    if !object.local && !object.ap_id
+      object.ap_id = "https://external.com/object/#{ap_type.downcase}/#{SecureRandom.hex(8)}"
+    end
+  end
 end
 
 Fabricator(:discourse_activity_pub_object_note, from: :discourse_activity_pub_object) do
@@ -12,8 +18,10 @@ Fabricator(:discourse_activity_pub_object_note, from: :discourse_activity_pub_ob
   after_create do |object|
     if object.model.respond_to?(:activity_pub_content)
       object.content = object.model.activity_pub_content
-      object.save!
+    else
+      object.content = "I'm a note without a post"
     end
+    object.save!
   end
 end
 

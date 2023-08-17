@@ -58,7 +58,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def render_ordered_collection(stored, collection_for)
-    collection = DiscourseActivityPub::AP::Collection::OrderedCollection.new(stored: stored, collection_for: collection_for)
+    collection = DiscourseActivityPub::AP::Collection::OrderedCollection.new(stored: stored.send("#{collection_for}_collection"))
     render json: DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(collection, root: false).as_json
   end
 end

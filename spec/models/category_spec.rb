@@ -4,8 +4,6 @@ RSpec.describe Category do
   let(:category) { Fabricate(:category) }
 
   it { is_expected.to have_one(:activity_pub_actor).dependent(:destroy) }
-  it { is_expected.to have_many(:activity_pub_followers).dependent(:destroy) }
-  it { is_expected.to have_many(:activity_pub_activities).dependent(:destroy) }
 
   describe "#activity_pub_ready?" do
     context "with category activity pub enabled" do

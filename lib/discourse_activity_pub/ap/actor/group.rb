@@ -18,7 +18,8 @@ module DiscourseActivityPub
             reject: [:follow],
             create: [:note, :article],
             delete: [:note, :article],
-            update: [:note, :article]
+            update: [:note, :article],
+            announce: [:create, :update, :delete, :ordered_collection]
           }
         end
       end

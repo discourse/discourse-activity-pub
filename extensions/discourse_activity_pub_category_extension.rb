@@ -25,6 +25,10 @@ module DiscourseActivityPubCategoryExtension
       end
     end
 
+    if @custom_fields["activity_pub_publication_type"] == "full_topic" && @custom_fields["activity_pub_default_visibility"] == "private"
+      self.errors.add(:activity_pub_default_visibility, I18n.t("category.discourse_activity_pub.error.full_topic_must_be_public"))
+    end
+
     raise ActiveRecord::Rollback if self.errors.any?
 
     if custom_field_changed("activity_pub_enabled")

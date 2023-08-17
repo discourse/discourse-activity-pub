@@ -12,12 +12,12 @@ module DiscourseActivityPub
           stored&.content
         end
 
-        def updated
-          stored&.updated_at.iso8601
+        def in_reply_to
+          stored&.reply_to_id
         end
 
         def can_belong_to
-          %i(post)
+          %i(post remote)
         end
       end
     end

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer < DiscourseActivityPub::AP::CollectionSerializer
-  attributes :ordered_items
+  attributes :orderedItems
 
-  def ordered_items
+  def orderedItems
     object.ordered_items.map(&:json)
   end
 

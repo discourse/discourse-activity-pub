@@ -29,7 +29,7 @@ module DiscourseActivityPub
       end
 
       def icon_url
-        stored&.logo_url
+        stored&.icon_url
       end
 
       def icon_media_type
@@ -44,10 +44,8 @@ module DiscourseActivityPub
         {}
       end
 
-      def changeable_attributes
-        {
-          name: 'name'
-        }
+      def person?
+        type == Person.type
       end
 
       def public_key
@@ -71,19 +69,20 @@ module DiscourseActivityPub
             stored.ap_id = json[:id]
           end
 
-          unless stored
+          if !stored
             @stored = DiscourseActivityPubActor.new(
               ap_id: json[:id],
               ap_type: json[:type],
               domain: domain_from_id(json[:id]),
               username: json[:preferredUsername],
               inbox: json[:inbox],
-              outbox: json[:outbox]
+              outbox: json[:outbox],
+              name: json[:name],
+              icon_url: resolve_icon_url(json[:icon])
             )
-          end
-
-          changeable_attributes.each do |column, attribute|
-            stored.send("#{column}=", json[attribute]) if json[attribute].present?
+          else
+            stored.name = json[:name] if json[:name].present?
+            stored.icon_url = resolve_icon_url(json[:icon]) if json[:icon].present?
           end
 
           if json['publicKey'].is_a?(Hash) && json['publicKey']['owner'] == stored.ap_id
@@ -112,17 +111,6 @@ module DiscourseActivityPub
         ap_actor.update_stored_from_json(stored ? actor_id : nil)
 
         ap_actor
-      end
-
-      protected
-
-      def log_stored_save_error(error, json)
-        return unless SiteSetting.activity_pub_verbose_logging
-
-        prefix = "[Discourse Activity Pub] update_stored_from_json failed to save actor"
-        ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
-        json = "Actor JSON: #{JSON.generate(json)}"
-        Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
       end
     end
   end

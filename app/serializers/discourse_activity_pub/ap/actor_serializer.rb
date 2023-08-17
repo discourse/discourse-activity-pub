@@ -47,6 +47,6 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
   end
 
   def include_name?
-    object.stored.local?
+    object.stored.local? && object.name.present?
   end
 end

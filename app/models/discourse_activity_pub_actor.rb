@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 class DiscourseActivityPubActor < ActiveRecord::Base
+  include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
   include DiscourseActivityPub::WebfingerActorAttributes
 
@@ -11,7 +12,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
   has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
 
-  validates :username, presence: true, uniqueness: true, if: :local?
+  validates :username, presence: true, if: :local?
+  validate :local_username_uniqueness, if: :local?
 
   before_save :ensure_keys, if: :local?
   before_save :ensure_inbox_and_outbox, if: :local?
@@ -42,9 +44,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)
     return false unless ap && activity_ap_type
 
-    activities = ap.can_perform_activity[activity_ap_type.downcase.to_sym]
+    activities = ap.can_perform_activity[activity_ap_type.underscore.to_sym]
     activities.present? && (
-      object_ap_type.nil? || activities.include?(object_ap_type.downcase.to_sym)
+      object_ap_type.nil? || activities.include?(object_ap_type.underscore.to_sym)
     )
   end
 
@@ -52,8 +54,42 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     local? && model&.activity_pub_url
   end
 
-  def logo_url
-    local? && model&.activity_pub_logo_url
+  def icon_url
+    if local?
+      model.activity_pub_icon_url
+    else
+      self.read_attribute(:icon_url)
+    end
+  end
+
+  def followers_collection
+    @followers_collection ||= begin
+      collection = DiscourseActivityPubCollection.new(
+        ap_id: "#{self.ap_id}#followers",
+        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+        created_at: self.created_at,
+        updated_at: self.updated_at,
+        summary: I18n.t("discourse_activity_pub.actor.followers.summary", actor: username)
+      )
+      collection.items = followers
+      collection.context = :followers
+      collection
+    end
+  end
+
+  def outbox_collection
+    @outbox_collection ||= begin
+      collection = DiscourseActivityPubCollection.new(
+        ap_id: "#{self.ap_id}#activities",
+        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+        created_at: self.created_at,
+        updated_at: self.updated_at,
+        summary: I18n.t("discourse_activity_pub.actor.outbox.summary", actor: username)
+      )
+      collection.items = activities
+      collection.context = :outbox
+      collection
+    end
   end
 
   def self.ensure_for(model)
@@ -107,6 +143,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     self.inbox = "#{self.ap_id}/inbox" if !self.inbox
     self.outbox = "#{self.ap_id}/outbox" if !self.outbox
   end
+
+  def local_username_uniqueness
+    if will_save_change_to_username?
+      existing = DiscourseActivityPubActor
+        .where.not(id: self.id)
+        .where(local: true, username: self.username)
+        .exists?
+      errors.add(:username, "Username taken by local actor") if existing
+    end
+  end
 end
 
 # == Schema Information
@@ -130,6 +176,7 @@ end
 #  public_key  :text
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  icon_url    :string
 #
 # Indexes
 #

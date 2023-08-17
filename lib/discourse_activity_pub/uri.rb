@@ -18,9 +18,13 @@ module DiscourseActivityPub
     end
 
     def self.domain_from_uri(uri)
-      uri && Addressable::URI.parse(uri).domain
+      uri && Addressable::URI.parse(uri).host
     rescue Addressable::URI::InvalidURIError
       nil
+    end
+
+    def self.matching_hosts?(uri1, uri2)
+      domain_from_uri(uri1) == domain_from_uri(uri2)
     end
 
     def self.local?(uri)

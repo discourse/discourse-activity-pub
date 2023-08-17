@@ -68,6 +68,7 @@
   <ActivityPubVisibilityDropdown
     @value={{this.category.custom_fields.activity_pub_default_visibility}}
     @onChange={{action (mut this.category.custom_fields.activity_pub_default_visibility)}}
+    @publicationType={{this.category.custom_fields.activity_pub_publication_type}}
   />
   <div class="activity-pub-setting-description">
     {{i18n 'category.discourse_activity_pub.default_visibility_description'}}
@@ -82,5 +83,16 @@
   />
   <div class="activity-pub-setting-description">
     {{i18n 'category.discourse_activity_pub.post_object_type_description'}}
+  </div>
+</section>
+
+<section class='field activity-pub-setting activity-pub-publication-type'>
+  <label for="activity-pub-post-object-type">{{i18n 'category.discourse_activity_pub.publication_type'}}</label>
+  <ActivityPubPublicationTypeDropdown
+    @value={{this.category.custom_fields.activity_pub_publication_type}}
+    @onChange={{action (mut this.category.custom_fields.activity_pub_publication_type)}}
+  />
+  <div class="activity-pub-setting-description">
+    {{i18n 'category.discourse_activity_pub.publication_type_description'}}
   </div>
 </section>

@@ -1,13 +1,30 @@
 # frozen_string_literal: true
 class DiscourseActivityPubActivity < ActiveRecord::Base
-  include DiscourseActivityPub::AP::ActivityValidations
+  include DiscourseActivityPub::AP::IdentifierValidations
+  include DiscourseActivityPub::AP::ObjectValidations
 
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
   belongs_to :object, polymorphic: true
 
-  after_create :deliver_composition, if: Proc.new { ap&.composition? }
+  has_one :parent, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_one :announcement, -> {
+    where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
+  }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
 
-  attr_accessor :to
+  validates :actor_id, presence: true
+  validate :validate_ap_type,
+           if: Proc.new { |a| a.will_save_change_to_ap_type? || a.will_save_change_to_object_type? }
+
+  def ready?
+    case object_type
+    when "DiscourseActivityPubActivity"
+      object&.ready?
+    when "DiscourseActivityPubObject"
+      object&.ready?(ap_type)
+    when "DiscourseActivityPubActor"
+      object&.ready?
+    end
+  end
 
   def self.visibilities
     @visibilities ||= Enum.new(private: 1, public: 2)
@@ -25,87 +42,58 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     visibility === DiscourseActivityPubActivity.visibilities[:private]
   end
 
-  def ready?
-    case object_type
-    when "DiscourseActivityPubActivity"
-      object.ready?
-    when "DiscourseActivityPubObject"
-      object.ready?(ap_type)
-    when "DiscourseActivityPubActor"
-      object.ready?
-    end
-  end
-
-  def address!(to_actor)
-    addressed_to = public? ? public_collection_id : to_actor.ap_id
-    @to = addressed_to
-    object.to = addressed_to if public?
-  end
-
-  def deliver_composition
-    return unless ap&.composition?
-
-    actor.followers.each do |follower|
-      opts = {
-        to_actor_id: follower.id
-      }
-
-      if ap.create? || ap.update?
-        opts[:delay] = SiteSetting.activity_pub_delivery_delay_minutes.to_i
-      end
-
-      deliver(**opts)
-    end
-  end
-
-  def deliver(to_actor_id: nil, delay: nil)
-    return unless to_actor_id
-
-    args = {
-      activity_id: self.id,
-      from_actor_id: actor.id,
-      to_actor_id: to_actor_id
-    }
-
-    Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
-
-    if delay
-      Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
-      scheduled_at = (Time.now.utc + delay.minutes).iso8601
+  def to
+    if public?
+      public_collection_id
     else
-      Jobs.enqueue(:discourse_activity_pub_deliver, args)
-      scheduled_at = Time.now.utc.iso8601
+      primary_actor.followers_collection.ap_id
     end
-
-    after_scheduled(scheduled_at)
   end
 
-  def after_scheduled(scheduled_at)
-    if self.object&.respond_to?(:model) && self.object.model&.respond_to?(:activity_pub_after_scheduled)
-      args = {
-        scheduled_at: scheduled_at
-      }
-      if ap.create?
-        args[:published_at] = nil
-        args[:deleted_at] = nil
-        args[:updated_at] = nil
-      end
-      self.object.model.activity_pub_after_scheduled(args)
+  def primary_actor
+    if parent && parent.parent && parent.parent.ap.activity?
+      parent.parent.actor
+    elsif parent && parent.ap.activity?
+      parent.actor
+    else
+      actor
     end
+  end
+
+  def announce!(actor_id)
+    DiscourseActivityPubActivity.create!(
+      local: true,
+      actor_id: actor_id,
+      object_id: self.id,
+      object_type: self.class.name,
+      ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
+      visibility: DiscourseActivityPubActivity.visibilities[:public]
+    )
   end
 
   def after_deliver
-    if !self.published_at
-      published_at = Time.now.utc.iso8601
-      self.update(published_at: published_at)
+    after_published(Time.now.utc.iso8601, self)
+  end
 
-      if self.object.local && self.object.model&.respond_to?(:activity_pub_after_publish)
-        args = {}
-        args[:published_at] = published_at if ap.create?
-        args[:deleted_at] = published_at if ap.delete?
-        args[:updated_at] = published_at if ap.update?
-        self.object.model.activity_pub_after_publish(args)
-      end
+  def after_scheduled(scheduled_at, _activity = nil)
+    object.after_scheduled(scheduled_at, self) if object.respond_to?(:after_scheduled)
+  end
+
+  def after_published(published_at, _activity = nil)
+    self.update(published_at: published_at) if !self.published_at
+    object.after_published(published_at, self) if object.respond_to?(:after_published)
+  end
+
+  protected
+
+  def validate_ap_type
+    return unless actor
+    object_ap_type = object&.respond_to?(:ap_type) ? object.ap_type : nil
+    unless actor.can_perform_activity?(ap_type, object_ap_type)
+      self.errors.add(
+        :ap_type,
+        I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
+      )
     end
   end
 end

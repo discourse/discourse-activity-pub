@@ -10,7 +10,7 @@ RSpec.describe DiscourseActivityPub::AP::Collection::OrderedCollection do
 
   describe "#ordered_items" do
     it "returns items ordered in reverse chronological order" do
-      expect(described_class.new(stored: actor, collection_for: "outbox").ordered_items.map(&:id)).to match_array(
+      expect(described_class.new(stored: actor.outbox_collection).ordered_items.map(&:id)).to match_array(
         [activity3.ap.id, activity1.ap.id, activity2.ap.id]
       )
     end

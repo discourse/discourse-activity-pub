@@ -81,7 +81,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
               object_id: @activity.id
             )
             args = {
-              activity_id: response_activity.id,
+              object_id: response_activity.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: response_activity.actor.id,
               to_actor_id: response_activity.object.actor.id
             }
@@ -138,7 +139,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
             expect(reject.present?).to eq(true)
 
             args = {
-              activity_id: reject.id,
+              object_id: reject.id,
+              object_type: 'DiscourseActivityPubActivity',
               from_actor_id: reject.actor.id,
               to_actor_id: reject.object.actor.id
             }
