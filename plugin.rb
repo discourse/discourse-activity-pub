@@ -570,6 +570,13 @@ after_initialize do
       note.save! if note.changed?
     end
   end
+  on(:merging_users) do |source_user, target_user|
+    if source_user.activity_pub_actor&.remote?
+      DiscourseActivityPubActor.where(
+        id: source_user.activity_pub_actor.id
+      ).update_all(model_id: nil, model_type: nil)
+    end
+  end
 
   DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |activity|
     case activity.object.type

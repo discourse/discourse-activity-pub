@@ -41,7 +41,7 @@ module DiscourseActivityPub
         end
       end
 
-      actor.update(model_id: user.id, model_type: 'User')
+      actor.update(model_id: user.id, model_type: 'User') unless user.activity_pub_actor.present?
     end
 
     def update_user
