@@ -15,11 +15,11 @@ module DiscourseActivityPubGuardianExtension
   end
 
   def can_change_post_owner?
-    return false if activity_pub_topic_request?
+    return false if activity_pub_enabled_topic?
     super
   end
 
-  def activity_pub_topic_request?
+  def activity_pub_enabled_topic?
     return false unless Site.activity_pub_enabled && request&.params["topic_id"]
     topic = Topic.find_by(id: request.params["topic_id"].to_i)
     topic&.activity_pub_enabled

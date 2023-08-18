@@ -71,6 +71,42 @@ RSpec.describe DiscourseActivityPubActor do
         expect(actor.persisted?).to eq(true)
       end
     end
+
+    context "with a remote actor with the same username" do
+      let!(:username) { "angus" }
+      let!(:user) { Fabricate(:user, username: username) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, username: username, local: false) }
+
+      it "creates an actor" do
+        actor = described_class.create!(
+          local: true,
+          model_id: user.id,
+          model_type: user.class.name,
+          ap_type: DiscourseActivityPub::AP::Actor::Person.type,
+          username: user.username
+        )
+        expect(actor.errors.any?).to eq(false)
+        expect(actor.persisted?).to eq(true)
+      end
+    end
+
+    context "with a local actor with the same username" do
+      let!(:username) { "angus" }
+      let!(:user) { Fabricate(:user, username: username) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, username: username, local: true) }
+
+      it "raises an error" do
+        expect{
+          described_class.create!(
+            local: true,
+            model_id: user.id,
+            model_type: user.class.name,
+            ap_type: DiscourseActivityPub::AP::Actor::Person.type,
+            username: user.username
+          )
+        }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
   end
 
   describe "#ensure_for" do

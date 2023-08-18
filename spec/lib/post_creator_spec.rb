@@ -91,7 +91,7 @@ RSpec.describe PostCreator do
           end
 
           context "when passed a visibility" do
-            it "saves the first post's visibility" do
+            it "ignores passed visibility parameter and saves first post's visibility" do
               reply = PostCreator.create(user, params.merge(
                 topic_id: topic.id,
                 reply_to_post_number: 1,

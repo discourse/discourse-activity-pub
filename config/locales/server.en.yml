@@ -16,6 +16,10 @@ en:
               invalid: "is not valid"
             object_type:
               invalid: "is not valid"
+        discourse_activity_pub:
+          attributes:
+            model_type:
+              invalid: "is not valid"
   category:
     discourse_activity_pub:
       error:
