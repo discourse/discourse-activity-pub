@@ -63,6 +63,8 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
       @items
     when :follows
       @items
+    when :likes
+      @items
     else
       []
     end

@@ -44,6 +44,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/activity/delete.rb
     ../lib/discourse_activity_pub/ap/activity/update.rb
     ../lib/discourse_activity_pub/ap/activity/undo.rb
+    ../lib/discourse_activity_pub/ap/activity/like.rb
     ../lib/discourse_activity_pub/ap/object/note.rb
     ../lib/discourse_activity_pub/ap/object/article.rb
     ../lib/discourse_activity_pub/ap/collection.rb
@@ -84,6 +85,8 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/activity/delete_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/update_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/announce_serializer.rb
+    ../app/serializers/discourse_activity_pub/ap/activity/like_serializer.rb
+    ../app/serializers/discourse_activity_pub/ap/activity/undo_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/group_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/person_serializer.rb
@@ -461,6 +464,24 @@ after_initialize do
   add_to_class(:post, :activity_pub_remote?) do
     activity_pub_enabled && activity_pub_object && !activity_pub_object.local
   end
+  add_to_class(:post, :activity_pub_topic_published?) do
+    topic.activity_pub_published?
+  end
+  add_to_class(:post, :activity_pub_is_first_post?) do
+    is_first_post?
+  end
+  add_to_class(:post, :activity_pub_first_post_scheduled_at) do
+    topic.first_post.activity_pub_scheduled_at
+  end
+  add_to_class(:post, :activity_pub_group_actor) do
+    topic.activity_pub_actor
+  end
+  add_to_class(:post, :activity_pub_topic_activities_collection) do
+    topic.activity_pub_activities_collection
+  end
+  add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
+    activity&.composition?
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -490,6 +511,116 @@ after_initialize do
     :activity_pub_object_type,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_object_type }
+
+  PostAction.include DiscourseActivityPub::AP::ModelCallbacks
+
+  add_to_class(:post_action, :activity_pub_enabled) do
+    post.activity_pub_enabled
+  end
+  add_to_class(:post_action, :activity_pub_deleted?) { nil }
+  add_to_class(:post_action, :activity_pub_published?) { nil }
+  add_to_class(:post_action, :activity_pub_visibility) { "public" }
+  add_to_class(:post_action, :activity_pub_actor) do
+    user.activity_pub_actor
+  end
+  add_to_class(:post_action, :activity_pub_group_actor) do
+    post.activity_pub_group_actor
+  end
+  add_to_class(:post_action, :activity_pub_object) do
+    post.activity_pub_object
+  end
+  add_to_class(:post_action, :activity_pub_full_topic) do
+    post.activity_pub_full_topic
+  end
+  add_to_class(:post_action, :activity_pub_first_post) do
+    post.activity_pub_first_post
+  end
+  add_to_class(:post_action, :activity_pub_topic_published?) do
+    post.activity_pub_topic_published?
+  end
+  add_to_class(:post_action, :activity_pub_is_first_post?) { false }
+  add_to_class(:post_action, :activity_pub_topic_activities_collection) do
+    post.activity_pub_topic_activities_collection
+  end
+  add_to_class(:post_action, :activity_pub_valid_activity?) do |activity, target_activity|
+    return false unless activity_pub_full_topic
+    activity && (activity.like? || activity.undo? && target_activity.like?)
+  end
+
+  User.has_one :activity_pub_actor,
+               class_name: "DiscourseActivityPubActor",
+               as: :model,
+               dependent: :destroy
+
+  # TODO: This should just be part of discourse/discourse.
+  User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
+
+  add_to_class(:user, :activity_pub_ready?) do
+    true
+  end
+  add_to_class(:user, :activity_pub_url) do
+    full_url
+  end
+  add_to_class(:user, :activity_pub_icon_url) do
+    avatar_template_url.gsub("{size}", "96")
+  end
+  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
+    return unless domain && access_token
+    tokens = activity_pub_access_tokens
+    tokens[domain] = access_token
+    custom_fields['activity_pub_access_tokens'] = tokens
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_save_actor_id) do |domain, actor_id|
+    return unless domain && actor_id
+    actor_ids = activity_pub_actor_ids
+    actor_ids[actor_id] = domain
+    custom_fields['activity_pub_actor_ids'] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_remove_actor_id) do |actor_id|
+    return unless actor_id
+    actor_ids = activity_pub_actor_ids
+    return unless actor_ids[actor_id].present?
+    actor_ids.delete(actor_id)
+    custom_fields['activity_pub_actor_ids'] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_access_tokens) do
+    if custom_fields['activity_pub_access_tokens']
+      JSON.parse(custom_fields['activity_pub_access_tokens'])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_actor_ids) do
+    if custom_fields['activity_pub_actor_ids']
+      JSON.parse(custom_fields['activity_pub_actor_ids'])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_authorizations) do
+    tokens = activity_pub_access_tokens
+    activity_pub_actor_ids.map do |actor_id, domain|
+      DiscourseActivityPub::Auth::Authorization.new(
+        {
+          actor_id: actor_id,
+          domain: domain,
+          access_token: tokens[domain]
+        }
+      )
+    end
+  end
+
+  add_to_serializer(
+    :user,
+    :activity_pub_authorizations,
+    include_condition: -> { Site.activity_pub_enabled }) do
+    object.activity_pub_authorizations.map do |authorization|
+      DiscourseActivityPub::Auth::AuthorizationSerializer.new(authorization, root: false).as_json
+    end
+  end
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
@@ -570,95 +701,33 @@ after_initialize do
       note.save! if note.changed?
     end
   end
+  on(:like_created) do |post_action, post_action_creator|
+    reason = post_action_creator.instance_variable_get("@reason")
+
+    if post_action.activity_pub_enabled &&
+        post_action.activity_pub_full_topic &&
+        reason != :activity_pub
+
+      DiscourseActivityPub::UserHandler.update_or_create_actor(post_action.user)
+      post_action.perform_activity_pub_activity(:like)
+    end
+  end
+  on(:like_destroyed) do |post_action, post_action_destroyer|
+    reason = post_action_destroyer.instance_variable_get("@reason")
+
+    if post_action.activity_pub_enabled &&
+        post_action.activity_pub_full_topic &&
+        reason != :activity_pub &&
+        post_action.user.activity_pub_actor.present?
+
+      post_action.perform_activity_pub_activity(:undo, :like)
+    end
+  end
   on(:merging_users) do |source_user, target_user|
     if source_user.activity_pub_actor&.remote?
       DiscourseActivityPubActor.where(
         id: source_user.activity_pub_actor.id
       ).update_all(model_id: nil, model_type: nil)
-    end
-  end
-
-  DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |activity|
-    case activity.object.type
-    when DiscourseActivityPub::AP::Activity::Follow.type
-      DiscourseActivityPubFollow.where(
-        follower_id: activity.actor.stored.id,
-        followed_id: activity.object.object.stored.id
-      ).destroy_all
-    else
-      false
-    end
-  end
-
-  User.has_one :activity_pub_actor,
-               class_name: "DiscourseActivityPubActor",
-               as: :model,
-               dependent: :destroy
-
-  # TODO: This should just be part of discourse/discourse.
-  User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
-
-  add_to_class(:user, :activity_pub_ready?) do
-    true
-  end
-  add_to_class(:user, :activity_pub_url) do
-    full_url
-  end
-  add_to_class(:user, :activity_pub_icon_url) do
-    avatar_template_url.gsub("{size}", "96")
-  end
-  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
-    return unless domain && access_token
-    tokens = activity_pub_access_tokens
-    tokens[domain] = access_token
-    custom_fields['activity_pub_access_tokens'] = tokens
-    save_custom_fields(true)
-  end
-  add_to_class(:user, :activity_pub_save_actor_id) do |domain, actor_id|
-    return unless domain && actor_id
-    actor_ids = activity_pub_actor_ids
-    actor_ids[actor_id] = domain
-    custom_fields['activity_pub_actor_ids'] = actor_ids
-    save_custom_fields(true)
-  end
-  add_to_class(:user, :activity_pub_remove_actor_id) do |actor_id|
-    return unless actor_id
-    actor_ids = activity_pub_actor_ids
-    return unless actor_ids[actor_id].present?
-    actor_ids.delete(actor_id)
-    custom_fields['activity_pub_actor_ids'] = actor_ids
-    save_custom_fields(true)
-  end
-  add_to_class(:user, :activity_pub_access_tokens) do
-    if custom_fields['activity_pub_access_tokens']
-      JSON.parse(custom_fields['activity_pub_access_tokens'])
-    else
-      {}
-    end
-  end
-  add_to_class(:user, :activity_pub_actor_ids) do
-    if custom_fields['activity_pub_actor_ids']
-      JSON.parse(custom_fields['activity_pub_actor_ids'])
-    else
-      {}
-    end
-  end
-  add_to_class(:user, :activity_pub_authorizations) do
-    tokens = activity_pub_access_tokens
-    activity_pub_actor_ids.map do |actor_id, domain|
-      DiscourseActivityPub::Auth::Authorization.new(
-        {
-          actor_id: actor_id,
-          domain: domain,
-          access_token: tokens[domain]
-        }
-      )
-    end
-  end
-
-  add_to_serializer(:user, :activity_pub_authorizations) do
-    object.activity_pub_authorizations.map do |authorization|
-      DiscourseActivityPub::Auth::AuthorizationSerializer.new(authorization, root: false).as_json
     end
   end
 
@@ -692,7 +761,7 @@ after_initialize do
     end
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
+  def ensure_post(activity)
     post = activity.object.stored.model
 
     unless post
@@ -706,18 +775,16 @@ after_initialize do
     end
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
+    ensure_post(activity)
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:update, :validate) do |activity|
-    post = activity.object.stored.model
+    ensure_post(activity)
+  end
 
-    unless post
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.cant_find_post')
-    end
-
-    if post.trashed?
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.post_is_deleted')
-    end
+  DiscourseActivityPub::AP::Activity.add_handler(:like, :validate) do |activity|
+    ensure_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|
@@ -751,6 +818,49 @@ after_initialize do
     post = activity.object.stored.model
     revisor = PostRevisor.new(post)
     revisor.revise!(post.user, { raw: activity.object.content })
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:like, :perform) do |activity|
+    user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
+
+    unless user
+      raise DiscourseActivityPub::AP::Activity::PerformanceError,
+        I18n.t('discourse_activity_pub.create.failed_to_create_user',
+          actor_id: activity.actor.id
+        )
+    end
+
+    post = activity.object.stored.model
+
+    PostActionCreator.new(
+      user,
+      post,
+      PostActionType.types[:like],
+      reason: :activity_pub
+    ).perform if user && post
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:undo, :perform) do |activity|
+    case activity.object.type
+    when DiscourseActivityPub::AP::Activity::Follow.type
+      DiscourseActivityPubFollow.where(
+        follower_id: activity.actor.stored.id,
+        followed_id: activity.object.object.stored.id
+      ).destroy_all
+    when DiscourseActivityPub::AP::Activity::Like.type
+      user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
+      post = activity.object.object.stored.model
+      if user && post
+        PostActionDestroyer.destroy(
+          user,
+          post,
+          :like,
+          reason: :activity_pub
+        )
+      end
+    else
+      false
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:all, :store) do |activity|

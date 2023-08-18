@@ -86,3 +86,9 @@ Fabricator(:discourse_activity_pub_activity_announce, from: :discourse_activity_
   object { Fabricate(:discourse_activity_pub_activity_create) }
   local { true }
 end
+
+Fabricator(:discourse_activity_pub_activity_like, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Like.type }
+  actor { Fabricate(:discourse_activity_pub_actor_person) }
+  object { Fabricate(:discourse_activity_pub_object_note) }
+end

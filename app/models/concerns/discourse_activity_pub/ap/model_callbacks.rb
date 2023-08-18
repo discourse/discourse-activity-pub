@@ -6,11 +6,13 @@ module DiscourseActivityPub
 
       included do
         attr_accessor :performing_activity,
-                      :performing_activity_object
+                      :performing_activity_object,
+                      :target_activity
       end
 
-      def perform_activity_pub_activity(activity_type)
+      def perform_activity_pub_activity(activity_type, target_activity_type = nil)
         @performing_activity = DiscourseActivityPub::AP::Object.from_type(activity_type)
+        @target_activity = DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
         return unless valid_activity_pub_activity?
 
         if self.respond_to?(:before_perform_activity_pub_activity)
@@ -35,7 +37,11 @@ module DiscourseActivityPub
       protected
 
       def valid_activity_pub_activity?
-        return false unless self.activity_pub_enabled && performing_activity&.composition?
+        return false unless activity_pub_enabled
+        return false unless activity_pub_valid_activity?(
+          performing_activity,
+          target_activity
+        )
 
         # We don't permit updates if object has been deleted.
         return false if self.activity_pub_deleted? && performing_activity.update?
@@ -50,7 +56,7 @@ module DiscourseActivityPub
         return nil unless performing_activity
 
         case performing_activity.type.downcase.to_sym
-        when :update, :delete
+        when :update, :delete, :like
           self.activity_pub_object
         when :create
           attrs = {
@@ -63,6 +69,11 @@ module DiscourseActivityPub
             attrs[:collection_id] = self.topic.activity_pub_object.id
           end
           self.build_activity_pub_object(attrs)
+        when :undo
+          activity_pub_actor
+            .activities
+            .where(object_id: self.activity_pub_object.id)
+            .find_by(ap_type: target_activity.type)
         else
           nil
         end
@@ -105,24 +116,25 @@ module DiscourseActivityPub
       def activity_pub_deliver_activity
         return if !performing_activity.stored
 
-        if topic.activity_pub_full_topic && !topic.activity_pub_published? && !is_first_post?
-          return activity_pub_after_scheduled(
-            scheduled_at: topic.first_post.activity_pub_scheduled_at
-          )
+        if activity_pub_full_topic && !activity_pub_topic_published? && !activity_pub_is_first_post?
+          activity_pub_after_scheduled(
+            scheduled_at: activity_pub_first_post_scheduled_at
+          ) if self.respond_to?(:activity_pub_after_scheduled)
+          return
         end
 
         delivery_actor = performing_activity.create? ?
-          self.topic.activity_pub_actor :
-          self.activity_pub_actor
-        delivery_recipients = self.topic.activity_pub_actor.followers
+          activity_pub_group_actor :
+          activity_pub_actor
+        delivery_recipients = activity_pub_group_actor.followers
         delivery_object = performing_activity.stored
         delivery_delay = nil
 
-        if !self.topic.activity_pub_published?
+        if !activity_pub_topic_published?
           delivery_delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
 
-          if self.activity_pub_full_topic
-            delivery_object = self.topic.activity_pub_activities_collection
+          if activity_pub_full_topic
+            delivery_object = activity_pub_topic_activities_collection
           end
         end
 
