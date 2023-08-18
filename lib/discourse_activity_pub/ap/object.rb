@@ -169,7 +169,7 @@ module DiscourseActivityPub
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
         return process_failed(object_id, "cant_resolve_object") unless object_id.present?
 
-        if activity.composition?
+        if activity.composition? || activity.like?
           object = factory(raw_object)
           return process_failed(object_id, "cant_resolve_object") unless object.present?
           return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)

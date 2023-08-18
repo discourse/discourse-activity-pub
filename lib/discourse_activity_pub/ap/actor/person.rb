@@ -15,10 +15,11 @@ module DiscourseActivityPub
         def can_perform_activity
           {
             follow: [:group],
-            undo: [:follow],
+            undo: [:follow, :like],
             create: [:note, :article],
             update: [:note, :article],
-            delete: [:note, :article]
+            delete: [:note, :article],
+            like: [:note, :article]
           }
         end
       end

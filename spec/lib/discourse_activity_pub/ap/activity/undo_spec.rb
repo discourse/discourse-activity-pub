@@ -15,7 +15,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
         toggle_activity_pub(group.model, callbacks: true)
       end
 
-      context "with a valid undo" do
+      context "with an Undo of a Follow" do
         let(:json) { build_activity_json(actor: person, object: activity, type: 'Undo') }
 
         before do
@@ -27,6 +27,42 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
             DiscourseActivityPubFollow.exists?(
               follower_id: person.id,
               followed_id: group.id
+            )
+          ).to be(false)
+        end
+
+        it "creates an activity" do
+          expect(
+            DiscourseActivityPubActivity.exists?(
+              ap_id: json[:id],
+              ap_type: "Undo",
+              actor_id: person.id,
+              object_id: activity.id,
+              object_type: activity.class.name
+            )
+          ).to be(true)
+        end
+      end
+
+      context "with an Undo of a Like" do
+        let!(:user) { Fabricate(:user) }
+        let!(:post) { Fabricate(:post) }
+        let!(:like) { Fabricate(:post_action, user: user, post: post, post_action_type_id: PostActionType.types[:like])}
+        let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
+        let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_like, actor: person, object: note) }
+        let(:json) { build_activity_json(actor: person, object: activity, type: 'Undo') }
+
+        before do
+          perform_process(json)
+        end
+
+        it "un-does the effects of the activity" do
+          expect(
+            PostAction.exists?(
+              post_id: post.id,
+              user_id: user.id,
+              post_action_type_id: PostActionType.types[:like]
             )
           ).to be(false)
         end

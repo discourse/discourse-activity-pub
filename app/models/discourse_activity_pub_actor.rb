@@ -6,7 +6,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   belongs_to :model, polymorphic: true, optional: true
 
-  has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id"
+  has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id", dependent: :destroy
   has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id"
   has_many :follow_follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id"
   has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
