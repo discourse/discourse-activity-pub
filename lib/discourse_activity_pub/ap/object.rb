@@ -169,7 +169,7 @@ module DiscourseActivityPub
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
         return process_failed(object_id, "cant_resolve_object") unless object_id.present?
 
-        if activity.composition? || activity.like?
+        if activity.composition?
           object = factory(raw_object)
           return process_failed(object_id, "cant_resolve_object") unless object.present?
           return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)
@@ -181,6 +181,8 @@ module DiscourseActivityPub
           end
         else
           stored = case activity.type
+            when AP::Activity::Like.type
+              DiscourseActivityPubObject.find_by(ap_id: object_id)
             when AP::Activity::Follow.type
               DiscourseActivityPubActor.find_by(ap_id: object_id)
             when AP::Activity::Undo.type

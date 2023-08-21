@@ -16,57 +16,107 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
 
     context "with a new actor" do
       let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
-      let!(:object_json) { build_object_json }
+      let!(:object_id) { "https://angus.eu.ngrok.io/ap/object/a85b4c2fde8128481178921f522df3af" }
       let!(:activity_json) {
         build_activity_json(
-          object: object_json,
+          object: object_id,
           type: 'Like',
           actor: person,
         )
       }
-      let!(:note) {
-        Fabricate(:discourse_activity_pub_object_note,
-          ap_id: object_json[:id],
-          local: false,
-          model: post
-        )
-      }
 
-      before do
-        perform_process(activity_json)
-        @user = User
-          .joins(:activity_pub_actor)
-          .where(activity_pub_actor: { ap_id: person.ap_id })
-          .first
-      end
-
-      it "creates a user" do
-        expect(@user.present?).to eq(true)
-      end
-
-      it "likes the post" do
-        expect(
-          PostAction.exists?(
-            post_id: post.id,
-            user_id: @user.id,
-            post_action_type_id: PostActionType.types[:like]
+      context "with a remote note" do
+        let!(:note) {
+          Fabricate(:discourse_activity_pub_object_note,
+            ap_id: object_id,
+            local: false,
+            model: post
           )
-        ).to be(true)
+        }
+
+        before do
+          perform_process(activity_json)
+          @user = User
+            .joins(:activity_pub_actor)
+            .where(activity_pub_actor: { ap_id: person.ap_id })
+            .first
+        end
+
+        it "creates a user" do
+          expect(@user.present?).to eq(true)
+        end
+
+        it "likes the post" do
+          expect(
+            PostAction.exists?(
+              post_id: post.id,
+              user_id: @user.id,
+              post_action_type_id: PostActionType.types[:like]
+            )
+          ).to be(true)
+        end
+
+        it "creates an activity" do
+          expect(
+            DiscourseActivityPubActivity.exists?(
+              ap_id: activity_json[:id],
+              ap_type: 'Like'
+            )
+          ).to be(true)
+        end
+
+        it "adds the like to the post note's likes collection" do
+          expect(
+            note.likes_collection.items.first.ap_id
+          ).to eq(activity_json[:id])
+        end
       end
 
-      it "creates an activity" do
-        expect(
-          DiscourseActivityPubActivity.exists?(
-            ap_id: activity_json[:id],
-            ap_type: 'Like'
+      context "with a local note" do
+        let!(:note) {
+          Fabricate(:discourse_activity_pub_object_note,
+            ap_id: object_id,
+            local: true,
+            model: post
           )
-        ).to be(true)
-      end
+        }
 
-      it "adds the like to the post note's likes collection" do
-        expect(
-          note.likes_collection.items.first.ap_id
-        ).to eq(activity_json[:id])
+        before do
+          perform_process(activity_json)
+          @user = User
+            .joins(:activity_pub_actor)
+            .where(activity_pub_actor: { ap_id: person.ap_id })
+            .first
+        end
+
+        it "creates a user" do
+          expect(@user.present?).to eq(true)
+        end
+
+        it "likes the post" do
+          expect(
+            PostAction.exists?(
+              post_id: post.id,
+              user_id: @user.id,
+              post_action_type_id: PostActionType.types[:like]
+            )
+          ).to be(true)
+        end
+
+        it "creates an activity" do
+          expect(
+            DiscourseActivityPubActivity.exists?(
+              ap_id: activity_json[:id],
+              ap_type: 'Like'
+            )
+          ).to be(true)
+        end
+
+        it "adds the like to the post note's likes collection" do
+          expect(
+            note.likes_collection.items.first.ap_id
+          ).to eq(activity_json[:id])
+        end
       end
     end
   end
