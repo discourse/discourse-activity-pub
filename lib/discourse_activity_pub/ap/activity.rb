@@ -144,7 +144,7 @@ module DiscourseActivityPub
 
         @object = AP::Object.resolve_and_store(json[:object], self)
         return process_failed("cant_find_object") unless object.present?
-        return process_failed("object_not_ready") unless object.stored.ready?
+        return process_failed("object_not_ready") unless object.stored.ready?(type)
         return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)
 
         true

@@ -19,12 +19,12 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     where(ap_type: DiscourseActivityPub::AP::Activity::Like.type)
   }
 
-  def ready?
+  def ready?(parent_ap_type = nil)
     case object_type
     when "DiscourseActivityPubActivity"
       object&.ready?
     when "DiscourseActivityPubObject"
-      object&.ready?(ap_type)
+      object&.ready?(parent_ap_type || ap_type)
     when "DiscourseActivityPubActor"
       object&.ready?
     end

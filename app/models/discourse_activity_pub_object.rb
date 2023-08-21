@@ -21,13 +21,14 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
-  def ready?(ap_type = nil)
+  def ready?(parent_ap_type = nil)
     return true unless local?
 
-    case ap_type
+    case parent_ap_type
     when DiscourseActivityPub::AP::Activity::Create.type,
          DiscourseActivityPub::AP::Activity::Update.type,
-         DiscourseActivityPub::AP::Activity::Like.type
+         DiscourseActivityPub::AP::Activity::Like.type,
+         DiscourseActivityPub::AP::Activity::Undo.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
       !model || model.trashed?
