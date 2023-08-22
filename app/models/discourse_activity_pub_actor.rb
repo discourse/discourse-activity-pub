@@ -22,7 +22,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     local? ? true : self.available
   end
 
-  def ready?
+  def ready?(parent_ap_type = nil)
     local? ? model.activity_pub_ready? : available?
   end
 
