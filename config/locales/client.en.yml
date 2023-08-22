@@ -70,3 +70,9 @@ en:
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.
+        schedule:
+          label: Schedule Publish
+          title: Schedule post to be published via ActivityPub.
+        unschedule:
+          label: Unschedule Publish
+          title: Unschedule post to be published via ActivityPub.

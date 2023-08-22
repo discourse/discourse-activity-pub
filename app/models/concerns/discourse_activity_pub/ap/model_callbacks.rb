@@ -19,7 +19,7 @@ module DiscourseActivityPub
           @performing_activity = before_perform_activity_pub_activity(
             performing_activity
           )
-          return unless performing_activity
+          return true unless performing_activity
         end
 
         @performing_activity_object = get_performing_activity_object
@@ -32,6 +32,8 @@ module DiscourseActivityPub
 
         activity_pub_deliver_activity
         perform_activity_pub_activity_cleanup
+
+        true
       end
 
       protected
