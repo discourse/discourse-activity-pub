@@ -28,7 +28,8 @@ export default class ActivityPubStatus extends Component {
       this.messageBus.subscribe("/activity-pub", this.handleMessage);
 
       if (this.forComposer && !this.args.model.activity_pub_visibility) {
-        this.args.model.activity_pub_visibility = this.category.activity_pub_default_visibility;
+        this.args.model.activity_pub_visibility =
+          this.category.activity_pub_default_visibility;
       }
     }
   }
@@ -61,7 +62,8 @@ export default class ActivityPubStatus extends Component {
     };
     if (this.active) {
       args.category_name = this.category.name;
-      args.delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
+      args.delay_minutes =
+        this.siteSettings.activity_pub_delivery_delay_minutes;
     }
     return I18n.t(
       `discourse_activity_pub.status.title.${this.translatedTitleKey}`,

@@ -1,14 +1,12 @@
-# frozen_string_literal: true
-
-RSpec.describe Site do
-  describe "#activity_pub_enabled" do
+RSpec.describe DiscourseActivityPub do
+  describe "#enabled" do
     context "without activity pub enabled" do
       before do
         SiteSetting.activity_pub_enabled = false
       end
 
       it "returns false" do
-        expect(Site.activity_pub_enabled).to eq(false)
+        expect(DiscourseActivityPub.enabled).to eq(false)
       end
     end
 
@@ -18,7 +16,7 @@ RSpec.describe Site do
       end
 
       it "returns true" do
-        expect(Site.activity_pub_enabled).to eq(true)
+        expect(DiscourseActivityPub.enabled).to eq(true)
       end
 
       context "with login required" do
@@ -27,7 +25,7 @@ RSpec.describe Site do
         end
 
         it "returns false" do
-          expect(Site.activity_pub_enabled).to eq(false)
+          expect(DiscourseActivityPub.enabled).to eq(false)
         end
       end
     end
