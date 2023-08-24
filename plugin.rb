@@ -90,15 +90,11 @@ after_initialize do
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_guardian_extension.rb
-    ../extensions/discourse_activity_pub_site_extension.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
 
-  # Site.activity_pub_enabled is the single source of truth for whether
-  # ActivityPub is enabled on the site level. Using module prepension here
-  # otherwise Site.activity_pub_enabled would be both using, and subject to,
-  # SiteSetting.activity_pub_enabled.
-  Site.singleton_class.prepend DiscourseActivityPubSiteExtension
-  add_to_serializer(:site, :activity_pub_enabled) { Site.activity_pub_enabled }
+  # DiscourseActivityPub.enabled is the single source of truth for whether
+  # ActivityPub is enabled on the site level
+  add_to_serializer(:site, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
   Category.has_one :activity_pub_actor,
@@ -123,14 +119,14 @@ after_initialize do
     SiteIconManager.large_icon_url
   end
   add_to_class(:category, :activity_pub_enabled) do
-    Site.activity_pub_enabled && !self.read_restricted &&
+    DiscourseActivityPub.enabled && !self.read_restricted &&
       !!custom_fields["activity_pub_enabled"]
   end
   add_to_class(:category, :activity_pub_show_status) do
-    Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"]
+    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_status"]
   end
   add_to_class(:category, :activity_pub_show_handle) do
-    Site.activity_pub_enabled && !!custom_fields["activity_pub_show_handle"]
+    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_handle"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -257,7 +253,7 @@ after_initialize do
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
   add_to_class(:topic, :activity_pub_enabled) do
-    Site.activity_pub_enabled && category&.activity_pub_ready?
+    DiscourseActivityPub.enabled && category&.activity_pub_ready?
   end
   add_to_class(:topic, :activity_pub_full_url) do
     "#{DiscourseActivityPub.base_url}#{self.relative_url}"
@@ -334,7 +330,7 @@ after_initialize do
     !activity_pub_full_topic
   end
   add_to_class(:post, :activity_pub_enabled) do
-    return false unless Site.activity_pub_enabled
+    return false unless DiscourseActivityPub.enabled
 
     topic = Topic.with_deleted.find_by(id: self.topic_id)
     return false unless topic&.activity_pub_enabled

@@ -28,7 +28,7 @@ module DiscourseActivityPub
     end
 
     def ensure_site_enabled
-      render_webfinger_error("not_enabled", 403) unless Site.activity_pub_enabled
+      render_webfinger_error("not_enabled", 403) unless DiscourseActivityPub.enabled
     end
 
     def render_webfinger_error(key, status)
