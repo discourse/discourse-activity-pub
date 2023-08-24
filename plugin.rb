@@ -66,6 +66,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
     ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
+    ../app/controllers/discourse_activity_pub/post_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -387,6 +388,7 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
+  add_to_class(:post, :activity_pub_scheduled?) { !!activity_pub_scheduled_at }
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
 
@@ -469,6 +471,36 @@ after_initialize do
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
   end
+  add_to_class(:post, :activity_pub_publish!) do
+    return false if activity_pub_published?
+
+    if activity_pub_full_topic
+      DiscourseActivityPub::UserHandler.update_or_create_actor(self.user)
+    end
+
+    content = DiscourseActivityPub::ContentParser.get_content(self)
+    visibility = is_first_post? ?
+      topic&.category.activity_pub_default_visibility :
+      topic.first_post.activity_pub_visibility
+
+    custom_fields["activity_pub_content"] = content
+    custom_fields["activity_pub_visibility"] = visibility
+    save_custom_fields(true)
+
+    perform_activity_pub_activity(:create)
+  end
+  add_to_class(:post, :activity_pub_delete!) do
+    return false unless activity_pub_local?
+    perform_activity_pub_activity(:delete)
+  end
+  add_to_class(:post, :activity_pub_schedule!) do
+    return false if activity_pub_published? || activity_pub_scheduled?
+    activity_pub_publish!
+  end
+  add_to_class(:post, :activity_pub_unschedule!) do
+    return false if activity_pub_published? || !activity_pub_scheduled?
+    activity_pub_delete!
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -498,6 +530,16 @@ after_initialize do
     :activity_pub_object_type,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_object_type }
+  add_to_serializer(
+    :post,
+    :activity_pub_first_post,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_first_post }
+  add_to_serializer(
+    :post,
+    :activity_pub_is_first_post,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_is_first_post? }
 
   PostAction.include DiscourseActivityPub::AP::ModelCallbacks
 
@@ -575,28 +617,11 @@ after_initialize do
     # TODO (future): PR discourse/discourse to add a better context flag for different post_created scenarios.
     # Currently we're using skip_validations as an inverse flag for a "normal" post creation scenario.
     if !post_opts[:skip_validations] && post.activity_pub_enabled
-      if post.activity_pub_full_topic
-        DiscourseActivityPub::UserHandler.update_or_create_actor(user)
-      end
-
-      post.custom_fields[
-        "activity_pub_content"
-      ] = DiscourseActivityPub::ContentParser.get_content(post)
-      if post.is_first_post?
-        post.custom_fields[
-          "activity_pub_visibility"
-        ] = post.topic&.category.activity_pub_default_visibility
-      else
-        post.custom_fields[
-          "activity_pub_visibility"
-        ] = post.topic.first_post.activity_pub_visibility
-      end
-      post.save_custom_fields(true)
-      post.perform_activity_pub_activity(:create)
+      post.activity_pub_publish!
     end
   end
   on(:post_destroyed) do |post, opts, user|
-    post.perform_activity_pub_activity(:delete) if post.activity_pub_local?
+    post.activity_pub_delete!
   end
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_local?

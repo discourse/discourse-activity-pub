@@ -92,6 +92,14 @@ en:
         not_enabled: "Webfinger is not enabled"
         resource_not_supported: "Resource not supported"
         resource_not_found: "Resource not found"
+    post:
+      error:
+        not_enabled: "ActivityPub is not enabled"
+        post_not_found: "Post not found"
+        cant_schedule_post: "Can't schedule post"
+        cant_unschedule_post: "Can't unschedule post"
+        first_post_not_enabled: "First Post is not enabled"
+        not_first_post: "Post is not the first post"
     object:
       note:
         link_to_forum: Discuss this on our forum.

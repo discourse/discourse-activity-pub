@@ -24,6 +24,8 @@ const setupServer = (needs, attrs = {}) => {
     firstPost.activity_pub_enabled = true;
     firstPost.activity_pub_scheduled_at = scheduledAt;
     firstPost.activity_pub_object_type = "Note";
+    firstPost.activity_pub_first_post = true;
+    firstPost.activity_pub_is_first_post = true;
     Object.keys(attrs).forEach((attr) => {
       firstPost[attr] = attrs[attr];
     });
@@ -109,6 +111,42 @@ acceptance(
           )}.']`
         ),
         "shows the right title"
+      );
+    });
+
+    test("Post admin menu", async function (assert) {
+      await visit("/t/280");
+      await click(".show-more-actions");
+      await click(".show-post-admin-menu");
+
+      assert.ok(
+        exists(
+          ".topic-post:nth-of-type(1) .post-controls .activity-pub-unschedule"
+        ),
+        "The unschedule button was rendered"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Unscheduled ActivityPub topic as staff",
+  function (needs) {
+    needs.user({ moderator: true, admin: false });
+    setupServer(needs, {
+      activity_pub_scheduled_at: null,
+    });
+
+    test("Post admin menu", async function (assert) {
+      await visit("/t/280");
+      await click(".show-more-actions");
+      await click(".show-post-admin-menu");
+
+      assert.ok(
+        exists(
+          ".topic-post:nth-of-type(1) .post-controls .activity-pub-schedule"
+        ),
+        "The schedule button was rendered"
       );
     });
   }

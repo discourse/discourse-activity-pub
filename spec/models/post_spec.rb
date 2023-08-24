@@ -92,6 +92,222 @@ RSpec.describe Post do
     end
   end
 
+  describe "#activity_pub_publish!" do
+    context "when post is published" do
+      before do
+        post.custom_fields['activity_pub_published_at'] = Time.now
+        post.save_custom_fields(true)
+      end
+
+      it "does not attempt an activity" do
+        post.expects(:perform_activity_pub_activity).never
+        post.activity_pub_publish!
+      end
+
+      it "returns false" do
+        expect(post.activity_pub_publish!).to eq(false)
+      end
+    end
+
+    context "when post is not published" do
+      context "with first_post enabled" do
+        before do
+          toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+        end
+
+        it "does not attempt to create a post user actor" do
+          DiscourseActivityPub::UserHandler.expects(:update_or_create_actor).never
+          post.activity_pub_publish!
+        end
+
+        it "sets the post content" do
+          post.activity_pub_publish!
+          expect(post.reload.activity_pub_content).to eq(post.raw)
+        end
+
+        it "sets the post visibility" do
+          post.activity_pub_publish!
+          expect(post.reload.activity_pub_visibility).to eq('public')
+        end
+
+        it "attempts a create activity" do
+          post.expects(:perform_activity_pub_activity).with(:create).once
+          post.activity_pub_publish!
+        end
+
+        it "returns the outcome of the create activity" do
+          post.stubs(:perform_activity_pub_activity).with(:create).returns(true)
+          expect(post.activity_pub_publish!).to eq(true)
+        end
+      end
+
+      context "with full_topic enabled" do
+        before do
+          toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+          post.topic.create_activity_pub_collection!
+        end
+
+        it "attemps to create a post user actor" do
+          DiscourseActivityPub::UserHandler.expects(:update_or_create_actor).once
+          post.activity_pub_publish!
+        end
+
+        it "sets the post content" do
+          post.activity_pub_publish!
+          expect(post.reload.activity_pub_content).to eq(post.raw)
+        end
+
+        it "sets the post visibility" do
+          post.activity_pub_publish!
+          expect(post.reload.activity_pub_visibility).to eq('public')
+        end
+
+        it "attempts a create activity" do
+          post.expects(:perform_activity_pub_activity).with(:create).once
+          post.activity_pub_publish!
+        end
+
+        it "returns the outcome of the create activity" do
+          post.stubs(:perform_activity_pub_activity).with(:create).returns(true)
+          expect(post.activity_pub_publish!).to eq(true)
+        end
+      end
+    end
+  end
+
+  describe "#activity_pub_delete!" do
+    before do
+      toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+    end
+
+    context "with a post with a remote Note" do
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: false) }
+
+      it "does not attempt an activity" do
+        post.expects(:perform_activity_pub_activity).never
+        post.activity_pub_delete!
+      end
+
+      it "returns false" do
+        expect(post.activity_pub_delete!).to eq(false)
+      end
+    end
+
+    context "with a post with a local Note" do
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: true) }
+
+      it "attempts a delete activity" do
+        post.expects(:perform_activity_pub_activity).with(:delete).once
+        post.activity_pub_delete!
+      end
+
+      it "returns the outcome of the delete activity" do
+        post.stubs(:perform_activity_pub_activity).with(:delete).returns(true)
+        expect(post.activity_pub_delete!).to eq(true)
+      end
+    end
+  end
+
+  describe "#activity_pub_schedule!" do
+    before do
+      toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+    end
+
+    context "with a published post" do
+      before do
+        post.custom_fields['activity_pub_published_at'] = Time.now
+        post.save_custom_fields(true)
+      end
+
+      it "does not attempt to publish" do
+        post.expects(:activity_pub_publish!).never
+        post.activity_pub_schedule!
+      end
+
+      it "returns false" do
+        expect(post.activity_pub_schedule!).to eq(false)
+      end
+    end
+
+    context "with a scheduled post" do
+      before do
+        post.custom_fields['activity_pub_scheduled_at'] = Time.now
+        post.save_custom_fields(true)
+      end
+
+      it "does not attempt to publish" do
+        post.expects(:activity_pub_publish!).never
+        post.activity_pub_schedule!
+      end
+
+      it "returns false" do
+        expect(post.activity_pub_schedule!).to eq(false)
+      end
+    end
+
+    context "with a unscheduled unpublished post" do
+      it "attempts to publish" do
+        post.expects(:activity_pub_publish!).once
+        post.activity_pub_schedule!
+      end
+
+      it "returns the outcome of the publish attempt" do
+        post.stubs(:activity_pub_publish!).returns(false)
+        expect(post.activity_pub_schedule!).to eq(false)
+      end
+    end
+  end
+
+  describe "#activity_pub_unschedule!" do
+    before do
+      toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+    end
+
+    context "with a published post" do
+      before do
+        post.custom_fields['activity_pub_published_at'] = Time.now
+        post.save_custom_fields(true)
+      end
+
+      it "does not attempt to delete" do
+        post.expects(:activity_pub_delete!).never
+        post.activity_pub_unschedule!
+      end
+
+      it "returns false" do
+        expect(post.activity_pub_unschedule!).to eq(false)
+      end
+    end
+
+    context "with an unscheduled post" do
+      it "does not attempt to delete" do
+        post.expects(:activity_pub_delete!).never
+        post.activity_pub_unschedule!
+      end
+
+      it "returns false" do
+        expect(post.activity_pub_unschedule!).to eq(false)
+      end
+    end
+
+    context "with a scheduled unpublished post" do
+      before do
+        post.custom_fields['activity_pub_scheduled_at'] = Time.now
+        post.save_custom_fields(true)
+      end
+
+      it "attempts to delete" do
+        post.expects(:activity_pub_delete!).once
+        post.activity_pub_unschedule!
+      end
+
+      it "returns the outcome of the delete attempt" do
+        post.expects(:activity_pub_delete!).returns(false)
+        expect(post.activity_pub_unschedule!).to eq(false)
+      end
+    end
+  end
+
   describe "#perform_activity_pub_activity" do
     context "without activty pub enabled on the category" do
       it "does nothing" do
