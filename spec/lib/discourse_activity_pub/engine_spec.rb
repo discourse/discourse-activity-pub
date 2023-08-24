@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe DiscourseActivityPub do
   describe "#enabled" do
     context "without activity pub enabled" do
