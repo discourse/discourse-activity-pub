@@ -3,7 +3,7 @@
 RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
   let!(:category) { Fabricate(:category) }
   let!(:topic) { Fabricate(:topic, category: category) }
-  let!(:post) { PostCreator.create!(Discourse.system_user, raw: "Post content", topic_id: topic.id) }
+  let!(:post) { Fabricate(:post, topic: topic, raw: "Post content") }
 
   before do
     toggle_activity_pub(category, callbacks: true)
