@@ -16,7 +16,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
         user.activity_pub_save_actor_id("https://external.com", actor.ap_id)
       end
 
-      it "assocates the user with the actor" do
+      it "associates the user with the actor" do
         described_class.update_or_create_user(actor)
         expect(actor.reload.model_id).to eq(user.id)
       end
