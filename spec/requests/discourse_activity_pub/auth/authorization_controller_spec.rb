@@ -11,9 +11,9 @@ RSpec.describe DiscourseActivityPub::Auth::AuthorizationController do
 
   describe "#destroy" do
     context "without an actor id" do
-      it "raises an invalid access error" do
-        get "/ap/auth/oauth/authorize"
-        expect(response.status).to eq(403)
+      it "raises a bad request error" do
+        delete "/ap/auth/authorization"
+        expect(response.status).to eq(400)
       end
     end
 
