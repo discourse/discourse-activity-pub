@@ -231,7 +231,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
               .returns(nil)
           end
 
-          it "raises and a not found error" do
+          it "raises a not found error" do
             get "/ap/auth/oauth/redirect", params: { code: code }
             expect(response.status).to eq(404)
           end
