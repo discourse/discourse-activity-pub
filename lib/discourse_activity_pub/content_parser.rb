@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
-# TODO (future): PR discourse/discourse to support alternate excerpts
-
-class DiscourseActivityPub::ContentParser < ExcerptParser
+class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
   CUSTOM_NOTE_REGEX = /<\s*(div)[^>]*class\s*=\s*['"]note['"][^>]*>/
 
   MARKDOWN_FEATURES = %w[
     activity-pub
-    anchor
     bbcode-block
     bbcode-inline
     code
@@ -25,6 +22,7 @@ class DiscourseActivityPub::ContentParser < ExcerptParser
   # Compare with https://docs.joinmastodon.org/spec/activitypub/#sanitization
 
   MARKDOWN_IT_RULES = %w[
+    heading
     autolink
     list
     backticks
@@ -37,6 +35,77 @@ class DiscourseActivityPub::ContentParser < ExcerptParser
     blockquote
     emphasis
   ]
+
+  attr_reader :content
+
+  def initialize(length)
+    @length = length
+    @content = +""
+    @current_length = 0
+    @start_content = false
+  end
+
+  def start_element(name, attributes = [])
+    case name
+    when "a"
+      start_tag(name, attributes)
+      @in_a = true
+    when "h1", "h2", "h3", "h4", "h5"
+      start_tag(name, attributes)
+    when "div"
+      if attributes.include?(%w[class note])
+        @content = +""
+        @current_length = 0
+        @start_content = true
+      end
+    end
+  end
+
+  def end_element(name)
+    case name
+    when "a"
+      end_tag(name)
+      @in_a = false
+    when "h1", "h2", "h3", "h4", "h5"
+      end_tag(name)
+    when "div"
+      throw :done if @start_content
+    end
+  end
+
+  def escape_attribute(v)
+    return "" unless v
+
+    v = v.dup
+    v.gsub!("&", "&amp;")
+    v.gsub!("\"", "&#34;")
+    v.gsub!("<", "&lt;")
+    v.gsub!(">", "&gt;")
+    v
+  end
+
+  def start_tag(name, attributes)
+    tag = name
+    attrs = attributes.map { |k, v| "#{k}=\"#{escape_attribute(v)}\"" }.join(" ")
+    tag += " #{attrs}" if attrs.present?
+    characters("<#{tag}>")
+  end
+
+  def end_tag(name)
+    characters("</#{name}>")
+  end
+
+  def characters(string)
+    if @current_length + string.length > @length
+      length = [0, @length - @current_length - 1].max
+      @content << string[0..length]
+      @content << "&hellip;"
+      @content << "</a>" if @in_a
+      throw :done
+    end
+    @content << string
+    @current_length += string.length
+  end
 
   def self.cook(text, opts = {})
     html = PrettyText.markdown(
@@ -73,19 +142,9 @@ class DiscourseActivityPub::ContentParser < ExcerptParser
              else
                SiteSetting.activity_pub_note_excerpt_maxlength
              end
-    me = self.new(length, {})
-    parser = Nokogiri::HTML::SAX::Parser.new(me)
-    catch(:done) { parser.parse(html) }
-    me.excerpt.strip
-  end
-
-  def start_element(name, attributes = [])
-    super
-
-    if name === "div" && attributes.include?(%w[class note])
-      @excerpt = +""
-      @current_length = 0
-      @start_excerpt = true
-    end
+    content_parser = self.new(length)
+    sax_parser = Nokogiri::HTML::SAX::Parser.new(content_parser)
+    catch(:done) { sax_parser.parse(html) }
+    content_parser.content.strip
   end
 end

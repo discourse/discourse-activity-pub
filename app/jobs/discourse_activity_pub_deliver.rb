@@ -47,7 +47,7 @@ module Jobs
     end
 
     def perform_request?
-      Site.activity_pub_enabled &&
+      DiscourseActivityPub.enabled &&
         has_required_args? &&
         actors_ready? &&
         object_ready? &&

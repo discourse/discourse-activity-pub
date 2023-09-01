@@ -74,6 +74,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/auth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
+    ../app/controllers/discourse_activity_pub/post_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -99,15 +100,11 @@ after_initialize do
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_guardian_extension.rb
-    ../extensions/discourse_activity_pub_site_extension.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
 
-  # Site.activity_pub_enabled is the single source of truth for whether
-  # ActivityPub is enabled on the site level. Using module prepension here
-  # otherwise Site.activity_pub_enabled would be both using, and subject to,
-  # SiteSetting.activity_pub_enabled.
-  Site.singleton_class.prepend DiscourseActivityPubSiteExtension
-  add_to_serializer(:site, :activity_pub_enabled) { Site.activity_pub_enabled }
+  # DiscourseActivityPub.enabled is the single source of truth for whether
+  # ActivityPub is enabled on the site level
+  add_to_serializer(:site, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
   Category.has_one :activity_pub_actor,
@@ -132,14 +129,14 @@ after_initialize do
     SiteIconManager.large_icon_url
   end
   add_to_class(:category, :activity_pub_enabled) do
-    Site.activity_pub_enabled && !self.read_restricted &&
+    DiscourseActivityPub.enabled && !self.read_restricted &&
       !!custom_fields["activity_pub_enabled"]
   end
   add_to_class(:category, :activity_pub_show_status) do
-    Site.activity_pub_enabled && !!custom_fields["activity_pub_show_status"]
+    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_status"]
   end
   add_to_class(:category, :activity_pub_show_handle) do
-    Site.activity_pub_enabled && !!custom_fields["activity_pub_show_handle"]
+    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_handle"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -266,7 +263,7 @@ after_initialize do
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
   add_to_class(:topic, :activity_pub_enabled) do
-    Site.activity_pub_enabled && category&.activity_pub_ready?
+    DiscourseActivityPub.enabled && category&.activity_pub_ready?
   end
   add_to_class(:topic, :activity_pub_full_url) do
     "#{DiscourseActivityPub.base_url}#{self.relative_url}"
@@ -343,7 +340,7 @@ after_initialize do
     !activity_pub_full_topic
   end
   add_to_class(:post, :activity_pub_enabled) do
-    return false unless Site.activity_pub_enabled
+    return false unless DiscourseActivityPub.enabled
 
     topic = Topic.with_deleted.find_by(id: self.topic_id)
     return false unless topic&.activity_pub_enabled
@@ -400,6 +397,7 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
+  add_to_class(:post, :activity_pub_scheduled?) { !!activity_pub_scheduled_at }
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
 
@@ -482,6 +480,36 @@ after_initialize do
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
   end
+  add_to_class(:post, :activity_pub_publish!) do
+    return false if activity_pub_published?
+
+    if activity_pub_full_topic
+      DiscourseActivityPub::UserHandler.update_or_create_actor(self.user)
+    end
+
+    content = DiscourseActivityPub::ContentParser.get_content(self)
+    visibility = is_first_post? ?
+      topic&.category.activity_pub_default_visibility :
+      topic.first_post.activity_pub_visibility
+
+    custom_fields["activity_pub_content"] = content
+    custom_fields["activity_pub_visibility"] = visibility
+    save_custom_fields(true)
+
+    perform_activity_pub_activity(:create)
+  end
+  add_to_class(:post, :activity_pub_delete!) do
+    return false unless activity_pub_local?
+    perform_activity_pub_activity(:delete)
+  end
+  add_to_class(:post, :activity_pub_schedule!) do
+    return false if activity_pub_published? || activity_pub_scheduled?
+    activity_pub_publish!
+  end
+  add_to_class(:post, :activity_pub_unschedule!) do
+    return false if activity_pub_published? || !activity_pub_scheduled?
+    activity_pub_delete!
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -511,6 +539,16 @@ after_initialize do
     :activity_pub_object_type,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_object_type }
+  add_to_serializer(
+    :post,
+    :activity_pub_first_post,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_first_post }
+  add_to_serializer(
+    :post,
+    :activity_pub_is_first_post,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_is_first_post? }
 
   PostAction.include DiscourseActivityPub::AP::ModelCallbacks
 
@@ -645,28 +683,11 @@ after_initialize do
     # TODO (future): PR discourse/discourse to add a better context flag for different post_created scenarios.
     # Currently we're using skip_validations as an inverse flag for a "normal" post creation scenario.
     if !post_opts[:skip_validations] && post.activity_pub_enabled
-      if post.activity_pub_full_topic
-        DiscourseActivityPub::UserHandler.update_or_create_actor(user)
-      end
-
-      post.custom_fields[
-        "activity_pub_content"
-      ] = DiscourseActivityPub::ContentParser.get_content(post)
-      if post.is_first_post?
-        post.custom_fields[
-          "activity_pub_visibility"
-        ] = post.topic&.category.activity_pub_default_visibility
-      else
-        post.custom_fields[
-          "activity_pub_visibility"
-        ] = post.topic.first_post.activity_pub_visibility
-      end
-      post.save_custom_fields(true)
-      post.perform_activity_pub_activity(:create)
+      post.activity_pub_publish!
     end
   end
   on(:post_destroyed) do |post, opts, user|
-    post.perform_activity_pub_activity(:delete) if post.activity_pub_local?
+    post.activity_pub_delete!
   end
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_local?

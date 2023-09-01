@@ -19,4 +19,8 @@ module DiscourseActivityPub
   def self.base_url
     "https://#{host}#{Discourse.base_path}"
   end
+
+  def self.enabled
+    !SiteSetting.login_required && SiteSetting.activity_pub_enabled
+  end
 end

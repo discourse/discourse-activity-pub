@@ -46,5 +46,48 @@ RSpec.describe DiscourseActivityPub::ContentParser do
         expect(described_class.get_content(post)).to eq(described_class.cook(post.raw))
       end
     end
+
+    context "with Note" do
+      before do
+        Post.any_instance.stubs(:activity_pub_object_type).returns('Note')
+      end
+
+      context "with markdown" do
+        let(:raw_markdown) {
+          <<~STRING
+            # First Header
+
+            ## Second Header
+
+            ### Third Header
+
+            #### Fourth Header
+
+            Paragraph
+
+            [Link](https://discourse.org)
+          STRING
+        }
+        let(:cooked_markdown) {
+          <<~HTML
+            <h1>First Header</h1>
+            <h2>Second Header</h2>
+            <h3>Third Header</h3>
+            <h4>Fourth Header</h4>
+            Paragraph
+            <a href="https://discourse.org">Link</a>
+          HTML
+        }
+        let!(:post) { Fabricate(:post, raw: raw_markdown) }
+
+        before do
+          SiteSetting.activity_pub_note_excerpt_maxlength = 1000
+        end
+
+        it "returns html" do
+          expect(described_class.get_content(post)).to eq(cooked_markdown.strip)
+        end
+      end
+    end
   end
 end
