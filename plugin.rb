@@ -654,7 +654,7 @@ after_initialize do
   add_to_serializer(
     :user,
     :activity_pub_authorizations,
-    include_condition: -> { Site.activity_pub_enabled }) do
+    include_condition: -> { DiscourseActivityPub.enabled }) do
     object.activity_pub_authorizations.map do |authorization|
       DiscourseActivityPub::Auth::AuthorizationSerializer.new(authorization, root: false).as_json
     end
