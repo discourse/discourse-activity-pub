@@ -290,9 +290,6 @@ after_initialize do
   add_to_class(:topic, :activity_pub_summary) do
     title
   end
-  add_to_serializer(:topic_view, :activity_pub_enabled) do
-    object.topic.activity_pub_enabled
-  end
 
   Post.has_one :activity_pub_object,
                class_name: "DiscourseActivityPubObject",
@@ -332,8 +329,6 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_enabled) do
     return false unless DiscourseActivityPub.enabled
-
-    topic = Topic.with_deleted.find_by(id: self.topic_id)
     return false unless topic&.activity_pub_enabled
 
     is_first_post? || activity_pub_full_topic
