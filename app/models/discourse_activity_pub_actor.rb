@@ -7,10 +7,10 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   belongs_to :model, polymorphic: true, optional: true
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id", dependent: :destroy
-  has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id"
-  has_many :follow_follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id"
-  has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower
-  has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed
+  has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id", dependent: :destroy
+  has_many :follow_follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id", dependent: :destroy
+  has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower, dependent: :destroy
+  has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed, dependent: :destroy
 
   validates :username, presence: true, if: :local?
   validate :local_username_uniqueness, if: :local?
@@ -24,6 +24,10 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def ready?(parent_ap_type = nil)
     local? ? model.activity_pub_ready? : available?
+  end
+
+  def remote?
+    !local?
   end
 
   def refresh_remote!

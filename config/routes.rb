@@ -14,9 +14,13 @@ DiscourseActivityPub::Engine.routes.draw do
     get "activity/:key" => "activities#show"
     get "object/:key" => "objects#show"
   end
-end
 
-Discourse::Application.routes.append do
-  get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
-  mount DiscourseActivityPub::Engine, at: "ap"
+  get "auth" => "auth#index", defaults: { format: :json }
+  scope module: "auth", path: "auth", defaults: { format: :json } do
+    delete "authorization" => "authorization#destroy"
+
+    post "oauth/verify" => "o_auth#verify"
+    get "oauth/authorize" => "o_auth#authorize"
+    get "oauth/redirect" => "o_auth#redirect"
+  end
 end

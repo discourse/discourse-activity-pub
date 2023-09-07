@@ -7,6 +7,7 @@
 
 register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
+register_svg_icon "fingerprint"
 
 after_initialize do
   %w[
@@ -22,6 +23,10 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
+    ../lib/discourse_activity_pub/auth.rb
+    ../lib/discourse_activity_pub/auth/oauth.rb
+    ../lib/discourse_activity_pub/auth/oauth/app.rb
+    ../lib/discourse_activity_pub/auth/authorization.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -66,6 +71,9 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
     ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
+    ../app/controllers/discourse_activity_pub/auth_controller.rb
+    ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
+    ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
     ../app/controllers/discourse_activity_pub/post_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
@@ -88,6 +96,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
+    ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_guardian_extension.rb
@@ -588,6 +597,63 @@ after_initialize do
   add_to_class(:user, :activity_pub_icon_url) do
     avatar_template_url.gsub("{size}", "96")
   end
+  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
+    return unless domain && access_token
+    tokens = activity_pub_access_tokens
+    tokens[domain] = access_token
+    custom_fields['activity_pub_access_tokens'] = tokens
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_save_actor_id) do |domain, actor_id|
+    return unless domain && actor_id
+    actor_ids = activity_pub_actor_ids
+    actor_ids[actor_id] = domain
+    custom_fields['activity_pub_actor_ids'] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_remove_actor_id) do |actor_id|
+    return unless actor_id
+    actor_ids = activity_pub_actor_ids
+    return unless actor_ids[actor_id].present?
+    actor_ids.delete(actor_id)
+    custom_fields['activity_pub_actor_ids'] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_access_tokens) do
+    if custom_fields['activity_pub_access_tokens']
+      JSON.parse(custom_fields['activity_pub_access_tokens'])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_actor_ids) do
+    if custom_fields['activity_pub_actor_ids']
+      JSON.parse(custom_fields['activity_pub_actor_ids'])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_authorizations) do
+    tokens = activity_pub_access_tokens
+    activity_pub_actor_ids.map do |actor_id, domain|
+      DiscourseActivityPub::Auth::Authorization.new(
+        {
+          actor_id: actor_id,
+          domain: domain,
+          access_token: tokens[domain]
+        }
+      )
+    end
+  end
+
+  add_to_serializer(
+    :user,
+    :activity_pub_authorizations,
+    include_condition: -> { DiscourseActivityPub.enabled }) do
+    object.activity_pub_authorizations.map do |authorization|
+      DiscourseActivityPub::Auth::AuthorizationSerializer.new(authorization, root: false).as_json
+    end
+  end
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
@@ -671,6 +737,13 @@ after_initialize do
         post_action.user.activity_pub_actor.present?
 
       post_action.perform_activity_pub_activity(:undo, :like)
+    end
+  end
+  on(:merging_users) do |source_user, target_user|
+    if source_user.activity_pub_actor&.remote?
+      DiscourseActivityPubActor.where(
+        id: source_user.activity_pub_actor.id
+      ).update_all(model_id: nil, model_type: nil)
     end
   end
 
@@ -847,5 +920,15 @@ after_initialize do
       object: response.stored,
       recipients: activity.object.stored.followers
     )
+  end
+
+  Discourse::Application.routes.prepend do
+    mount DiscourseActivityPub::Engine, at: "ap"
+
+    get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+    get "u/:username/preferences/activity-pub" => "users#preferences",
+        :constraints => {
+          username: RouteFormat.username,
+        }
   end
 end

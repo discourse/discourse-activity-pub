@@ -9,6 +9,19 @@ RSpec.describe DiscourseActivityPub::UserHandler do
       expect(actor.reload.model_id).to eq(user.id)
     end
 
+    context "when user has authorized the same actor id" do
+      let!(:user) { Fabricate(:user) }
+
+      before do
+        user.activity_pub_save_actor_id("https://external.com", actor.ap_id)
+      end
+
+      it "associates the user with the actor" do
+        described_class.update_or_create_user(actor)
+        expect(actor.reload.model_id).to eq(user.id)
+      end
+    end
+
     context "when actor has user" do
       let(:user) { Fabricate(:user) }
 

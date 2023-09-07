@@ -1,0 +1,20 @@
+<DSection @pageClass="user-preferences-activity-pub" />
+
+<ActivityPubAuthorize />
+
+{{#if hasAuthorizations}}
+  <div class="activity-pub-authorizations">
+    <h4>{{i18n "user.discourse_activity_pub.authorizations.title"}}</h4>
+    <label>{{i18n "user.discourse_activity_pub.authorizations.description"}}</label>
+    <ul>
+    {{#each authorizations as |authorization|}}
+      <li>
+        <ActivityPubAuthorization
+          @authorization={{authorization}}
+          @remove={{action "removeAuthorization"}}
+          />
+      </li>
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
