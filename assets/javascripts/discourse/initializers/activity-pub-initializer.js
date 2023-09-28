@@ -104,50 +104,92 @@ export default {
         },
       });
 
-      // TODO (future): PR discourse/discourse to add api for post admin menu
-      api.reopenWidget("post-admin-menu", {
-        html(attrs) {
-          let result = this._super(attrs);
-          if (attrs.activity_pub_enabled) {
-            const buttons = result.children.filter(
-              (widget) => widget.attrs.action !== "changePostOwner"
-            );
-            const canSchedule =
-              currentUser?.staff &&
-              attrs.activity_pub_first_post &&
-              attrs.activity_pub_is_first_post &&
-              !attrs.activity_pub_published_at;
-            if (canSchedule) {
-              const scheduled = !!attrs.activity_pub_scheduled_at;
-              const type = scheduled ? "unschedule" : "schedule";
-              const button = {
-                action: `${type}ActivityPublication`,
-                secondaryAction: "closeAdminMenu",
-                icon: "discourse-activity-pub",
-                className: `activity-pub-${type}`,
-                title: `post.discourse_activity_pub.${type}.title`,
-                label: `post.discourse_activity_pub.${type}.label`,
-                position: "second-last-hidden",
-              };
-              buttons.push(this.attach("post-admin-menu-button", button));
-            }
-            result.children = buttons;
+      if (api.addPostAdminMenuButton) {
+        api.addPostAdminMenuButton((attrs) => {
+          if (!attrs.activity_pub_enabled) {
+            return;
           }
-          return result;
-        },
 
-        scheduleActivityPublication() {
-          ajax(`/ap/post/schedule/${this.attrs.id}`, {
-            type: "POST",
-          }).catch(popupAjaxError);
-        },
+          const canSchedule =
+            currentUser?.staff &&
+            attrs.activity_pub_first_post &&
+            attrs.activity_pub_is_first_post &&
+            !attrs.activity_pub_published_at;
 
-        unscheduleActivityPublication() {
-          ajax(`/ap/post/schedule/${this.attrs.id}`, {
-            type: "DELETE",
-          }).catch(popupAjaxError);
-        },
-      });
+          if (canSchedule) {
+            const scheduled = !!attrs.activity_pub_scheduled_at;
+            const type = scheduled ? "unschedule" : "schedule";
+            return {
+              secondaryAction: "closeAdminMenu",
+              icon: "discourse-activity-pub",
+              className: `activity-pub-${type}`,
+              title: `post.discourse_activity_pub.${type}.title`,
+              label: `post.discourse_activity_pub.${type}.label`,
+              position: "second-last-hidden",
+              action: async (post) => {
+                if (scheduled) {
+                  ajax(`/ap/post/schedule/${post.id}`, {
+                    type: "DELETE",
+                  }).catch(popupAjaxError);
+                } else {
+                  ajax(`/ap/post/schedule/${post.id}`, {
+                    type: "POST",
+                  }).catch(popupAjaxError);
+                }
+              },
+            };
+          }
+        });
+      } else {
+        // TODO: remove support for older Discourse versions in December 2023
+        api.reopenWidget("post-admin-menu", {
+          pluginId: "discourse-activity-pub",
+
+          html(attrs) {
+            let result = this._super(attrs);
+
+            if (attrs.activity_pub_enabled) {
+              const buttons = result.children.filter(
+                (widget) => widget.attrs.action !== "changePostOwner"
+              );
+              const canSchedule =
+                currentUser?.staff &&
+                attrs.activity_pub_first_post &&
+                attrs.activity_pub_is_first_post &&
+                !attrs.activity_pub_published_at;
+
+              if (canSchedule) {
+                const scheduled = !!attrs.activity_pub_scheduled_at;
+                const type = scheduled ? "unschedule" : "schedule";
+                const button = {
+                  action: `${type}ActivityPublication`,
+                  secondaryAction: "closeAdminMenu",
+                  icon: "discourse-activity-pub",
+                  className: `activity-pub-${type}`,
+                  title: `post.discourse_activity_pub.${type}.title`,
+                  label: `post.discourse_activity_pub.${type}.label`,
+                  position: "second-last-hidden",
+                };
+                buttons.push(this.attach("post-admin-menu-button", button));
+              }
+              result.children = buttons;
+            }
+            return result;
+          },
+
+          scheduleActivityPublication() {
+            ajax(`/ap/post/schedule/${this.attrs.id}`, {
+              type: "POST",
+            }).catch(popupAjaxError);
+          },
+
+          unscheduleActivityPublication() {
+            ajax(`/ap/post/schedule/${this.attrs.id}`, {
+              type: "DELETE",
+            }).catch(popupAjaxError);
+          },
+        });
+      }
 
       api.modifyClass("model:post-stream", {
         pluginId: "discourse-activity-pub",
@@ -171,6 +213,7 @@ export default {
         @bind
         handleActivityPubMessage(data) {
           const postStream = this.get("model.postStream");
+
           if (data.model.type === "post" && postStream) {
             let stateProps = {
               activity_pub_scheduled_at: data.model.scheduled_at,

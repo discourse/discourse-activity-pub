@@ -33,7 +33,7 @@ module(
 
       assert.strictEqual(requests, 1, "performs one request");
       assert.strictEqual(
-        query(".activity-pub-authorize-verified-domain label").textContent,
+        query(".activity-pub-authorize-verified-domain a.btn").textContent,
         domain,
         "displays the verified domain"
       );
