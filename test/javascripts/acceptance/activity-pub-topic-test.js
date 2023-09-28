@@ -61,6 +61,7 @@ acceptance(
     setupServer(needs, {
       activity_pub_published_at: publishedAt,
       activity_pub_visibility: "public",
+      activity_pub_domain: "external.com",
     });
 
     test("When the plugin is disabled", async function (assert) {
@@ -120,9 +121,7 @@ acceptance(
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(
-          ".topic-post:nth-of-type(1) .post-controls .activity-pub-unschedule"
-        ),
+        exists(".fk-d-menu .activity-pub-unschedule"),
         "The unschedule button was rendered"
       );
     });
@@ -143,9 +142,7 @@ acceptance(
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(
-          ".topic-post:nth-of-type(1) .post-controls .activity-pub-schedule"
-        ),
+        exists(".fk-d-menu .activity-pub-schedule"),
         "The schedule button was rendered"
       );
     });
