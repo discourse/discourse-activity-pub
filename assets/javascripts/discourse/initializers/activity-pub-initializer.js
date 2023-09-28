@@ -157,7 +157,7 @@ export default {
                 attrs.activity_pub_first_post &&
                 attrs.activity_pub_is_first_post &&
                 !attrs.activity_pub_published_at;
-              console.log(canSchedule);
+
               if (canSchedule) {
                 const scheduled = !!attrs.activity_pub_scheduled_at;
                 const type = scheduled ? "unschedule" : "schedule";
@@ -213,6 +213,7 @@ export default {
         @bind
         handleActivityPubMessage(data) {
           const postStream = this.get("model.postStream");
+
           if (data.model.type === "post" && postStream) {
             let stateProps = {
               activity_pub_scheduled_at: data.model.scheduled_at,
