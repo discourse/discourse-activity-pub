@@ -1,5 +1,3 @@
-@import "common/components/buttons";
-
 .activity-pub-category-settings-title {
   display: flex;
   align-items: center;
@@ -165,8 +163,7 @@ body.user-preferences-activity-pub-page {
 .activity-pub-authorize-verified-domain {
   display: flex;
 
-  label {
-    @include btn;
+  a {
     cursor: unset;
   }
 }
@@ -186,9 +183,5 @@ body.user-preferences-activity-pub-page {
   .activity-pub-authorization {
     display: inline-flex;
     align-items: center;
-  }
-
-  .activity-pub-authorization-link {
-    @include btn;
   }
 }

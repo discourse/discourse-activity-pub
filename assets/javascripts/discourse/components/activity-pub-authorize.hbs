@@ -6,7 +6,7 @@
   <div class="activity-pub-authorize-controls">
     {{#if verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
-        <label>{{this.domain}}</label>
+        <a class="btn">{{this.domain}}</a>
         <DButton
           @id="user_activity_pub_authorize_clear_domain"
           @class="activity-pub-authorize-clear-domain"
