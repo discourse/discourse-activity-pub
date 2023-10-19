@@ -315,14 +315,18 @@ after_initialize do
     updated_at
     visibility
   ]
-  activity_pub_post_custom_fields.each do |field_name|
-    register_post_custom_field_type("activity_pub_#{field_name.to_s}", :string)
+  activity_pub_post_custom_field_names =
+    activity_pub_post_custom_fields.map do |field_name|
+      "activity_pub_#{field_name.to_s}"
+    end
+  activity_pub_post_custom_field_names.each do |field_name|
+    register_post_custom_field_type(field_name, :string)
   end
 
   add_permitted_post_create_param(:activity_pub_visibility)
 
   add_to_class(:post, :activity_pub_url) do
-    self.activity_pub_object&.url
+    activity_pub_local? ?  activity_pub_full_url : activity_pub_object&.url
   end
   add_to_class(:post, :activity_pub_full_url) do
     "#{DiscourseActivityPub.base_url}#{self.url}"
@@ -375,9 +379,9 @@ after_initialize do
   add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
     activity_pub_update_custom_fields(args)
   end
-  activity_pub_post_custom_fields.each do |field_name|
-    add_to_class(:post, "activity_pub_#{field_name}".to_sym) do
-      custom_fields["activity_pub_#{field_name}"]
+  activity_pub_post_custom_field_names.each do |field_name|
+    add_to_class(:post, field_name.to_sym) do
+      custom_fields[field_name]
     end
   end
   add_to_class(:post, :activity_pub_updated_at) do
@@ -404,8 +408,8 @@ after_initialize do
       type: "post"
     }
 
-    activity_pub_post_custom_fields.each do |field_name|
-      model[field_name.to_sym] = self.send("activity_pub_#{field_name.to_s}")
+    activity_pub_post_custom_fields.each do |field|
+      model[field.to_sym] = self.send("activity_pub_#{field.to_s}")
     end
 
     group_ids =[
@@ -416,8 +420,8 @@ after_initialize do
     MessageBus.publish("/activity-pub", { model: model }, { group_ids: group_ids })
   end
   add_to_class(:post, :before_clear_all_activity_pub_objects) do
-    activity_pub_post_custom_fields.each do |field_name|
-      self.custom_fields["activity_pub_#{field_name.to_s}"] = nil
+    activity_pub_post_custom_field_names.each do |field_name|
+      self.custom_fields[field_name] = nil
     end
     self.save_custom_fields(true)
   end
@@ -509,10 +513,12 @@ after_initialize do
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
   end
-  activity_pub_post_custom_fields.each do |field_name|
-    add_to_serializer(:post, "activity_pub_#{field_name}".to_sym) do
-      object.send("activity_pub_#{field_name}")
-    end
+  activity_pub_post_custom_field_names.each do |field_name|
+    add_to_serializer(
+      :post,
+      field_name.to_sym,
+      include_condition: -> { object.activity_pub_enabled }
+    ) { object.send(field_name) }
   end
   add_to_serializer(
     :post,
@@ -544,6 +550,19 @@ after_initialize do
     :activity_pub_is_first_post,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_is_first_post? }
+
+  TopicView.on_preload do |topic_view|
+    if topic_view.topic.activity_pub_enabled
+      Post.preload_custom_fields(
+        topic_view.posts,
+        activity_pub_post_custom_field_names
+      )
+      ActiveRecord::Associations::Preloader.new(
+        records: topic_view.posts,
+        associations: [:activity_pub_object]
+      ).call
+    end
+  end
 
   PostAction.include DiscourseActivityPub::AP::ModelCallbacks
 
