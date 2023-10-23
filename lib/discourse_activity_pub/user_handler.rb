@@ -123,7 +123,7 @@ module DiscourseActivityPub
     protected
 
     def update_avatar_from_icon
-      if actor.icon_url
+      if update_avatar?
         icon_upload = Upload.find_by(user_id: user.id, origin: actor.icon_url)
 
         if !icon_upload
@@ -139,6 +139,16 @@ module DiscourseActivityPub
 
       prefix = "Failed to #{verb} user for #{actor.id}"
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
+    end
+
+    def update_avatar?
+      return false unless actor.icon_url
+      return true if !user || user.user_avatar.custom_upload.blank?
+
+      DiscourseActivityPub::URI.matching_hosts?(
+        actor.icon_url,
+        user.user_avatar.custom_upload.origin
+      )
     end
   end
 end
