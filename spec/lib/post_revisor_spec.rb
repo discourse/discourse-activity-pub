@@ -14,8 +14,9 @@ RSpec.describe PostRevisor do
     end
 
     context "when revising a published activity pub post" do
-      let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: true) }
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now) }
+      let!(:post_actor) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
 
       describe "with the same note content" do
         it "allows the revision" do
@@ -60,6 +61,32 @@ RSpec.describe PostRevisor do
             expect { subject.revise!(user, title: new_title) }.not_to raise_error
             expect(post.topic.reload.title).to eq(new_title)
             expect(post.topic.activity_pub_object.reload.summary).to eq(new_title)
+          end
+        end
+
+        context "when the revisor is not the post user" do
+          let!(:staff) { Fabricate(:moderator) }
+
+          it "creates an activity with the revising user's actor" do
+            subject.revise!(staff, raw: "#{post.raw} revision")
+            expect(
+               staff.reload.activity_pub_actor.activities.where(
+                 object_id: post.activity_pub_object.id,
+                 object_type: 'DiscourseActivityPubObject',
+                 ap_type: 'Update'
+              ).exists?
+            ).to eq(true)
+          end
+
+          it "does not create an activity with the post user's actor" do
+            subject.revise!(staff, raw: "#{post.raw} revision")
+            expect(
+               post_actor.activities.where(
+                 object_id: post.activity_pub_object.id,
+                 object_type: 'DiscourseActivityPubObject',
+                 ap_type: 'Update'
+              ).exists?
+            ).to eq(false)
           end
         end
       end
