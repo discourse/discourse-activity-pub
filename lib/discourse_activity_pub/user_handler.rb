@@ -143,11 +143,11 @@ module DiscourseActivityPub
 
     def update_avatar?
       return false unless actor.icon_url
-      return true if !user || user.user_avatar.custom_upload.blank?
+      return true if !user || user.uploaded_avatar.blank?
 
       DiscourseActivityPub::URI.matching_hosts?(
         actor.icon_url,
-        user.user_avatar.custom_upload.origin
+        user.uploaded_avatar.origin
       )
     end
   end

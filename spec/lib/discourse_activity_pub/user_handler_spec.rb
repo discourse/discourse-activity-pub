@@ -59,10 +59,11 @@ RSpec.describe DiscourseActivityPub::UserHandler do
 
         context "when the user has a custom avatar" do
           fab!(:custom_avatar_url) { "/images/avatar.png" }
-          fab!(:custom_avatar) { Fabricate(:upload, url: custom_avatar_url) }
+          fab!(:custom_avatar) { Fabricate(:upload, url: custom_avatar_url, user_id: user.id) }
 
           before do
             user.user_avatar.update(custom_upload_id: custom_avatar.id)
+            user.update(uploaded_avatar_id: custom_avatar.id)
           end
 
           it "does not set the icon as the user's avatar" do
@@ -79,6 +80,32 @@ RSpec.describe DiscourseActivityPub::UserHandler do
             actor.save
             described_class.update_or_create_user(actor)
             expect(user.user_avatar.custom_upload.url).to eq(custom_avatar_url)
+          end
+        end
+
+        context "when the user has a gravatar" do
+          fab!(:gravatar_url) { "/images/gravatar.png" }
+          fab!(:gravatar) { Fabricate(:upload, url: gravatar_url, user: user) }
+
+          before do
+            user.user_avatar.update(gravatar_upload_id: gravatar.id)
+            user.update(uploaded_avatar_id: gravatar.id)
+          end
+
+          it "does not set the icon as the user's avatar" do
+            described_class.update_or_create_user(actor)
+            expect(user.uploaded_avatar.id).to eq(gravatar.id)
+          end
+
+          it "does not update the user's avatar if the icon changes" do
+            described_class.update_or_create_user(actor)
+            expect(user.uploaded_avatar.id).to eq(gravatar.id)
+
+            FileHelper.stubs(:download).returns(file_from_fixtures("logo-dev.png"))
+            actor.icon_url = "#{external_origin}/logo-dev.png"
+            actor.save
+            described_class.update_or_create_user(actor)
+            expect(user.uploaded_avatar.id).to eq(gravatar.id)
           end
         end
 
