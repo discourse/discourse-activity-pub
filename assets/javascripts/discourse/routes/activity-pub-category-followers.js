@@ -8,14 +8,14 @@ export default DiscourseRoute.extend({
     order: { refreshModel: true },
     asc: { refreshModel: true },
     domain: { refreshModel: true },
-    username: { refreshModel: true }
+    username: { refreshModel: true },
   },
 
   model(params) {
     const category = Category.findById(params.category_id);
 
     return ajax(`/ap/category/${category.id}/followers.json`)
-      .then(response => ({ category, ...response }))
+      .then((response) => ({ category, ...response }))
       .catch(popupAjaxError);
   },
 

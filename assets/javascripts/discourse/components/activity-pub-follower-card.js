@@ -6,15 +6,15 @@ export default class ActivityPubFollowerCard extends Component {
   @service site;
 
   get imageSize() {
-    return this.site.mobileView ? 'small' : 'huge';
+    return this.site.mobileView ? "small" : "huge";
   }
 
   get classes() {
-    let result = 'activity-pub-follower-card';
+    let result = "activity-pub-follower-card";
     if (this.site.mobileView) {
-      result += ' mobile';
+      result += " mobile";
     } else {
-      result += ' desktop';
+      result += " desktop";
     }
     return result;
   }

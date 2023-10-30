@@ -104,7 +104,7 @@ export default class ActivityPubStatus extends Component {
   get classes() {
     let result = `activity-pub-status ${this.statusClass}`;
     if (this.args.onClick) {
-      result += ' clickable';
+      result += " clickable";
     }
     return result;
   }

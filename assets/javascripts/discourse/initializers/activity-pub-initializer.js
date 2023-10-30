@@ -3,6 +3,7 @@ import { bind } from "discourse-common/utils/decorators";
 import { Promise } from "rsvp";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { ajax } from "discourse/lib/ajax";
+import I18n from "I18n";
 
 export default {
   name: "activity-pub",
@@ -253,12 +254,13 @@ export default {
 
       api.addNavigationBarItem({
         name: "followers",
-        title: I18n.t('discourse_activity_pub.followers.description'),
-        displayName: I18n.t('discourse_activity_pub.followers.label'),
-        customFilter: (category, args, router) => (category?.activity_pub_enabled),
-        customHref: (category, args, router) => (`/ap/category/${category.id}/followers`),
-        forceActive: (category, args, router) => router.currentURL === `/ap/category/${category.id}/followers`
-      })
+        title: I18n.t("discourse_activity_pub.followers.description"),
+        displayName: I18n.t("discourse_activity_pub.followers.label"),
+        customFilter: (category) => category?.activity_pub_enabled,
+        customHref: (category) => `/ap/category/${category.id}/followers`,
+        forceActive: (category, _, router) =>
+          router.currentURL === `/ap/category/${category.id}/followers`,
+      });
     });
   },
 };

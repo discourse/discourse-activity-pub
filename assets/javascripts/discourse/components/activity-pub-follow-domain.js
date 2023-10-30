@@ -3,8 +3,9 @@ import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
 import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
-import { hostnameValid, extractDomainFromUrl } from "discourse/lib/utilities";
+import { extractDomainFromUrl, hostnameValid } from "discourse/lib/utilities";
 import { buildHandle } from "../lib/activity-pub-utilities";
+import { Promise } from "rsvp";
 import I18n from "I18n";
 
 // We're using a hardcoded url here as mastodon will only webfinger this as
@@ -12,11 +13,13 @@ import I18n from "I18n";
 // See https://docs.joinmastodon.org/spec/webfinger
 // See https://socialhub.activitypub.rocks/t/what-is-the-current-spec-for-remote-follow/2020
 const mastodonFollowUrl = (domain, handle) => {
-  return `https://${domain}/authorize_interaction?uri=${encodeURIComponent(handle)}`;
+  return `https://${domain}/authorize_interaction?uri=${encodeURIComponent(
+    handle
+  )}`;
 };
 
 // See https://docs.joinmastodon.org/methods/instance/#v2
-const mastodonAboutPath = 'api/v2/instance';
+const mastodonAboutPath = "api/v2/instance";
 
 export default class ActivityPubFollowMastodon extends Component {
   @service site;
@@ -24,9 +27,9 @@ export default class ActivityPubFollowMastodon extends Component {
   @tracked error = null;
 
   get footerClass() {
-    let result = 'activity-pub-follow-domain-footer';
+    let result = "activity-pub-follow-domain-footer";
     if (this.error) {
-      result += ' error';
+      result += " error";
     }
     return result;
   }
@@ -38,17 +41,17 @@ export default class ActivityPubFollowMastodon extends Component {
       }
 
       return ajax(`https://${domain}/${mastodonAboutPath}`, {
-        type: 'GET',
-        ignoreUnsent: false
-      }).then(response => {
-        if (response?.domain && response.domain === domain) {
-          return resolve(mastodonFollowUrl(domain, handle));
-        } else {
-          return resolve(null);
-        }
-      }).catch(error => {
-        return resolve(null);
+        type: "GET",
+        ignoreUnsent: false,
       })
+        .then((response) => {
+          if (response?.domain && response.domain === domain) {
+            return resolve(mastodonFollowUrl(domain, handle));
+          } else {
+            return resolve(null);
+          }
+        })
+        .catch(() => resolve(null));
     });
   }
 
@@ -82,7 +85,7 @@ export default class ActivityPubFollowMastodon extends Component {
     this.verifying = false;
 
     if (url) {
-      window.open(url, '_blank').focus();
+      window.open(url, "_blank").focus();
     } else {
       this.error = I18n.t("discourse_activity_pub.follow.domain.invalid");
     }

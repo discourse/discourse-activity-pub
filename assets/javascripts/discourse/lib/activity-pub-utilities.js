@@ -1,4 +1,3 @@
-
 export function buildHandle({ actor, model, site }) {
   if ((!actor && !model) || (model && !site)) {
     return undefined;

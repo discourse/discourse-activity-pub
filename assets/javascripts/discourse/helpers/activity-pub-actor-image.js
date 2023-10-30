@@ -1,5 +1,5 @@
 import { htmlSafe } from "@ember/template";
-import { translateSize, avatarUrl } from "discourse-common/lib/avatar-utils";
+import { translateSize } from "discourse-common/lib/avatar-utils";
 import { registerRawHelper } from "discourse-common/lib/helpers";
 import { buildHandle } from "../lib/activity-pub-utilities";
 
