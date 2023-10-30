@@ -19,15 +19,15 @@ RSpec.describe DiscourseActivityPub::CategoryController do
     end
 
     it "returns the categories followers" do
-      get "/c/#{actor.model.slug}/#{actor.model.id}/ap/followers.json"
+      get "/ap/category/#{actor.model.id}/followers.json"
       expect(response.status).to eq(200)
-      expect(response.parsed_body['followers'].map{|f| f["ap_id"] }).to eq(
+      expect(response.parsed_body['followers'].map{|f| f["url"] }).to eq(
         [follower3.ap_id, follower2.ap_id, follower1.ap_id]
       )
     end
 
     it "orders by ap domain" do
-      get "/c/#{actor.model.slug}/#{actor.model.id}/ap/followers.json?order=domain"
+      get "/ap/category/#{actor.model.id}/followers.json?order=domain"
       expect(response.status).to eq(200)
       expect(response.parsed_body['followers'].map{|f| f["domain"] }).to eq(
         ["twitter.com", "netflix.com", "google.com"]
@@ -35,7 +35,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
     end
 
     it "orders by ap username" do
-      get "/c/#{actor.model.slug}/#{actor.model.id}/ap/followers.json?order=username"
+      get "/ap/category/#{actor.model.id}/followers.json?order=username"
       expect(response.status).to eq(200)
       expect(response.parsed_body['followers'].map{|f| f["username"] }).to eq(
         ["xavier", "jenny", "bob"]
@@ -43,9 +43,9 @@ RSpec.describe DiscourseActivityPub::CategoryController do
     end
 
     it "paginates" do
-      get "/c/#{actor.model.slug}/#{actor.model.id}/ap/followers.json?limit=2&page=1"
+      get "/ap/category/#{actor.model.id}/followers.json?limit=2&page=1"
       expect(response.status).to eq(200)
-      expect(response.parsed_body['followers'].map{|f| f["ap_id"] }).to eq(
+      expect(response.parsed_body['followers'].map{|f| f["url"] }).to eq(
         [follower1.ap_id]
       )
     end

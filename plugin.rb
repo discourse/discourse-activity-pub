@@ -258,7 +258,7 @@ after_initialize do
   add_to_serializer(
     :basic_category,
     :activity_pub_post_object_type,
-    include_condition: -> { object.activity_pub_post_object_type }
+    include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_post_object_type }
   add_to_serializer(
     :basic_category,
@@ -275,6 +275,7 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_name"
     Site.preloaded_category_custom_fields << "activity_pub_default_visibility"
     Site.preloaded_category_custom_fields << "activity_pub_publication_type"
+    Site.preloaded_category_custom_fields << "activity_pub_post_object_type"
   end
 
   Topic.has_one :activity_pub_object,
