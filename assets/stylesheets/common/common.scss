@@ -1,3 +1,13 @@
+@import "common/components/buttons";
+
+@mixin description-text {
+  color: var(--primary-medium);
+  margin-top: 4px;
+  margin-bottom: 10px;
+  font-size: var(--font-down-1);
+  line-height: var(--line-height-large);
+}
+
 .activity-pub-category-settings-title {
   display: flex;
   align-items: center;
@@ -33,6 +43,18 @@
   }
 }
 
+.activity-pub-status-tip {
+  background: var(--primary-low);
+  height: 35px;
+  padding: 0 8px 0 2px;
+  align-items: center;
+  display: flex;
+
+  .d-icon {
+    color: var(--primary-medium);
+  }
+}
+
 .activity-pub-setting {
   margin-top: 4px;
 
@@ -41,11 +63,7 @@
   }
 
   .activity-pub-setting-description {
-    color: var(--primary-medium);
-    margin-top: 4px;
-    margin-bottom: 10px;
-    font-size: var(--font-down-1);
-    line-height: var(--line-height-large);
+    @include description-text;
   }
 
   .activity-pub-setting-notice {
@@ -73,20 +91,33 @@
 }
 
 .activity-pub-handle {
-  display: inline-flex;
-  align-items: stretch;
+  overflow: hidden;
+
+  .activity-pub-handle-contents {
+    display: flex;
+    align-items: stretch;
+    border-radius: var(--d-border-radius);
+    border: 1px solid var(--primary-low);
+    line-height: 30px;
+    overflow: hidden;
+  }
 
   .handle {
-    border-radius: var(--d-border-radius);
-    background-color: var(--primary-200);
     padding: 0 0.65em;
-    line-height: 35px;
+    color: var(--primary-high);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
-  button {
-    border: unset;
-    max-height: 35px;
+  button,
+  a {
+    @extend .btn-flat;
   }
+}
+
+.activity-pub-handle-description {
+  @include description-text;
 }
 
 .activity-pub-discovery-dropdown {
@@ -183,5 +214,191 @@ body.user-preferences-activity-pub-page {
   .activity-pub-authorization {
     display: inline-flex;
     align-items: center;
+  }
+}
+
+.activity-pub-category-navigation {
+  width: 100%;
+}
+
+.activity-pub-category-banner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: var(--primary-very-low);
+
+  .activity-pub-status {
+    padding: 6px 8px;
+  }
+
+  .activity-pub-statistics {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5em;
+    height: 100%;
+    padding: 0 1.5em;
+
+    @media (max-width: 700px) {
+      display: none;
+    }
+  }
+
+  .activity-pub-follow-btn {
+    margin-left: auto;
+  }
+
+  button {
+    min-height: 35px;
+  }
+}
+
+.activity-pub-followers-btn {
+  &.active {
+    background-color: var(--quaternary);
+    color: var(--secondary);
+  }
+}
+
+.activity-pub-followers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-gap: 60px 20px;
+  margin-top: 60px;
+  padding: 1em 0;
+}
+
+.activity-pub-follower {
+  background: var(--secondary);
+  box-shadow: var(--shadow-card);
+}
+
+.activity-pub-follower-content {
+  padding: 1em;
+}
+
+.activity-pub-follower-user {
+  display: flex;
+  align-items: center;
+
+  .activity-pub-site-icon {
+    margin-right: 0.5em;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.activity-pub-follower-card {
+  --avatar-width-desktop: 8em;
+  --avatar-margin-desktop: -3.3em;
+  --avatar-width-mobile: 4em;
+  --avatar-margin-mobile: 0;
+
+  box-shadow: var(--shadow-card);
+  padding: 1em;
+  display: flex;
+  max-width: calc(100vw - 20px);
+  box-sizing: border-box;
+
+  &.desktop {
+    .activity-pub-actor-image {
+      margin-top: var(--avatar-margin-desktop);
+      max-height: var(--avatar-width-desktop);
+
+      img {
+        width: var(--avatar-width-desktop);
+        height: var(--avatar-width-desktop);
+      }
+    }
+  }
+
+  &.mobile {
+    .activity-pub-actor-image {
+      margin-top: var(--avatar-margin-mobile);
+      max-height: var(--avatar-width-mobile);
+
+      img {
+        width: var(--avatar-width-mobile);
+        height: var(--avatar-width-mobile);
+      }
+    }
+  }
+}
+
+.activity-pub-follower-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  max-width: 100%;
+
+  .row {
+    display: flex;
+    gap: 1em;
+    max-width: 100%;
+  }
+
+  .top-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    overflow: hidden;
+  }
+}
+
+.activity-pub-actor-image {
+  img {
+    border-radius: 50%;
+  }
+}
+
+.activity-pub-actor-statistics {
+  display: flex;
+  gap: 1em;
+
+  dt,
+  dd {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  dd {
+    padding: 0;
+    margin: 0 15px 0 0;
+    color: var(--primary);
+  }
+
+  dt {
+    color: var(--secondary-medium);
+    margin-right: 5px;
+    display: inline-block;
+  }
+}
+
+.activity-pub-follow-controls {
+  .activity-pub-handle-label {
+    margin-top: 1em;
+  }
+  .activity-pub-handle {
+    display: inline-flex;
+  }
+}
+
+.activity-pub-follow-domain-controls {
+  display: flex;
+  align-items: center;
+
+  input {
+    margin: 0;
+  }
+}
+
+.activity-pub-follow-domain-footer {
+  @include description-text;
+
+  &.error {
+    color: var(--danger);
   }
 }

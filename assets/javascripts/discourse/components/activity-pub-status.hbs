@@ -2,3 +2,15 @@
   {{d-icon "discourse-activity-pub"}}
   <span class="label" title={{this.translatedLabelTitle}}>{{this.translatedLabel}}</span>
 </div>
+
+{{#if @showTip}}
+  <div class="activity-pub-status-tip">
+    <DTooltip @theme="user-tip" @icon="info-circle" @arrow={{true}}>
+      <div class="user-tip__container">
+        <div class="user-tip__content">
+          {{i18n "discourse_activity_pub.tip.status.description"}}
+        </div>
+      </div>
+    </DTooltip>
+  </div>
+{{/if}}

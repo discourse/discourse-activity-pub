@@ -250,6 +250,15 @@ export default {
           );
         },
       });
+
+      api.addNavigationBarItem({
+        name: "followers",
+        title: I18n.t('discourse_activity_pub.followers.description'),
+        displayName: I18n.t('discourse_activity_pub.followers.label'),
+        customFilter: (category, args, router) => (category?.activity_pub_enabled),
+        customHref: (category, args, router) => (`/ap/category/${category.id}/followers`),
+        forceActive: (category, args, router) => router.currentURL === `/ap/category/${category.id}/followers`
+      })
     });
   },
 };

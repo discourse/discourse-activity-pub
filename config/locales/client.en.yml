@@ -7,8 +7,10 @@ en:
         enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
         show_status: Show the ActivityPub status and visibility in this category's composer.
         show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
-        show_handle: Show an ActivityPub handle in this category's topic list.
-        show_handle_description: Shows a dropdown with the handle to the left of the "New Topic" button.
+        show_handle: Show ActivityPub follow button in this category's topic list.
+        show_handle_description: Shows a follow button to the left of the "New Topic" button.
+        show_banner: Show an ActivityPub banner in this category's topic list.
+        show_banner_description: Shows a banner with ActivityPub statistics above the topic list in this category.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.
@@ -37,13 +39,38 @@ en:
           not_active: Not Active
       discovery:
         description: Follow %{category_name} on services that support ActivityPub using
+      handle:
+        label: Other
+        description: Search for this handle on a service that supports ActivityPub.
+      follow:
+        label: Follow
+        title: Follow %{name} via ActivityPub
+        domain:
+          label: Mastodon
+          placeholder: domain
+          btn_label: Follow
+          btn_title: Follow on this Mastodon domain
+          description: Domain of your Mastodon account.
+          verifying: Verifying the domain...
+          invalid: Not a valid Mastodon domain.
+      followers:
+        label: Followers
+        description: People following this category via ActivityPub.
+        label_with_count:
+          one: "%{count} Follower"
+          other: "%{count} Followers"
+        title:
+          one: "%{count} person is following this category via ActivityPub."
+          other: "%{count} people are following this category via ActivityPub."
+      follower:
+        followed_at: Followed
       visibility:
         label:
           private: Followers Only
           public: Public
         description:
-          private: "%{object_type} is addressed to followers."
-          public: "%{object_type} is publicly addressed."
+          private: "%{object_type}s are addressed to followers."
+          public: "%{object_type}s are publicly addressed."
       post_object_type:
         label:
           note: Note
@@ -58,6 +85,10 @@ en:
         description:
           first_post: First post of every topic in this category is published via ActivityPub.
           full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
+      tip:
+        status:
+          description: You can follow this category on any social network that supports ActivityPub, such as Mastodon.
+
     post:
       discourse_activity_pub:
         title:

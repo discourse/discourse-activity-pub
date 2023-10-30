@@ -1,0 +1,18 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-follow-modal"
+>
+  <:body>
+    <div class="activity-pub-follow-controls">
+      <ActivityPubFollowDomain @model={{@model}} />
+      <label class="activity-pub-handle-label">
+        {{i18n "discourse_activity_pub.handle.label"}}
+      </label>
+      <ActivityPubHandle @model={{@model}} />
+      <div class="activity-pub-handle-description">
+        {{i18n "discourse_activity_pub.handle.description"}}
+      </div>
+    </div>
+  </:body>
+</DModal>

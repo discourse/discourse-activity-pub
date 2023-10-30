@@ -1,0 +1,32 @@
+<div class={{this.classes}}>
+  <div class="activity-pub-follower-card-content">
+    <div class="top row">
+      {{activityPubActorImage @follower size=imageSize classes=imageClasses}}
+      <div class="top-content">
+        <div class="top-first-row row">
+          <ActivityPubHandle @actor={{@follower}} />
+        </div>
+        {{#if @follower.user}}
+          <div class="top-second-row row">
+            <div class="activity-pub-follower-user">
+              <div class="activity-pub-site-icon">
+                <img src={{this.siteSettings.site_favicon_url}} />
+              </div>
+              <a class="username" href={{concat "/u/" @follower.user.username}}>
+                {{@follower.user.username}}
+              </a>
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+    <div class="bottom row">
+      <div class="activity-pub-actor-statistics">
+        <span class="followed-at">
+          <dt>{{i18n "discourse_activity_pub.follower.followed_at"}}</dt>
+          <dd>{{bound-date @follower.followed_at}}</dd>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

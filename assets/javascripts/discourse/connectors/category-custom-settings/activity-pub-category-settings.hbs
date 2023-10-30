@@ -33,10 +33,20 @@
   </div>
 </section>
 
+<section class='field activity-pub-setting activity-pub-show-banner'>
+  <label>
+    <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_show_banner}} />
+    {{i18n 'category.discourse_activity_pub.show_banner'}}
+  </label>
+  <div class="activity-pub-setting-description">
+    {{i18n 'category.discourse_activity_pub.show_banner_description'}}
+  </div>
+</section>
+
 {{#if this.category.activity_pub_username}}
   <section class='field activity-pub-setting activity-pub-handle-field'>
     <label>{{i18n 'category.discourse_activity_pub.handle'}}</label>
-    <ActivityPubHandle @actor={{this.category}} />
+    <ActivityPubHandle @model={{this.category}} />
     <div class="activity-pub-setting-description">
       {{i18n 'category.discourse_activity_pub.handle_description'}}
     </div>

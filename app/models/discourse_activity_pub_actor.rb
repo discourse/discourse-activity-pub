@@ -54,8 +54,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     )
   end
 
+  def domain
+    local? ? DiscourseActivityPub.host : self.read_attribute(:domain)
+  end
+
   def url
-    local? && model&.activity_pub_url
+    local? ? model&.activity_pub_url : self.ap_id
   end
 
   def icon_url

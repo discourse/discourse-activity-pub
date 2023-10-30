@@ -7,7 +7,7 @@
   {{#if showDropdown}}
     <div class="activity-pub-discovery-dropdown">
       <span>{{i18n "discourse_activity_pub.discovery.description" category_name=@category.name}}</span>
-      <ActivityPubHandle @actor={{@category}} />
+      <ActivityPubHandle @model={{@category}} />
     </div>
   {{/if}}
 </div>

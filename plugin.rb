@@ -75,6 +75,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
     ../app/controllers/discourse_activity_pub/post_controller.rb
+    ../app/controllers/discourse_activity_pub/category_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -96,6 +97,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
+    ../app/serializers/discourse_activity_pub/follower_serializer.rb
     ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
@@ -111,11 +113,16 @@ after_initialize do
                    class_name: "DiscourseActivityPubActor",
                    as: :model,
                    dependent: :destroy
+  Category.has_many :activity_pub_followers,
+                    through: :activity_pub_actor,
+                    source: :followers,
+                    class_name: "DiscourseActivityPubActor"
   Category.prepend DiscourseActivityPubCategoryExtension
 
   register_category_custom_field_type("activity_pub_enabled", :boolean)
   register_category_custom_field_type("activity_pub_show_status", :boolean)
   register_category_custom_field_type("activity_pub_show_handle", :boolean)
+  register_category_custom_field_type("activity_pub_show_banner", :boolean)
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
@@ -137,6 +144,9 @@ after_initialize do
   end
   add_to_class(:category, :activity_pub_show_handle) do
     DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_handle"]
+  end
+  add_to_class(:category, :activity_pub_show_banner) do
+    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_banner"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -186,11 +196,11 @@ after_initialize do
   add_to_class(:category, :activity_pub_full_topic) do
     activity_pub_publication_type === 'full_topic'
   end
-  add_to_class(:category, :activity_pub_post_object_type) do
-    custom_fields["activity_pub_post_object_type"]
-  end
   add_to_class(:category, :activity_pub_default_object_type) do
     DiscourseActivityPub::AP::Actor::Group.type
+  end
+  add_to_class(:category, :activity_pub_follower_count) do
+    activity_pub_followers.count
   end
 
   add_model_callback(:category, :after_save) do
@@ -241,18 +251,40 @@ after_initialize do
   ) { object.activity_pub_show_handle }
   add_to_serializer(
     :basic_category,
+    :activity_pub_show_banner,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_show_banner }
+  add_to_serializer(
+    :basic_category,
     :activity_pub_default_visibility,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_default_visibility }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_follower_count,
+    include_condition: -> { object.activity_pub_enabled }
+  ) { object.activity_pub_follower_count }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_post_object_type,
+    include_condition: -> { object.activity_pub_post_object_type }
+  ) { object.activity_pub_post_object_type }
+  add_to_serializer(
+    :basic_category,
+    :activity_pub_publication_type,
+    include_condition: -> { object.activity_pub_publication_type }
+  ) { object.activity_pub_publication_type }
 
   if Site.respond_to? :preloaded_category_custom_fields
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
     Site.preloaded_category_custom_fields << "activity_pub_ready"
     Site.preloaded_category_custom_fields << "activity_pub_show_status"
     Site.preloaded_category_custom_fields << "activity_pub_show_handle"
+    Site.preloaded_category_custom_fields << "activity_pub_show_banner"
     Site.preloaded_category_custom_fields << "activity_pub_username"
     Site.preloaded_category_custom_fields << "activity_pub_name"
     Site.preloaded_category_custom_fields << "activity_pub_default_visibility"
+    Site.preloaded_category_custom_fields << "activity_pub_post_object_type"
     Site.preloaded_category_custom_fields << "activity_pub_publication_type"
   end
 

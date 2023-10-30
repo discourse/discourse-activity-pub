@@ -1,0 +1,8 @@
+<div class="activity-pub-category-banner">
+  {{#if @category}}
+    <ActivityPubStatus @model={{@category}} @modelType="category" @showTip={{true}} />
+    {{#unless this.site.mobileView}}
+      <ActivityPubStatistics @category={{@category}} />
+    {{/unless}}
+  {{/if}}
+</div>
