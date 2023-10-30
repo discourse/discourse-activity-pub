@@ -41,7 +41,7 @@ en:
         description: Follow %{category_name} on services that support ActivityPub using
       handle:
         label: Other
-        description: Search for this handle on a service that supports ActivityPub.
+        description: search for this handle on a service that supports ActivityPub
       follow:
         label: Follow
         title: Follow %{name} via ActivityPub
@@ -50,9 +50,9 @@ en:
           placeholder: domain
           btn_label: Follow
           btn_title: Follow on this Mastodon domain
-          description: Domain of your Mastodon account.
-          verifying: Verifying the domain...
-          invalid: Not a valid Mastodon domain.
+          description: domain of your Mastodon account
+          verifying: verifying the domain...
+          invalid: not a valid Mastodon domain
       followers:
         label: Followers
         description: People following this category via ActivityPub.

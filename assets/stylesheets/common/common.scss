@@ -18,40 +18,44 @@
   }
 }
 
-.activity-pub-status {
+div.activity-pub-status {
   padding: 2px 8px;
   border-radius: var(--d-border-radius);
-  font-size: 0.9em;
   line-height: 0.9em;
   min-height: 23px;
   background-color: var(--primary-200);
   display: inline-flex;
   align-items: center;
 
-  .svg-icon {
-    height: 1.5em;
-    width: 1.5em;
-    color: var(--danger) !important;
+  > .svg-icon {
+    height: 1.2em;
+    width: 1.2em;
+    color: var(--danger);
   }
 
-  &.active .svg-icon {
-    color: var(--success) !important;
+  &.active > .svg-icon {
+    color: var(--success);
   }
 
   .label {
     margin-left: 0.5em;
   }
+
+  .clickable {
+    cursor: pointer;
+  }
 }
 
 .activity-pub-status-tip {
   background: var(--primary-low);
-  height: 35px;
-  padding: 0 8px 0 2px;
   align-items: center;
   display: flex;
+  min-height: 30px;
+  margin-left: 0.5em;
 
   .d-icon {
     color: var(--primary-medium);
+    font-size: 1rem;
   }
 }
 
@@ -139,6 +143,14 @@
 
 #reply-control .activity-pub-status {
   margin-left: 1em;
+
+  > .svg-icon {
+    color: var(--danger) !important;
+  }
+
+  &.active > .svg-icon {
+    color: var(--success) !important;
+  }
 }
 
 .post-info.activity-pub {
@@ -253,10 +265,13 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-followers-btn {
-  &.active {
-    background-color: var(--quaternary);
-    color: var(--secondary);
+.activity-pub-follow-btn {
+  .activity-pub-status {
+    @include btn;
+
+    .label {
+      margin-left: unset;
+    }
   }
 }
 

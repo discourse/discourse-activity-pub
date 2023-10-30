@@ -1,6 +1,7 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
+import { action } from "@ember/object";
 import { bind } from "discourse-common/utils/decorators";
 import I18n from "I18n";
 
@@ -56,6 +57,10 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedTitle() {
+    if (this.args.translatedTitle) {
+      return this.args.translatedTitle;
+    }
+
     const args = {
       model_type: this.args.modelType,
     };
@@ -96,6 +101,14 @@ export default class ActivityPubStatus extends Component {
     return this.active ? "active" : "not_active";
   }
 
+  get classes() {
+    let result = `activity-pub-status ${this.statusClass}`;
+    if (this.args.onClick) {
+      result += ' clickable';
+    }
+    return result;
+  }
+
   get statusClass() {
     return this.active ? "active" : "not-active";
   }
@@ -109,6 +122,17 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedLabel() {
-    return I18n.t(this.labelKey("label"));
+    if (this.args.translatedLabel) {
+      return this.args.translatedLabel;
+    } else {
+      return I18n.t(this.labelKey("label"));
+    }
+  }
+
+  @action
+  click(event) {
+    if (this.args.onClick) {
+      this.args.onClick(event);
+    }
   }
 }
