@@ -9,8 +9,6 @@ en:
         show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
         show_handle: Show ActivityPub follow button in this category's topic list.
         show_handle_description: Shows a follow button to the left of the "New Topic" button.
-        show_banner: Show an ActivityPub banner in this category's topic list.
-        show_banner_description: Shows a banner with ActivityPub statistics above the topic list in this category.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.

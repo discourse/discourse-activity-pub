@@ -48,10 +48,6 @@ module DiscourseActivityPub
 
     protected
 
-    def followers_response
-
-    end
-
     def find_category
       @category = Category.find_by_id(params.require(:category_id))
       return render_category_error("category_not_found", 400) unless @category.present?

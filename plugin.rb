@@ -122,7 +122,6 @@ after_initialize do
   register_category_custom_field_type("activity_pub_enabled", :boolean)
   register_category_custom_field_type("activity_pub_show_status", :boolean)
   register_category_custom_field_type("activity_pub_show_handle", :boolean)
-  register_category_custom_field_type("activity_pub_show_banner", :boolean)
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
@@ -144,9 +143,6 @@ after_initialize do
   end
   add_to_class(:category, :activity_pub_show_handle) do
     DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_handle"]
-  end
-  add_to_class(:category, :activity_pub_show_banner) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_banner"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -251,11 +247,6 @@ after_initialize do
   ) { object.activity_pub_show_handle }
   add_to_serializer(
     :basic_category,
-    :activity_pub_show_banner,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_show_banner }
-  add_to_serializer(
-    :basic_category,
     :activity_pub_default_visibility,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_default_visibility }
@@ -280,11 +271,9 @@ after_initialize do
     Site.preloaded_category_custom_fields << "activity_pub_ready"
     Site.preloaded_category_custom_fields << "activity_pub_show_status"
     Site.preloaded_category_custom_fields << "activity_pub_show_handle"
-    Site.preloaded_category_custom_fields << "activity_pub_show_banner"
     Site.preloaded_category_custom_fields << "activity_pub_username"
     Site.preloaded_category_custom_fields << "activity_pub_name"
     Site.preloaded_category_custom_fields << "activity_pub_default_visibility"
-    Site.preloaded_category_custom_fields << "activity_pub_post_object_type"
     Site.preloaded_category_custom_fields << "activity_pub_publication_type"
   end
 
