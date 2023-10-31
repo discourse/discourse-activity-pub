@@ -3,7 +3,7 @@
 module DiscourseActivityPub
   class CategoryController < ApplicationController
     PAGE_SIZE = 50
-    ORDER = %w(domain username followed_at)
+    ORDER = %w(actor user followed_at)
 
     before_action :ensure_site_enabled
     before_action :find_category
@@ -14,16 +14,26 @@ module DiscourseActivityPub
     def followers
       guardian.ensure_can_see!(@category)
 
-      order_followed_at = params[:order] == 'followed_at'
       permitted_order = ORDER.find { |attr| attr == params[:order] }
-      order = (order_followed_at || !permitted_order) ? 'created_at' : permitted_order
+      order = case permitted_order
+              when 'actor' then 'username'
+              when 'user' then 'username'
+              when 'followed_at' then 'created_at'
+              else 'created_at'
+              end
+      order_table = case permitted_order
+                    when 'actor' then 'discourse_activity_pub_actors'
+                    when 'user' then 'users'
+                    when 'followed_at' then 'discourse_activity_pub_follows'
+                    else 'discourse_activity_pub_follows'
+                    end
       order_dir = params[:asc] ? "ASC" : "DESC"
-      order_table = order == 'created_at' ? 'discourse_activity_pub_follows' : 'discourse_activity_pub_actors'
 
       followers = @category
         .activity_pub_followers
         .joins(:follow_follows)
         .where(follow_follows: { followed_id: @category.activity_pub_actor.id })
+        .joins(:user)
         .order("#{order_table}.#{order} #{order_dir}")
 
       limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)

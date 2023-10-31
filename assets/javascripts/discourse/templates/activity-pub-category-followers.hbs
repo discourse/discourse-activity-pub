@@ -17,14 +17,14 @@
     <ResponsiveTable @className="activity-pub-followers">
       <:header>
         <TableHeaderToggle
-          @field="username"
+          @field="actor"
           @labelKey="discourse_activity_pub.follower.actor"
           @automatic={{true}}
           @order={{this.order}}
           @asc={{this.asc}}
         />
         <TableHeaderToggle
-          @field="domain"
+          @field="user"
           @labelKey="discourse_activity_pub.follower.user"
           @automatic={{true}}
           @order={{this.order}}
