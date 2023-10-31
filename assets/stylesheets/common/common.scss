@@ -259,7 +259,7 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-followers {
-  grid-template-columns: minmax(13em, 3fr) repeat(2, minmax(max-content, 1fr));
+  grid-template-columns: minmax(13em, 3fr) repeat(2, 110px);
 }
 
 .activity-pub-follower-actor {
@@ -275,10 +275,6 @@ body.user-preferences-activity-pub-page {
 .activity-pub-follower-user {
   display: flex;
   align-items: center;
-
-  .avatar {
-    margin-right: 0.25em;
-  }
 }
 
 .activity-pub-actor-statistics {
