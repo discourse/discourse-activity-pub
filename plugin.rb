@@ -247,6 +247,7 @@ after_initialize do
     activity_pub_name
     activity_pub_default_visibility
     activity_pub_publication_type
+    activity_pub_post_object_type
   )
   serialized_category_custom_fields.each do |field|
     add_to_serializer(
