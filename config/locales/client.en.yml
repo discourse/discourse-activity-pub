@@ -54,13 +54,9 @@ en:
       followers:
         label: Followers
         description: People following this category via ActivityPub.
-        label_with_count:
-          one: "%{count} Follower"
-          other: "%{count} Followers"
-        title:
-          one: "%{count} person is following this category via ActivityPub."
-          other: "%{count} people are following this category via ActivityPub."
       follower:
+        actor: Actor
+        user: User
         followed_at: Followed
       visibility:
         label:

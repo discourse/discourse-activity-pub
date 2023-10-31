@@ -1,8 +1,79 @@
 <Discovery::Navigation
   @createTopic={{fn
     this.composer.openNewTopic
-    (hash category=this.category preferDraft=true)
+    (hash category=this.model.category preferDraft=true)
   }}
-  @category={{this.category}}
-  />
-<ActivityPubFollowers @followers={{this.followers}} />
+  @category={{this.model.category}}
+/>
+
+<ActivityPubCategoryBanner @category={{this.model.category}} />
+
+<LoadMore
+  @class="activity-pub-followers-container"
+  @selector=".directory-table .directory-table__cell"
+  @action={{action "loadMore"}}
+>
+  {{#if this.model}}
+    <ResponsiveTable @className="activity-pub-followers">
+      <:header>
+        <TableHeaderToggle
+          @field="username"
+          @labelKey="discourse_activity_pub.follower.actor"
+          @automatic={{true}}
+          @order={{this.order}}
+          @asc={{this.asc}}
+        />
+        <TableHeaderToggle
+          @field="domain"
+          @labelKey="discourse_activity_pub.follower.user"
+          @automatic={{true}}
+          @order={{this.order}}
+          @asc={{this.asc}}
+        />
+        <TableHeaderToggle
+          @field="followed_at"
+          @labelKey="discourse_activity_pub.follower.followed_at"
+          @automatic={{true}}
+          @order={{this.order}}
+          @asc={{this.asc}}
+        />
+      </:header>
+      <:body>
+      {{#each this.model.followers as |follower|}}
+        <div class="directory-table__row">
+          <div class="directory-table__cell activity-pub-follower-actor">
+            {{activityPubActorImage follower size="large"}}
+            <div class="activity-pub-follower-actor-content">
+              <div class="activity-pub-follower-name">
+                {{or follower.name follower.username}}
+              </div>
+              {{activityPubActorHandle follower}}
+            </div>
+          </div>
+          <div class="directory-table__cell activity-pub-follower-user">
+            {{#if follower.user}}
+              <a
+                class="avatar"
+                href={{concat "/u/" follower.user.username}}
+                data-user-card={{follower.user.username}}
+              >
+                {{avatar follower.user imageSize="small"}}
+              </a>
+              <a class="username" href={{concat "/u/" follower.user.username}}>
+                {{follower.user.username}}
+              </a>
+            {{/if}}
+          </div>
+          <div class="directory-table__cell">
+            {{bound-date follower.followed_at}}
+          </div>
+        </div>
+      {{/each}}
+      </:body>
+    </ResponsiveTable>
+
+    <ConditionalLoadingSpinner @condition={{this.model.loadingMore}} />
+  {{else}}
+    <p>{{i18n "search.no_results"}}</p>
+  {{/if}}
+</LoadMore>

@@ -2,7 +2,8 @@
 
 module DiscourseActivityPub
   class FollowerSerializer < ActiveModel::Serializer
-    attributes :username,
+    attributes :name,
+               :username,
                :local,
                :domain,
                :url,

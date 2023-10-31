@@ -41,7 +41,7 @@ module DiscourseActivityPub
         followers: serialized,
         meta: {
           total: total,
-          load_more: load_more_uri.to_s,
+          load_more_url: load_more_uri.to_s,
         }
       )
     end

@@ -1,7 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
-import { action } from "@ember/object";
 import { bind } from "discourse-common/utils/decorators";
 import I18n from "I18n";
 
@@ -57,10 +56,6 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedTitle() {
-    if (this.args.translatedTitle) {
-      return this.args.translatedTitle;
-    }
-
     const args = {
       model_type: this.args.modelType,
     };
@@ -122,17 +117,6 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedLabel() {
-    if (this.args.translatedLabel) {
-      return this.args.translatedLabel;
-    } else {
-      return I18n.t(this.labelKey("label"));
-    }
-  }
-
-  @action
-  click(event) {
-    if (this.args.onClick) {
-      this.args.onClick(event);
-    }
+    return I18n.t(this.labelKey("label"));
   }
 }

@@ -46,19 +46,6 @@ div.activity-pub-status {
   }
 }
 
-.activity-pub-status-tip {
-  background: var(--primary-low);
-  align-items: center;
-  display: flex;
-  min-height: 30px;
-  margin-left: 0.5em;
-
-  .d-icon {
-    color: var(--primary-medium);
-    font-size: 1rem;
-  }
-}
-
 .activity-pub-setting {
   margin-top: 4px;
 
@@ -229,10 +216,6 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-category-navigation {
-  width: 100%;
-}
-
 .activity-pub-category-banner {
   display: flex;
   align-items: center;
@@ -276,96 +259,25 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-followers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  grid-gap: 60px 20px;
-  margin-top: 60px;
-  padding: 1em 0;
+  grid-template-columns: minmax(13em, 3fr) repeat(2, minmax(max-content, 1fr));
 }
 
-.activity-pub-follower {
-  background: var(--secondary);
-  box-shadow: var(--shadow-card);
-}
+.activity-pub-follower-actor {
+  justify-content: flex-start;
 
-.activity-pub-follower-content {
-  padding: 1em;
+  .activity-pub-follower-actor-content {
+    margin-left: 1em;
+    display: flex;
+    flex-flow: column;
+  }
 }
 
 .activity-pub-follower-user {
   display: flex;
   align-items: center;
 
-  .activity-pub-site-icon {
-    margin-right: 0.5em;
-
-    img {
-      width: 24px;
-      height: 24px;
-    }
-  }
-}
-
-.activity-pub-follower-card {
-  --avatar-width-desktop: 8em;
-  --avatar-margin-desktop: -3.3em;
-  --avatar-width-mobile: 4em;
-  --avatar-margin-mobile: 0;
-
-  box-shadow: var(--shadow-card);
-  padding: 1em;
-  display: flex;
-  max-width: calc(100vw - 20px);
-  box-sizing: border-box;
-
-  &.desktop {
-    .activity-pub-actor-image {
-      margin-top: var(--avatar-margin-desktop);
-      max-height: var(--avatar-width-desktop);
-
-      img {
-        width: var(--avatar-width-desktop);
-        height: var(--avatar-width-desktop);
-      }
-    }
-  }
-
-  &.mobile {
-    .activity-pub-actor-image {
-      margin-top: var(--avatar-margin-mobile);
-      max-height: var(--avatar-width-mobile);
-
-      img {
-        width: var(--avatar-width-mobile);
-        height: var(--avatar-width-mobile);
-      }
-    }
-  }
-}
-
-.activity-pub-follower-card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  max-width: 100%;
-
-  .row {
-    display: flex;
-    gap: 1em;
-    max-width: 100%;
-  }
-
-  .top-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-    overflow: hidden;
-  }
-}
-
-.activity-pub-actor-image {
-  img {
-    border-radius: 50%;
+  .avatar {
+    margin-right: 0.25em;
   }
 }
 
