@@ -7,6 +7,7 @@ module DiscourseActivityPub
 
     before_action :ensure_site_enabled
     before_action :find_category
+    before_action :ensure_category_enabled
 
     def index
     end
@@ -70,6 +71,10 @@ module DiscourseActivityPub
     def find_category
       @category = Category.find_by_id(params.require(:category_id))
       render_category_error("category_not_found", 400) unless @category.present?
+    end
+
+    def ensure_category_enabled
+      render_category_error("not_enabled", 403) unless @category.activity_pub_enabled
     end
 
     def ensure_site_enabled
