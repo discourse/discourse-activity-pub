@@ -1,1 +1,3 @@
-<ActivityPubNavItem @category={{this.category}} />
+{{#if this.category.activity_pub_enabled}}
+  <ActivityPubNavItem @category={{this.category}} />
+{{/if}}
