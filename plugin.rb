@@ -217,65 +217,51 @@ after_initialize do
     end
   end
 
-  add_to_serializer(:basic_category, :activity_pub_enabled) do
-    object.activity_pub_enabled
-  end
   add_to_serializer(
     :basic_category,
+    :activity_pub_enabled
+  ) { object.activity_pub_enabled }
+  add_to_serializer(
+    :site_category,
     :activity_pub_ready,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_ready? }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_username,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_username }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_name,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_name }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_show_status,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_show_status }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_show_handle,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_show_handle }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_default_visibility,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_default_visibility }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_follower_count,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_follower_count }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_post_object_type,
-    include_condition: -> { object.activity_pub_enabled }
-  ) { object.activity_pub_post_object_type }
-  add_to_serializer(
-    :basic_category,
-    :activity_pub_publication_type,
-    include_condition: -> { object.activity_pub_publication_type }
-  ) { object.activity_pub_publication_type }
 
   if Site.respond_to? :preloaded_category_custom_fields
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
     Site.preloaded_category_custom_fields << "activity_pub_ready"
-    Site.preloaded_category_custom_fields << "activity_pub_show_status"
-    Site.preloaded_category_custom_fields << "activity_pub_show_handle"
-    Site.preloaded_category_custom_fields << "activity_pub_username"
-    Site.preloaded_category_custom_fields << "activity_pub_name"
-    Site.preloaded_category_custom_fields << "activity_pub_default_visibility"
-    Site.preloaded_category_custom_fields << "activity_pub_publication_type"
-    Site.preloaded_category_custom_fields << "activity_pub_post_object_type"
+  end
+
+  register_modifier(:site_all_categories_cache_query) do |query|
+    query.includes(:activity_pub_actor)
+  end
+
+  if self.respond_to?(:register_category_list_preloaded_category_custom_fields)
+    register_category_list_preloaded_category_custom_fields("activity_pub_enabled")
+  end
+
+  serialized_category_custom_fields = %w(
+    activity_pub_show_status
+    activity_pub_show_handle
+    activity_pub_username
+    activity_pub_name
+    activity_pub_default_visibility
+    activity_pub_publication_type
+  )
+  serialized_category_custom_fields.each do |field|
+    add_to_serializer(
+      :basic_category,
+      field.to_sym,
+      include_condition: -> { object.activity_pub_enabled }
+    ) { object.send(field) }
+
+    if Site.respond_to? :preloaded_category_custom_fields
+      Site.preloaded_category_custom_fields << field
+    end
+
+    if self.respond_to?(:register_category_list_preloaded_category_custom_fields)
+      register_category_list_preloaded_category_custom_fields(field)
+    end
   end
 
   Topic.has_one :activity_pub_object,
