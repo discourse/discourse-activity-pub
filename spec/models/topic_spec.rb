@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Topic do
-  before { freeze_time }
+  before do
+    freeze_time
+    Jobs.run_immediately!
+  end
 
   fab!(:user1) { Fabricate(:user, admin: true) }
   fab!(:user2) { Fabricate(:user) }
@@ -105,7 +108,7 @@ RSpec.describe Topic do
 
       it "updates the note references" do
         expect(note1.reload.model_id).to eq(@first_post.id)
-        expect(note1.collection_id).to eq(nil)
+        expect(note1.reload.collection_id).to eq(nil)
         expect(note2.reload.collection_id).to eq(collection1.id)
         expect(note3.reload.collection_id).to eq(nil)
       end
