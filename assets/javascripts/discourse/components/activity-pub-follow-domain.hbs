@@ -2,11 +2,13 @@
   <label>{{i18n 'discourse_activity_pub.follow.domain.label'}}</label>
   <div class="activity-pub-follow-domain-controls">
     <Input
+      id="activity_pub_follow_domain_input"
       @value={{this.domain}}
       placeholder={{i18n "discourse_activity_pub.follow.domain.placeholder"}}
       {{on "keyup" this.onKeyup}}
     />
     <DButton
+      @id="activity_pub_follow_domain_button"
       @icon="external-link-alt"
       @action={{action "follow"}}
       @label="discourse_activity_pub.follow.domain.btn_label"

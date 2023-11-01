@@ -212,6 +212,23 @@ acceptance(
         "Feb 9, '13",
         "follower followed at is visible"
       );
+
+      assert.ok(
+        exists(".activity-pub-follow-btn"),
+        "the activitypub follow btn is visible"
+      );
+      await click(".activity-pub-follow-btn");
+      assert.ok(
+        exists(".modal.activity-pub-follow-modal"),
+        "it shows the activitypub follow modal"
+      );
+      assert.equal(
+        query("#discourse-modal-title").innerText,
+        I18n.t("discourse_activity_pub.follow.title", {
+          name: category.name,
+        }),
+        "activitypub modal has the right title"
+      );
     });
   }
 );

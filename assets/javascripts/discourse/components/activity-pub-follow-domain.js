@@ -85,7 +85,7 @@ export default class ActivityPubFollowMastodon extends Component {
     this.verifying = false;
 
     if (url) {
-      window.open(url, "_blank").focus();
+      window.open(url, "_blank")?.focus();
     } else {
       this.error = I18n.t("discourse_activity_pub.follow.domain.invalid");
     }
