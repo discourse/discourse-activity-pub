@@ -63,8 +63,8 @@ en:
           private: Followers Only
           public: Public
         description:
-          private: "%{object_type}s are addressed to followers."
-          public: "%{object_type}s are publicly addressed."
+          private: "%{object_type} is addressed to followers."
+          public: "%{object_type} is publicly addressed."
       post_object_type:
         label:
           note: Note

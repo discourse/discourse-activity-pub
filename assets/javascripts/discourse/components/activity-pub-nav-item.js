@@ -6,7 +6,7 @@ export default class ActivityPubNavItem extends Component {
   @service router;
 
   get classes() {
-    let result = "";
+    let result = "activity-pub-category-nav";
     if (this.active) {
       result += " active";
     }

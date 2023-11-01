@@ -10,8 +10,7 @@ function renderActivityPubActorImage(actor, opts) {
     const size = translateSize(opts.size);
     const url = actor.icon_url || "/images/avatar.png";
     const title = buildHandle({ actor });
-    const img = `<img loading='lazy' alt='' width='${size}' height='${size}' src='${url}' title='${title}'>`;
-    return `<div class="activity-pub-actor-image">${img}</div>`;
+    return `<img loading='lazy' alt='' width='${size}' height='${size}' src='${url}' title='${title}'>`;
   } else {
     return "";
   }

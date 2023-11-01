@@ -13,7 +13,7 @@
   @selector=".directory-table .directory-table__cell"
   @action={{action "loadMore"}}
 >
-  {{#if this.model}}
+  {{#if this.model.hasFollowers}}
     <ResponsiveTable @className="activity-pub-followers">
       <:header>
         <TableHeaderToggle
@@ -40,14 +40,18 @@
       </:header>
       <:body>
       {{#each this.model.followers as |follower|}}
-        <div class="directory-table__row">
+        <div class="directory-table__row activity-pub-follower">
           <div class="directory-table__cell activity-pub-follower-actor">
-            {{activityPubActorImage follower size="large"}}
+            <div class="activity-pub-follower-image">
+              {{activityPubActorImage follower size="large"}}
+            </div>
             <div class="activity-pub-follower-actor-content">
               <div class="activity-pub-follower-name">
                 {{or follower.name follower.username}}
               </div>
-              {{activityPubActorHandle follower}}
+              <div class="activity-pub-follower-handle">
+                {{activityPubActorHandle follower}}
+              </div>
             </div>
           </div>
           <div class="directory-table__cell activity-pub-follower-user">
@@ -61,7 +65,7 @@
               </a>
             {{/if}}
           </div>
-          <div class="directory-table__cell">
+          <div class="directory-table__cell activity-pub-followed-at">
             {{bound-date follower.followed_at}}
           </div>
         </div>

@@ -15,12 +15,13 @@ export default DiscourseRoute.extend({
   },
 
   setupController(controller, model) {
-    model = ActivityPubFollowers.create({
-      category: model.category,
-      followers: A(model.followers),
-      loadMoreUrl: model.meta.load_more_url,
-      total: model.meta.total,
+    controller.setProperties({
+      model: ActivityPubFollowers.create({
+        category: model.category,
+        followers: A(model.followers || []),
+        loadMoreUrl: model.meta?.load_more_url,
+        total: model.meta?.total,
+      }),
     });
-    controller.setProperties({ model });
   },
 });

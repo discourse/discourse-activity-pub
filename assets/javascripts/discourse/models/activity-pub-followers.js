@@ -1,8 +1,11 @@
 import EmberObject from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { notEmpty } from "@ember/object/computed";
 
 const ActivityPubFollowers = EmberObject.extend({
+  hasFollowers: notEmpty("followers"),
+
   loadMore() {
     if (!this.loadMoreUrl || this.total <= this.followers.length) {
       return;
@@ -37,7 +40,11 @@ ActivityPubFollowers.reopenClass({
     }
 
     const path = `/ap/category/${category.id}/followers`;
-    const url = `${path}.json?${queryParams.toString()}`;
+
+    let url = `${path}.json`;
+    if (queryParams.size) {
+      url += `?${queryParams.toString()}`;
+    }
 
     return ajax(url)
       .then((response) => ({ category, ...response }))

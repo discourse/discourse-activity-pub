@@ -1,7 +1,7 @@
 import ComboBoxComponent from "select-kit/components/combo-box";
 import I18n from "I18n";
 import { computed } from "@ember/object";
-import { observes, on } from "discourse-common/utils/decorators";
+import { observes, on } from "@ember-decorators/object";
 import { equal } from "@ember/object/computed";
 import { scheduleOnce } from "@ember/runloop";
 

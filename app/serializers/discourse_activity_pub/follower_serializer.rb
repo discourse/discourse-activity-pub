@@ -16,7 +16,7 @@ module DiscourseActivityPub
     end
 
     def followed_at
-      object.follow_follows&.first.created_at
+      object.follow_follows&.first.followed_at
     end
   end
 end
