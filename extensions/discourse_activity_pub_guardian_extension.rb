@@ -9,11 +9,6 @@ module DiscourseActivityPubGuardianExtension
     super
   end
 
-  def can_wiki?(post)
-    return false if post.activity_pub_enabled
-    super
-  end
-
   def can_change_post_owner?
     return false if activity_pub_enabled_topic?
     super

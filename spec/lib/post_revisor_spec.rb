@@ -89,6 +89,39 @@ RSpec.describe PostRevisor do
             ).to eq(false)
           end
         end
+
+        context "when the post is a wiki" do
+          before do
+            post.wiki = true
+            post.save!
+          end
+
+          context "when the revisor is not the post user" do
+            let!(:another_user) { Fabricate(:user) }
+
+            it "creates an activity with the revising user's actor" do
+              subject.revise!(another_user, raw: "#{post.raw} revision")
+              expect(
+                 another_user.reload.activity_pub_actor.activities.where(
+                   object_id: post.activity_pub_object.id,
+                   object_type: 'DiscourseActivityPubObject',
+                   ap_type: 'Update'
+                ).exists?
+              ).to eq(true)
+            end
+
+            it "does not create an activity with the post user's actor" do
+              subject.revise!(another_user, raw: "#{post.raw} revision")
+              expect(
+                 post_actor.activities.where(
+                   object_id: post.activity_pub_object.id,
+                   object_type: 'DiscourseActivityPubObject',
+                   ap_type: 'Update'
+                ).exists?
+              ).to eq(false)
+            end
+          end
+        end
       end
     end
   end
