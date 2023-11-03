@@ -217,43 +217,41 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-category-banner {
-  display: flex;
-  align-items: center;
+  .desktop-view & {
+    display: flex;
+    align-items: center;
+  }
   width: 100%;
   background: var(--primary-very-low);
+  padding: 0.5em;
+  box-sizing: border-box;
 
-  .activity-pub-status {
-    padding: 6px 8px;
-  }
-
-  .activity-pub-statistics {
-    flex: 1;
-    display: inline-flex;
+  .activity-pub-category-banner-left {
+    padding-right: 1em;
+    display: flex;
     align-items: center;
-    gap: 1.5em;
-    height: 100%;
-    padding: 0 1.5em;
-
-    @media (max-width: 700px) {
-      display: none;
+    .desktop-view & {
+      max-width: 55%;
+    }
+    .d-icon {
+      color: var(--success);
+      width: 24px;
+      height: 24px;
+      margin: 0.5em;
+      margin-right: 0.75em;
+      .mobile-view & {
+        display: none;
+      }
     }
   }
 
-  .activity-pub-follow-btn {
+  .activity-pub-category-banner-right {
     margin-left: auto;
-  }
-
-  button {
-    min-height: 35px;
-  }
-}
-
-.activity-pub-follow-btn {
-  .activity-pub-status {
-    @include btn;
-
-    .label {
-      margin-left: unset;
+    margin-top: 0.5em;
+    max-width: 45%;
+    .activity-pub-handle {
+      margin-bottom: 0.5em;
+      margin-right: 0.5em;
     }
   }
 }

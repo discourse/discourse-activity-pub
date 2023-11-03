@@ -38,11 +38,15 @@ en:
       category_nav:
         label: Federation
         description: Federation for %{category_name}
-      discovery:
-        description: Follow %{category_name} on services that support ActivityPub using
+      banner:
+        intro: "This category's topics can be followed by users on ActivityPub social media like Mastodon. "
+        public_full_topic: Each post of each topic will be published publicly.
+        public_first_post: The first post of each topic will be published publicly.
+        followers_only_full_topic: Each post of each topic is published to ActivityPub followers only.
+        followers_only_first_post: The first post of each topic is published to ActivityPub followers only.
       handle:
         label: Other
-        description: search for this handle on a service that supports ActivityPub
+        description: Search for this handle on a service that supports ActivityPub.
       follow:
         label: Follow
         title: Follow %{name} via ActivityPub
