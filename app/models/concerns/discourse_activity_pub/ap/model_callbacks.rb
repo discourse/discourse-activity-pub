@@ -7,6 +7,7 @@ module DiscourseActivityPub
       included do
         attr_accessor :performing_activity,
                       :performing_activity_object,
+                      :performing_activity_actor,
                       :target_activity
       end
 
@@ -24,6 +25,9 @@ module DiscourseActivityPub
 
         @performing_activity_object = get_performing_activity_object
         return unless performing_activity_object
+
+        @performing_activity_actor = get_performing_activity_actor
+        return unless performing_activity_actor
 
         ActiveRecord::Base.transaction do
           update_activity_pub_activity_object
@@ -81,6 +85,22 @@ module DiscourseActivityPub
         end
       end
 
+      def get_performing_activity_actor
+        if !self.respond_to?(:acting_user) ||
+            acting_user.blank? ||
+            !performing_activity.update? ||
+            !self.activity_pub_full_topic
+
+          return self.activity_pub_actor
+        end
+
+        unless acting_user.activity_pub_actor.present?
+          DiscourseActivityPub::UserHandler.update_or_create_actor(acting_user)
+        end
+
+        acting_user.activity_pub_actor
+      end
+
       def update_activity_pub_activity_object
         return unless performing_activity
 
@@ -97,7 +117,7 @@ module DiscourseActivityPub
 
         activity_attrs = {
           local: true,
-          actor_id: self.activity_pub_actor.id,
+          actor_id: performing_activity_actor.id,
           object_id: performing_activity_object.id,
           object_type: performing_activity_object.class.name,
           ap_type: performing_activity.type
@@ -127,7 +147,7 @@ module DiscourseActivityPub
 
         delivery_actor = performing_activity.create? ?
           activity_pub_group_actor :
-          activity_pub_actor
+          performing_activity_actor
         delivery_recipients = activity_pub_group_actor.followers
         delivery_object = performing_activity.stored
         delivery_delay = nil
@@ -151,6 +171,7 @@ module DiscourseActivityPub
       def perform_activity_pub_activity_cleanup
         @performing_activity = nil
         @performing_activity_object = nil
+        @performing_activity_actor = nil
       end
     end
   end

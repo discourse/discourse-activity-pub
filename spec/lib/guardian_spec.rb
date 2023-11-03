@@ -53,30 +53,6 @@ RSpec.describe Guardian do
     end
   end
 
-  describe "can_wiki?" do
-    describe "a Post" do
-      context "with activity pub enabled" do
-        before do
-          toggle_activity_pub(category, callbacks: true)
-        end
-
-        it "returns false for all users" do
-          expect(Guardian.new(admin).can_wiki?(post)).to be_falsey
-          expect(Guardian.new(user).can_wiki?(post)).to be_falsey
-          expect(Guardian.new(another_user).can_wiki?(post)).to be_falsey
-        end
-      end
-
-      context "with activity pub disabled" do
-        it "returns true for the right users" do
-          expect(Guardian.new(admin).can_wiki?(post)).to be_truthy
-          expect(Guardian.new(user).can_wiki?(post)).to be_falsey
-          expect(Guardian.new(another_user).can_wiki?(post)).to be_falsey
-        end
-      end
-    end
-  end
-
   describe "can_change_post_owner?" do
     describe "a Post" do
       context "with a change owner request" do
