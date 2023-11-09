@@ -5,8 +5,6 @@ en:
         settings_heading: ActivityPub
         enable: Enable ActivityPub in this category.
         enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
-        show_status: Show the ActivityPub status and visibility in this category's composer.
-        show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.

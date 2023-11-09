@@ -120,7 +120,6 @@ after_initialize do
   Category.prepend DiscourseActivityPubCategoryExtension
 
   register_category_custom_field_type("activity_pub_enabled", :boolean)
-  register_category_custom_field_type("activity_pub_show_status", :boolean)
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
@@ -136,9 +135,6 @@ after_initialize do
   add_to_class(:category, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && !self.read_restricted &&
       !!custom_fields["activity_pub_enabled"]
-  end
-  add_to_class(:category, :activity_pub_show_status) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_status"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -159,12 +155,7 @@ after_initialize do
         enabled: activity_pub_enabled
       }
     }
-    opts = {}
-    opts[:group_ids] = [
-      Group::AUTO_GROUPS[:staff],
-      *self.reviewable_by_group_id
-    ] if !activity_pub_show_status
-    MessageBus.publish("/activity-pub", message, opts)
+    MessageBus.publish("/activity-pub", message)
   end
   add_to_class(:category, :activity_pub_default_visibility) do
     if activity_pub_full_topic
@@ -237,7 +228,6 @@ after_initialize do
   end
 
   serialized_category_custom_fields = %w(
-    activity_pub_show_status
     activity_pub_username
     activity_pub_name
     activity_pub_default_visibility

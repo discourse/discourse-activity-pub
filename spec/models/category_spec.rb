@@ -99,40 +99,11 @@ RSpec.describe Category do
   end
 
   describe "#activity_pub_publish_state" do
-    let(:group) { Fabricate(:group) }
-
-    before do
-      category.update(reviewable_by_group_id: group.id)
-    end
-
-    context "with activity_pub_show_status disabled" do
-      before do
-        category.custom_fields['activity_pub_show_status'] = false
-        category.save_custom_fields
-      end
-
-      it "publishes status only to staff and category moderators" do
-        message = MessageBus.track_publish("/activity-pub") do
-          category.activity_pub_publish_state
-        end.first
-        expect(message.group_ids).to eq(
-          [Group::AUTO_GROUPS[:staff], category.reviewable_by_group_id]
-        )
-      end
-    end
-
-    context "with activity_pub_show_status enabled" do
-      before do
-        category.custom_fields['activity_pub_show_status'] = true
-        category.save_custom_fields
-      end
-
-      it "publishes status to all users" do
-        message = MessageBus.track_publish("/activity-pub") do
-          category.activity_pub_publish_state
-        end.first
-        expect(message.group_ids).to eq(nil)
-      end
+    it "publishes status to all users" do
+      message = MessageBus.track_publish("/activity-pub") do
+        category.activity_pub_publish_state
+      end.first
+      expect(message.group_ids).to eq(nil)
     end
   end
 end
