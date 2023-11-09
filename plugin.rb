@@ -222,7 +222,8 @@ after_initialize do
   ) { object.activity_pub_ready? }
 
   if respond_to?(:register_preloaded_category_custom_fields)
-    register_preloaded_category_custom_fields("enable_unassigned_filter")
+    register_preloaded_category_custom_fields("activity_pub_enabled")
+    register_preloaded_category_custom_fields("activity_pub_ready")
   else
     # TODO: Drop the if-statement and this if-branch in Discourse v3.2
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
