@@ -39,17 +39,18 @@ en:
         label: Federation
         description: Federation for %{category_name}
       banner:
-        intro: "This category's topics can be followed by users on ActivityPub social media like Mastodon. "
-        public_full_topic: Each post of each topic will be published publicly.
-        public_first_post: The first post of each topic will be published publicly.
+        text: Follow %{category_name} on any service that supports federation
+        mobile_text: Federated
+        public_full_topic: Each post of each topic will be published publicly via ActivityPub.
+        public_first_post: The first post of each topic will be published publicly via ActivityPub.
         followers_only_full_topic: Each post of each topic is published to ActivityPub followers only.
         followers_only_first_post: The first post of each topic is published to ActivityPub followers only.
       handle:
         label: Other
-        description: Search for this handle on a service that supports ActivityPub.
+        description: find on any service that supports ActivityPub
       follow:
         label: Follow
-        title: Follow %{name} via ActivityPub
+        title: Follow %{name}
         domain:
           label: Mastodon
           placeholder: domain
@@ -83,9 +84,6 @@ en:
         description:
           first_post: First post of every topic in this category is published via ActivityPub.
           full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
-      tip:
-        status:
-          description: You can follow this category on any social network that supports ActivityPub, such as Mastodon.
 
     post:
       discourse_activity_pub:

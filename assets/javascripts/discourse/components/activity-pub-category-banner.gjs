@@ -5,43 +5,40 @@ import ActivityPubFollowBtn from "../components/activity-pub-follow-btn";
 import i18n from "discourse-common/helpers/i18n";
 import I18n from "discourse-i18n";
 import icon from "discourse-common/helpers/d-icon";
+import DTooltip from "float-kit/components/d-tooltip";
 
 export default class ActivityPubCategoryBanner extends Component {
   @service site;
 
-  get typeDescription() {
-    if (this.args.category.activity_pub_default_visibility === "public") {
-      if (this.args.category.activity_pub_publication_type === "full_topic") {
-        return I18n.t("discourse_activity_pub.banner.public_full_topic");
-      } else {
-        return I18n.t("discourse_activity_pub.banner.public_first_post");
-      }
-    } else {
-      if (this.args.category.activity_pub_publication_type === "full_topic") {
-        return I18n.t(
-          "discourse_activity_pub.banner.followers_only_full_topic"
-        );
-      } else {
-        return I18n.t(
-          "discourse_activity_pub.banner.followers_only_first_post"
-        );
-      }
-    }
-    return "";
+  get bannerDescription() {
+    const visibility = this.args.category.activity_pub_default_visibility;
+    const publicationType = this.args.category.activity_pub_publication_type;
+    return I18n.t(`discourse_activity_pub.banner.${visibility}_${publicationType}`);
+  }
+
+  get bannerText() {
+    const key = this.site.mobileView ? 'mobile_text' : 'text';
+    return I18n.t(`discourse_activity_pub.banner.${key}`, {
+      category_name: this.args.category.name
+    });
   }
 
   <template>
     <div class="activity-pub-category-banner">
       {{#if @category}}
-        <div class="activity-pub-category-banner-left">
-          {{icon "discourse-activity-pub"}}
-          <div class="activity-pub-category-banner-intro">
-            {{i18n "discourse_activity_pub.banner.intro"}}
-            {{this.typeDescription}}
-          </div>
+        <div class="activity-pub-category-banner-left activity-pub-category-banner-side">
+          <DTooltip
+            @icon="discourse-activity-pub"
+            @content={{this.bannerDescription}}
+          />
+          <span class="activity-pub-category-banner-text">
+            {{this.bannerText}}
+          </span>
         </div>
-        <div class="activity-pub-category-banner-right inline-form">
-          <ActivityPubHandle @model={{@category}} />
+        <div class="activity-pub-category-banner-right activity-pub-category-banner-side">
+          {{#unless this.site.mobileView}}
+            <ActivityPubHandle @model={{@category}} />
+          {{/unless}}
           <ActivityPubFollowBtn @category={{@category}} />
         </div>
       {{/if}}

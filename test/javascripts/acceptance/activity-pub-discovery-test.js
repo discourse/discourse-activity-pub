@@ -32,7 +32,7 @@ acceptance(
       await visit(category.url);
 
       assert.ok(
-        !exists(".activity-pub-category-nav"),
+        !exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -44,7 +44,7 @@ acceptance(
       await visit(category.url);
 
       assert.ok(
-        !exists(".activity-pub-category-nav"),
+        !exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -56,77 +56,68 @@ acceptance(
   function (needs) {
     needs.user();
     needs.site({ activity_pub_enabled: true });
+    needs.pretender((server, helper) => {
+      server.get(`${followersPath}.json`, () =>
+        helper.response({ followers: [] })
+      );
+    });
 
     test("with a non-category route", async function (assert) {
       await visit("/latest");
 
       assert.ok(
-        !exists(".activity-pub-discovery"),
-        "the discovery button is not visible"
-      );
-    });
-
-    test("with a category route without category enabled", async function (assert) {
-      const category = Category.findById(2);
-
-      await visit(category.url);
-
-      assert.ok(
-        !exists(".activity-pub-category-nav"),
+        !exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
 
-    test("with a category route with category enabled", async function (assert) {
+    test("with a category route without activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.set("activity_pub_enabled", true);
 
       await visit(category.url);
 
       assert.ok(
-        exists(".activity-pub-category-nav"),
+        !exists(".activity-pub-category-nav.visible"),
+        "the activitypub nav button is not visible"
+      );
+    });
+
+    test("with a category route with activity pub ready", async function (assert) {
+      const category = Category.findById(2);
+      category.setProperties({
+        activity_pub_ready: true,
+        activity_pub_default_visibility: "public",
+        activity_pub_publication_type: "full_topic",
+      });
+
+      await visit(category.url);
+
+      assert.ok(
+        exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is visible"
       );
-    });
 
-    test("with a category route without show handle enabled", async function (assert) {
-      const category = Category.findById(2);
-      category.set("activity_pub_show_handle", false);
-
-      await visit(category.url);
+      await click(".activity-pub-category-nav");
 
       assert.ok(
-        !exists(".activity-pub-discovery"),
-        "the discovery button is not visible"
-      );
-    });
-
-    test("with a category route with show handle enabled", async function (assert) {
-      const category = Category.findById(2);
-      category.set("activity_pub_show_handle", true);
-
-      await visit(category.url);
-
-      assert.ok(
-        exists(".activity-pub-discovery"),
-        "the discovery button is visible"
-      );
-
-      await click(".activity-pub-discovery button");
-
-      assert.ok(
-        exists(".activity-pub-discovery-dropdown"),
-        "the discovery dropdown appears properly"
+        exists(".activity-pub-category-banner"),
+        "the activitypub category banner is visible"
       );
       assert.ok(
-        exists(".activity-pub-discovery-dropdown .activity-pub-handle"),
-        "the handle appears in the dropdown"
+        exists(".activity-pub-category-banner"),
+        "the activitypub category banner is visible"
+      );
+      assert.ok(
+        query(".activity-pub-category-banner-text").innerText,
+        I18n.t("`discourse_activity_pub.banner.text"),
+        "shows the right category banner text"
       );
 
-      await click(".d-header"); // click outside
-      assert.ok(
-        !exists(".activity-pub-discovery-dropdown"),
-        "the discovery dropdown disappears properly"
+      await triggerEvent(".fk-d-tooltip__trigger", "mousemove");
+      assert.equal(
+        query(".fk-d-tooltip").innerText,
+        I18n.t("discourse_activity_pub.banner.public_full_topic"),
+        "shows the right category banner tip"
       );
     });
   }
@@ -143,9 +134,9 @@ acceptance(
       );
     });
 
-    test("with category enabled", async function (assert) {
+    test("with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.set("activity_pub_enabled", true);
+      category.set("activity_pub_ready", true);
 
       await visit(followersPath);
 
@@ -172,9 +163,9 @@ acceptance(
       server.get(path, () => helper.response(CategoryFollowers[path]));
     });
 
-    test("with category enabled", async function (assert) {
+    test("with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.set("activity_pub_enabled", true);
+      category.set("activity_pub_ready", true);
 
       await visit(followersPath);
 
@@ -209,7 +200,7 @@ acceptance(
       );
       assert.equal(
         query(".activity-pub-followed-at").innerText,
-        "Feb 9, '13",
+        "Feb 8, '13",
         "follower followed at is visible"
       );
 
