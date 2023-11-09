@@ -7,8 +7,6 @@ en:
         enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
         show_status: Show the ActivityPub status and visibility in this category's composer.
         show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
-        show_handle: Show ActivityPub follow button in this category's topic list.
-        show_handle_description: Shows a follow button to the left of the "New Topic" button.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.

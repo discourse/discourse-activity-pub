@@ -121,7 +121,6 @@ after_initialize do
 
   register_category_custom_field_type("activity_pub_enabled", :boolean)
   register_category_custom_field_type("activity_pub_show_status", :boolean)
-  register_category_custom_field_type("activity_pub_show_handle", :boolean)
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
@@ -140,9 +139,6 @@ after_initialize do
   end
   add_to_class(:category, :activity_pub_show_status) do
     DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_status"]
-  end
-  add_to_class(:category, :activity_pub_show_handle) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_handle"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -242,7 +238,6 @@ after_initialize do
 
   serialized_category_custom_fields = %w(
     activity_pub_show_status
-    activity_pub_show_handle
     activity_pub_username
     activity_pub_name
     activity_pub_default_visibility
