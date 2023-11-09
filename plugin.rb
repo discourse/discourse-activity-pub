@@ -249,12 +249,11 @@ after_initialize do
       include_condition: -> { object.activity_pub_enabled }
     ) { object.send(field) }
 
-    if Site.respond_to? :preloaded_category_custom_fields
+    if respond_to?(:register_preloaded_category_custom_fields)
+      register_preloaded_category_custom_fields(field)
+    else
+      # TODO: Drop the if-statement and this if-branch in Discourse v3.2
       Site.preloaded_category_custom_fields << field
-    end
-
-    if self.respond_to?(:register_category_list_preloaded_category_custom_fields)
-      register_category_list_preloaded_category_custom_fields(field)
     end
   end
 
