@@ -1,4 +1,4 @@
-plugins:
+discourse_activity_pub:
   activity_pub_enabled:
     default: true
     client: true

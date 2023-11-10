@@ -1,4 +1,9 @@
 en:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse Activity Pub"
   js:
     category:
       discourse_activity_pub:
