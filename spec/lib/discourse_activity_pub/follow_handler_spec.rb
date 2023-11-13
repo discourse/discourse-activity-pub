@@ -22,7 +22,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
 
       context "when actor being followed cant be found" do
         before do
-          DiscourseActivityPubActor.expects(:find_by_handle).with(handle).returns(nil)
+          DiscourseActivityPubActor.expects(:find_by_handle).with(handle, refresh: true).returns(nil)
         end
 
         it "returns false" do
@@ -34,7 +34,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
         let!(:follow_actor) { Fabricate(:discourse_activity_pub_actor_person) }
 
         before do
-          DiscourseActivityPubActor.expects(:find_by_handle).with(handle).returns(follow_actor)
+          DiscourseActivityPubActor.expects(:find_by_handle).with(handle, refresh: true).returns(follow_actor)
         end
 
         it "creates a follow activity" do

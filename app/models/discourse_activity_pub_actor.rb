@@ -59,6 +59,10 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     local? ? DiscourseActivityPub.host : self.read_attribute(:domain)
   end
 
+  def handle
+    "#{username}@#{domain}"
+  end
+
   def url
     local? ? model&.activity_pub_url : self.ap_id
   end
@@ -117,15 +121,17 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def self.find_by_handle(handle, local: false)
+  def self.find_by_handle(handle, local: false, refresh: false)
     username, domain = handle.split('@')
     return nil unless !local || DiscourseActivityPub::URI.local?(domain)
 
-    opts = { username: username }
-    opts[:domain] = domain if !local
+    unless refresh
+      opts = { username: username }
+      opts[:domain] = domain if !local
+      actor = DiscourseActivityPubActor.find_by(opts)
+      return actor if actor
+    end
 
-    actor = DiscourseActivityPubActor.find_by(opts)
-    return actor if actor
     return resolve_and_store(handle) if !local
 
     nil

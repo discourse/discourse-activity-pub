@@ -16,7 +16,6 @@ module DiscourseActivityPub
         end
 
         def perform
-            return false if DiscourseActivityPub::URI.local?(domain)
             return false unless follow_actor
             return false unless follow_activity
 
@@ -30,7 +29,7 @@ module DiscourseActivityPub
         protected
 
         def follow_actor
-            @follow_actor ||= DiscourseActivityPubActor.find_by_handle(handle)
+            @follow_actor ||= DiscourseActivityPubActor.find_by_handle(handle, refresh: true)
         end
 
         def follow_activity

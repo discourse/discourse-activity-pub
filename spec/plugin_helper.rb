@@ -50,6 +50,7 @@ def build_actor_json(public_key = nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: "https://external.com/u/angus",
+    preferredUsername: "angus",
     type: "Person",
     inbox: "https://external.com/u/angus/inbox",
     outbox: "https://external.com/u/angus/outbox"
