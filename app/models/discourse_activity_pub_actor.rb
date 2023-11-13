@@ -124,7 +124,19 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     opts = { username: username }
     opts[:domain] = domain if !local
 
-    DiscourseActivityPubActor.find_by(opts)
+    actor = DiscourseActivityPubActor.find_by(opts)
+    return actor if actor
+    return resolve_and_store(handle) if !local
+
+    nil
+  end
+
+  def self.resolve_and_store(handle)
+    ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(handle)
+    return nil unless ap_id
+
+    ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)
+    ap_actor&.stored
   end
 
   def self.username_unique?(username, model_id: nil, local: true)

@@ -17,7 +17,7 @@ module Jobs
     private
 
     def perform_request
-      @performed = false
+      @delivered = false
       retry_count = @args[:retry_count] || 0
 
       # TODO (future): use request in a Request Pool
@@ -29,7 +29,7 @@ module Jobs
 
       # TODO (future): raise redirects from Request and resolve with FinalDestination
       if request&.post_json_ld
-        @performed = true
+        @delivered = true
       else
         retry_count += 1
         return if retry_count > MAX_RETRY_COUNT
@@ -38,12 +38,13 @@ module Jobs
         ::Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, @args.merge(retry_count: retry_count))
       end
     ensure
-      if @performed
+      if @delivered
         failure_tracker.track_success
-        object.after_deliver
       else
         failure_tracker.track_failure
       end
+
+      object.after_deliver(@delivered)
     end
 
     def perform_request?

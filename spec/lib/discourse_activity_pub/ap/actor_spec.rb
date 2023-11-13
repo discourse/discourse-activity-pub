@@ -1,27 +1,16 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Actor do
+  let!(:json) { build_actor_json.with_indifferent_access }
+  let!(:subject) do
+    actor = described_class.new
+    actor.json = json
+    actor
+  end
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
 
   describe "#update_stored_from_json" do
-    let(:json) do
-      {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        id: "https://external.com/u/angus",
-        type: "Person",
-        inbox: "https://external.com/u/angus/inbox",
-        outbox: "https://external.com/u/angus/outbox",
-        preferredUsername: "angus",
-        name: "Angus McLeod"
-      }.with_indifferent_access
-    end
-
-    let(:subject) do
-      actor = described_class.new
-      actor.json = json
-      actor
-    end
 
     it "creates an actor" do
       subject.update_stored_from_json
@@ -97,6 +86,82 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       expect(fake_logger.errors.empty?).to eq(true)
 
       Rails.logger = orig_logger
+    end
+  end
+
+  describe '#resolve_and_store' do
+
+    context "with an id that resolves" do
+      before do
+        stub_request(:get, json['id'])
+          .to_return(body: json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
+      end
+
+      context "with an actor that can belong to remote" do
+        it "calls update_stored_from_json" do
+          DiscourseActivityPub::AP::Actor.any_instance.expects(:update_stored_from_json)
+          DiscourseActivityPub::AP::Actor.resolve_and_store(json['id'])
+        end
+
+        it "returns the actor" do
+          ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(json['id'])
+          expect(ap_actor.id).to eq(json['id'])
+          expect(ap_actor.type).to eq("Person")
+        end
+      end
+
+      context "with an actor that cannot belong to remote" do
+        before do
+          json["type"] = 'Service'
+          stub_request(:get, json["id"])
+            .to_return(body: json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
+        end
+
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          it "logs the right warning" do
+            orig_logger = Rails.logger
+            Rails.logger = fake_logger = FakeLogger.new
+  
+            DiscourseActivityPub::AP::Actor.resolve_and_store(json['id'])
+  
+            expect(fake_logger.warnings.first).to eq(
+              "[Discourse Activity Pub] Failed to process #{json['id']}: Actor is not supported"
+            )
+  
+            Rails.logger = orig_logger
+          end
+        end
+      end
+    end
+
+    context "with an id that does not resolve" do
+      before do
+        stub_request(:get, json['id'])
+          .to_return(status: 400)
+      end
+
+      context "with verbose logging enabled" do
+        before do
+          SiteSetting.activity_pub_verbose_logging = true
+        end
+
+        it "logs the right warning" do
+          orig_logger = Rails.logger
+          Rails.logger = fake_logger = FakeLogger.new
+
+          DiscourseActivityPub::AP::Actor.resolve_and_store(json['id'])
+
+          expect(fake_logger.warnings.last).to eq(
+            "[Discourse Activity Pub] Failed to process #{json['id']}: Could not resolve actor"
+          )
+
+          Rails.logger = orig_logger
+        end
+      end
     end
   end
 end

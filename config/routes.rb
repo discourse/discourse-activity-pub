@@ -6,9 +6,10 @@ DiscourseActivityPub::Engine.routes.draw do
     delete "schedule/:post_id" => "post#unschedule"
   end
 
-  scope '/category' do
+  scope '/category', defaults: { format: :json } do
     get "/:category_id" => "category#index"
     get "/:category_id/followers" => "category#followers"
+    post "/:category_id/follow" => "category#follow"
   end
 
   scope module: 'a_p' do

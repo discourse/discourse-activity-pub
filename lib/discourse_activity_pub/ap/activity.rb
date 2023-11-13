@@ -86,6 +86,10 @@ module DiscourseActivityPub
         type == Undo.type
       end
 
+      def follow?
+        type == Follow.type
+      end
+
       def apply_handlers(handler_type)
         Activity.handlers(type.to_sym, handler_type).all? do |proc|
           begin

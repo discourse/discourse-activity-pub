@@ -36,11 +36,17 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       DiscourseActivityPubActivity
         .any_instance
         .expects(:after_deliver)
+        .with(true)
         .once
     else
       DiscourseActivityPub::DeliveryFailureTracker
         .any_instance
         .expects(:track_failure)
+        .once
+      DiscourseActivityPubActivity
+        .any_instance
+        .expects(:after_deliver)
+        .with(false)
         .once
     end
   end

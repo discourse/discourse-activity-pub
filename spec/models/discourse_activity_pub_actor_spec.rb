@@ -146,4 +146,41 @@ RSpec.describe DiscourseActivityPubActor do
       end
     end
   end
+
+  describe "#resolve_and_store" do
+    let!(:handle) { "username@external.com" }
+
+    context "when handle cant be resolved" do
+      before do
+        DiscourseActivityPub::Webfinger.expects(:find_id_by_handle).returns(nil)
+      end
+
+      it "returns nil" do
+        expect(DiscourseActivityPubActor.resolve_and_store(handle)).to eq(nil)
+      end
+    end
+
+    context "when handle can be resolved" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
+
+      before do
+        DiscourseActivityPub::Webfinger.expects(:find_id_by_handle).returns(actor.ap_id)
+      end
+
+      it "calls AP to resolve and store the actor" do
+        DiscourseActivityPub::AP::Actor.expects(:resolve_and_store).with(actor.ap_id)
+        DiscourseActivityPubActor.resolve_and_store(handle)
+      end
+
+      it "returns the actor" do
+        DiscourseActivityPub::AP::Actor
+          .expects(:resolve_and_store)
+          .with(actor.ap_id)
+          .returns(actor.ap)
+        expect(
+          DiscourseActivityPubActor.resolve_and_store(handle)
+        ).to eq(actor)
+      end
+    end
+  end
 end

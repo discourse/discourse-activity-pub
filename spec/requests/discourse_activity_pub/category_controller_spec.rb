@@ -49,6 +49,66 @@ RSpec.describe DiscourseActivityPub::CategoryController do
     )
   }
 
+  describe "#follow" do
+    context "with activity pub enabled" do
+      before do
+        toggle_activity_pub(actor.model)
+      end
+
+      context "without a user who can edit the category" do
+        let(:user) { Fabricate(:user) }
+
+        before do
+          sign_in(user)
+        end
+
+        it "returns an unauthorized error" do
+          post "/ap/category/#{actor.model.id}/follow"
+          expect(response.status).to eq(403)
+        end
+      end
+
+      context "with a user who can edit the category" do
+        let(:admin) { Fabricate(:user, admin: true) }
+
+        before do
+          sign_in(admin)
+        end
+
+        context "without a handle" do
+          it "returns a bad request error" do
+            post "/ap/category/#{actor.model.id}/follow"
+            expect(response.status).to eq(400)
+          end
+        end
+
+        context "with a handle" do
+          let(:handle) { "actor@external.com" }
+
+          it "initiates a follow" do
+            DiscourseActivityPub::FollowHandler.expects(:perform).with(actor, handle)
+            post "/ap/category/#{actor.model.id}/follow", params: { handle: handle }
+            expect(response.status).to eq(200)
+          end
+
+          it "returns a success when follow is enqueued" do
+            DiscourseActivityPub::FollowHandler.expects(:perform).with(actor, handle).returns(true)
+            post "/ap/category/#{actor.model.id}/follow", params: { handle: handle }
+            expect(response.status).to eq(200)
+            expect(response.parsed_body['success']).to eq('OK')
+          end
+
+          it "returns a failure when follow is not enqueued" do
+            DiscourseActivityPub::FollowHandler.expects(:perform).with(actor, handle).returns(false)
+            post "/ap/category/#{actor.model.id}/follow", params: { handle: handle }
+            expect(response.status).to eq(200)
+            expect(response.parsed_body['failed']).to eq('FAILED')
+          end
+        end
+      end
+    end
+  end 
+
   describe "#followers" do
     context "with activity pub enabled" do
       before do

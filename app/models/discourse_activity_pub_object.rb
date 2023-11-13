@@ -45,8 +45,8 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     reply_to&.model_type == 'Post' && reply_to.model
   end
 
-  def after_deliver
-    after_published(Time.now.utc.iso8601)
+  def after_deliver(delivered = true)
+    after_published(Time.now.utc.iso8601) if delivered
   end
 
   def after_scheduled(scheduled_at, activity = nil)

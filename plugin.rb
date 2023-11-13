@@ -23,6 +23,7 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
+    ../lib/discourse_activity_pub/follow_handler.rb
     ../lib/discourse_activity_pub/auth.rb
     ../lib/discourse_activity_pub/auth/oauth.rb
     ../lib/discourse_activity_pub/auth/oauth/app.rb
@@ -33,6 +34,7 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/actor/group.rb
     ../lib/discourse_activity_pub/ap/actor/person.rb
     ../lib/discourse_activity_pub/ap/actor/application.rb
+    ../lib/discourse_activity_pub/ap/actor/service.rb
     ../lib/discourse_activity_pub/ap/activity.rb
     ../lib/discourse_activity_pub/ap/activity/follow.rb
     ../lib/discourse_activity_pub/ap/activity/response.rb

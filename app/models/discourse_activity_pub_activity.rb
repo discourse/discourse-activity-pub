@@ -75,8 +75,9 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     )
   end
 
-  def after_deliver
-    after_published(Time.now.utc.iso8601, self)
+  def after_deliver(delivered = true)
+    return self.destroy! if !delivered && local? && ap.follow?
+    after_published(Time.now.utc.iso8601, self) if delivered
   end
 
   def after_scheduled(scheduled_at, _activity = nil)

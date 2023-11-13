@@ -12,6 +12,22 @@ module DiscourseActivityPub
     def index
     end
 
+    def follow
+      guardian.ensure_can_edit!(@category)
+      params.require(:handle)
+
+      enqueued = FollowHandler.perform(
+        @category.activity_pub_actor,
+        params[:handle]
+      )
+
+      if enqueued
+        render json: success_json
+      else
+        render json: failed_json
+      end
+    end
+
     def followers
       guardian.ensure_can_see!(@category)
 

@@ -191,5 +191,69 @@ RSpec.describe DiscourseActivityPubActivity do
         activity.after_deliver
       end
     end
+
+    context "with a follow activity" do
+      let(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow, actor: actor) }
+
+      context "when local" do
+        before do
+          follow_activity.update(local: true)
+        end
+
+        context "when not delivered" do
+          it "destroys the activity" do
+            follow_activity.after_deliver(false)
+            expect(follow_activity).to be_destroyed
+          end
+
+          it "does not set published_at" do
+            follow_activity.after_deliver(false)
+            expect(follow_activity.published_at).to eq(nil)
+          end
+        end
+
+        context "when delievered" do
+          it "does not destroy the activity" do
+            follow_activity.after_deliver(true)
+            expect(follow_activity).not_to be_destroyed
+          end
+
+          it "sets published_at" do
+            follow_activity.after_deliver(true)
+            expect(follow_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
+          end
+        end
+      end
+
+      context "when remote" do
+        before do
+          follow_activity.update(local: false)
+        end
+
+        context "when not delivered" do
+          it "does not destroy the activity" do
+            follow_activity.after_deliver(false)
+            expect(follow_activity).not_to be_destroyed
+          end
+
+          it "does not set published_at" do
+            follow_activity.after_deliver(false)
+            expect(follow_activity.published_at).to eq_time(nil)
+          end
+        end
+
+        context "when delievered" do
+          it "does not destroy the activity" do
+            follow_activity.after_deliver(false)
+            expect(follow_activity).not_to be_destroyed
+          end
+
+          it "sets published_at" do
+            follow_activity.after_deliver(true)
+            expect(follow_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
+          end
+        end
+      end
+    end
   end
 end
