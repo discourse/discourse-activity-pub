@@ -7,7 +7,7 @@ export default {
         local: true,
         domain: "test.local",
         url: "https://test.local/u/angus_ap",
-        followed_at: "2013-02-08T23:14:40.018Z",
+        followed_at: "2013-02-08T12:00:00.000Z",
         icon_url: "/images/avatar.png",
         user: {
           username: "angus_local",
@@ -19,7 +19,7 @@ export default {
         local: false,
         domain: "test.remote",
         url: "https://test.remote/u/bob_ap",
-        followed_at: "2014-02-08T23:14:40.018Z",
+        followed_at: "2014-02-08T12:00:00.000Z",
         icon_url: "/images/avatar.png",
         user: {
           username: "bob_local",
