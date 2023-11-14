@@ -42,8 +42,8 @@ en:
         followers_only_full_topic: Each post of each topic is published to ActivityPub followers only.
         followers_only_first_post: The first post of each topic is published to ActivityPub followers only.
       handle:
-        label: Other
-        description: find on any service that supports ActivityPub
+        label: On other ActivityPub services
+        description: Use this handle to find and follow this category.
       follow:
         label: Follow
         title: Follow %{name}
