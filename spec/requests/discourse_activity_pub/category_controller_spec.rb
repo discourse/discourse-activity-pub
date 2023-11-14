@@ -22,9 +22,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
     Fabricate(:discourse_activity_pub_actor_person,
       domain: 'twitter.com',
       username: 'jenny_ap',
-      model: Fabricate(:user,
-        username: 'z_jenny_local'
-      )
+      model: nil
     )
   }
   let!(:follow2) {
@@ -65,11 +63,17 @@ RSpec.describe DiscourseActivityPub::CategoryController do
         )
       end
 
+      it "returns followers without users" do
+        get "/ap/category/#{actor.model.id}/followers.json"
+        expect(response.status).to eq(200)
+        expect(response.parsed_body['followers'].map{|f| f["username"] }).to include("jenny_ap")
+      end
+
       it "orders by user" do
         get "/ap/category/#{actor.model.id}/followers.json?order=user"
         expect(response.status).to eq(200)
-        expect(response.parsed_body['followers'].map{|f| f["user"]["username"] }).to eq(
-          ["z_jenny_local", "xavier_local", "bob_local"]
+        expect(response.parsed_body['followers'].map{|f| f.dig("user","username") }).to eq(
+          ["xavier_local", "bob_local", nil]
         )
       end
 

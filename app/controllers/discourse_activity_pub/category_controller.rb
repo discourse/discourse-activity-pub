@@ -19,8 +19,8 @@ module DiscourseActivityPub
         .activity_pub_followers
         .joins(:follow_follows)
         .where(follow_follows: { followed_id: @category.activity_pub_actor.id })
-        .joins(:user)
-        .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"}")
+        .left_joins(:user)
+        .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
 
       limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)
       page = fetch_int_from_params(:page, default: 0)
