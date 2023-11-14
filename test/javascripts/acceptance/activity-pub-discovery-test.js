@@ -200,7 +200,7 @@ acceptance(
       );
       assert.equal(
         query(".activity-pub-followed-at").innerText,
-        "Feb 8, '13",
+        "Feb 9, '13",
         "follower followed at is visible"
       );
 

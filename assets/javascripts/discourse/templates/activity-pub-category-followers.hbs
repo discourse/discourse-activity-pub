@@ -43,14 +43,14 @@
         <div class="directory-table__row activity-pub-follower">
           <div class="directory-table__cell activity-pub-follower-actor">
             <div class="activity-pub-follower-image">
-              {{activityPubActorImage follower size="large"}}
+              <ActivityPubActorImage @actor={{follower}} @size="large" />
             </div>
             <div class="activity-pub-follower-actor-content">
               <div class="activity-pub-follower-name">
                 {{or follower.name follower.username}}
               </div>
               <div class="activity-pub-follower-handle">
-                {{activityPubActorHandle follower}}
+                <ActivityPubActorHandle @actor={{follower}} />
               </div>
             </div>
           </div>
