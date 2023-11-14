@@ -46,7 +46,7 @@ en:
         description: Use this handle to find and follow this category.
       follow:
         label: Follow
-        title: Follow %{name}
+        title: Follow %{name} via ActivityPub
         domain:
           label: Mastodon
           placeholder: domain
