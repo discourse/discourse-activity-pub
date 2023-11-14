@@ -28,6 +28,7 @@ after_initialize do
     ../lib/discourse_activity_pub/auth/oauth.rb
     ../lib/discourse_activity_pub/auth/oauth/app.rb
     ../lib/discourse_activity_pub/auth/authorization.rb
+    ../lib/discourse_activity_pub/webfinger/handle.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
@@ -941,6 +942,7 @@ after_initialize do
     mount DiscourseActivityPub::Engine, at: "ap"
 
     get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+    post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger#validate_handle", defaults: { format: :json }
     get "u/:username/preferences/activity-pub" => "users#preferences",
         :constraints => {
           username: RouteFormat.username,

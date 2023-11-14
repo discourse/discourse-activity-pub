@@ -76,4 +76,12 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
       end
     end
   end
+
+  describe "#validate_handle" do
+    it "validates a handle" do
+      post "/webfinger/handle/validate", params: { handle: "username@domain.com" }
+      expect(response.status).to eq(200)
+      expect(response.parsed_body['valid']).to eq(true)
+    end
+  end
 end

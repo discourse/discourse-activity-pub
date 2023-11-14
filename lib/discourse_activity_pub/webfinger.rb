@@ -21,15 +21,15 @@ module DiscourseActivityPub
       DiscourseActivityPubActor.find_by_handle(uri, local: true)
     end
 
-    def self.find_by_handle(handle)
-      username, domain = handle.split('@')
-      return nil if DiscourseActivityPub::URI.local?(domain)
+    def self.find_by_handle(uri)
+      handle = Handle.new(uri)
+      return nil if !handle.valid? || DiscourseActivityPub::URI.local?(handle.domain)
 
-      query = "resource=#{ACCOUNT_SCHEME}:#{handle}"
-      uri = DiscourseActivityPub::URI.parse("https://#{domain}/#{PATH}?#{query}")
-      return nil unless uri
+      query = "resource=#{ACCOUNT_SCHEME}:#{handle.to_s}"
+      webfinger_uri = DiscourseActivityPub::URI.parse("https://#{handle.domain}/#{PATH}?#{query}")
+      return nil unless webfinger_uri
 
-      request = DiscourseActivityPub::Request.new(uri: uri)
+      request = DiscourseActivityPub::Request.new(uri: webfinger_uri)
       request.expects = DiscourseActivityPub::Request::SUCCESS_CODES
 
       response = request.perform(:get)
@@ -38,8 +38,8 @@ module DiscourseActivityPub
       JsonLd.parse_json_ld(response.body)
     end
 
-    def self.find_id_by_handle(handle)
-      account = find_by_handle(handle)
+    def self.find_id_by_handle(uri)
+      account = find_by_handle(uri)
       return nil unless account && account['links'].present?
 
       link = account['links'].find { |l| l['rel'] == 'self' }

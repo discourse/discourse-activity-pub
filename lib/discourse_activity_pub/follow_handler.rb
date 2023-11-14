@@ -2,34 +2,29 @@
 module DiscourseActivityPub
     class FollowHandler
         attr_reader :actor,
-                    :handle,
-                    :username,
-                    :domain
+                    :handle
 
-        def initialize(actor, handle)
+        def initialize(actor, uri)
             @actor = actor
-            @handle = handle
-
-            username, domain = handle.split('@')
-            @username = username
-            @domain = domain
+            @handle = Webfinger::Handle.new(uri)
         end
 
         def perform
+            return false unless handle.valid?
             return false unless follow_actor
             return false unless follow_activity
 
             deliver
         end
 
-        def self.perform(actor, handle)
-            self.new(actor, handle).perform
+        def self.perform(actor, uri)
+            self.new(actor, uri).perform
         end
 
         protected
 
         def follow_actor
-            @follow_actor ||= DiscourseActivityPubActor.find_by_handle(handle, refresh: true)
+            @follow_actor ||= DiscourseActivityPubActor.find_by_handle(handle.to_s, refresh: true)
         end
 
         def follow_activity

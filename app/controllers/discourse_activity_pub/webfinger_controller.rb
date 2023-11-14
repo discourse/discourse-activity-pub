@@ -5,12 +5,18 @@ module DiscourseActivityPub
     skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr
 
     before_action :ensure_site_enabled
-    before_action :find_resource
+    before_action :find_resource, only: [:index]
 
     def index
       # TODO: is this Cache Control correct for webfinger?
       expires_in 1.minutes
       render json: serialized_resource, content_type: Webfinger::CONTENT_TYPE
+    end
+
+    def validate_handle
+      params.require(:handle)
+      handle = Webfinger::Handle.new(params[:handle])
+      render json: { valid: handle.valid? }
     end
 
     protected

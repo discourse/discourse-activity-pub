@@ -121,24 +121,25 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def self.find_by_handle(handle, local: false, refresh: false)
-    username, domain = handle.split('@')
-    return nil unless !local || DiscourseActivityPub::URI.local?(domain)
+  def self.find_by_handle(uri, local: false, refresh: false)
+    handle = DiscourseActivityPub::Webfinger::Handle.new(uri)
+    return nil unless handle.valid?
+    return nil unless !local || DiscourseActivityPub::URI.local?(handle.domain)
 
     unless refresh
-      opts = { username: username }
-      opts[:domain] = domain if !local
+      opts = { username: handle.username }
+      opts[:domain] = handle.domain if !local
       actor = DiscourseActivityPubActor.find_by(opts)
       return actor if actor
     end
 
-    return resolve_and_store(handle) if !local
+    return resolve_and_store(handle.to_s) if !local
 
     nil
   end
 
-  def self.resolve_and_store(handle)
-    ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(handle)
+  def self.resolve_and_store(uri)
+    ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(uri)
     return nil unless ap_id
 
     ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)
