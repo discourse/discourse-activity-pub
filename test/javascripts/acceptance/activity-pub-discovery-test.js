@@ -191,7 +191,7 @@ acceptance(
       );
       assert.equal(
         query(".activity-pub-follower-handle").innerText,
-        "angus_ap@test.local",
+        "@angus_ap@test.local",
         "follower handle is visible"
       );
       assert.ok(

@@ -72,7 +72,7 @@ module(
       await click("#activity_pub_follow_domain_button");
 
       const url = `https://${domain}/authorize_interaction?uri=${encodeURIComponent(
-        "announcements@forum.local"
+        "@announcements@forum.local"
       )}`;
       assert.strictEqual(
         openStub.calledWith(url, "_blank"),
