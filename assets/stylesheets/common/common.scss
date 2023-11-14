@@ -1,3 +1,13 @@
+@import "common/components/buttons";
+
+@mixin description-text {
+  color: var(--primary-medium);
+  margin-top: 4px;
+  margin-bottom: 10px;
+  font-size: var(--font-down-1);
+  line-height: var(--line-height-large);
+}
+
 .activity-pub-category-settings-title {
   display: flex;
   align-items: center;
@@ -8,28 +18,31 @@
   }
 }
 
-.activity-pub-status {
+div.activity-pub-status {
   padding: 2px 8px;
   border-radius: var(--d-border-radius);
-  font-size: 0.9em;
   line-height: 0.9em;
   min-height: 23px;
   background-color: var(--primary-200);
   display: inline-flex;
   align-items: center;
 
-  .svg-icon {
-    height: 1.5em;
-    width: 1.5em;
-    color: var(--danger) !important;
+  > .svg-icon {
+    height: 1.2em;
+    width: 1.2em;
+    color: var(--danger);
   }
 
-  &.active .svg-icon {
-    color: var(--success) !important;
+  &.active > .svg-icon {
+    color: var(--success);
   }
 
   .label {
     margin-left: 0.5em;
+  }
+
+  .clickable {
+    cursor: pointer;
   }
 }
 
@@ -41,11 +54,7 @@
   }
 
   .activity-pub-setting-description {
-    color: var(--primary-medium);
-    margin-top: 4px;
-    margin-bottom: 10px;
-    font-size: var(--font-down-1);
-    line-height: var(--line-height-large);
+    @include description-text;
   }
 
   .activity-pub-setting-notice {
@@ -64,6 +73,7 @@
   }
 
   .activity-pub-handle {
+    display: inline-flex;
     margin: 4px 0;
   }
 }
@@ -73,20 +83,33 @@
 }
 
 .activity-pub-handle {
-  display: inline-flex;
-  align-items: stretch;
+  overflow: hidden;
+
+  .activity-pub-handle-contents {
+    display: flex;
+    align-items: stretch;
+    border-radius: var(--d-border-radius);
+    border: 1px solid var(--primary-low);
+    line-height: 32px;
+    overflow: hidden;
+  }
 
   .handle {
-    border-radius: var(--d-border-radius);
-    background-color: var(--primary-200);
     padding: 0 0.65em;
-    line-height: 35px;
+    color: var(--primary-high);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
-  button {
-    border: unset;
-    max-height: 35px;
+  button,
+  a {
+    @extend .btn-flat;
   }
+}
+
+.activity-pub-handle-description {
+  @include description-text;
 }
 
 .activity-pub-discovery-dropdown {
@@ -108,6 +131,14 @@
 
 #reply-control .activity-pub-status {
   margin-left: 1em;
+
+  > .svg-icon {
+    color: var(--danger) !important;
+  }
+
+  &.active > .svg-icon {
+    color: var(--success) !important;
+  }
 }
 
 .post-info.activity-pub {
@@ -183,5 +214,88 @@ body.user-preferences-activity-pub-page {
   .activity-pub-authorization {
     display: inline-flex;
     align-items: center;
+  }
+}
+
+.activity-pub-category-nav {
+  display: none !important;
+
+  &.visible {
+    display: flex !important;
+  }
+}
+
+.activity-pub-category-banner {
+  width: 100%;
+  background: var(--primary-very-low);
+  padding: 0.5em;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .activity-pub-category-banner-side {
+    display: flex;
+    gap: 0.5em;
+  }
+
+  .fk-d-tooltip__trigger {
+    margin-left: 0.5em;
+  }
+}
+
+.activity-pub-followers {
+  grid-template-columns: minmax(13em, 3fr) repeat(2, 110px);
+}
+
+.activity-pub-follower-actor {
+  justify-content: flex-start;
+
+  .activity-pub-follower-actor-content {
+    margin-left: 1em;
+    display: flex;
+    flex-flow: column;
+  }
+}
+
+.activity-pub-follower-user {
+  display: flex;
+  align-items: center;
+}
+
+@media all and (max-width: 1000px) {
+  .activity-pub-category-banner .activity-pub-handle,
+  .activity-pub-follower-user,
+  .activity-pub-followed-at {
+    display: none;
+  }
+  .directory-table__cell:first-child {
+    padding: unset;
+  }
+}
+
+.activity-pub-follow-controls {
+  .activity-pub-handle-label {
+    margin-top: 1em;
+  }
+  .activity-pub-handle {
+    display: inline-flex;
+  }
+}
+
+.activity-pub-follow-domain-controls {
+  display: flex;
+  align-items: center;
+
+  input {
+    margin: 0;
+  }
+}
+
+.activity-pub-follow-domain-footer {
+  @include description-text;
+
+  &.error {
+    color: var(--danger);
   }
 }

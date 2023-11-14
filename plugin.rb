@@ -75,6 +75,7 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
     ../app/controllers/discourse_activity_pub/post_controller.rb
+    ../app/controllers/discourse_activity_pub/category_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -96,6 +97,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
+    ../app/serializers/discourse_activity_pub/follower_serializer.rb
     ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
@@ -111,11 +113,13 @@ after_initialize do
                    class_name: "DiscourseActivityPubActor",
                    as: :model,
                    dependent: :destroy
+  Category.has_many :activity_pub_followers,
+                    through: :activity_pub_actor,
+                    source: :followers,
+                    class_name: "DiscourseActivityPubActor"
   Category.prepend DiscourseActivityPubCategoryExtension
 
   register_category_custom_field_type("activity_pub_enabled", :boolean)
-  register_category_custom_field_type("activity_pub_show_status", :boolean)
-  register_category_custom_field_type("activity_pub_show_handle", :boolean)
   register_category_custom_field_type("activity_pub_username", :string)
   register_category_custom_field_type("activity_pub_name", :string)
   register_category_custom_field_type("activity_pub_default_visibility", :string)
@@ -131,12 +135,6 @@ after_initialize do
   add_to_class(:category, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && !self.read_restricted &&
       !!custom_fields["activity_pub_enabled"]
-  end
-  add_to_class(:category, :activity_pub_show_status) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_status"]
-  end
-  add_to_class(:category, :activity_pub_show_handle) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_show_handle"]
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? &&
@@ -157,12 +155,7 @@ after_initialize do
         enabled: activity_pub_enabled
       }
     }
-    opts = {}
-    opts[:group_ids] = [
-      Group::AUTO_GROUPS[:staff],
-      *self.reviewable_by_group_id
-    ] if !activity_pub_show_status
-    MessageBus.publish("/activity-pub", message, opts)
+    MessageBus.publish("/activity-pub", message)
   end
   add_to_class(:category, :activity_pub_default_visibility) do
     if activity_pub_full_topic
@@ -186,11 +179,11 @@ after_initialize do
   add_to_class(:category, :activity_pub_full_topic) do
     activity_pub_publication_type === 'full_topic'
   end
-  add_to_class(:category, :activity_pub_post_object_type) do
-    custom_fields["activity_pub_post_object_type"]
-  end
   add_to_class(:category, :activity_pub_default_object_type) do
     DiscourseActivityPub::AP::Actor::Group.type
+  end
+  add_to_class(:category, :activity_pub_follower_count) do
+    activity_pub_followers.count
   end
 
   add_model_callback(:category, :after_save) do
@@ -235,12 +228,11 @@ after_initialize do
   end
 
   serialized_category_custom_fields = %w(
-    activity_pub_show_status
-    activity_pub_show_handle
     activity_pub_username
     activity_pub_name
     activity_pub_default_visibility
     activity_pub_publication_type
+    activity_pub_post_object_type
   )
   serialized_category_custom_fields.each do |field|
     add_to_serializer(

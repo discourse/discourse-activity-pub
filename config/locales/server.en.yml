@@ -92,6 +92,10 @@ en:
         not_enabled: "Webfinger is not enabled"
         resource_not_supported: "Resource not supported"
         resource_not_found: "Resource not found"
+    category:
+      error:
+        not_enabled: "ActivityPub is not enabled"
+        category_not_found: "Category not found"
     post:
       error:
         not_enabled: "ActivityPub is not enabled"

@@ -1,16 +1,26 @@
 <div class="activity-pub-handle">
-  <span class="handle">{{handle}}</span>
-  {{#if this.copied}}
-    <DButton
-      @class="btn-hover"
-      @icon="copy"
-      @label="ip_lookup.copied"
-    />
-  {{else}}
-    <DButton
-      @action={{action "copy"}}
-      @class="no-text"
-      @icon="copy"
-    />
-  {{/if}}
+  <div class="activity-pub-handle-contents">
+    <span class="handle">{{handle}}</span>
+    {{#if @actor.url}}
+      <a
+        href={{@actor.url}}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-icon no-text"
+      >{{d-icon "external-link-alt"}}</a>
+    {{/if}}
+    {{#if this.copied}}
+      <DButton
+        @class="btn-hover"
+        @icon="copy"
+        @label="ip_lookup.copied"
+      />
+    {{else}}
+      <DButton
+        @action={{action "copy"}}
+        @class="no-text"
+        @icon="copy"
+      />
+    {{/if}}
+  </div>
 </div>

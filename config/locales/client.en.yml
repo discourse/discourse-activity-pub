@@ -10,10 +10,6 @@ en:
         settings_heading: ActivityPub
         enable: Enable ActivityPub in this category.
         enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
-        show_status: Show the ActivityPub status and visibility in this category's composer.
-        show_status_description: Shows in the composer when creating a post that will be published with ActivityPub.
-        show_handle: Show an ActivityPub handle in this category's topic list.
-        show_handle_description: Shows a dropdown with the handle to the left of the "New Topic" button.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.
@@ -40,8 +36,34 @@ en:
         label:
           active: Active
           not_active: Not Active
-      discovery:
-        description: Follow %{category_name} on services that support ActivityPub using
+      category_nav:
+        label: Federation
+        description: Federation for %{category_name}
+      banner:
+        text: Follow %{category_name} on any service that supports federation
+        mobile_text: Federated
+        public_full_topic: Each post of each topic will be published publicly via ActivityPub.
+        public_first_post: The first post of each topic will be published publicly via ActivityPub.
+        followers_only_full_topic: Each post of each topic is published to ActivityPub followers only.
+        followers_only_first_post: The first post of each topic is published to ActivityPub followers only.
+      handle:
+        label: On other ActivityPub services
+        description: Use this handle to find and follow this category.
+      follow:
+        label: Follow
+        title: Follow %{name} via ActivityPub
+        domain:
+          label: Mastodon
+          placeholder: domain
+          btn_label: Follow
+          btn_title: Follow on this Mastodon domain
+          description: domain of your Mastodon account
+          verifying: verifying the domain...
+          invalid: not a valid Mastodon domain
+      follower:
+        actor: Actor
+        user: User
+        followed_at: Followed
       visibility:
         label:
           private: Followers Only
@@ -63,6 +85,7 @@ en:
         description:
           first_post: First post of every topic in this category is published via ActivityPub.
           full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
+
     post:
       discourse_activity_pub:
         title:

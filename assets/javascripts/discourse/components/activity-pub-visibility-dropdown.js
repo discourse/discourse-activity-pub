@@ -1,7 +1,6 @@
 import ComboBoxComponent from "select-kit/components/combo-box";
 import I18n from "I18n";
 import { computed } from "@ember/object";
-import { observes, on } from "discourse-common/utils/decorators";
 import { equal } from "@ember/object/computed";
 import { scheduleOnce } from "@ember/runloop";
 
@@ -24,9 +23,9 @@ export default ComboBoxComponent.extend({
     ];
   }),
 
-  @on("didReceiveAttrs")
-  @observes("fullTopicPublication")
-  handleFullTopicPublication() {
+  didReceiveAttrs() {
+    this._super(...arguments);
+
     if (this.fullTopicPublication) {
       this.set("value", "public");
     }

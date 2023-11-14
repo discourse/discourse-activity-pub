@@ -10,7 +10,7 @@ import { module, test } from "qunit";
 import I18n from "I18n";
 import Site from "discourse/models/site";
 import AppEvents from "discourse/services/app-events";
-import { getOwner } from "discourse-common/lib/get-owner";
+import { getOwner } from "@ember/application";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
@@ -35,11 +35,8 @@ function setCategory(context, attrs = {}) {
 function setComposer(context, opts = {}) {
   opts.user ??= currentUser();
   opts.appEvents = AppEvents.create();
-  const store = getOwner(this).lookup("service:store");
+  const store = getOwner(context).lookup("service:store");
   const composer = store.createRecord("composer", opts);
-  if (opts.category) {
-    composer.set("category", opts.category);
-  }
   context.set("composer", composer);
 }
 
@@ -205,7 +202,7 @@ module(
         activity_pub_default_visibility: "public",
       });
       setComposer(this, {
-        category: this.category,
+        categoryId: this.category.id,
       });
 
       await render(composerTemplate);

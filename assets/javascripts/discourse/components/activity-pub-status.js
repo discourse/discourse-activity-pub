@@ -96,6 +96,14 @@ export default class ActivityPubStatus extends Component {
     return this.active ? "active" : "not_active";
   }
 
+  get classes() {
+    let result = `activity-pub-status ${this.statusClass}`;
+    if (this.args.onClick) {
+      result += " clickable";
+    }
+    return result;
+  }
+
   get statusClass() {
     return this.active ? "active" : "not-active";
   }

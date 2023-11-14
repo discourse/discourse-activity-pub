@@ -13,30 +13,10 @@
   </div>
 </section>
 
-<section class='field activity-pub-setting activity-pub-show-status'>
-  <label>
-    <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_show_status}} />
-    {{i18n 'category.discourse_activity_pub.show_status'}}
-  </label>
-  <div class="activity-pub-setting-description">
-    {{i18n 'category.discourse_activity_pub.show_status_description'}}
-  </div>
-</section>
-
-<section class='field activity-pub-setting activity-pub-show-handle'>
-  <label>
-    <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_show_handle}} />
-    {{i18n 'category.discourse_activity_pub.show_handle'}}
-  </label>
-  <div class="activity-pub-setting-description">
-    {{i18n 'category.discourse_activity_pub.show_handle_description'}}
-  </div>
-</section>
-
 {{#if this.category.activity_pub_username}}
   <section class='field activity-pub-setting activity-pub-handle-field'>
     <label>{{i18n 'category.discourse_activity_pub.handle'}}</label>
-    <ActivityPubHandle @actor={{this.category}} />
+    <ActivityPubHandle @model={{this.category}} />
     <div class="activity-pub-setting-description">
       {{i18n 'category.discourse_activity_pub.handle_description'}}
     </div>

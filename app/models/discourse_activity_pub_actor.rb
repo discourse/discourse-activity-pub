@@ -5,6 +5,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   include DiscourseActivityPub::WebfingerActorAttributes
 
   belongs_to :model, polymorphic: true, optional: true
+  belongs_to :user, -> { where(discourse_activity_pub_actors: { model_type: 'User' }) }, foreign_key: 'model_id', optional: true
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id", dependent: :destroy
   has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id", dependent: :destroy
@@ -54,8 +55,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     )
   end
 
+  def domain
+    local? ? DiscourseActivityPub.host : self.read_attribute(:domain)
+  end
+
   def url
-    local? && model&.activity_pub_url
+    local? ? model&.activity_pub_url : self.ap_id
   end
 
   def icon_url

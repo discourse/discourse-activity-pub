@@ -1,6 +1,6 @@
 function showStatus(model) {
   return (
-    model.get("category.activity_pub_show_status") &&
+    model.get("category.activity_pub_ready") &&
     model.get("action") === "createTopic"
   );
 }

@@ -4,17 +4,18 @@ import { inject as service } from "@ember/service";
 import discourseLater from "discourse-common/lib/later";
 import { tracked } from "@glimmer/tracking";
 import { clipboardCopy } from "discourse/lib/utilities";
+import { buildHandle } from "../lib/activity-pub-utilities";
 
 export default class ActivityPubHandle extends Component {
   @tracked copied = false;
   @service site;
+  @service siteSettings;
 
   get handle() {
-    if (!this.args.actor) {
-      return undefined;
-    } else {
-      return `${this.args.actor.activity_pub_username}@${this.site.activity_pub_host}`;
-    }
+    const model = this.args.model;
+    const actor = this.args.actor;
+    const site = this.site;
+    return buildHandle({ actor, model, site });
   }
 
   @action
