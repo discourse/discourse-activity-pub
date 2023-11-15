@@ -13,16 +13,16 @@ module DiscourseActivityPub
       @scheme = scheme
     end
 
-    def find(uri)
-      find_actor(uri) if scheme === ACCOUNT_SCHEME
+    def find(raw_handle)
+      find_actor(raw_handle) if scheme === ACCOUNT_SCHEME
     end
 
-    def find_actor(uri)
-      DiscourseActivityPubActor.find_by_handle(uri, local: true)
+    def find_actor(raw_handle)
+      DiscourseActivityPubActor.find_by_handle(raw_handle, local: true)
     end
 
-    def self.find_by_handle(uri)
-      handle = Handle.new(uri)
+    def self.find_by_handle(raw_handle)
+      handle = Handle.new(handle: raw_handle)
       return nil if !handle.valid? || DiscourseActivityPub::URI.local?(handle.domain)
 
       query = "resource=#{ACCOUNT_SCHEME}:#{handle.to_s}"

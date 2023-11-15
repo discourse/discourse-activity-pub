@@ -1,22 +1,21 @@
 # frozen_string_literal: true
 
 module DiscourseActivityPub
-  class FollowerSerializer < ActiveModel::Serializer
+  class ActorSerializer < BasicActorSerializer
     attributes :name,
-               :username,
                :local,
                :domain,
                :url,
-               :followed_at,
                :icon_url,
-               :user
+               :user,
+               :followed_at
 
     def user
       BasicUserSerializer.new(object.model, root: false).as_json
     end
 
-    def followed_at
-      object.follow_follows&.first.followed_at
+    def include_user?
+      object.model_type === 'User' && object.model_id.present?
     end
   end
 end

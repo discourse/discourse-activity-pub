@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module DiscourseActivityPub
     class Webfinger
         class Handle
@@ -8,9 +9,15 @@ module DiscourseActivityPub
                         :raw_username,
                         :raw_domain
 
-            def initialize(raw_handle)
-                @raw_handle = raw_handle
-                @raw_username, _, @raw_domain = raw_handle.rpartition(SEPERATOR)
+            def initialize(handle: nil, username: nil, domain: nil)
+
+                if handle
+                    @raw_handle = handle
+                    @raw_username, _, @raw_domain = handle.rpartition(SEPERATOR)
+                else
+                    @raw_username = username
+                    @raw_domain = domain
+                end
             end
 
             def valid?

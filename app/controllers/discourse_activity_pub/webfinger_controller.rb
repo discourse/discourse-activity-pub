@@ -13,12 +13,6 @@ module DiscourseActivityPub
       render json: serialized_resource, content_type: Webfinger::CONTENT_TYPE
     end
 
-    def validate_handle
-      params.require(:handle)
-      handle = Webfinger::Handle.new(params[:handle])
-      render json: { valid: handle.valid? }
-    end
-
     protected
 
     def serialized_resource

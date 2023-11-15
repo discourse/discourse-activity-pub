@@ -1,28 +1,28 @@
 <LoadMore
-  @class="activity-pub-followers-container"
+  @class="activity-pub-follows-container"
   @selector=".directory-table .directory-table__cell"
   @action={{action "loadMore"}}
 >
   {{#if this.model.hasActors}}
-    <ResponsiveTable @className="activity-pub-followers">
+    <ResponsiveTable @className="activity-pub-follows">
       <:header>
         <TableHeaderToggle
           @field="actor"
-          @labelKey="discourse_activity_pub.follower.actor"
+          @labelKey="discourse_activity_pub.follow.actor"
           @automatic={{true}}
           @order={{this.order}}
           @asc={{this.asc}}
         />
         <TableHeaderToggle
           @field="user"
-          @labelKey="discourse_activity_pub.follower.user"
+          @labelKey="discourse_activity_pub.follow.user"
           @automatic={{true}}
           @order={{this.order}}
           @asc={{this.asc}}
         />
         <TableHeaderToggle
           @field="followed_at"
-          @labelKey="discourse_activity_pub.follower.followed_at"
+          @labelKey="discourse_activity_pub.follow.followed_at"
           @automatic={{true}}
           @order={{this.order}}
           @asc={{this.asc}}
@@ -30,11 +30,21 @@
       </:header>
       <:body>
       {{#each this.model.actors as |actor|}}
-        <div class="directory-table__row activity-pub-follower">
-          <div class="directory-table__cell activity-pub-follower-actor">
-            <ActivityPubActor @actor={{actor}} />
+        <div class="directory-table__row activity-pub-follow">
+          <div class="directory-table__cell activity-pub-follow-actor">
+            <div class="activity-pub-follow-image">
+              <ActivityPubActorImage @actor={{actor}} @size="large" />
+            </div>
+            <div class="activity-pub-follow-actor-content">
+              <div class="activity-pub-follow-name">
+                {{or actor.name actor.username}}
+              </div>
+              <div class="activity-pub-follow-handle">
+                <ActivityPubActorHandle @actor={{actor}} />
+              </div>
+            </div>
           </div>
-          <div class="directory-table__cell activity-pub-follower-user">
+          <div class="directory-table__cell activity-pub-follow-user">
             {{#if actor.user}}
               <a
                 class="avatar"

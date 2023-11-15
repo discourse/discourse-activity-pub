@@ -2,7 +2,7 @@ import Controller from "@ember/controller";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 
-export default class ActivityPubCategoryFollowers extends Controller {
+export default class ActivityPubCategoryFollows extends Controller {
   @tracked order = "";
   @tracked asc = null;
 

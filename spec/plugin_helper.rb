@@ -105,7 +105,7 @@ def perform_process(json)
   klass.process
 end
 
-def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil)
+def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil, recipients: nil)
   DiscourseActivityPub::DeliveryHandler
     .expects(:perform)
     .with do |args|
@@ -113,6 +113,7 @@ def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil)
       (!actor || args[:actor].id == actor.id) &&
       (!object || args[:object].id == object.id) &&
       (!object_type || args[:object].ap_type == object_type) &&
+      (!recipients || args[:recipients].sort == recipients.sort) &&
       args[:delay] == delay
     end
     .once

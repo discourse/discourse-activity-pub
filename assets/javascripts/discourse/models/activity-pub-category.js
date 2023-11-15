@@ -3,11 +3,11 @@ import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { notEmpty } from "@ember/object/computed";
 
-const ActivityPubFollowers = EmberObject.extend({
-  hasFollowers: notEmpty("followers"),
+const ActivityPubCategory = EmberObject.extend({
+  hasActors: notEmpty("actors"),
 
   loadMore() {
-    if (!this.loadMoreUrl || this.total <= this.followers.length) {
+    if (!this.loadMoreUrl || this.total <= this.items.length) {
       return;
     }
 
@@ -16,7 +16,7 @@ const ActivityPubFollowers = EmberObject.extend({
     return ajax(this.loadMoreUrl)
       .then((response) => {
         if (response) {
-          this.followers.pushObjects(response.followers);
+          this.actors.pushObjects(response.actors);
           this.setProperties({
             loadMoreUrl: response.meta.load_more_url,
             loadingMore: false,
@@ -27,8 +27,8 @@ const ActivityPubFollowers = EmberObject.extend({
   },
 });
 
-ActivityPubFollowers.reopenClass({
-  load(category, params) {
+ActivityPubCategory.reopenClass({
+  listActors(category, params, listType) {
     const queryParams = new URLSearchParams();
 
     if (params.order) {
@@ -39,7 +39,7 @@ ActivityPubFollowers.reopenClass({
       queryParams.set("asc", params.asc);
     }
 
-    const path = `/ap/category/${category.id}/followers`;
+    const path = `/ap/category/${category.id}/${listType}`;
 
     let url = `${path}.json`;
     if (queryParams.size) {
@@ -52,4 +52,4 @@ ActivityPubFollowers.reopenClass({
   },
 });
 
-export default ActivityPubFollowers;
+export default ActivityPubCategory;

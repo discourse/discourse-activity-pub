@@ -1,0 +1,13 @@
+<Discovery::Navigation
+  @createTopic={{fn
+    this.composer.openNewTopic
+    (hash category=this.model.category preferDraft=true)
+  }}
+  @category={{this.model.category}}
+/>
+
+<ActivityPubCategoryBanner @category={{this.model.category}} />
+
+<ActivityPubCategoryNav @category={{this.model.category}} />
+
+{{outlet}}

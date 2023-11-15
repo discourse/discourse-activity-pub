@@ -19,6 +19,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   before_save :ensure_keys, if: :local?
   before_save :ensure_inbox_and_outbox, if: :local?
 
+  attr_accessor :followed_at
+
   def available?
     local? ? true : self.available
   end
@@ -46,6 +48,13 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     actor.followers.exists?(id: self.id)
   end
 
+  def can_follow?(actor)
+    can_perform_activity?(
+      DiscourseActivityPub::AP::Activity::Follow.type,
+      actor.ap_type
+    )
+  end
+
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)
     return false unless ap && activity_ap_type
 
@@ -60,7 +69,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def handle
-    "#{username}@#{domain}"
+    handle = DiscourseActivityPub::Webfinger::Handle.new(username: username, domain: domain)
+    handle.valid? ? handle.to_s : nil
   end
 
   def url
@@ -121,8 +131,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def self.find_by_handle(uri, local: false, refresh: false)
-    handle = DiscourseActivityPub::Webfinger::Handle.new(uri)
+  def self.find_by_handle(raw_handle, local: false, refresh: false)
+    handle = DiscourseActivityPub::Webfinger::Handle.new(handle: raw_handle)
     return nil unless handle.valid?
     return nil unless !local || DiscourseActivityPub::URI.local?(handle.domain)
 
@@ -138,8 +148,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     nil
   end
 
-  def self.resolve_and_store(uri)
-    ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(uri)
+  def self.resolve_and_store(raw_handle)
+    ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(raw_handle)
     return nil unless ap_id
 
     ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)

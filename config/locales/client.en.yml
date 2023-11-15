@@ -34,6 +34,8 @@ en:
       category_nav:
         label: Federation
         description: Federation for %{category_name}
+        followers: Followers
+        follows: Follows
       banner:
         text: Follow %{category_name} on any service that supports federation
         mobile_text: Federated
@@ -55,6 +57,24 @@ en:
           description: domain of your Mastodon account
           verifying: verifying the domain...
           invalid: not a valid Mastodon domain
+      create_follow:
+        label: Create Follow
+        title: Create a follow for %{actor}
+        find:
+          label: Find an actor to follow
+          btn_label: Find
+          btn_title: Find the handle
+          description: "e.g. @announcements@meta.discourse.org"
+          validating: validating handle...
+          invalid: not a valid handle
+          finding: finding the actor...
+          not_found: 'could not find "%{handle}"'
+        follow:
+          label: Follow
+          title: 'Create a follow of "%{follow_actor}" for %{actor}'
+        following:
+          label: Following
+          title: '%{actor} is following %{follow_actor}'
       follower:
         actor: Actor
         user: User

@@ -1,31 +1,29 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
     class FollowHandler
-        attr_reader :actor,
-                    :handle
+        attr_reader :actor
+        attr_accessor :follow_actor
 
-        def initialize(actor, uri)
-            @actor = actor
-            @handle = Webfinger::Handle.new(uri)
+        def initialize(actor_id)
+            @actor = DiscourseActivityPubActor.find_by_id(actor_id)
         end
 
-        def perform
-            return false unless handle.valid?
-            return false unless follow_actor
+        def perform(follow_actor_id)
+            return false unless actor
+
+            @follow_actor = DiscourseActivityPubActor.find_by_id(follow_actor_id)
+
+            return false unless follow_actor&.remote?
             return false unless follow_activity
 
             deliver
         end
 
-        def self.perform(actor, uri)
-            self.new(actor, uri).perform
+        def self.perform(actor_id, follow_actor_id)
+            self.new(actor_id).perform(follow_actor_id)
         end
 
         protected
-
-        def follow_actor
-            @follow_actor ||= DiscourseActivityPubActor.find_by_handle(handle.to_s, refresh: true)
-        end
 
         def follow_activity
             @follow_activity ||= DiscourseActivityPubActivity.create!(
@@ -41,7 +39,7 @@ module DiscourseActivityPub
             DiscourseActivityPub::DeliveryHandler.perform(
                 actor: actor,
                 object: follow_activity,
-                recipients: [follow_actor.ap_id]
+                recipients: [follow_actor]
             )
         end
     end

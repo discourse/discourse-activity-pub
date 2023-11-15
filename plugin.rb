@@ -8,6 +8,7 @@
 register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
+register_svg_icon "user-check"
 
 after_initialize do
   %w[
@@ -74,11 +75,13 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
     ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
+    ../app/controllers/discourse_activity_pub/webfinger/handle_controller.rb
     ../app/controllers/discourse_activity_pub/auth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
     ../app/controllers/discourse_activity_pub/post_controller.rb
     ../app/controllers/discourse_activity_pub/category_controller.rb
+    ../app/controllers/discourse_activity_pub/actor_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -100,7 +103,8 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
-    ../app/serializers/discourse_activity_pub/follower_serializer.rb
+    ../app/serializers/discourse_activity_pub/basic_actor_serializer.rb
+    ../app/serializers/discourse_activity_pub/actor_serializer.rb
     ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
@@ -119,6 +123,10 @@ after_initialize do
   Category.has_many :activity_pub_followers,
                     through: :activity_pub_actor,
                     source: :followers,
+                    class_name: "DiscourseActivityPubActor"
+  Category.has_many :activity_pub_follows,
+                    through: :activity_pub_actor,
+                    source: :follows,
                     class_name: "DiscourseActivityPubActor"
   Category.prepend DiscourseActivityPubCategoryExtension
 
@@ -216,6 +224,13 @@ after_initialize do
     :activity_pub_ready,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_ready? }
+  add_to_serializer(
+    :site_category,
+    :activity_pub_actor,
+    include_condition: -> { object.activity_pub_enabled && object.respond_to?(:activity_pub_actor) }
+  ) do
+    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
+  end
 
   if Site.respond_to? :preloaded_category_custom_fields
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
@@ -942,7 +957,7 @@ after_initialize do
     mount DiscourseActivityPub::Engine, at: "ap"
 
     get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
-    post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger#validate_handle", defaults: { format: :json }
+    post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger/handle#validate", defaults: { format: :json }
     get "u/:username/preferences/activity-pub" => "users#preferences",
         :constraints => {
           username: RouteFormat.username,

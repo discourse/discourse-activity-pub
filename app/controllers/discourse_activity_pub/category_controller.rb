@@ -12,47 +12,67 @@ module DiscourseActivityPub
     def index
     end
 
-    def follow
+    def follows
       guardian.ensure_can_edit!(@category)
-      params.require(:handle)
 
-      enqueued = FollowHandler.perform(
-        @category.activity_pub_actor,
-        params[:handle]
-      )
-
-      if enqueued
-        render json: success_json
-      else
-        render json: failed_json
+      actors.each do |actor|
+        actor.followed_at = actor.follow_followers&.first.followed_at
       end
+
+      render_actors
     end
 
     def followers
       guardian.ensure_can_see!(@category)
 
-      followers = @category
-        .activity_pub_followers
-        .joins(:follow_follows)
-        .where(follow_follows: { followed_id: @category.activity_pub_actor.id })
-        .left_joins(:user)
-        .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
+      actors.each do |actor|
+        actor.followed_at = actor.follow_follows&.first.followed_at
+      end
 
-      limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)
-      page = fetch_int_from_params(:page, default: 0)
-      total = followers.count
-      followers = followers.limit(limit).offset(limit * page).to_a
+      render_actors
+    end
 
+    protected
+
+    def render_actors
       render_json_dump(
-        followers: serialize_data(followers, FollowerSerializer, root: false),
+        actors: serialize_data(actors, ActorSerializer, root: false),
         meta: {
-          total: total,
-          load_more_url: load_more_url(page),
+          total: @total,
+          load_more_url: load_more_url(@page),
         }
       )
     end
 
-    protected
+    def actors
+      @actors ||= begin
+        actors = self.send("#{action_name}_actors")
+          .left_joins(:user)
+          .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
+
+        limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)
+        @page = fetch_int_from_params(:page, default: 0)
+        @total = actors.count
+
+        actors.limit(limit).offset(limit * @page).to_a
+      end
+    end
+
+    def follows_actors
+      @follows_actors ||=
+        @category
+          .activity_pub_follows
+          .joins(:follow_followers)
+          .where(follow_followers: { follower_id: @category.activity_pub_actor.id })
+    end
+
+    def followers_actors
+      @followers_actors ||=
+        @category
+          .activity_pub_followers
+          .joins(:follow_follows)
+          .where(follow_follows: { followed_id: @category.activity_pub_actor.id })
+    end
 
     def permitted_order
       @permitted_order ||= ORDER.find { |attr| attr == params[:order] }
