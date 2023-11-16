@@ -1,27 +1,54 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
-import ActivityPubFollowModal from "../components/modal/activity-pub-follow";
-import i18n from "discourse-common/helpers/i18n";
+import I18n from "I18n";
 import DButton from "discourse/components/d-button";
+import ActivityPubFollowModal from "../components/modal/activity-pub-follow";
+import ActivityPubActorFollowModal from "../components/modal/activity-pub-actor-follow";
+import ActivityPubActorUnfollowModal from "../components/modal/activity-pub-actor-unfollow";
+
+const modalMap = {
+  follow: ActivityPubFollowModal,
+  actor_follow: ActivityPubActorFollowModal,
+  actor_unfollow: ActivityPubActorUnfollowModal
+}
 
 export default class ActivityPubFollowBtn extends Component {
   @service modal;
 
   @action
   showModal() {
-    this.modal.show(ActivityPubFollowModal, { model: this.args.category });
+    this.modal.show(modalMap[this.args.type], { model: this.args });
+  }
+
+  get class() {
+    return `activity-pub-${this.args.type}-btn`;
+  }
+
+  get label() {
+    return I18n.t(`discourse_activity_pub.${this.args.type}.label`);
+  }
+
+  get title() {
+    return I18n.t(`discourse_activity_pub.${this.args.type}.title`, { actor: this.args.actor.name })
+  }
+
+  get icon() {
+    switch (this.args.type) {
+      case "follow": return "external-link-alt";
+      case "actor_follow": return "plus";
+      case "actor_unfollow": return "";
+      default: return "";
+    }
   }
 
   <template>
     <DButton
-      @class="activity-pub-follow-btn"
+      @class=""
+      @icon={{this.icon}}
       @action={{this.showModal}}
-      @translatedLabel={{i18n "discourse_activity_pub.follow.label"}}
-      @translatedTitle={{i18n
-        "discourse_activity_pub.follow.title"
-        name=@category.name
-      }}
+      @translatedLabel={{this.label}}
+      @translatedTitle={{this.title}}
     />
   </template>
 }

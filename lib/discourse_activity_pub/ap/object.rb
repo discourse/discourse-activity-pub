@@ -166,33 +166,39 @@ module DiscourseActivityPub
       end
 
       def self.resolve_and_store(raw_object, activity)
-        object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
-        return process_failed(object_id, "cant_resolve_object") unless object_id.present?
+        object_id = resolve_id(raw_object)
+        return unless object_id
 
         if activity.composition?
-          object = factory(raw_object)
-          return process_failed(object_id, "cant_resolve_object") unless object.present?
-          return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)
-
+          object = resolve(raw_object)
+          return unless object
+  
           stored = object.find_stored_from_json
-
-          if activity.create? || activity.update?
-            stored = object.update_stored_from_json
-          end
-        else
-          stored = case activity.type
-            when AP::Activity::Like.type
-              DiscourseActivityPubObject.find_by(ap_id: object_id)
-            when AP::Activity::Follow.type
-              DiscourseActivityPubActor.find_by(ap_id: object_id)
-            when AP::Activity::Undo.type
-              DiscourseActivityPubActivity.find_by(ap_id: object_id)
-            else
-              nil
-            end
+          stored = object.update_stored_from_json if activity.create? || activity.update?
+        elsif activity.like?
+          stored = DiscourseActivityPubObject.find_by(ap_id: object_id)
+        elsif activity.follow?
+          stored = DiscourseActivityPubActor.find_by(ap_id: object_id)
+        elsif activity.undo?
+          stored = DiscourseActivityPubActivity.find_by(ap_id: object_id)
+        elsif activity.response?
+          stored = DiscourseActivityPubActivity.find_by(ap_id: object_id)
         end
 
         stored&.ap
+      end
+
+      def self.resolve(raw_object)
+        object = factory(raw_object)
+        return process_failed(raw_object['id'], "cant_resolve_object") unless object.present?
+        return process_failed(raw_object['id'], "object_not_supported") unless object.can_belong_to.include?(:remote)
+        object
+      end
+
+      def self.resolve_id(raw_object)
+        object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
+        return process_failed(object_id, "cant_resolve_object") unless object_id.present?
+        object_id
       end
 
       protected

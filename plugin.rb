@@ -953,6 +953,25 @@ after_initialize do
     )
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:accept, :perform) do |activity|
+    case activity.object.type
+    when DiscourseActivityPub::AP::Activity::Follow.type
+      DiscourseActivityPubFollow.create!(
+        follower_id: activity.object.actor.stored.id,
+        followed_id: activity.actor.stored.id
+      )
+      message = {
+        model: {
+          id: activity.object.actor.stored.model.id,
+          type: "category"
+        }
+      }
+      MessageBus.publish("/activity-pub", message)
+    else
+      false
+    end
+  end
+
   Discourse::Application.routes.prepend do
     mount DiscourseActivityPub::Engine, at: "ap"
 

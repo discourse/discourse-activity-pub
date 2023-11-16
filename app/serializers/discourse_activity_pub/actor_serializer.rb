@@ -2,7 +2,7 @@
 
 module DiscourseActivityPub
   class ActorSerializer < BasicActorSerializer
-    attributes :name,
+    attributes :username,
                :local,
                :domain,
                :url,

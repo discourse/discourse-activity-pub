@@ -20,7 +20,8 @@ module DiscourseActivityPub
             delete: [:note, :article],
             update: [:note, :article],
             announce: [:create, :update, :delete, :ordered_collection],
-            follow: [:group, :person]
+            follow: [:group, :person],
+            undo: [:follow]
           }
         end
       end

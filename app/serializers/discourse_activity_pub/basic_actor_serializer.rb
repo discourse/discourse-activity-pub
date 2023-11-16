@@ -3,6 +3,7 @@
 module DiscourseActivityPub
   class BasicActorSerializer < ActiveModel::Serializer
     attributes :id,
-                :username
+               :handle,
+               :name
   end
 end

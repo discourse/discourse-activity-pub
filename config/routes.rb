@@ -14,6 +14,7 @@ DiscourseActivityPub::Engine.routes.draw do
 
   scope '/actor', defaults: { format: :json } do
     post ":actor_id/follow" => "actor#follow"
+    delete ":actor_id/follow" => "actor#unfollow"
     get ":actor_id/find-by-handle" => "actor#find_by_handle"
   end
 

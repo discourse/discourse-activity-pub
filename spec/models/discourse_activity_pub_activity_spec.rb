@@ -255,5 +255,25 @@ RSpec.describe DiscourseActivityPubActivity do
         end
       end
     end
+
+    context "with a local undo follow activity" do
+      let!(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow, actor: actor) }
+      let!(:undo_activity) { Fabricate(:discourse_activity_pub_activity_undo, actor: actor, object: follow_activity, local: true) }
+      let!(:follow) { Fabricate(:discourse_activity_pub_follow, follower: actor, followed: follow_activity.object)}
+
+      context "when not delivered" do
+        it "does not destroy the follow" do
+          undo_activity.after_deliver(false)
+          expect(follow_activity).not_to be_destroyed
+        end
+      end
+
+      context "when delievered" do
+        it "destroys the follow" do
+          undo_activity.after_deliver(true)
+          expect(follow_activity).not_to be_destroyed
+        end
+      end
+    end
   end
 end

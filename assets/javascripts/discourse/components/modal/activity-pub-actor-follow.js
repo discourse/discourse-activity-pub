@@ -6,7 +6,7 @@ import I18n from "I18n";
 import ActivityPubWebfinger from "../../models/activity-pub-webfinger";
 import ActivityPubActor from "../../models/activity-pub-actor";
 
-export default class ActivityPubCreateFollow extends Component {
+export default class ActivityPubFollowRemote extends Component {
   @service site;
 
   @tracked verifying = false;
@@ -14,13 +14,13 @@ export default class ActivityPubCreateFollow extends Component {
   @tracked followActor;
 
   get title() {
-    return I18n.t("discourse_activity_pub.create_follow.title", {
-      actor: this.args.model.name,
+    return I18n.t("discourse_activity_pub.actor_follow.title", {
+      actor: this.args.model.actor.name,
     });
   }
 
   get footerClass() {
-    let result = "activity-pub-create-follow-find-footer";
+    let result = "activity-pub-actor-follow-find-footer";
     if (this.error) {
       result += " error";
     }
@@ -28,7 +28,7 @@ export default class ActivityPubCreateFollow extends Component {
   }
 
   get actorClass() {
-    let result = "activity-pub-create-follow-actor-container";
+    let result = "activity-pub-actor-follow-actor-container";
     if (!this.followActor) {
       result += " no-actor";
     }
@@ -51,6 +51,13 @@ export default class ActivityPubCreateFollow extends Component {
   }
 
   @action
+  follow(actor, followActor) {
+    return this.args.model.follow(actor, followActor).then(() => {
+      this.args.closeModal();
+    });
+  }
+
+  @action
   async find() {
     const handle = this.handle;
 
@@ -64,11 +71,13 @@ export default class ActivityPubCreateFollow extends Component {
 
     if (validated) {
       this.finding = true;
-      const actorId = this.args.model.activity_pub_actor.id;
-      this.followActor = await ActivityPubActor.findByHandle(actorId, handle);
+      this.followActor = await ActivityPubActor.findByHandle(
+        this.args.model.actor.id,
+        handle
+      );
       this.finding = false;
     } else {
-      this.error = I18n.t("discourse_activity_pub.create_follow.find.invalid");
+      this.error = I18n.t("discourse_activity_pub.actor_follow.find.invalid");
     }
   }
 }

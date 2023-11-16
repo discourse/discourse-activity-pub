@@ -81,7 +81,13 @@ def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', publis
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
-    actor: actor ? actor.ap.json : build_actor_json,
+    actor: if actor&.respond_to?(:ap)
+        actor.ap.json
+      elsif actor.present?
+        actor
+      else
+        build_actor_json
+      end,
     object: if object&.respond_to?(:ap)
         object.ap.json
       elsif object.present?

@@ -92,3 +92,10 @@ Fabricator(:discourse_activity_pub_activity_like, from: :discourse_activity_pub_
   actor { Fabricate(:discourse_activity_pub_actor_person) }
   object { Fabricate(:discourse_activity_pub_object_note) }
 end
+
+Fabricator(:discourse_activity_pub_activity_undo, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Undo.type }
+  actor { Fabricate(:discourse_activity_pub_actor_group) }
+  object { Fabricate(:discourse_activity_pub_activity_follow) }
+  local { true }
+end

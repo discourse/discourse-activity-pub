@@ -37,9 +37,9 @@ export default class ActivityPubCategoryBanner extends Component {
         </div>
         <div class="activity-pub-category-banner-right activity-pub-category-banner-side">
           {{#unless this.site.mobileView}}
-            <ActivityPubHandle @model={{@category}} />
+            <ActivityPubHandle @actor={{@category.activity_pub_actor}} />
           {{/unless}}
-          <ActivityPubFollowBtn @category={{@category}} />
+          <ActivityPubFollowBtn @actor={{@category.activity_pub_actor}} @type="follow" />
         </div>
       {{/if}}
     </div>

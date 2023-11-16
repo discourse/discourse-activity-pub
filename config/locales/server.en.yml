@@ -115,8 +115,9 @@ en:
       error:
         not_enabled: "ActivityPub is not enabled"
         actor_not_found: "Actor not found"
-        follow_actor_not_found: "Follow actor not found"
-        cant_follow: "Actor cant follow"
+        target_actor_not_found: "Target actor not found"
+        not_following_target_actor: "Actor is not following the target actor"
+        cant_follow_target_actor: "Actor cant follow the target actor"
     auth:
       error:
         not_enabled: "ActivityPub Auth is not enabled"

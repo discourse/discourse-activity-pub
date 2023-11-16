@@ -17,12 +17,24 @@ ActivityPubActor.reopenClass({
       .catch(popupAjaxError);
   },
 
-  follow(actorId, followActorId) {
+  follow(actorId, targetActorId) {
     return ajax({
       url: `/ap/actor/${actorId}/follow`,
       type: "POST",
       data: {
-        follow_actor_id: followActorId,
+        target_actor_id: targetActorId,
+      },
+    })
+      .then((response) => !!response?.success)
+      .catch(popupAjaxError);
+  },
+
+  unfollow(actorId, targetActorId) {
+    return ajax({
+      url: `/ap/actor/${actorId}/follow`,
+      type: "DELETE",
+      data: {
+        target_actor_id: targetActorId,
       },
     })
       .then((response) => !!response?.success)

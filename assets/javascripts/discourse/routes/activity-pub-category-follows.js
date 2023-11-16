@@ -1,7 +1,7 @@
 import DiscourseRoute from "discourse/routes/discourse";
-import Category from "discourse/models/category";
 import { A } from "@ember/array";
 import ActivityPubCategory from "../models/activity-pub-category";
+import { bind } from "discourse-common/utils/decorators";
 
 export default DiscourseRoute.extend({
   queryParams: {
@@ -10,8 +10,7 @@ export default DiscourseRoute.extend({
   },
 
   model(params) {
-    const categoryId = this.paramsFor("activityPub.category").category_id;
-    const category = Category.findById(categoryId);
+    const category = this.modelFor("activityPub.category").category;
     return ActivityPubCategory.listActors(category, params, "follows");
   },
 
@@ -24,5 +23,22 @@ export default DiscourseRoute.extend({
         total: model.meta?.total,
       }),
     });
+  },
+
+  activate() {
+    this.messageBus.subscribe("/activity-pub", this.handleMessage);
+  },
+
+  deactivate() {
+    this.messageBus.unsubscribe("/activity-pub", this.handleMessage);
+  },
+
+  @bind
+  handleMessage(data) {
+    const model = data.model;
+    const category = this.modelFor("activityPub.category").category;
+    if (model && model.type === "category" && model.id === category.id) {
+      this.refresh();
+    }
   },
 });

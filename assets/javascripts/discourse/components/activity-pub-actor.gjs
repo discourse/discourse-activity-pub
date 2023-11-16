@@ -1,7 +1,7 @@
 
 import Component from "@glimmer/component";
 import ActivityPubActorImage from "./activity-pub-actor-image";
-import ActivityPubActorHandle from "./activity-pub-actor-handle";
+import ActivityPubActorHandleLink from "./activity-pub-actor-handle-link";
 import or from "truth-helpers/helpers/or";
 
 export default class ActivityPubActor extends Component {
@@ -15,7 +15,7 @@ export default class ActivityPubActor extends Component {
                     {{or @actor.name @actor.username}}
                 </div>
                 <div class="activity-pub-actor-handle">
-                    <ActivityPubActorHandle @actor={{@actor}} />
+                    <ActivityPubActorHandleLink @actor={{@actor}} />
                 </div>
             </div>
         </div>

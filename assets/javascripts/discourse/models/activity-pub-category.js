@@ -7,7 +7,7 @@ const ActivityPubCategory = EmberObject.extend({
   hasActors: notEmpty("actors"),
 
   loadMore() {
-    if (!this.loadMoreUrl || this.total <= this.items.length) {
+    if (!this.loadMoreUrl || this.total <= this.actors.length) {
       return;
     }
 

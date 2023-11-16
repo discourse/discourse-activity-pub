@@ -1,14 +1,15 @@
 import Component from "@glimmer/component";
 import NavItem from "discourse/components/nav-item";
 import { inject as service } from "@ember/service";
-import ActivityPubCreateFollowBtn from "./activity-pub-create-follow-btn";
+import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 
 export default class ActivityPubCategoryNav extends Component {
   @service currentUser;
   @service router;
 
   get showCreateFollow() {
-    return this.currentUser?.admin && this.router.currentRouteName === "activityPub.category.follows";
+    return this.currentUser?.admin &&
+      this.router.currentRouteName === "activityPub.category.follows";
   }
 
   <template>
@@ -24,7 +25,10 @@ export default class ActivityPubCategoryNav extends Component {
         {{/if}}
       </ul>
       {{#if this.showCreateFollow}}
-        <ActivityPubCreateFollowBtn @category={{@category}} />
+        <ActivityPubFollowBtn
+          @actor={{@category.activity_pub_actor}}
+          @follow={{@follow}} 
+          @type="actor_follow" />
       {{/if}}
     </div>
   </template>

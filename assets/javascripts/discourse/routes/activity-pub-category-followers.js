@@ -1,5 +1,4 @@
 import DiscourseRoute from "discourse/routes/discourse";
-import Category from "discourse/models/category";
 import { A } from "@ember/array";
 import ActivityPubCategory from "../models/activity-pub-category";
 
@@ -10,8 +9,7 @@ export default DiscourseRoute.extend({
   },
 
   model(params) {
-    const categoryId = this.paramsFor("activityPub.category").category_id;
-    const category = Category.findById(categoryId);
+    const category = this.modelFor("activityPub.category").category;
     return ActivityPubCategory.listActors(category, params, "followers");
   },
 

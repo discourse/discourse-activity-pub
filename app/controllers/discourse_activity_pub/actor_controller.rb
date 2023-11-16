@@ -5,14 +5,26 @@ module DiscourseActivityPub
     before_action :ensure_admin
     before_action :ensure_site_enabled
     before_action :find_actor
-    before_action :find_follow_actor, only: [:follow]
+    before_action :find_target_actor, only: [:follow, :unfollow]
 
     def follow
-      if !@actor.can_follow?(@follow_actor)
-        return render_actor_error("cant_follow", 401)
+      if !@actor.can_follow?(@target_actor)
+        return render_actor_error("cant_follow_target_actor", 401)
       end
 
-      if FollowHandler.perform(@actor.id, @follow_actor.id)
+      if FollowHandler.follow(@actor.id, @target_actor.id)
+        render json: success_json
+      else
+        render json: failed_json
+      end
+    end
+
+    def unfollow
+      if !@actor.following?(@target_actor)
+        return render_actor_error("not_following_target_actor", 404)
+      end
+
+      if FollowHandler.unfollow(@actor.id, @target_actor.id)
         render json: success_json
       else
         render json: failed_json
@@ -41,9 +53,9 @@ module DiscourseActivityPub
       return render_actor_error("actor_not_found", 404) unless @actor.present?
     end
 
-    def find_follow_actor
-      @follow_actor = DiscourseActivityPubActor.find_by_id(params[:follow_actor_id])
-      return render_actor_error("follow_actor_not_found", 404) unless @follow_actor.present?
+    def find_target_actor
+      @target_actor = DiscourseActivityPubActor.find_by_id(params[:target_actor_id])
+      return render_actor_error("target_actor_not_found", 404) unless @target_actor.present?
     end
 
     def ensure_site_enabled

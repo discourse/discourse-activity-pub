@@ -261,11 +261,16 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-followers {
-  grid-template-columns: minmax(13em, 3fr) repeat(2, 110px);
+.activity-pub-follow-table {
+  &.followers {
+    grid-template-columns: minmax(13em, 3fr) repeat(2, 110px);
+  }
+  &.follows {
+    grid-template-columns: minmax(13em, 3fr) repeat(3, 110px);
+  }
 }
 
-.activity-pub-follower-actor {
+.activity-pub-follow-table-actor {
   justify-content: flex-start;
 }
 
@@ -290,7 +295,7 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-follow-domain-controls,
-.activity-pub-create-follow-find {
+.activity-pub-actor-follow-find {
   display: flex;
   align-items: center;
 
@@ -300,7 +305,7 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-follow-domain-footer,
-.activity-pub-create-follow-find-footer {
+.activity-pub-actor-follow-find-footer {
   @include description-text;
   min-height: 18px;
 
@@ -309,13 +314,13 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-create-follow-find {
+.activity-pub-actor-follow-find {
   input {
     width: 500px;
   }
 }
 
-.activity-pub-create-follow-actor-container {
+.activity-pub-actor-follow-actor-container {
   min-height: 80px;
   padding: 1em;
   box-sizing: border-box;
@@ -330,7 +335,7 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-create-follow-actor {
+.activity-pub-actor-follow-actor {
   width: 100%;
   display: flex;
   align-items: center;

@@ -8,6 +8,7 @@ import ActivityPubActor from "../models/activity-pub-actor";
 export default class ActivityPubActorFollowBtn extends Component {
   @tracked followed = false;
   @tracked following = false;
+  @tracked followRequested = false;
 
   constructor() {
     super(...arguments);
@@ -17,24 +18,36 @@ export default class ActivityPubActorFollowBtn extends Component {
 
   @action
   follow() {
-    if (this.followed) {
+    if (this.followed || this.followRequested) {
       return;
     }
 
     this.following = true;
 
-    ActivityPubActor
-      .follow(this.args.actor.id, this.args.followActor.id)
-      .then(result => {
-        this.followed = result;
-      })
-      .finally(() => {
-        this.following = false;
-      })
+    this.args.follow(this.args.actor, this.args.followActor).then((result) => {
+      this.followRequested = result;
+      this.following = false;
+    })  
   }
 
   get icon() {
-    return this.followed ? "user-check" : "user-plus" ;
+    if (this.followed) {
+      return "user-check"
+    } else if (this.followRequested) {
+      return null;
+    } else {
+      return "user-plus";
+    }
+  }
+
+  get i18nKey() {
+    if (this.followed) {
+      return 'following';
+    } else if (this.followRequested) {
+      return 'follow_requested';
+    } else {
+      return 'follow';
+    }
   }
 
   get title() {
@@ -42,13 +55,11 @@ export default class ActivityPubActorFollowBtn extends Component {
       actor: this.args.actor.username,
       follow_actor: this.args.followActor.username
     }
-    const key = this.followed ? 'following' : 'follow';
-    return I18n.t(`discourse_activity_pub.create_follow.${key}.title`, opts);
+    return I18n.t(`discourse_activity_pub.actor_follow.${this.i18nKey}.title`, opts);
   }
 
   get label() {
-    const key = this.followed ? 'following' : 'follow';
-    return I18n.t(`discourse_activity_pub.create_follow.${key}.label`);
+    return I18n.t(`discourse_activity_pub.actor_follow.${this.i18nKey}.label`);
   }
 
   <template>
