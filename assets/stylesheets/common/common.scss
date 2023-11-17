@@ -276,12 +276,21 @@ body.user-preferences-activity-pub-page {
 
 @media all and (max-width: 1000px) {
   .activity-pub-category-banner .activity-pub-handle,
-  .activity-pub-follower-user,
-  .activity-pub-followed-at {
+  .activity-pub-follow-table-user,
+  .activity-pub-follow-table-followed-at {
     display: none;
   }
   .directory-table__cell:first-child {
     padding: unset;
+  }
+
+  .activity-pub-follow-table-actions {
+    margin-top: 1em;
+    padding: unset;
+
+    .activity-pub-actor-unfollow-btn {
+      width: 100%;
+    }
   }
 }
 
@@ -315,8 +324,9 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-actor-follow-find {
-  input {
+  input[type=text] {
     width: 500px;
+    max-width: 100vw;
   }
 }
 
@@ -340,4 +350,13 @@ body.user-preferences-activity-pub-page {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media all and (max-width: 400px) {
+    flex-flow: wrap;
+    gap: 1em;
+
+    .activity-pub-follow-actor-btn {
+      width: 100%;
+    }
+  }
 }

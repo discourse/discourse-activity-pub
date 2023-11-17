@@ -6,6 +6,7 @@ import DButton from "discourse/components/d-button";
 import ActivityPubFollowModal from "../components/modal/activity-pub-follow";
 import ActivityPubActorFollowModal from "../components/modal/activity-pub-actor-follow";
 import ActivityPubActorUnfollowModal from "../components/modal/activity-pub-actor-unfollow";
+import { dasherize } from "@ember/string";
 
 const modalMap = {
   follow: ActivityPubFollowModal,
@@ -22,7 +23,7 @@ export default class ActivityPubFollowBtn extends Component {
   }
 
   get class() {
-    return `activity-pub-${this.args.type}-btn`;
+    return `activity-pub-${dasherize(this.args.type)}-btn`;
   }
 
   get label() {
@@ -44,7 +45,7 @@ export default class ActivityPubFollowBtn extends Component {
 
   <template>
     <DButton
-      @class=""
+      @class={{this.class}}
       @icon={{this.icon}}
       @action={{this.showModal}}
       @translatedLabel={{this.label}}
