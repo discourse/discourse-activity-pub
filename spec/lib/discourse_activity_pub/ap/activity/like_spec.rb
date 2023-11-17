@@ -35,6 +35,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
         }
 
         before do
+          stub_stored_request(note)
           perform_process(activity_json)
           @user = User
             .joins(:activity_pub_actor)
@@ -82,6 +83,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
         }
 
         before do
+          stub_stored_request(note)
           perform_process(activity_json)
           @user = User
             .joins(:activity_pub_actor)

@@ -21,4 +21,80 @@ RSpec.describe DiscourseActivityPub::AP::Object do
       end
     end
   end
+
+  describe '#resolve_and_store' do
+    let!(:json) { build_object_json.with_indifferent_access }
+    let!(:subject) do
+      object = described_class.new
+      object.json = json
+      object
+    end
+
+    context "with an id that resolves" do
+      before do
+        stub_request(:get, json['id'])
+          .to_return(body: json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
+      end
+
+      context "with an object that can belong to remote" do
+        it "returns the object" do
+          note = DiscourseActivityPub::AP::Object.resolve_and_store(json)
+          expect(note.type).to eq("Note")
+        end
+      end
+
+      context "with an object that cannot belong to remote" do
+        before do
+          json["type"] = 'Service'
+          stub_request(:get, json["id"])
+            .to_return(body: json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
+        end
+
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          it "logs the right warning" do
+            orig_logger = Rails.logger
+            Rails.logger = fake_logger = FakeLogger.new
+  
+            DiscourseActivityPub::AP::Object.resolve_and_store(json['id'])
+  
+            expect(fake_logger.warnings.first).to eq(
+              "[Discourse Activity Pub] Failed to process #{json['id']}: Object is not supported"
+            )
+  
+            Rails.logger = orig_logger
+          end
+        end
+      end
+    end
+
+    context "with an id that does not resolve" do
+      before do
+        stub_request(:get, json['id'])
+          .to_return(status: 400)
+      end
+
+      context "with verbose logging enabled" do
+        before do
+          SiteSetting.activity_pub_verbose_logging = true
+        end
+
+        it "logs the right warning" do
+          orig_logger = Rails.logger
+          Rails.logger = fake_logger = FakeLogger.new
+
+          DiscourseActivityPub::AP::Object.resolve_and_store(json['id'])
+
+          expect(fake_logger.warnings.last).to eq(
+            "[Discourse Activity Pub] Failed to process #{json['id']}: Could not resolve object"
+          )
+
+          Rails.logger = orig_logger
+        end
+      end
+    end
+  end
 end

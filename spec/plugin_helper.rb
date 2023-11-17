@@ -50,6 +50,7 @@ def build_actor_json(public_key = nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: "https://external.com/u/angus",
+    name: "Angus McLeod",
     preferredUsername: "angus",
     type: "Person",
     inbox: "https://external.com/u/angus/inbox",
@@ -129,4 +130,13 @@ def expect_no_delivery
   DiscourseActivityPub::DeliveryHandler
     .expects(:perform)
     .never
+end
+
+def stub_stored_request(object)
+  stub_request(:get, object.ap_id)
+    .to_return(
+      body: object.ap.json.to_json,
+      headers: { "Content-Type" => "application/json" },
+      status: 200
+    )
 end

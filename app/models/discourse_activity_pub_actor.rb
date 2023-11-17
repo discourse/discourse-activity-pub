@@ -34,7 +34,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def refresh_remote!
-    DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id, stored: true) unless local?
+    DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id) unless local?
   end
 
   def keypair

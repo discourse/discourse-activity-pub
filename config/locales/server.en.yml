@@ -67,7 +67,7 @@ en:
         failed_to_process: "Failed to process %{object_id}"
         cant_resolve_actor: "Could not resolve actor"
         cant_resolve_object: "Could not resolve object"
-        actor_not_supported: "Actor is not supported"
+        object_not_supported: "Object is not supported"
         cant_create_actor: "Could not create actor"
         cant_find_object: "Could not find object"
         object_not_ready: "Object is not ready"

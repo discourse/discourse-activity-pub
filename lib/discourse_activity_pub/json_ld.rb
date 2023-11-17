@@ -113,5 +113,6 @@ module DiscourseActivityPub
     module_function :resolve_icon_url
     module_function :publicly_addressed?
     module_function :generate_key
+    module_function :domain_from_id
   end
 end

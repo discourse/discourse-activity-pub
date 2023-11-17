@@ -189,7 +189,7 @@ module DiscourseActivityPub
         actor = DiscourseActivityPubActor.find_by(ap_id: ap_id)
 
         if !actor
-          ap_actor = AP::Actor.resolve_and_store(ap_id, stored: false)
+          ap_actor = AP::Actor.resolve_and_store(ap_id)
           actor = ap_actor.stored if ap_actor
         end
       end

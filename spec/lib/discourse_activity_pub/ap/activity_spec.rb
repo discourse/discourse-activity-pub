@@ -125,7 +125,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           it "logs a warning" do
             perform_process(@json, activity_type)
             expect(@fake_logger.warnings.first).to match(
-              build_process_warning("actor_not_supported", @json["actor"]['id'])
+              build_process_warning("object_not_supported", @json["actor"]['id'])
             )
           end
         end
@@ -162,7 +162,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           it "logs a warning" do
             perform_process(@json, activity_type)
             expect(@fake_logger.warnings.last).to match(
-              build_process_warning("cant_find_object", @json["id"])
+              build_process_warning("object_not_ready", @json["id"])
             )
           end
         end
