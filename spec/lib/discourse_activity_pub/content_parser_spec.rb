@@ -90,4 +90,14 @@ RSpec.describe DiscourseActivityPub::ContentParser do
       end
     end
   end
+
+  describe "#get_title" do
+    it "does not add &hellip; to titles" do
+      html = <<~HTML
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis quam nulla, feugiat venenatis elementum ut, imperdiet eu nisl. Vestibulum dictum luctus tortor, vel consequat lectus tristique non. Sed aliquam at eros et lacinia. Nam viverra libero at tortor semper fringilla non ut velit. Mauris dignissim sapien sed felis consequat, quis ullamcorper augue viverra. Donec elementum nisl ut leo viverra, vel consequat diam facilisis. Donec leo arcu, dictum vel vestibulum sit amet, maximus sed neque. Vestibulum blandit metus ante, sit amet porta lorem maximus id. Suspendisse sed lacus sapien. Nulla dui dui, dapibus vitae quam ut, elementum ultrices ipsum. In congue laoreet eleifend. Sed tincidunt consequat dolor, volutpat posuere arcu molestie a. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+      <p>Pellentesque feugiat, elit ut aliquam fringilla, lectus eros rhoncus arcu, eget posuere ex velit ac purus. Morbi nec enim iaculis, lobortis lacus id, laoreet neque. Pellentesque et turpis a sapien tincidunt consequat quis a urna. Curabitur id ipsum vitae nisi dapibus tincidunt. Cras hendrerit nunc eget consectetur dapibus. Donec lacinia in sapien ac pellentesque. Phasellus at risus et lorem luctus pretium a eget leo. Nulla pellentesque metus libero, sit amet efficitur diam vehicula ac. Mauris ultrices erat non nulla volutpat tristique et sed arcu. </p><div class="note">hi</div><p></p>
+      HTML
+      expect(described_class.get_title(html)).to eq("Lorem ipsum dolor sit amet, consectetur")
+    end
+  end
 end

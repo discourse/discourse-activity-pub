@@ -40,11 +40,12 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
 
   attr_reader :content
 
-  def initialize(length)
+  def initialize(length, opts = {})
     @length = length
     @content = +""
     @current_length = 0
     @start_content = false
+    @for_title = !!opts[:for_title]
   end
 
   def start_element(name, attributes = [])
@@ -101,7 +102,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     if @current_length + string.length > @length
       length = [0, @length - @current_length - 1].max
       @content << string[0..length]
-      @content << "&hellip;"
+      @content << "&hellip;" unless @for_title
       @content << "</a>" if @in_a
       throw :done
     end
@@ -148,11 +149,11 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
   end
 
   def self.get_title(html)
-    parse(html, MAX_TITLE_LENGTH)
+    parse(html, MAX_TITLE_LENGTH, for_title: true)
   end
 
-  def self.parse(html, length)
-    content_parser = self.new(length)
+  def self.parse(html, length, opts = {})
+    content_parser = self.new(length, opts)
     sax_parser = Nokogiri::HTML::SAX::Parser.new(content_parser)
     catch(:done) { sax_parser.parse(html) }
     content_parser.content.strip
