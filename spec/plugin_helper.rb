@@ -77,8 +77,8 @@ def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_t
   _json
 end
 
-def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil)
-  {
+def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil, to: nil)
+  _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
@@ -97,7 +97,9 @@ def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', publis
         build_object_json
       end,
     published: published || Time.now.iso8601
-  }.with_indifferent_access
+  }
+  _json[:to] = to if to  
+  _json.with_indifferent_access
 end
 
 def build_process_warning(key, object_id)

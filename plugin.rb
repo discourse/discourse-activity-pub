@@ -779,14 +779,22 @@ after_initialize do
     end
   end
 
+  # Currently we only process one primary target which has to be an existing actor.
+  # Note that we're ensuring content sent to our actor's inboxes are properly addressed.
+  # See futher https://www.w3.org/TR/activitystreams-vocabulary/#audienceTargeting
+  DiscourseActivityPub::AP::Activity.add_handler(:activity, :target) do |activity|
+    (activity.json[:to] || []).each do |target|
+      if actor = DiscourseActivityPubActor.find_by(ap_id: target)
+        activity.targets << actor
+      end
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
     if activity.composition?
-      post = activity.create? ?
-        activity.object.stored.in_reply_to_post :
-        activity.object.stored.model
 
-      unless post.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::ValidationError,
+      unless activity.targets.first&.model&.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::ValidateError,
           I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
       end
     end
@@ -794,18 +802,22 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
     unless activity.actor.person?
-      raise DiscourseActivityPub::AP::Handlers::ValidationError,
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
         I18n.t('discourse_activity_pub.process.warning.invalid_create_actor')
     end
 
-    unless activity.object.stored.in_reply_to_post
-      raise DiscourseActivityPub::AP::Handlers::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.not_a_reply')
-    end
+    if activity.object.stored.in_reply_to_post
 
-    if activity.object.stored.in_reply_to_post.trashed?
-      raise DiscourseActivityPub::AP::Handlers::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
+      if activity.object.stored.in_reply_to_post.trashed?
+        raise DiscourseActivityPub::AP::Handlers::ValidateError,
+          I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
+      end
+    else
+
+      unless activity.targets.first.model.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::ValidateError,
+          I18n.t('discourse_activity_pub.process.warning.not_a_reply')
+      end
     end
   end
 
@@ -813,12 +825,12 @@ after_initialize do
     post = activity.object.stored.model
 
     unless post
-      raise DiscourseActivityPub::AP::Handlers::ValidationError,
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
         I18n.t('discourse_activity_pub.process.warning.cant_find_post')
     end
 
     if post.trashed?
-      raise DiscourseActivityPub::AP::Handlers::ValidationError,
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
         I18n.t('discourse_activity_pub.process.warning.post_is_deleted')
     end
   end
@@ -839,16 +851,20 @@ after_initialize do
     user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
 
     unless user
-      raise DiscourseActivityPub::AP::Handlers::PerformanceError,
+      raise DiscourseActivityPub::AP::Handlers::PerformError,
         I18n.t('discourse_activity_pub.create.failed_to_create_user',
           actor_id: activity.actor.id
         )
     end
 
-    post = DiscourseActivityPub::PostHandler.create(user, activity.object.stored)
+    post = DiscourseActivityPub::PostHandler.create(
+      user,
+      activity.object.stored,
+      activity.targets.first
+    )
 
     unless post
-      raise DiscourseActivityPub::AP::Handlers::PerformanceError,
+      raise DiscourseActivityPub::AP::Handlers::PerformError,
         I18n.t('discourse_activity_pub.create.failed_to_create_post',
           user_id: user.id,
           object_id: activity.object.id
@@ -872,7 +888,7 @@ after_initialize do
     user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
 
     unless user
-      raise DiscourseActivityPub::AP::Handlers::PerformanceError,
+      raise DiscourseActivityPub::AP::Handlers::PerformError,
         I18n.t('discourse_activity_pub.create.failed_to_create_user',
           actor_id: activity.actor.id
         )

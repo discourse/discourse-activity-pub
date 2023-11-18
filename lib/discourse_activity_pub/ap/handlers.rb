@@ -3,8 +3,8 @@
 module DiscourseActivityPub
   module AP
     module Handlers
-      class ValidationError < StandardError; end
-      class PerformanceError < StandardError; end
+      class ValidateError < StandardError; end
+      class PerformError < StandardError; end
       class StoreError < StandardError; end
 
       def self.included(base)
@@ -16,7 +16,7 @@ module DiscourseActivityPub
           begin
             proc.call(self, extra_args)
             true
-          rescue ValidationError => error
+          rescue ValidateError => error
             add_error(error)
             false
           end
@@ -33,7 +33,7 @@ module DiscourseActivityPub
         end
   
         def handler_types
-          %w(validate perform store respond_to)
+          %w(target validate perform store respond_to)
         end
   
         def handler_keys(object_type, handler_type)

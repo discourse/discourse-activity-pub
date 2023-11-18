@@ -28,9 +28,13 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       it "enqueues json processing" do
         post_to_inbox(actor, body: @json)
         expect(response.status).to eq(202)
+
+        addressed_json = @json.dup
+        addressed_json['to'] = [actor.ap_id]
+
         expect(
           job_enqueued?(job: :discourse_activity_pub_process, args: {
-            json: @json
+            json: addressed_json
           })
         ).to eq(true)
       end

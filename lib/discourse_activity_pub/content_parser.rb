@@ -36,6 +36,8 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     emphasis
   ]
 
+  MAX_TITLE_LENGTH = 40
+
   attr_reader :content
 
   def initialize(length)
@@ -142,6 +144,14 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
              else
                SiteSetting.activity_pub_note_excerpt_maxlength
              end
+    parse(html, length)
+  end
+
+  def self.get_title(html)
+    parse(html, MAX_TITLE_LENGTH)
+  end
+
+  def self.parse(html, length)
     content_parser = self.new(length)
     sax_parser = Nokogiri::HTML::SAX::Parser.new(content_parser)
     catch(:done) { sax_parser.parse(html) }

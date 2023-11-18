@@ -29,8 +29,32 @@ RSpec.describe DiscourseActivityPub::PostHandler do
         object.update(reply_to_id: nil)
       end
 
-      it "does nothing" do
-        expect(described_class.create(user, object)).to eq(nil)
+      context "when given a target category actor" do
+        context "when activity pub full topic is ready" do
+          before do
+            toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+          end
+
+          it "creates a topic in the category" do
+            post = described_class.create(user, object, category.activity_pub_actor)
+            expect(post.present?).to eq(true)
+            expect(post.topic.present?).to eq(true)
+            expect(post.topic.category_id).to eq(category.id)
+            expect(object.reload.collection_id).to eq(post.topic.activity_pub_object.id)
+          end
+        end
+
+        context "when activity pub full topic is not ready" do
+          it "does nothing" do
+            expect(described_class.create(user, object, category.activity_pub_actor)).to eq(nil)
+          end
+        end
+      end
+
+      context "when not given a target category actor" do
+        it "does nothing" do
+          expect(described_class.create(user, object)).to eq(nil)
+        end
       end
     end
 

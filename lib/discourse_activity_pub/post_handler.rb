@@ -9,27 +9,39 @@ module DiscourseActivityPub
       @object = object
     end
 
-    def create
-      # We only create posts from objects with a model in reply to other objects
-      return nil unless user && !object.model_id && object.in_reply_to_post
+    def create(target: nil)
+      return nil if !user || !object || object.model_id || (
+        !object.in_reply_to_post && !can_create_topic?(target)
+      )
 
-      reply_to = object.in_reply_to_post
+      params = {
+        raw: object.content,
+        skip_events: true,
+        skip_validations: true,
+        custom_fields: {}
+      }
+
+      if object.in_reply_to_post
+        reply_to = object.in_reply_to_post
+        params[:topic_id] = reply_to.topic.id
+        params[:reply_to_post_number] = reply_to.post_number
+      else
+        params[:title] = object.summary || DiscourseActivityPub::ContentParser.get_title(
+          object.content
+        )
+        params[:category] = target.model.id
+      end
+
+      if object.published_at
+        params[:custom_fields][:activity_pub_published_at] = object.published_at&.to_datetime.utc.iso8601
+      end
+
       post = nil
 
       ActiveRecord::Base.transaction do
         begin
-          params = {
-            raw: object.content,
-            topic_id: reply_to.topic.id,
-            reply_to_post_number: reply_to.post_number,
-            skip_events: true,
-            skip_validations: true,
-            custom_fields: {}
-          }
-          if object.published_at
-            params[:custom_fields][:activity_pub_published_at] = object.published_at&.to_datetime.utc.iso8601
-          end
           post = PostCreator.create!(user, params)
+          post.topic.create_activity_pub_collection! unless params[:topic_id]
         rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
           log_failure("create", e.message)
           raise ActiveRecord::Rollback
@@ -54,8 +66,18 @@ module DiscourseActivityPub
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
     end
 
-    def self.create(user, object)
-      new(user, object).create
+    def self.create(user, object, target = nil)
+      new(user, object).create(target: target)
+    end
+
+    protected
+
+    def can_create_topic?(target)
+      return false unless target&.model
+      return false unless target.model.is_a?(Category)
+      return false unless target.model.activity_pub_ready?
+
+      target.model.activity_pub_full_topic
     end
   end
 end

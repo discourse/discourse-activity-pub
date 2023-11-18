@@ -20,8 +20,13 @@ module DiscourseActivityPub
           @object
       end
 
+      def targets
+        @targets ||= []
+      end
+
       def process
         return false unless process_actor_and_object
+        return false unless process_activity_targets
         return false unless perform_validate_activity
 
         ActiveRecord::Base.transaction do
@@ -31,10 +36,20 @@ module DiscourseActivityPub
         end
       end
 
+      def process_activity_targets
+        return true if target_activity
+        process_failed("activity_not_targeted")
+        false
+      end
+
       def perform_validate_activity
         return true if validate_activity
         process_failed("activity_not_valid")
         false
+      end
+
+      def target_activity
+        apply_handlers(type, :target)
       end
 
       def validate_activity
