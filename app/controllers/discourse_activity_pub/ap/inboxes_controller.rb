@@ -5,7 +5,6 @@ class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::Ac
     @json = validate_json_ld(request.body.read)
 
     if @json
-      ensure_json_addressed_to_actor
       process_json
       head 202
     else
@@ -18,15 +17,6 @@ class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::Ac
   def rate_limit
     limit = SiteSetting.activity_pub_rate_limit_post_to_inbox_per_minute
     RateLimiter.new(nil, "activity-pub-inbox-post-min-#{request.remote_ip}", limit, 1.minute).performed!
-  end
-
-  # TODO: Remove this once full addressing support is added.
-  # See DiscourseActivityPub::AP::Activity.add_handler(:activity, :target) in plugin.rb.
-  def ensure_json_addressed_to_actor
-    unless @json['to']&.include?(@actor.ap_id)
-      @json['to'] ||= []
-      @json['to'] << @actor.ap_id
-    end
   end
 
   def process_json

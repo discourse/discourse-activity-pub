@@ -64,7 +64,7 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil)
+def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil, to: nil, cc: nil, audience: nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
@@ -74,10 +74,13 @@ def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_t
     published: published || Time.now.iso8601
   }
   _json[:url] = url if url
+  _json[:to] = to if to
+  _json[:cc] = cc if cc
+  _json[:audience] = audience if audience
   _json
 end
 
-def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil, to: nil)
+def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil, to: nil, cc: nil, audience: nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
@@ -98,7 +101,22 @@ def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', publis
       end,
     published: published || Time.now.iso8601
   }
-  _json[:to] = to if to  
+  _json[:to] = to if to
+  _json[:cc] = cc if cc
+  _json[:audience] = audience if audience
+  _json.with_indifferent_access
+end
+
+def build_collection_json(items: [], to: nil, cc: nil, audience: nil)
+  _json = {
+    '@context': 'https://www.w3.org/ns/activitystreams',
+    id: "https://external.com/collection/#{SecureRandom.hex(8)}",
+    type: "Collection",
+    items: items
+  }
+  _json[:to] = to if to
+  _json[:cc] = cc if cc
+  _json[:audience] = audience if audience
   _json.with_indifferent_access
 end
 

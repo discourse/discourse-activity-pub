@@ -128,7 +128,9 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     it "initializes the right request" do
-      expect_request(body: activity.ap.json)
+      expect_request(
+        body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
+      )
       execute_job
     end
 
@@ -177,7 +179,9 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: group) }
 
       it "performs the right request" do
-        expect_request(body: activity.ap.json)
+        expect_request(
+          body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
+        )
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,
@@ -205,7 +209,9 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: group) }
 
       it "performs the right request" do
-        expect_request(body: activity.ap.json)
+        expect_request(
+          body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
+        )
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,
@@ -233,7 +239,9 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: group) }
 
       it "performs the right request" do
-        expect_request(body: activity.ap.json)
+        expect_request(
+          body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
+        )
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,

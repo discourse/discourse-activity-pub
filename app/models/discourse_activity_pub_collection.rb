@@ -45,8 +45,8 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     model ? model.activity_pub_actor : object
   end
 
-  def to
-    @to ||= public_collection_id
+  def audience
+    @audience ||= public_collection_id
   end
 
   def items

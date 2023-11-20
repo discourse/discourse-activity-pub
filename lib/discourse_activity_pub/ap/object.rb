@@ -47,8 +47,8 @@ module DiscourseActivityPub
         stored&.respond_to?(:url) && stored.url
       end
 
-      def to
-        stored&.respond_to?(:to) && stored.to
+      def audience
+        stored&.respond_to?(:audience) && stored.audience
       end
 
       def start_time
@@ -129,6 +129,13 @@ module DiscourseActivityPub
       end
 
       def self.resolve_and_store(raw_object, activity = nil)
+        object = resolve(raw_object)
+        return unless object
+        object.apply_handlers(type, :store, { activity: activity })
+        object
+      end
+
+      def self.resolve(raw_object)
         resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object)
         return process_failed(raw_object, "cant_resolve_object") unless resolved_object.present?
 
@@ -138,8 +145,6 @@ module DiscourseActivityPub
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
           return process_failed(resolved_object['id'], "object_not_supported")
         end
-
-        object.apply_handlers(type, :store, { activity: activity })
 
         object
       end

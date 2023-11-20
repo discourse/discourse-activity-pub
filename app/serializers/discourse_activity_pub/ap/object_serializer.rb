@@ -3,7 +3,7 @@
 class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   attributes :id,
              :type,
-             :to,
+             :audience,
              :published,
              :updated,
              :url
@@ -18,12 +18,8 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
     object.context
   end
 
-  def to
-    object.to
-  end
-
-  def include_to?
-    object.to.present?
+  def include_audience?
+    object.audience.present?
   end
 
   def include_published?

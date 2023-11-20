@@ -100,6 +100,10 @@ module DiscourseActivityPub
         type == Follow.type
       end
 
+      def announce?
+        type == Announce.type
+      end
+
       def self.types
         activity = self.new
         raise NotImplementedError unless activity.respond_to?(:types)

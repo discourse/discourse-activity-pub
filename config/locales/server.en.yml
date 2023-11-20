@@ -81,6 +81,7 @@ en:
         cant_find_post: "Can't find post"
         post_is_deleted: "Post is deleted"
         full_topic_not_enabled: "Full topic is not enabled"
+        not_following_announcer: "Announcement was not made by an actor the target is following."
     activity:
       create:
         failed_to_create_user: "Failed to create user for %{actor_id}"

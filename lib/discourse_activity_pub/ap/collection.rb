@@ -26,6 +26,17 @@ module DiscourseActivityPub
       def summary
         stored&.summary
       end
+
+      def process_items
+        json["items"]
+      end
+
+      def process
+        process_items.each do |item|
+          activity = DiscourseActivityPub::AP::Activity.factory(item)
+          activity.process if activity&.respond_to?(:process)
+        end
+      end
     end
   end
 end

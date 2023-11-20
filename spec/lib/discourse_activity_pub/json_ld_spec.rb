@@ -54,4 +54,64 @@ RSpec.describe DiscourseActivityPub::JsonLd do
       ).to eq(false)
     end
   end
+
+  describe "#address_json" do
+    let!(:to_actor_id) { "https://external.com/u/angus" }
+
+    context "with nested json" do
+      let!(:json) {
+        build_collection_json(
+          audience: described_class.public_collection_id,
+          items: [
+            build_activity_json(
+              type: 'Create',
+              audience: described_class.public_collection_id,
+              object: build_object_json(
+                audience: described_class.public_collection_id
+              )
+            ), 
+            build_activity_json(
+              type: 'Announce',
+              audience: described_class.public_collection_id,
+              object: build_activity_json(
+                type: 'Create',
+                audience: described_class.public_collection_id,
+                object: build_object_json(
+                  audience: described_class.public_collection_id
+                )
+              )
+            ),
+            build_activity_json(
+              type: 'Create',
+              audience: described_class.public_collection_id,
+              object: build_object_json(
+                audience: described_class.public_collection_id
+              )
+            ),
+            build_activity_json(type: "Update")
+          ]
+        )
+      }
+
+      it "copies audience to cc" do
+        addressed_json = described_class.address_json(json, to_actor_id)
+        expect(addressed_json['cc']).to eq(addressed_json['audience'])
+  
+        addressed_json['items'].each do |item|
+          expect(item['cc']).to eq(item['audience'])
+          expect(item['object']['cc']).to eq(item['object']['audience'])
+        end
+      end
+  
+      it "sets to actor id as to" do
+        addressed_json = described_class.address_json(json, to_actor_id)
+        expect(addressed_json['to']).to eq(to_actor_id)
+  
+        addressed_json['items'].each do |item|
+          expect(item['to']).to eq(to_actor_id)
+          expect(item['object']['to']).to eq(to_actor_id)
+        end
+      end
+    end
+  end
 end

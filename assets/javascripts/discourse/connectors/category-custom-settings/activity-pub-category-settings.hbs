@@ -13,10 +13,10 @@
   </div>
 </section>
 
-{{#if this.category.activity_pub_username}}
+{{#if this.category.activity_pub_actor.handle}}
   <section class='field activity-pub-setting activity-pub-handle-field'>
     <label>{{i18n 'category.discourse_activity_pub.handle'}}</label>
-    <ActivityPubHandle @model={{this.category}} />
+    <ActivityPubHandle @actor={{this.category.activity_pub_actor}} />
     <div class="activity-pub-setting-description">
       {{i18n 'category.discourse_activity_pub.handle_description'}}
     </div>

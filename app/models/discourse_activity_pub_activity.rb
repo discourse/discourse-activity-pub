@@ -46,11 +46,11 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     visibility === DiscourseActivityPubActivity.visibilities[:private]
   end
 
-  def to
-    if public?
-      public_collection_id
-    else
-      primary_actor.followers_collection.ap_id
+  def audience
+    @audience ||= begin
+      targets = [primary_actor.followers_collection.ap_id]
+      targets << public_collection_id if public? && targets.exclude?(public_collection_id)
+      targets
     end
   end
 

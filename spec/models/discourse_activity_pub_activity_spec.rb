@@ -48,7 +48,7 @@ RSpec.describe DiscourseActivityPubActivity do
     end
   end
 
-  describe '#to' do
+  describe '#audience' do
     let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
     let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
     let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
@@ -60,7 +60,7 @@ RSpec.describe DiscourseActivityPubActivity do
       end
 
       it "addresses activity to followers only" do
-        expect(activity.ap.json[:to]).to eq(actor.followers_collection.ap_id)
+        expect(activity.ap.json[:audience]).to match_array([actor.followers_collection.ap_id])
       end
     end
 
@@ -69,12 +69,16 @@ RSpec.describe DiscourseActivityPubActivity do
         activity.update(visibility: DiscourseActivityPubActivity.visibilities[:public])
       end
 
-      it "addresses activity to public" do
-        expect(activity.ap.json[:to]).to eq(DiscourseActivityPub::JsonLd.public_collection_id)
+      it "addresses activity to followers and public" do
+        expect(activity.ap.json[:audience]).to match_array(
+          [actor.followers_collection.ap_id, DiscourseActivityPub::JsonLd.public_collection_id]
+        )
       end
 
-      it "addresses object to public" do
-        expect(activity.ap.json[:object][:to]).to eq(DiscourseActivityPub::JsonLd.public_collection_id)
+      it "addresses object to followers and public" do
+        expect(activity.ap.json[:object][:audience]).to match_array(
+          [actor.followers_collection.ap_id, DiscourseActivityPub::JsonLd.public_collection_id]
+        )
       end
     end
   end

@@ -41,6 +41,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     activities.any? { |activity| activity.private? }
   end
 
+  def public?
+    !private?
+  end
+
   def in_reply_to_post
     reply_to&.model_type == 'Post' && reply_to.model
   end
@@ -75,8 +79,12 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
-  def to
-    @to ||= activities.first.present? ? activities.first.to : public_collection_id
+  def audience
+    @audience ||= begin
+      targets = activities.first&.audience.present? ? activities.first.audience : []
+      targets << public_collection_id if public? && targets.exclude?(public_collection_id)
+      targets
+    end
   end
 
   def likes_collection

@@ -282,6 +282,11 @@ body.user-preferences-activity-pub-page {
   }
   .directory-table__cell:first-child {
     padding: unset;
+    width: 100%;
+    grid-column-start: 1;
+    grid-column-end: -1;
+    justify-content: start;
+    border: none;
   }
 
   .activity-pub-follow-table-actions {

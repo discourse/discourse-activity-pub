@@ -4,7 +4,7 @@ module Jobs
   class DiscourseActivityPubProcess < ::Jobs::Base
     def execute(args)
       ap_activity = DiscourseActivityPub::AP::Activity.factory(args[:json])
-      ap_activity.process if ap_activity
+      ap_activity.process if ap_activity&.respond_to?(:process)
     end
   end
 end

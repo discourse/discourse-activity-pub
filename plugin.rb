@@ -232,6 +232,13 @@ after_initialize do
   ) do
     DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
   end
+  add_to_serializer(
+    :category,
+    :activity_pub_actor,
+    include_condition: -> { object.activity_pub_enabled && object.respond_to?(:activity_pub_actor) }
+  ) do
+    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
+  end
 
   if Site.respond_to? :preloaded_category_custom_fields
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
@@ -780,10 +787,9 @@ after_initialize do
   end
 
   # Currently we only process one primary target which has to be an existing actor.
-  # Note that we're ensuring content sent to our actor's inboxes are properly addressed.
   # See futher https://www.w3.org/TR/activitystreams-vocabulary/#audienceTargeting
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :target) do |activity|
-    (activity.json[:to] || []).each do |target|
+    ([*activity.json[:to]] || []).each do |target|
       if actor = DiscourseActivityPubActor.find_by(ap_id: target)
         activity.targets << actor
       end
@@ -791,7 +797,7 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
-    if activity.composition?
+    if activity.composition? || activity.announce?
 
       unless activity.targets.first&.model&.activity_pub_full_topic
         raise DiscourseActivityPub::AP::Handlers::ValidateError,
@@ -801,23 +807,17 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
-    unless activity.actor.person?
+    reply_to_post = activity.object.stored.in_reply_to_post
+    full_topic = activity.targets.first.model.activity_pub_full_topic
+
+    if !full_topic && !reply_to_post
       raise DiscourseActivityPub::AP::Handlers::ValidateError,
-        I18n.t('discourse_activity_pub.process.warning.invalid_create_actor')
+        I18n.t('discourse_activity_pub.process.warning.not_a_reply')
     end
 
-    if activity.object.stored.in_reply_to_post
-
-      if activity.object.stored.in_reply_to_post.trashed?
-        raise DiscourseActivityPub::AP::Handlers::ValidateError,
-          I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
-      end
-    else
-
-      unless activity.targets.first.model.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::ValidateError,
-          I18n.t('discourse_activity_pub.process.warning.not_a_reply')
-      end
+    if reply_to_post && reply_to_post.trashed?
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
+        I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
     end
   end
 
@@ -845,6 +845,13 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:like, :validate) do |activity|
     ensure_post(activity)
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:announce, :validate) do |activity|
+    unless activity.targets.any? { |target_actor| target_actor.following?(activity.actor.stored) }
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
+        I18n.t('discourse_activity_pub.process.warning.not_following_announcer')
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|

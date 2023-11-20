@@ -24,7 +24,7 @@ module Jobs
       request = DiscourseActivityPub::Request.new(
         actor_id: from_actor.id,
         uri: to_actor.inbox,
-        body: delivery_object.ap.json
+        body: delivery_json
       )
 
       # TODO (future): raise redirects from Request and resolve with FinalDestination
@@ -102,6 +102,10 @@ module Jobs
           object
         end
       end
+    end
+
+    def delivery_json
+      DiscourseActivityPub::JsonLd.address_json(delivery_object.ap.json, to_actor.ap_id)
     end
 
     def log_failure(message)
