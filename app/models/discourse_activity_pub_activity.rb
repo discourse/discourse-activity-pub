@@ -126,7 +126,7 @@ end
 #  ap_type      :string           not null
 #  local        :boolean
 #  actor_id     :integer          not null
-#  object_id    :string
+#  object_id    :integer
 #  object_type  :string
 #  summary      :string
 #  published_at :datetime

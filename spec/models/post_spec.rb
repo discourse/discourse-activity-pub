@@ -1050,7 +1050,12 @@ RSpec.describe Post do
       end
 
       context "with replies" do
-        let!(:post_note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+        let!(:post_note) {
+          Fabricate(:discourse_activity_pub_object_note,
+            model: post,
+            collection_id: topic.activity_pub_object.id
+          )
+        }
 
         context "with create" do
           def perform_create
@@ -1074,7 +1079,7 @@ RSpec.describe Post do
           it "creates the right activity" do
             perform_create
             expect(
-               reply.activity_pub_actor.activities.where(
+              reply.activity_pub_actor.activities.where(
                  object_id: reply.activity_pub_object.id,
                  object_type: 'DiscourseActivityPubObject',
                  ap_type: 'Create'
@@ -1095,12 +1100,27 @@ RSpec.describe Post do
               post.save_custom_fields(true)
             end
 
-            it "sends the activity as the topic actor for delivery without delay" do
+            it "sends the activity to the topic followers for delivery without delay" do
               expect_delivery(
                 actor: topic.activity_pub_actor,
-                object_type: "Create"
+                object_type: "Create",
+                recipients: [post.activity_pub_actor]
               )
               perform_create
+            end
+
+            context "when reply category has followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
+
+              it "sends the activity to the category and topic followers for delivery without delay" do
+                expect_delivery(
+                  actor: topic.activity_pub_actor,
+                  object_type: "Create",
+                  recipients: [follower1] + [post.activity_pub_actor]
+                )
+                perform_create
+              end
             end
           end
         end

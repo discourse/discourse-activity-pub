@@ -136,35 +136,20 @@ module DiscourseActivityPub
       end
 
       def activity_pub_deliver_activity
-        return if !performing_activity.stored
+        return if !activity_pub_delivery_object
 
-        if activity_pub_full_topic && !activity_pub_topic_published? && !activity_pub_is_first_post?
+        if activity_pub_schedule?
           activity_pub_after_scheduled(
             scheduled_at: activity_pub_first_post_scheduled_at
           ) if self.respond_to?(:activity_pub_after_scheduled)
           return
         end
 
-        delivery_actor = performing_activity.create? ?
-          activity_pub_group_actor :
-          performing_activity_actor
-        delivery_recipients = activity_pub_group_actor.followers
-        delivery_object = performing_activity.stored
-        delivery_delay = nil
-
-        if !activity_pub_topic_published?
-          delivery_delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
-
-          if activity_pub_full_topic
-            delivery_object = activity_pub_topic_activities_collection
-          end
-        end
-
         DiscourseActivityPub::DeliveryHandler.perform(
-          actor: delivery_actor,
-          object: delivery_object,
-          recipients: delivery_recipients,
-          delay: delivery_delay
+          actor: activity_pub_delivery_actor,
+          object: activity_pub_delivery_object,
+          recipients: activity_pub_delivery_recipients,
+          delay: activity_pub_delivery_delay
         )
       end
 
@@ -172,6 +157,54 @@ module DiscourseActivityPub
         @performing_activity = nil
         @performing_activity_object = nil
         @performing_activity_actor = nil
+      end
+
+      def activity_pub_delivery_recipients
+        @activity_pub_delivery_recipients ||= begin
+          recipients = activity_pub_group_actor.reload.followers
+
+          if self.respond_to?(:topic) && self.topic.activity_pub_object.present?
+            recipient_ids = recipients.map(&:id)
+
+            self.topic.activity_pub_object.reload.followers.each do |topic_follower|
+              if recipient_ids.exclude?(topic_follower.id) && topic_follower.id != performing_activity_actor.id
+                recipients << topic_follower
+              end
+            end
+          end
+
+          recipients
+        end
+      end
+
+      def activity_pub_schedule?
+        activity_pub_full_topic && !activity_pub_topic_published? && (
+          !activity_pub_is_first_post? || !performing_activity.create?
+        )
+      end
+
+      def activity_pub_delivery_actor
+        if performing_activity.create?
+          activity_pub_group_actor
+        else
+          performing_activity_actor
+        end
+      end
+
+      def activity_pub_delivery_object
+        if !activity_pub_topic_published? && activity_pub_full_topic
+          activity_pub_topic_activities_collection
+        else
+          performing_activity.stored
+        end
+      end
+
+      def activity_pub_delivery_delay
+        if !activity_pub_topic_published?
+          SiteSetting.activity_pub_delivery_delay_minutes.to_i
+        else
+          nil
+        end
       end
     end
   end

@@ -5,6 +5,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::ModelValidations
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
+  belongs_to :collection, class_name: "DiscourseActivityPubCollection", foreign_key: "collection_id"
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
   has_many :announcements, class_name: "DiscourseActivityPubActivity", through: :activities, source: :announcement
@@ -90,8 +91,12 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
+  def attributed_to_actor
+    model&.activity_pub_actor
+  end
+
   def attributed_to
-    @attributed_to ||= model&.activity_pub_actor&.ap_id
+    @attributed_to ||= attributed_to_actor&.ap_id
   end
 
   def likes_collection
@@ -113,19 +118,22 @@ end
 #
 # Table name: discourse_activity_pub_objects
 #
-#  id           :bigint           not null, primary key
-#  ap_id        :string           not null
-#  ap_key       :string
-#  ap_type      :string           not null
-#  local        :boolean
-#  model_id     :integer
-#  model_type   :string
-#  content      :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  reply_to_id  :string
-#  published_at :datetime
-#  url          :string
+#  id            :bigint           not null, primary key
+#  ap_id         :string           not null
+#  ap_key        :string
+#  ap_type       :string           not null
+#  local         :boolean
+#  model_id      :integer
+#  model_type    :string
+#  content       :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  reply_to_id   :string
+#  collection_id :integer
+#  published_at  :datetime
+#  url           :string
+#  domain        :string
+#  summary       :string
 #
 # Indexes
 #
