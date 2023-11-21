@@ -160,3 +160,8 @@ def stub_stored_request(object)
       status: 200
     )
 end
+
+def published_json(object, actor)
+  object.before_deliver
+  DiscourseActivityPub::JsonLd.address_json(object.ap.json, actor.ap_id)
+end

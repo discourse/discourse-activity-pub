@@ -75,6 +75,11 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     )
   end
 
+  def before_deliver
+    # We have to set "published" on the JSON we deliver
+    after_published(Time.now.utc.iso8601, self)
+  end 
+
   def after_deliver(delivered = true)
     if !delivered && local? && ap.follow?
       return self.destroy!
@@ -86,8 +91,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         followed_id: object.object.id
       ).destroy_all
     end
-
-    after_published(Time.now.utc.iso8601, self) if delivered
   end
 
   def after_scheduled(scheduled_at, _activity = nil)

@@ -23,6 +23,11 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
   end
 
   def expect_post(returns: true)
+    DiscourseActivityPubActivity
+        .any_instance
+        .expects(:before_deliver)
+        .once
+  
     DiscourseActivityPub::Request
       .any_instance
       .expects(:post_json_ld)
@@ -107,6 +112,11 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
   context "with model activity pub enabled" do
     before do
       toggle_activity_pub(category, callbacks: true)
+      freeze_time
+    end
+
+    after do
+      unfreeze_time
     end
 
     context "without required arguments" do
@@ -128,9 +138,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     it "initializes the right request" do
-      expect_request(
-        body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
-      )
+      expect_request(body: published_json(activity, person))
       execute_job
     end
 
@@ -179,9 +187,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: group) }
 
       it "performs the right request" do
-        expect_request(
-          body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
-        )
+        expect_request(body: published_json(activity, person))
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,
@@ -209,9 +215,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: group) }
 
       it "performs the right request" do
-        expect_request(
-          body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
-        )
+        expect_request(body: published_json(activity, person))
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,
@@ -239,9 +243,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: group) }
 
       it "performs the right request" do
-        expect_request(
-          body: DiscourseActivityPub::JsonLd.address_json(activity.ap.json, person.ap_id)
-        )
+        expect_request(body: published_json(activity, person))
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,

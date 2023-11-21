@@ -17,6 +17,9 @@ module Jobs
     private
 
     def perform_request
+
+      object.before_deliver
+
       @delivered = false
       retry_count = @args[:retry_count] || 0
 

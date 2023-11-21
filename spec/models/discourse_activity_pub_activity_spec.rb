@@ -129,7 +129,7 @@ RSpec.describe DiscourseActivityPubActivity do
     end
   end
 
-  describe "#after_deliver" do
+  describe "#before_deliver" do
     before do
       freeze_time
     end
@@ -137,12 +137,12 @@ RSpec.describe DiscourseActivityPubActivity do
     it "records published_at if not set" do
       original_time = Time.now.utc.iso8601
 
-      follow_activity.after_deliver
+      follow_activity.before_deliver
       expect(follow_activity.reload.published_at).to eq(original_time) # rubocop:disable Discourse/TimeEqMatcher stored as a string
 
       unfreeze_time
       freeze_time(2.minutes.from_now) do
-        follow_activity.after_deliver
+        follow_activity.before_deliver
         expect(follow_activity.reload.published_at).to eq(original_time) # rubocop:disable Discourse/TimeEqMatcher stored as a string
       end
     end
@@ -152,7 +152,7 @@ RSpec.describe DiscourseActivityPubActivity do
 
       it "calls activity_pub_after_publish on associated object models" do
         Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once
-        create_activity.after_deliver
+        create_activity.before_deliver
       end
     end
 
@@ -161,7 +161,7 @@ RSpec.describe DiscourseActivityPubActivity do
 
       it "calls activity_pub_after_publish on associated object models" do
         Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: Time.now.utc.iso8601 }).once
-        delete_activity.after_deliver
+        delete_activity.before_deliver
       end
     end
 
@@ -170,7 +170,7 @@ RSpec.describe DiscourseActivityPubActivity do
 
       it "calls activity_pub_after_publish on associated object models" do
         Post.any_instance.expects(:activity_pub_after_publish).with({ updated_at: Time.now.utc.iso8601 }).once
-        update_activity.after_deliver
+        update_activity.before_deliver
       end
     end
 
@@ -178,7 +178,7 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:accept_activity) { Fabricate(:discourse_activity_pub_activity_accept, actor: actor) }
 
       it "works" do
-        accept_activity.after_deliver
+        accept_activity.before_deliver
         expect(accept_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
       end
     end
@@ -192,8 +192,14 @@ RSpec.describe DiscourseActivityPubActivity do
 
       it "calls activity_pub_after_publish with correct arguments" do
         Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once
-        activity.after_deliver
+        activity.before_deliver
       end
+    end
+  end
+
+  describe "#after_deliver" do
+    before do
+      freeze_time
     end
 
     context "with a follow activity" do
@@ -209,22 +215,12 @@ RSpec.describe DiscourseActivityPubActivity do
             follow_activity.after_deliver(false)
             expect(follow_activity).to be_destroyed
           end
-
-          it "does not set published_at" do
-            follow_activity.after_deliver(false)
-            expect(follow_activity.published_at).to eq(nil)
-          end
         end
 
         context "when delievered" do
           it "does not destroy the activity" do
             follow_activity.after_deliver(true)
             expect(follow_activity).not_to be_destroyed
-          end
-
-          it "sets published_at" do
-            follow_activity.after_deliver(true)
-            expect(follow_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
           end
         end
       end
@@ -239,22 +235,12 @@ RSpec.describe DiscourseActivityPubActivity do
             follow_activity.after_deliver(false)
             expect(follow_activity).not_to be_destroyed
           end
-
-          it "does not set published_at" do
-            follow_activity.after_deliver(false)
-            expect(follow_activity.published_at).to eq_time(nil)
-          end
         end
 
         context "when delievered" do
           it "does not destroy the activity" do
             follow_activity.after_deliver(false)
             expect(follow_activity).not_to be_destroyed
-          end
-
-          it "sets published_at" do
-            follow_activity.after_deliver(true)
-            expect(follow_activity.published_at.to_i).to eq_time(Time.now.utc.to_i)
           end
         end
       end

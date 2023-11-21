@@ -26,9 +26,12 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     items.any? { |item| item.private? }
   end
 
-  def after_deliver(delivered = true)
+  def before_deliver
     @context = :activities
-    after_published(Time.now.utc.iso8601) if delivered
+    after_published(Time.now.utc.iso8601)
+  end
+
+  def after_deliver(delivered = true)
   end
 
   def after_scheduled(scheduled_at, activity = nil)
