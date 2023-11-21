@@ -31,7 +31,7 @@ export default class ActivityPubFollowBtn extends Component {
   }
 
   get title() {
-    return I18n.t(`discourse_activity_pub.${this.args.type}.title`, { actor: this.args.actor.name })
+    return I18n.t(`discourse_activity_pub.${this.args.type}.title`, { actor: this.args.actor?.name })
   }
 
   get icon() {

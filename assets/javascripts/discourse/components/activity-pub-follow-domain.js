@@ -20,7 +20,7 @@ const mastodonFollowUrl = (domain, handle) => {
 // See https://docs.joinmastodon.org/methods/instance/#v2
 const mastodonAboutPath = "api/v2/instance";
 
-export default class ActivityPubFollowMastodon extends Component {
+export default class ActivityPubFollowDomain extends Component {
   @service site;
   @tracked verifying = false;
   @tracked error = null;
@@ -67,7 +67,7 @@ export default class ActivityPubFollowMastodon extends Component {
       return;
     }
 
-    const handle = this.args.actor.handle;
+    const handle = this.args.actor?.handle;
     if (!handle) {
       return;
     }

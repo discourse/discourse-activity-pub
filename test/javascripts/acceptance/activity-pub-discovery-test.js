@@ -88,21 +88,21 @@ acceptance(
         activity_pub_ready: true,
         activity_pub_default_visibility: "public",
         activity_pub_publication_type: "full_topic",
+        activity_pub_actor: {
+          name: "Angus",
+          handle: "angus@mastodon.pavilion.tech",
+        },
       });
 
       await visit(category.url);
 
       assert.ok(
-        exists(".activity-pub-category-nav.visible"),
+        exists(".activity-pub-category-route-nav.visible"),
         "the activitypub nav button is visible"
       );
 
-      await click(".activity-pub-category-nav");
+      await click(".activity-pub-category-route-nav");
 
-      assert.ok(
-        exists(".activity-pub-category-banner"),
-        "the activitypub category banner is visible"
-      );
       assert.ok(
         exists(".activity-pub-category-banner"),
         "the activitypub category banner is visible"
@@ -136,7 +136,13 @@ acceptance(
 
     test("with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.set("activity_pub_ready", true);
+      category.setProperties({
+        activity_pub_ready: true,
+        activity_pub_actor: {
+          name: "Angus",
+          handle: "angus@mastodon.pavilion.tech",
+        },
+      });
 
       await visit(followersPath);
 
@@ -165,45 +171,52 @@ acceptance(
 
     test("with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.set("activity_pub_ready", true);
+      category.setProperties({
+        activity_pub_ready: true,
+        activity_pub_actor: {
+          name: "Angus",
+          handle: "angus@mastodon.pavilion.tech",
+        },
+      });
 
       await visit(followersPath);
 
       assert.ok(
-        exists(".activity-pub-followers"),
+        exists(".activity-pub-follow-table.followers"),
         "the activitypub followers table is visible"
       );
       assert.strictEqual(
-        document.querySelectorAll(".activity-pub-follower").length,
+        document.querySelectorAll(".activity-pub-follow-table-row").length,
         2,
         "followers are visible"
       );
       assert.ok(
-        query(".activity-pub-follower-image img").src.includes(
+        query(".activity-pub-actor-image img").src.includes(
           "/images/avatar.png"
         ),
         "follower image is visible"
       );
       assert.equal(
-        query(".activity-pub-follower-name").innerText,
+        query(".activity-pub-actor-name").innerText,
         "Angus",
         "follower name is visible"
       );
       assert.equal(
-        query(".activity-pub-follower-handle").innerText,
+        query(".activity-pub-actor-handle").innerText,
         "@angus_ap@test.local",
         "follower handle is visible"
       );
       assert.ok(
-        query(".activity-pub-follower-user a.avatar").href.includes("/u/angus"),
+        query(".activity-pub-follow-table-user a.avatar").href.includes(
+          "/u/angus"
+        ),
         "follower user avatar is visible"
       );
       assert.equal(
-        query(".activity-pub-followed-at").innerText,
+        query(".activity-pub-follow-table-followed-at").innerText,
         "Feb 8, '13",
         "follower followed at is visible"
       );
-
       assert.ok(
         exists(".activity-pub-follow-btn"),
         "the activitypub follow btn is visible"
@@ -216,7 +229,7 @@ acceptance(
       assert.equal(
         query("#discourse-modal-title").innerText,
         I18n.t("discourse_activity_pub.follow.title", {
-          name: category.name,
+          actor: category.activity_pub_actor.name,
         }),
         "activitypub modal has the right title"
       );
