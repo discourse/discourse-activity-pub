@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
-import ActivityPubHandle from "../components/activity-pub-handle";
-import ActivityPubFollowBtn from "../components/activity-pub-follow-btn";
+import ActivityPubHandle from "./activity-pub-handle";
+import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 import i18n from "discourse-common/helpers/i18n";
 import I18n from "discourse-i18n";
 import icon from "discourse-common/helpers/d-icon";
