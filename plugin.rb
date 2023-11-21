@@ -4,6 +4,7 @@
 # about: ActivityPub plugin for Discourse
 # version: 0.1.0
 # authors: Angus McLeod
+# meta_topic_id: 266794
 
 register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
