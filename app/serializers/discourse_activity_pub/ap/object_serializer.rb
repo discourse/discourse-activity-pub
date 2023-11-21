@@ -6,7 +6,8 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
              :audience,
              :published,
              :updated,
-             :url
+             :url,
+             :attributedTo
 
   def attributes(*args)
     hash = super
@@ -32,5 +33,13 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
 
   def include_url?
     object.url.present?
+  end
+
+  def attributedTo
+    object.attributed_to
+  end
+
+  def include_attributedTo?
+    object.attributed_to.present?
   end
 end

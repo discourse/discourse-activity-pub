@@ -63,6 +63,18 @@ module DiscourseActivityPub
         stored&.respond_to?(:published_at) && stored.published_at&.iso8601
       end
 
+      def attributed_to
+        stored&.respond_to?(:attributed_to) && stored.attributed_to
+      end
+
+      def self.type
+        self.new.type
+      end
+
+      def self.base_type
+        self.new.base_type
+      end
+
       def json
         return @json if @json.present?
 

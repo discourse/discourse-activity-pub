@@ -90,6 +90,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
+  def attributed_to
+    @attributed_to ||= model&.activity_pub_actor&.ap_id
+  end
+
   def likes_collection
     @likes_collection ||= begin
       collection = DiscourseActivityPubCollection.new(

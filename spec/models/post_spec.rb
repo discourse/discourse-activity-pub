@@ -441,16 +441,18 @@ RSpec.describe Post do
 
         context "after publication" do
           before do
+            post.acting_user = post.user
             note.model.custom_fields['activity_pub_published_at'] = Time.now
             note.model.save_custom_fields(true)
-            perform_update
           end
 
           it "updates the Note content" do
+            perform_update
             expect(note.reload.content).to eq("Updated content")
           end
 
           it "creates an Update Activity" do
+            perform_update
             expect(
                post.activity_pub_actor.activities.where(
                  object_id: post.activity_pub_object.id,
@@ -462,6 +464,7 @@ RSpec.describe Post do
 
           it "doesn't create multiple unpublished activities" do
             perform_update
+            perform_update
             expect(
                post.activity_pub_actor.activities.where(
                  object_id: post.activity_pub_object.id,
@@ -472,6 +475,7 @@ RSpec.describe Post do
           end
 
           it "creates multiple published activities" do
+            perform_update
             perform_update
 
             attrs = {
@@ -488,6 +492,37 @@ RSpec.describe Post do
             expect(
                post.activity_pub_actor.activities.where(attrs).size
             ).to eq(2)
+          end
+
+          context "when the acting user is different from the post user" do
+            let!(:staff) { Fabricate(:moderator) }
+            let!(:staff_actor) { Fabricate(:discourse_activity_pub_actor_person, model: staff) }
+
+            before do
+              post.acting_user = staff
+            end
+
+            it "creates an activity with the post user's actor" do
+              perform_update
+              expect(
+                 post.activity_pub_actor.activities.where(
+                   object_id: post.activity_pub_object.id,
+                   object_type: 'DiscourseActivityPubObject',
+                   ap_type: 'Update'
+                ).exists?
+              ).to eq(true)
+            end
+
+            it "doesn't create a activity with the acting user's actor" do
+              perform_update
+              expect(
+                 staff.activity_pub_actor.activities.where(
+                   object_id: post.activity_pub_object.id,
+                   object_type: 'DiscourseActivityPubObject',
+                   ap_type: 'Update'
+                ).exists?
+              ).to eq(false)
+            end
           end
         end
 
@@ -922,6 +957,7 @@ RSpec.describe Post do
 
           context "after publication" do
             before do
+              post.acting_user = post.user
               note.model.custom_fields['activity_pub_published_at'] = Time.now
               note.model.save_custom_fields(true)
             end
@@ -978,6 +1014,36 @@ RSpec.describe Post do
                 object_type: "Update"
               )
               perform_update
+            end
+
+            context "when the acting user is different from the post user" do
+              let!(:staff) { Fabricate(:moderator) }
+
+              before do
+                post.acting_user = staff
+              end
+
+              it "creates an activity with the acting user's actor" do
+                perform_update
+                expect(
+                   staff.activity_pub_actor.activities.where(
+                     object_id: post.activity_pub_object.id,
+                     object_type: 'DiscourseActivityPubObject',
+                     ap_type: 'Update'
+                  ).exists?
+                ).to eq(true)
+              end
+
+              it "doesnt create an activity with the post user's actor" do
+                perform_update
+                expect(
+                   post.activity_pub_actor.activities.where(
+                     object_id: post.activity_pub_object.id,
+                     object_type: 'DiscourseActivityPubObject',
+                     ap_type: 'Update'
+                  ).exists?
+                ).to eq(false)
+              end
             end
           end
         end

@@ -240,17 +240,17 @@ after_initialize do
     DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
   end
 
-  if Site.respond_to? :preloaded_category_custom_fields
+  if respond_to?(:register_preloaded_category_custom_fields)
+    register_preloaded_category_custom_fields("activity_pub_enabled")
+    register_preloaded_category_custom_fields("activity_pub_ready")
+  else
+    # TODO: Drop the if-statement and this if-branch in Discourse v3.2
     Site.preloaded_category_custom_fields << "activity_pub_enabled"
     Site.preloaded_category_custom_fields << "activity_pub_ready"
   end
 
   register_modifier(:site_all_categories_cache_query) do |query|
     query.includes(:activity_pub_actor)
-  end
-
-  if self.respond_to?(:register_category_list_preloaded_category_custom_fields)
-    register_category_list_preloaded_category_custom_fields("activity_pub_enabled")
   end
 
   serialized_category_custom_fields = %w(
@@ -267,12 +267,11 @@ after_initialize do
       include_condition: -> { object.activity_pub_enabled }
     ) { object.send(field) }
 
-    if Site.respond_to? :preloaded_category_custom_fields
+    if respond_to?(:register_preloaded_category_custom_fields)
+      register_preloaded_category_custom_fields(field)
+    else
+      # TODO: Drop the if-statement and this if-branch in Discourse v3.2
       Site.preloaded_category_custom_fields << field
-    end
-
-    if self.respond_to?(:register_category_list_preloaded_category_custom_fields)
-      register_category_list_preloaded_category_custom_fields(field)
     end
   end
 

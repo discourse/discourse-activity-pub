@@ -86,7 +86,7 @@ module DiscourseActivityPub
       return nil if value.nil?
       return value if value.is_a?(String)
       return value['url'] if value.is_a?(Hash)
-      return value.first['url'] if value.is_a?(Array)
+      value.first['url'] if value.is_a?(Array)
     end
 
     def publicly_addressed?(json)
