@@ -23,10 +23,6 @@ module DiscourseActivityPub
         items.size
       end
 
-      def summary
-        stored&.summary
-      end
-
       def process_items
         json["items"]
       end

@@ -343,6 +343,9 @@ RSpec.describe Post do
         it "creates the right object" do
           perform_create
           expect(
+            post.activity_pub_object.name
+          ).to eq(post.activity_pub_name)
+          expect(
             post.activity_pub_object.content
           ).to eq(post.activity_pub_content)
           expect(

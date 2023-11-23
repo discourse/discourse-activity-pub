@@ -28,7 +28,7 @@ module DiscourseActivityPub
     def can_deliver?
       return log_failure("delivery actor not ready") unless actor&.ready?
       return log_failure("object not ready") unless object&.ready?
-      return log_failure("no recipients") unless recipients.any?
+      return log_failure("no recipients") if recipients.none?
       true
     end
 

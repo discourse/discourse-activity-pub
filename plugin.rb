@@ -303,7 +303,7 @@ after_initialize do
     create_activity_pub_object!(
       local: true,
       ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
-      summary: activity_pub_summary
+      name: activity_pub_name
     )
   end
   add_to_class(:topic, :activity_pub_activities_collection) do
@@ -315,7 +315,7 @@ after_initialize do
   add_to_class(:topic, :activity_pub_actor) do
     category&.activity_pub_actor
   end
-  add_to_class(:topic, :activity_pub_summary) do
+  add_to_class(:topic, :activity_pub_name) do
     title
   end
 
@@ -528,6 +528,9 @@ after_initialize do
     return false if activity_pub_published? || !activity_pub_scheduled?
     activity_pub_delete!
   end
+  add_to_class(:post, :activity_pub_name) do
+    is_first_post? ? topic.activity_pub_name : nil
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) do
     object.activity_pub_enabled
@@ -708,7 +711,7 @@ after_initialize do
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
     if post.activity_pub_full_topic && post_revisor.topic_title_changed?
-      post.topic.activity_pub_object.summary = post.topic.activity_pub_summary
+      post.topic.activity_pub_object.name = post.topic.activity_pub_name
       post.topic.activity_pub_object.save!
     end
     opts = post_revisor.instance_variable_get("@opts")
@@ -1034,6 +1037,7 @@ after_initialize do
         DiscourseActivityPubObject.transaction do
           if object.stored
             object.stored.content = object.json[:content] if object.json[:content].present?
+            object.stored.name = object.json[:name] if object.json[:name].present?
           else
             params = {
               local: false,
@@ -1041,7 +1045,8 @@ after_initialize do
               ap_type: object.json[:type],
               content: object.json[:content],
               published_at: object.json[:published],
-              domain: DiscourseActivityPub::JsonLd.domain_from_id(object.json[:id])
+              domain: DiscourseActivityPub::JsonLd.domain_from_id(object.json[:id]),
+              name: object.json[:name]
             }
             params[:reply_to_id] = object.json[:inReplyTo] if object.json[:inReplyTo]
             params[:url] = object.json[:url] if object.json[:url]

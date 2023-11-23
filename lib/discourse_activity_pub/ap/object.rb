@@ -67,6 +67,14 @@ module DiscourseActivityPub
         stored&.respond_to?(:attributed_to) && stored.attributed_to
       end
 
+      def summary
+        stored&.respond_to?(:summary) && stored.summary
+      end
+
+      def name
+        stored&.respond_to?(:name) && stored.name
+      end
+
       def self.type
         self.new.type
       end

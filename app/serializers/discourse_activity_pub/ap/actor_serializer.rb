@@ -8,8 +8,7 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
              :preferredUsername,
              :publicKey,
              :url,
-             :icon,
-             :name
+             :icon
 
   def followers
     "#{object.id}/followers"

@@ -26,7 +26,7 @@ module DiscourseActivityPub
         params[:topic_id] = reply_to.topic.id
         params[:reply_to_post_number] = reply_to.post_number
       else
-        params[:title] = object.summary || DiscourseActivityPub::ContentParser.get_title(
+        params[:title] = object.name || DiscourseActivityPub::ContentParser.get_title(
           object.content
         )
         params[:category] = target.model.id

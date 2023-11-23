@@ -105,6 +105,7 @@ module DiscourseActivityPub
         return unless performing_activity
 
         if performing_activity.create? || performing_activity.update?
+          performing_activity_object.name = self.activity_pub_name if self.activity_pub_name
           performing_activity_object.content = self.activity_pub_content
           performing_activity_object.save!
         end
