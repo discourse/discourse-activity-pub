@@ -1,23 +1,70 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Activity do
-  let(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:category) { Fabricate(:category) }
+  let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
+  let!(:activity_type) { DiscourseActivityPub::AP::Activity::Follow.type }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
 
-  def perform_process(json, activity_type)
-    klass = described_class.new
-    klass.json = json
-    klass.stubs(:type).returns(activity_type)
-    klass.send(:process_actor_and_object)
+  describe "#process" do
+    let!(:json) { build_activity_json(object: category.activity_pub_actor, type: activity_type) }
+
+    def perform_process(json, activity_type)
+      klass = described_class.new
+      klass.json = json
+      klass.stubs(:type).returns(activity_type)
+      klass.send(:process)
+    end
+
+    describe "with activity pub enabled" do
+      before do
+        toggle_activity_pub(category, callbacks: true)
+      end
+
+      context "with a duplicate activity" do
+        it "returns false" do
+          expect(perform_process(json, activity_type)).to eq(true)
+          expect(perform_process(json, activity_type)).to eq(false)
+        end
+
+        context "with verbose logging enabled" do
+          before do
+            SiteSetting.activity_pub_verbose_logging = true
+          end
+
+          before do
+            @orig_logger = Rails.logger
+            Rails.logger = @fake_logger = FakeLogger.new
+          end
+
+          after do
+            Rails.logger = @orig_logger
+          end
+
+          it "logs the right warning" do
+            perform_process(json, activity_type)
+            perform_process(json, activity_type)
+            expect(@fake_logger.warnings.first).to eq(
+              build_process_warning("activity_already_processed", json["id"])
+            )
+          end
+        end
+      end
+    end
   end
 
   describe '#process_actor_and_object' do
-    let(:activity_type) { DiscourseActivityPub::AP::Activity::Follow.type }
+    def perform_process(json, activity_type)
+      klass = described_class.new
+      klass.json = json
+      klass.stubs(:type).returns(activity_type)
+      klass.send(:process_actor_and_object)
+    end
 
     context "with a valid activity" do
       before do
-        @json = build_activity_json(object: actor, type: activity_type)
+        @json = build_activity_json(object: category.activity_pub_actor, type: activity_type)
       end
 
       context "without activity pub enabled" do

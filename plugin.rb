@@ -807,6 +807,13 @@ after_initialize do
     end
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
+    if DiscourseActivityPubActivity.exists?(ap_id: activity.json[:id])
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
+        I18n.t('discourse_activity_pub.process.warning.activity_already_processed')
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
     reply_to_post = activity.object.stored.in_reply_to_post
 
@@ -956,21 +963,6 @@ after_initialize do
     end
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:activity, :store) do |activity|
-    public = DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
-    visibility = public ? :public : :private
-
-    activity.stored = DiscourseActivityPubActivity.create!(
-      ap_id: activity.json[:id],
-      ap_type: activity.type,
-      actor_id: activity.actor.stored.id,
-      object_id: activity.object.stored.id,
-      object_type: activity.object.stored.class.name,
-      visibility: DiscourseActivityPubActivity.visibilities[visibility],
-      published_at: activity.json[:published]
-    )
-  end
-
   DiscourseActivityPub::AP::Activity.add_handler(:follow, :respond_to) do |activity|
     response = DiscourseActivityPub::AP::Activity::Response.new
     response.reject(message: activity.stored.errors.full_messages.join(', ')) if activity.stored&.errors.present?
@@ -1025,6 +1017,25 @@ after_initialize do
     ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
     json = "JSON: #{JSON.generate(json)}"
     Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:activity, :store) do |activity|
+    public = DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
+    visibility = public ? :public : :private
+
+    begin
+      activity.stored = DiscourseActivityPubActivity.create!(
+        ap_id: activity.json[:id],
+        ap_type: activity.type,
+        actor_id: activity.actor.stored.id,
+        object_id: activity.object.stored.id,
+        object_type: activity.object.stored.class.name,
+        visibility: DiscourseActivityPubActivity.visibilities[visibility],
+        published_at: activity.json[:published]
+      )
+    rescue ActiveRecord::RecordInvalid => error
+      log_stored_save_error(error, activity.json)
+    end
   end
 
   DiscourseActivityPub::AP::Object.add_handler(:object, :store) do |object, opts|

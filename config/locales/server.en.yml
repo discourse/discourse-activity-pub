@@ -71,6 +71,7 @@ en:
         cant_create_actor: "Could not create actor"
         cant_find_object: "Could not find object"
         object_not_ready: "Object is not ready"
+        activity_already_processed: "Activity has already been processed"
         activity_not_supported: "Activity is not supported for actor and object"
         activity_not_valid: "Activity is not valid"
         invalid_create_actor: "Actor cannot create posts"
