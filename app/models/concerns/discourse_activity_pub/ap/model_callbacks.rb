@@ -148,7 +148,7 @@ module DiscourseActivityPub
         DiscourseActivityPub::DeliveryHandler.perform(
           actor: activity_pub_delivery_actor,
           object: activity_pub_delivery_object,
-          recipients: activity_pub_delivery_recipients,
+          recipient_ids: activity_pub_delivery_recipient_ids,
           delay: activity_pub_delivery_delay
         )
       end
@@ -159,21 +159,19 @@ module DiscourseActivityPub
         @performing_activity_actor = nil
       end
 
-      def activity_pub_delivery_recipients
-        @activity_pub_delivery_recipients ||= begin
-          recipients = activity_pub_group_actor.reload.followers
+      def activity_pub_delivery_recipient_ids
+        @activity_pub_delivery_recipient_ids ||= begin
+          actor_ids = activity_pub_group_actor.reload.followers.map(&:id)
 
           if self.respond_to?(:topic) && self.topic.activity_pub_object.present?
-            recipient_ids = recipients.map(&:id)
-
-            self.topic.activity_pub_object.reload.followers.each do |topic_follower|
-              if recipient_ids.exclude?(topic_follower.id) && topic_follower.id != performing_activity_actor.id
-                recipients << topic_follower
+            self.topic.activity_pub_object.reload.followers.each do |topic_actor|
+              if actor_ids.exclude?(topic_actor.id) && topic_actor.id != performing_activity_actor.id
+                actor_ids << topic_actor.id
               end
             end
           end
 
-          recipients
+          actor_ids
         end
       end
 

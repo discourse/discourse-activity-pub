@@ -1108,7 +1108,7 @@ RSpec.describe Post do
               expect_delivery(
                 actor: topic.activity_pub_actor,
                 object_type: "Create",
-                recipients: [post.activity_pub_actor]
+                recipient_ids: [post.activity_pub_actor.id]
               )
               perform_create
             end
@@ -1121,7 +1121,7 @@ RSpec.describe Post do
                 expect_delivery(
                   actor: topic.activity_pub_actor,
                   object_type: "Create",
-                  recipients: [follower1] + [post.activity_pub_actor]
+                  recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
                 )
                 perform_create
               end

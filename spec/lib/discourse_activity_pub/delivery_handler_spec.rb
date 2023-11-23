@@ -32,7 +32,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
     described_class.perform(
       actor: delivery_actor,
       object: object,
-      recipients: delivery_actor.followers,
+      recipient_ids: delivery_actor.followers.map(&:id),
       delay: delay
     )
   end

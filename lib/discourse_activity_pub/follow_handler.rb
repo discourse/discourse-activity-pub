@@ -78,7 +78,7 @@ module DiscourseActivityPub
             DiscourseActivityPub::DeliveryHandler.perform(
                 actor: actor,
                 object: object,
-                recipients: [target_actor]
+                recipient_ids: [target_actor.id]
             )
         end
     end

@@ -3,13 +3,13 @@ module DiscourseActivityPub
   class DeliveryHandler
     attr_reader :actor,
                 :object,
-                :recipients,
+                :recipient_ids,
                 :scheduled_at
 
-    def initialize(actor, object, recipients)
+    def initialize(actor, object, recipient_ids)
       @actor = actor
       @object = object
-      @recipients = recipients
+      @recipient_ids = recipient_ids
     end
 
     def perform(delay: 0)
@@ -19,8 +19,8 @@ module DiscourseActivityPub
       object
     end
 
-    def self.perform(actor: nil, object: nil, recipients: nil, delay: 0)
-      new(actor, object, recipients).perform(delay: delay)
+    def self.perform(actor: nil, object: nil, recipient_ids: nil, delay: 0)
+      new(actor, object, recipient_ids).perform(delay: delay)
     end
 
     protected
@@ -28,28 +28,32 @@ module DiscourseActivityPub
     def can_deliver?
       return log_failure("delivery actor not ready") unless actor&.ready?
       return log_failure("object not ready") unless object&.ready?
-      return log_failure("no recipients") unless recipients.present?
+      return log_failure("no recipients") unless recipients.any?
       true
+    end
+
+    def recipients
+      @recipients ||= DiscourseActivityPubActor.where(id: recipient_ids).to_a
     end
 
     def schedule_deliveries(delay = nil)
       recipients
-        .uniq { |r| r.id }
+        .uniq { |actor| actor.id }
         .group_by(&:shared_inbox)
-        .each do |shared_inbox, recipient_actors|
+        .each do |shared_inbox, actors|
           if shared_inbox
             opts = {
               send_to: shared_inbox,
-              address_to: recipient_actors.map(&:ap_id)
+              address_to: actors.map(&:ap_id)
             }
             opts[:delay] = delay unless delay.nil?
             schedule_delivery(**opts)
           else
             # Recipient Actor does not have a shared inbox.
-            recipient_actors.each do |recipient_actor|
+            actors.each do |actor|
               opts = {
-                send_to: recipient_actor.inbox,
-                address_to: [recipient_actor.ap_id],
+                send_to: actor.inbox,
+                address_to: [actor.ap_id],
               }
               opts[:delay] = delay unless delay.nil?
               schedule_delivery(**opts)

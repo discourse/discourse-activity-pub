@@ -992,7 +992,7 @@ after_initialize do
     DiscourseActivityPub::DeliveryHandler.perform(
       actor: activity.object.stored,
       object: response.stored,
-      recipients: activity.object.stored.followers
+      recipient_ids: activity.object.stored.followers.map(&:id)
     )
   end
 

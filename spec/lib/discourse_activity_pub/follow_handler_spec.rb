@@ -43,7 +43,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
         expect_delivery(
           actor: actor,
           object_type: DiscourseActivityPub::AP::Activity::Follow.type,
-          recipients: [target_actor]
+          recipient_ids: [target_actor.id]
         )
         perform(actor.id, target_actor.id)
       end
@@ -115,7 +115,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
             expect_delivery(
               actor: actor,
               object_type: DiscourseActivityPub::AP::Activity::Undo.type,
-              recipients: [target_actor]
+              recipient_ids: [target_actor.id]
             )
             perform(actor.id, target_actor.id)
           end
