@@ -4,7 +4,7 @@ module DiscourseActivityPub
   module AP
     class Activity < Object
 
-      attr_accessor :received_to
+      attr_accessor :parent_actor
 
       def base_type
         'Activity'

@@ -45,6 +45,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def following?(actor)
+    return false unless actor
     actor.followers.exists?(id: self.id)
   end
 

@@ -155,6 +155,48 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
       end
 
+      context "when the target actor is following the parent actor" do
+        let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
+        let!(:announce_json) { 
+          build_activity_json(
+            type: 'Announce',
+            actor: group,
+            object: new_post_json,
+            to: [category.activity_pub_actor.ap_id],
+            cc: [DiscourseActivityPub::JsonLd.public_collection_id]
+          )
+        }
+        before do
+          Fabricate(:discourse_activity_pub_follow,
+            follower: category.activity_pub_actor,
+            followed: group
+          )
+          klass = DiscourseActivityPub::AP::Activity::Announce.new
+          klass.json = announce_json
+          klass.process
+        end
+  
+        it "creates a new topic" do
+          post = Post.find_by(raw: new_post_json[:object][:content])
+          expect(post.present?).to be(true)
+          expect(post.topic.present?).to be(true)
+          expect(post.topic.title).to eq(
+            DiscourseActivityPub::ContentParser.get_title(object_json[:content])
+          )
+          expect(post.post_number).to be(1)
+        end
+  
+        it "creates an activity" do
+          expect(
+            DiscourseActivityPubActivity.exists?(
+              ap_id: new_post_json[:id],
+              ap_type: "Create",
+              actor_id: person.id
+            )
+          ).to be(true)
+        end
+      end
+
       context "when the target is not following the create actor" do
         before do
           SiteSetting.activity_pub_verbose_logging = true

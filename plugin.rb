@@ -821,7 +821,9 @@ after_initialize do
         raise DiscourseActivityPub::AP::Handlers::ValidateError,
           I18n.t('discourse_activity_pub.process.warning.only_resolved_targets_accept_new')
       end
-      unless activity.targets.any? { |target| target.following?(activity.actor.stored) }
+      unless activity.targets.any? { |target|
+        target.following?(activity.actor.stored) || target.following?(activity.parent_actor&.stored)
+      }
         raise DiscourseActivityPub::AP::Handlers::ValidateError,
           I18n.t('discourse_activity_pub.process.warning.only_followed_actors_can_create_new')
       end

@@ -18,6 +18,7 @@ module DiscourseActivityPub
           return false unless process_activity_targets
           return false unless perform_validate_activity
 
+          object.parent_actor = @actor
           object.process
         end
       end
