@@ -376,13 +376,15 @@ RSpec.describe Post do
               object_id: activity.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: category.activity_pub_actor.id,
-              to_actor_id: follower1.id
+              send_to: follower1.inbox,
+              address_to: [follower1.ap_id]
             }
             job2_args = {
               object_id: activity.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: category.activity_pub_actor.id,
-              to_actor_id: follower2.id
+              send_to: follower2.inbox,
+              address_to: [follower2.ap_id]
             }
             expect(
               job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args, at: delay.minutes.from_now)
@@ -650,13 +652,15 @@ RSpec.describe Post do
                 object_id: activity.id,
                 object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: category.activity_pub_actor.id,
-                to_actor_id: follower1.id
+                send_to: follower1.inbox,
+                address_to: [follower1.ap_id]
               }
               job2_args = {
                 object_id: activity.id,
                 object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: category.activity_pub_actor.id,
-                to_actor_id: follower2.id
+                send_to: follower2.inbox,
+                address_to: [follower2.ap_id]
               }
               expect(
                 job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args)

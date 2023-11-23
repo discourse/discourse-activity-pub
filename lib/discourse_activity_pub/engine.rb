@@ -20,6 +20,14 @@ module DiscourseActivityPub
     "https://#{host}#{Discourse.base_path}"
   end
 
+  def self.users_shared_inbox
+    "#{base_url}#{users_shared_inbox_path}"
+  end
+
+  def self.users_shared_inbox_path
+    "/ap/users/inbox"
+  end
+
   def self.enabled
     !SiteSetting.login_required && SiteSetting.activity_pub_enabled
   end

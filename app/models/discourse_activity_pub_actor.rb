@@ -115,6 +115,14 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
+  def shared_inbox
+    if local?
+      model.activity_pub_shared_inbox if model&.respond_to?(:activity_pub_shared_inbox)
+    else
+      self.read_attribute(:shared_inbox)
+    end
+  end
+
   def self.ensure_for(model)
     if model.activity_pub_enabled
       actor = model.activity_pub_actor ||

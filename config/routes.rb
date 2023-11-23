@@ -12,6 +12,8 @@ DiscourseActivityPub::Engine.routes.draw do
     get ":category_id/follows" => "category#follows"
   end
 
+  post "users/inbox" => "ap/shared_inboxes#create"
+
   scope '/actor', defaults: { format: :json } do
     post ":actor_id/follow" => "actor#follow"
     delete ":actor_id/follow" => "actor#unfollow"

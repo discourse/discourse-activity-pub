@@ -61,7 +61,8 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       object_id: args.key?(:object_id) ? args[:object_id] : activity.id,
       object_type: args.key?(:object_type) ? args[:object_type] : "DiscourseActivityPubActivity",
       from_actor_id: args.key?(:from_actor_id) ? args[:from_actor_id] : group.id,
-      to_actor_id: args.key?(:to_actor_id) ? args[:to_actor_id] : person.id,
+      send_to: args.key?(:send_to) ? args[:send_to] : person.inbox,
+      address_to: args.key?(:address_to) ? args[:send_to] : person.ap_id,
       retry_count: args.key?(:retry_count) ? args[:retry_count] : nil
     }
   end
@@ -124,7 +125,8 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_no_request
         execute_job(object_id: nil)
         execute_job(from_actor_id: nil)
-        execute_job(to_actor_id: nil)
+        execute_job(send_to: nil)
+        execute_job(address_to: nil)
       end
     end
 
@@ -133,12 +135,11 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_no_request
         execute_job(object_id: activity.id + 20)
         execute_job(from_actor_id: activity.actor.id + 20)
-        execute_job(to_actor_id: activity.object.actor.id + 20)
       end
     end
 
     it "initializes the right request" do
-      expect_request(body: published_json(activity, person))
+      expect_request(body: published_json(activity, { to: person.ap_id }))
       execute_job
     end
 
@@ -187,11 +188,10 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: group) }
 
       it "performs the right request" do
-        expect_request(body: published_json(activity, person))
+        expect_request(body: published_json(activity, { to: person.ap_id }))
         execute_job(
           object_id: activity.id,
           from_actor_id: activity.actor.id,
-          to_actor_id: person.id
         )
       end
 
@@ -204,8 +204,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           expect_no_request
           execute_job(
             object_id: activity.id,
-            from_actor_id: activity.actor.id,
-            to_actor_id: person.id
+            from_actor_id: activity.actor.id
           )
         end
       end
@@ -215,11 +214,10 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: group) }
 
       it "performs the right request" do
-        expect_request(body: published_json(activity, person))
+        expect_request(body: published_json(activity, { to: person.ap_id }))
         execute_job(
           object_id: activity.id,
-          from_actor_id: activity.actor.id,
-          to_actor_id: person.id
+          from_actor_id: activity.actor.id
         )
       end
 
@@ -232,8 +230,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           expect_no_request
           execute_job(
             object_id: activity.id,
-            from_actor_id: activity.actor.id,
-            to_actor_id: person.id
+            from_actor_id: activity.actor.id
           )
         end
       end
@@ -243,11 +240,10 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: group) }
 
       it "performs the right request" do
-        expect_request(body: published_json(activity, person))
+        expect_request(body: published_json(activity, { to: person.ap_id }))
         execute_job(
           object_id: activity.id,
-          from_actor_id: activity.actor.id,
-          to_actor_id: person.id
+          from_actor_id: activity.actor.id
         )
       end
     end
@@ -270,8 +266,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_request
         execute_job(
           object_id: activity.id,
-          from_actor_id: group.id,
-          to_actor_id: person.id
+          from_actor_id: group.id
         )
         expect(find_announce.present?).to eq(true)
       end
@@ -280,8 +275,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_request(body_type: 'Announce')
         execute_job(
           object_id: activity.id,
-          from_actor_id: group.id,
-          to_actor_id: person.id
+          from_actor_id: group.id
         )
       end
 
@@ -300,8 +294,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           execute_job(
             object_id: collection.id,
             object_type: 'DiscourseActivityPubCollection',
-            from_actor_id: group.id,
-            to_actor_id: person.id
+            from_actor_id: group.id
           )
           expect(
             DiscourseActivityPubActivity.exists?(
@@ -330,8 +323,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           execute_job(
             object_id: collection.id,
             object_type: 'DiscourseActivityPubCollection',
-            from_actor_id: group.id,
-            to_actor_id: person.id
+            from_actor_id: group.id
           )
         end
       end

@@ -79,12 +79,13 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
               ap_type: DiscourseActivityPub::AP::Activity::Accept.type,
               actor_id: response_actor.id,
               object_id: @activity.id
-            )
+            ) 
             args = {
               object_id: response_activity.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: response_activity.actor.id,
-              to_actor_id: response_activity.object.actor.id
+              send_to: response_activity.object.actor.inbox,
+              address_to: [response_activity.object.actor.ap_id]
             }
             expect(
               job_enqueued?(job: :discourse_activity_pub_deliver, args: args)
@@ -143,7 +144,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
               object_id: reject.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: reject.actor.id,
-              to_actor_id: reject.object.actor.id
+              send_to: reject.object.actor.inbox,
+              address_to: [reject.object.actor.ap_id]
             }
             expect(
               job_enqueued?(job: :discourse_activity_pub_deliver, args: args)

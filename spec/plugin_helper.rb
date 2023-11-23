@@ -161,7 +161,8 @@ def stub_stored_request(object)
     )
 end
 
-def published_json(object, actor)
+def published_json(object, args = {})
   object.before_deliver
-  DiscourseActivityPub::JsonLd.address_json(object.ap.json, actor.ap_id)
+  args[:cc] = DiscourseActivityPub::JsonLd.public_collection_id if object.public?
+  DiscourseActivityPub::JsonLd.address_json(object.ap.json, args)
 end

@@ -93,23 +93,23 @@ RSpec.describe DiscourseActivityPub::JsonLd do
         )
       }
 
-      it "copies audience to cc" do
-        addressed_json = described_class.address_json(json, to_actor_id)
-        expect(addressed_json['cc']).to eq(addressed_json['audience'])
+      it "copies to to to" do
+        addressed_json = described_class.address_json(json, { to: json['audience'] })
+        expect(addressed_json['to']).to eq(json['audience'])
   
         addressed_json['items'].each do |item|
-          expect(item['cc']).to eq(item['audience'])
-          expect(item['object']['cc']).to eq(item['object']['audience'])
+          expect(item['to']).to eq(json['audience'])
+          expect(item['object']['to']).to eq(json['audience'])
         end
       end
-  
-      it "sets to actor id as to" do
-        addressed_json = described_class.address_json(json, to_actor_id)
-        expect(addressed_json['to']).to eq(to_actor_id)
+
+      it "copies cc to cc" do
+        addressed_json = described_class.address_json(json, { cc: json['audience'] })
+        expect(addressed_json['cc']).to eq(json['audience'])
   
         addressed_json['items'].each do |item|
-          expect(item['to']).to eq(to_actor_id)
-          expect(item['object']['to']).to eq(to_actor_id)
+          expect(item['cc']).to eq(json['audience'])
+          expect(item['object']['cc']).to eq(json['audience'])
         end
       end
     end

@@ -54,32 +54,8 @@ RSpec.describe DiscourseActivityPubActivity do
     let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
     let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor) }
 
-    context "when activity is private" do
-      before do
-        activity.update(visibility: DiscourseActivityPubActivity.visibilities[:private])
-      end
-
-      it "addresses activity to followers only" do
-        expect(activity.ap.json[:audience]).to match_array([actor.followers_collection.ap_id])
-      end
-    end
-
-    context "when activity is public" do
-      before do
-        activity.update(visibility: DiscourseActivityPubActivity.visibilities[:public])
-      end
-
-      it "addresses activity to followers and public" do
-        expect(activity.ap.json[:audience]).to match_array(
-          [actor.followers_collection.ap_id, DiscourseActivityPub::JsonLd.public_collection_id]
-        )
-      end
-
-      it "addresses object to followers and public" do
-        expect(activity.ap.json[:object][:audience]).to match_array(
-          [actor.followers_collection.ap_id, DiscourseActivityPub::JsonLd.public_collection_id]
-        )
-      end
+    it "addresses activity to followers" do
+      expect(activity.ap.json[:audience]).to eq(actor.followers_collection.ap_id)
     end
   end
 

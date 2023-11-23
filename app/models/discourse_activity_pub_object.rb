@@ -84,11 +84,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def audience
-    @audience ||= begin
-      targets = activities.first&.audience.present? ? activities.first.audience : []
-      targets << public_collection_id if public? && targets.exclude?(public_collection_id)
-      targets
-    end
+    @audience ||= activities.first&.audience
   end
 
   def attributed_to_actor

@@ -47,11 +47,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def audience
-    @audience ||= begin
-      targets = [primary_actor.followers_collection.ap_id]
-      targets << public_collection_id if public? && targets.exclude?(public_collection_id)
-      targets
-    end
+    @audience ||= primary_actor.followers_collection.ap_id
   end
 
   def primary_actor

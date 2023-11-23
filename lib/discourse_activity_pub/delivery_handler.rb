@@ -33,23 +33,40 @@ module DiscourseActivityPub
     end
 
     def schedule_deliveries(delay = nil)
-      recipients.each do |actor|
-        opts = {
-          to_actor_id: actor.id,
-        }
-        opts[:delay] = delay unless delay.nil?
-        schedule_delivery(**opts)
-      end
+      recipients
+        .uniq { |r| r.id }
+        .group_by(&:shared_inbox)
+        .each do |shared_inbox, recipient_actors|
+          if shared_inbox
+            opts = {
+              send_to: shared_inbox,
+              address_to: recipient_actors.map(&:ap_id)
+            }
+            opts[:delay] = delay unless delay.nil?
+            schedule_delivery(**opts)
+          else
+            # Recipient Actor does not have a shared inbox.
+            recipient_actors.each do |recipient_actor|
+              opts = {
+                send_to: recipient_actor.inbox,
+                address_to: [recipient_actor.ap_id],
+              }
+              opts[:delay] = delay unless delay.nil?
+              schedule_delivery(**opts)
+            end
+          end
+        end
     end
 
-    def schedule_delivery(to_actor_id: nil, delay: nil)
-      return unless to_actor_id
+    def schedule_delivery(send_to: nil, address_to: [], delay: nil)
+      return unless send_to && address_to.present?
 
       args = {
         object_id: object.id,
         object_type: object.class.name,
         from_actor_id: actor.id,
-        to_actor_id: to_actor_id
+        send_to: send_to,
+        address_to: address_to
       }
 
       Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)

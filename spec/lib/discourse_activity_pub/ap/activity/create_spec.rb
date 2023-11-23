@@ -125,36 +125,70 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         )
       }
 
-      before do
-        SiteSetting.activity_pub_verbose_logging = true
-        @orig_logger = Rails.logger
-        Rails.logger = @fake_logger = FakeLogger.new
-        perform_process(new_post_json)
-      end
-
-      after do
-        Rails.logger = @orig_logger
-        SiteSetting.activity_pub_verbose_logging = false
-      end
-
-      it "creates a new topic" do
-        post = Post.find_by(raw: new_post_json[:object][:content])
-        expect(post.present?).to be(true)
-        expect(post.topic.present?).to be(true)
-        expect(post.topic.title).to eq(
-          DiscourseActivityPub::ContentParser.get_title(object_json[:content])
-        )
-        expect(post.post_number).to be(1)
-      end
-
-      it "creates an activity" do
-        expect(
-          DiscourseActivityPubActivity.exists?(
-            ap_id: new_post_json[:id],
-            ap_type: "Create",
-            actor_id: person.id
+      context "when the target actor is following the create actor" do
+        before do
+          Fabricate(:discourse_activity_pub_follow,
+            follower: category.activity_pub_actor,
+            followed: person
           )
-        ).to be(true)
+          perform_process(new_post_json)
+        end
+  
+        it "creates a new topic" do
+          post = Post.find_by(raw: new_post_json[:object][:content])
+          expect(post.present?).to be(true)
+          expect(post.topic.present?).to be(true)
+          expect(post.topic.title).to eq(
+            DiscourseActivityPub::ContentParser.get_title(object_json[:content])
+          )
+          expect(post.post_number).to be(1)
+        end
+  
+        it "creates an activity" do
+          expect(
+            DiscourseActivityPubActivity.exists?(
+              ap_id: new_post_json[:id],
+              ap_type: "Create",
+              actor_id: person.id
+            )
+          ).to be(true)
+        end
+      end
+
+      context "when the target is not following the create actor" do
+        before do
+          SiteSetting.activity_pub_verbose_logging = true
+          @orig_logger = Rails.logger
+          Rails.logger = @fake_logger = FakeLogger.new
+          perform_process(new_post_json)
+        end
+  
+        after do
+          Rails.logger = @orig_logger
+          SiteSetting.activity_pub_verbose_logging = false
+        end
+
+        it "does not create a post" do
+          expect(
+            Post.exists?(raw: new_post_json[:object][:content])
+          ).to be(false)
+        end
+  
+        it "does not create an activity" do
+          expect(
+            DiscourseActivityPubActivity.exists?(
+              ap_id: new_post_json[:id],
+              ap_type: "Create",
+              actor_id: person.id
+            )
+          ).to be(false)
+        end
+  
+        it "logs a warning" do
+          expect(@fake_logger.warnings.last).to match(
+            I18n.t('discourse_activity_pub.process.warning.only_followed_actors_can_create_new')
+          )
+        end
       end
     end
   end

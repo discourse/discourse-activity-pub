@@ -74,31 +74,25 @@ RSpec.describe DiscourseActivityPubObject do
         collection.context = :announcement
       end
 
-      it "addresses the collection" do
-        expect(collection.audience).to eq(public_collection_id)
+      it "sets the collection audience" do
+        expect(collection.audience).to eq("#{group.ap_id}#followers")
       end
 
-      it "addresses all announce activities" do
+      it "sets announce activities' audience" do
         collection.items.each do |item|
-          expect(item.audience).to match_array(
-            ["#{group.ap_id}#followers", public_collection_id]
-          )
+          expect(item.audience).to eq("#{group.ap_id}#followers")
         end 
       end
 
-      it "addresses all announced activities" do
+      it "sets announced activities' audience" do
         collection.items.each do |item|
-          expect(item.object.audience).to match_array(
-            ["#{group.ap_id}#followers", public_collection_id]
-          )
+          expect(item.object.audience).to eq("#{group.ap_id}#followers")
         end
       end
 
-      it "addresses all notes" do
+      it "sets announced activities' notes' audience" do
         collection.items.each do |item|
-          expect(item.object.object.audience).to match_array(
-            ["#{group.ap_id}#followers", public_collection_id]
-          )
+          expect(item.object.object.audience).to eq("#{group.ap_id}#followers")
         end
       end
     end

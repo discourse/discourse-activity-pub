@@ -26,6 +26,10 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     items.any? { |item| item.private? }
   end
 
+  def public?
+    !private?
+  end
+
   def before_deliver
     @context = :activities
     after_published(Time.now.utc.iso8601)
@@ -45,11 +49,11 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   end
 
   def actor
-    model ? model.activity_pub_actor : object
+    model&.activity_pub_actor
   end
 
   def audience
-    @audience ||= public_collection_id
+    @audience ||= actor&.followers_collection&.ap_id
   end
 
   def items

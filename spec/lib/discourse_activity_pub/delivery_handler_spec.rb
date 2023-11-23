@@ -13,7 +13,8 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
         object_id: object_id || activity.id,
         object_type: object_type || 'DiscourseActivityPubActivity',
         from_actor_id: delivery_actor.id,
-        to_actor_id: follower.id
+        send_to: follower.inbox,
+        address_to: [follower.ap_id]
       },
       at: (delay || SiteSetting.activity_pub_delivery_delay_minutes).to_i.minutes.from_now
     }
@@ -120,7 +121,8 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
               object_id: activity.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: delivery_actor.id,
-              to_actor_id: follower.id
+              send_to: follower.inbox,
+              address_to: [follower.ap_id]
             }
             Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, job_args).once
             perform_delivery

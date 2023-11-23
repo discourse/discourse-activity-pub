@@ -26,7 +26,7 @@ module Jobs
       # TODO (future): use request in a Request Pool
       request = DiscourseActivityPub::Request.new(
         actor_id: from_actor.id,
-        uri: to_actor.inbox,
+        uri: @args[:send_to],
         body: delivery_json
       )
 
@@ -59,11 +59,11 @@ module Jobs
     end
 
     def has_required_args?
-      %i[object_id object_type from_actor_id to_actor_id].all? { |s| @args.key? s }
+      %i[object_id object_type from_actor_id send_to address_to].all? { |key| @args[key].present? }
     end
 
     def failure_tracker
-      @failure_tracker ||= DiscourseActivityPub::DeliveryFailureTracker.new(to_actor.inbox)
+      @failure_tracker ||= DiscourseActivityPub::DeliveryFailureTracker.new(@args[:address_to])
     end
 
     def object
@@ -74,12 +74,8 @@ module Jobs
       @from_actor ||= DiscourseActivityPubActor.find_by(id: @args[:from_actor_id])
     end
 
-    def to_actor
-      @to_actor ||= DiscourseActivityPubActor.find_by(id: @args[:to_actor_id])
-    end
-
     def actors_ready?
-      from_actor&.ready? && to_actor&.ready?
+      from_actor&.ready?
     end
 
     def object_ready?
@@ -108,7 +104,13 @@ module Jobs
     end
 
     def delivery_json
-      DiscourseActivityPub::JsonLd.address_json(delivery_object.ap.json, to_actor.ap_id)
+      address_args = {
+        to: @args[:address_to]
+      }
+      if delivery_object.public?
+        address_args[:cc] = DiscourseActivityPub::JsonLd.public_collection_id
+      end
+      DiscourseActivityPub::JsonLd.address_json(delivery_object.ap.json, address_args)
     end
 
     def log_failure(message)

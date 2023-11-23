@@ -20,6 +20,10 @@ module DiscourseActivityPub
         stored&.outbox
       end
 
+      def shared_inbox
+        stored&.shared_inbox
+      end
+
       def preferred_username
         stored&.username
       end
@@ -46,6 +50,10 @@ module DiscourseActivityPub
 
       def person?
         type == Person.type
+      end
+
+      def group?
+        type == Group.type
       end
 
       def public_key
