@@ -120,7 +120,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   def followers
     # If an Actor are attributed a Note in a Topic they become a follower of its Collection.
     # See further activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
-    objects.map(&:attributed_to_actor)
+    objects.map(&:attributed_to_actor).compact
   end
 
   protected
