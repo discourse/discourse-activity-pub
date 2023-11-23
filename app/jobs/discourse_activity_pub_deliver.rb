@@ -93,7 +93,7 @@ module Jobs
         if announcing?
           begin
             object.announce!(from_actor.id)
-            object.announcement
+            object
           rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
             log_failure(e.message)
           end
@@ -104,13 +104,15 @@ module Jobs
     end
 
     def delivery_json
+      # Ensure we have the right context before we generate the json
+      final_object = announcing? ? delivery_object.announcement : delivery_object
+
       address_args = {
         to: @args[:address_to]
       }
-      if delivery_object.public?
-        address_args[:cc] = DiscourseActivityPub::JsonLd.public_collection_id
-      end
-      DiscourseActivityPub::JsonLd.address_json(delivery_object.ap.json, address_args)
+      address_args[:cc] = DiscourseActivityPub::JsonLd.public_collection_id if object.public?
+
+      DiscourseActivityPub::JsonLd.address_json(final_object.ap.json, address_args)
     end
 
     def log_failure(message)
