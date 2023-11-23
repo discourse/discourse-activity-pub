@@ -804,15 +804,6 @@ after_initialize do
     end
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
-    if activity.composition?
-      unless activity.targets.first&.model&.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::ValidateError,
-          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
-      end
-    end
-  end
-
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
     reply_to_post = activity.object.stored.in_reply_to_post
 
@@ -820,6 +811,10 @@ after_initialize do
       if reply_to_post.trashed?
         raise DiscourseActivityPub::AP::Handlers::ValidateError,
           I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
+      end
+      unless reply_to_post.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::ValidateError,
+          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
       end
     else
       if activity.targets.blank?
@@ -833,7 +828,7 @@ after_initialize do
       target_model = activity.targets.first.model
       if !target_model&.respond_to?(:activity_pub_full_topic) || !target_model.activity_pub_full_topic
         raise DiscourseActivityPub::AP::Handlers::ValidateError,
-          I18n.t('discourse_activity_pub.process.warning.only_full_topic_actors_accept_new')
+          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
       end
     end
   end
@@ -849,6 +844,11 @@ after_initialize do
     if post.trashed?
       raise DiscourseActivityPub::AP::Handlers::ValidateError,
         I18n.t('discourse_activity_pub.process.warning.post_is_deleted')
+    end
+
+    unless post.activity_pub_full_topic
+      raise DiscourseActivityPub::AP::Handlers::ValidateError,
+        I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
     end
   end
 

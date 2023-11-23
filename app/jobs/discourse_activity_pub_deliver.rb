@@ -63,7 +63,7 @@ module Jobs
     end
 
     def failure_tracker
-      @failure_tracker ||= DiscourseActivityPub::DeliveryFailureTracker.new(@args[:address_to])
+      @failure_tracker ||= DiscourseActivityPub::DeliveryFailureTracker.new(@args[:send_to])
     end
 
     def object
