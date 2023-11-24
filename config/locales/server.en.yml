@@ -85,6 +85,8 @@ en:
         only_resolved_targets_accept_announce: "Only resolved targets accept announce activities."
         only_resolved_targets_accept_new: "Only resolved targets accept notes that are not replies."
         only_followed_actors_can_create_new: "Only followed actors can create notes that are not replies."
+      info:
+        process_started: "Processing JSON delivered to %{target}"
     activity:
       create:
         failed_to_create_user: "Failed to create user for %{actor_id}"

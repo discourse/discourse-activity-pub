@@ -115,32 +115,30 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
     end
 
     context "with a Note not inReplyTo another Note" do
-      let!(:object_json) { build_object_json }
+      let!(:target) { category.activity_pub_actor.ap_id }
+      let!(:object_json) { build_object_json(name: "My cool topic title") }
       let!(:new_post_json) {
         build_activity_json(
           actor: person,
           object: object_json,
-          type: 'Create',
-          to: [category.activity_pub_actor.ap_id]
+          type: 'Create'
         )
       }
 
-      context "when the target actor is following the create actor" do
+      context "when the target is following the create actor" do
         before do
           Fabricate(:discourse_activity_pub_follow,
             follower: category.activity_pub_actor,
             followed: person
           )
-          perform_process(new_post_json)
+          perform_process(new_post_json, target)
         end
   
         it "creates a new topic" do
-          post = Post.find_by(raw: new_post_json[:object][:content])
+          post = Post.find_by(raw: object_json[:content])
           expect(post.present?).to be(true)
           expect(post.topic.present?).to be(true)
-          expect(post.topic.title).to eq(
-            DiscourseActivityPub::ContentParser.get_title(object_json[:content])
-          )
+          expect(post.topic.title).to eq(object_json[:name])
           expect(post.post_number).to be(1)
         end
   
@@ -155,7 +153,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
       end
 
-      context "when the target actor is following the parent actor" do
+      context "when the target is following the parent actor" do
         let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
         let!(:announce_json) { 
           build_activity_json(
@@ -173,16 +171,15 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           )
           klass = DiscourseActivityPub::AP::Activity::Announce.new
           klass.json = announce_json
+          klass.target = target
           klass.process
         end
   
         it "creates a new topic" do
-          post = Post.find_by(raw: new_post_json[:object][:content])
+          post = Post.find_by(raw: object_json[:content])
           expect(post.present?).to be(true)
           expect(post.topic.present?).to be(true)
-          expect(post.topic.title).to eq(
-            DiscourseActivityPub::ContentParser.get_title(object_json[:content])
-          )
+          expect(post.topic.title).to eq(object_json[:name])
           expect(post.post_number).to be(1)
         end
   
@@ -202,7 +199,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           SiteSetting.activity_pub_verbose_logging = true
           @orig_logger = Rails.logger
           Rails.logger = @fake_logger = FakeLogger.new
-          perform_process(new_post_json)
+          perform_process(new_post_json, target)
         end
   
         after do

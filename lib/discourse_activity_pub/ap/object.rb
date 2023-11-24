@@ -9,6 +9,7 @@ module DiscourseActivityPub
 
       attr_writer :json
       attr_accessor :stored
+      attr_accessor :target
 
       def initialize(json: nil, stored: nil)
         @json = json
@@ -49,6 +50,14 @@ module DiscourseActivityPub
 
       def audience
         stored&.respond_to?(:audience) && stored.audience
+      end
+
+      def to
+        stored&.respond_to?(:to) && stored.to
+      end
+
+      def cc
+        stored&.respond_to?(:cc) && stored.cc
       end
 
       def start_time

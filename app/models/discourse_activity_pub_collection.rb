@@ -23,7 +23,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   end
 
   def private?
-    items.any? { |item| item.private? }
+    items.any? { |item| item.respond_to?(:private) && item.private? }
   end
 
   def public?
@@ -54,6 +54,14 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   def audience
     @audience ||= actor&.followers_collection&.ap_id
+  end
+
+  def to
+    audience
+  end
+
+  def cc
+    public? ? DiscourseActivityPub::JsonLd.public_collection_id : nil
   end
 
   def items
@@ -147,6 +155,7 @@ end
 #  published_at :datetime
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  name         :string
 #
 # Indexes
 #

@@ -50,6 +50,14 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     @audience ||= primary_actor.followers_collection.ap_id
   end
 
+  def to
+    audience
+  end
+
+  def cc
+    public? ? DiscourseActivityPub::JsonLd.public_collection_id : nil
+  end
+
   def primary_actor
     if parent && parent.parent && parent.parent.ap.activity?
       parent.parent.actor

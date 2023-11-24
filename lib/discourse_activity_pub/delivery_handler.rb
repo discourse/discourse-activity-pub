@@ -44,7 +44,6 @@ module DiscourseActivityPub
           if shared_inbox
             opts = {
               send_to: shared_inbox,
-              address_to: actors.map(&:ap_id)
             }
             opts[:delay] = delay unless delay.nil?
             schedule_delivery(**opts)
@@ -52,8 +51,7 @@ module DiscourseActivityPub
             # Recipient Actor does not have a shared inbox.
             actors.each do |actor|
               opts = {
-                send_to: actor.inbox,
-                address_to: [actor.ap_id],
+                send_to: actor.inbox
               }
               opts[:delay] = delay unless delay.nil?
               schedule_delivery(**opts)
@@ -62,22 +60,25 @@ module DiscourseActivityPub
         end
     end
 
-    def schedule_delivery(send_to: nil, address_to: [], delay: nil)
-      return unless send_to && address_to.present?
+    def schedule_delivery(send_to: nil, delay: nil)
+      return unless send_to.present?
+
+      if !Rails.env.test? && ENV['DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY'].present?
+        delay = ENV['DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY'].to_i
+      end
 
       args = {
         object_id: object.id,
         object_type: object.class.name,
         from_actor_id: actor.id,
-        send_to: send_to,
-        address_to: address_to
+        send_to: send_to
       }
 
       Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
 
       if delay
-        Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, args)
-        @scheduled_at = (Time.now.utc + delay.minutes).iso8601
+        Jobs.enqueue_in(delay.to_i.minutes, :discourse_activity_pub_deliver, args)
+        @scheduled_at = (Time.now.utc + delay.to_i.minutes).iso8601
       else
         Jobs.enqueue(:discourse_activity_pub_deliver, args)
         @scheduled_at = Time.now.utc.iso8601

@@ -64,7 +64,7 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil, to: nil, cc: nil, audience: nil)
+def build_object_json(id: nil, type: 'Note', name: nil, content: 'My cool note', in_reply_to: nil, published: nil, url: nil, to: nil, cc: nil, audience: nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
@@ -77,6 +77,7 @@ def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_t
   _json[:to] = to if to
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
+  _json[:name] = name if name
   _json
 end
 
@@ -126,9 +127,10 @@ def build_process_warning(key, object_id)
   "[Discourse Activity Pub] #{action}: #{message}"
 end
 
-def perform_process(json)
+def perform_process(json, target = nil)
   klass = described_class.new
   klass.json = json
+  klass.target = target if target
   klass.process
 end
 
@@ -163,6 +165,5 @@ end
 
 def published_json(object, args = {})
   object.before_deliver
-  args[:cc] = DiscourseActivityPub::JsonLd.public_collection_id if object.public?
-  DiscourseActivityPub::JsonLd.address_json(object.ap.json, args)
+  object.ap.json
 end

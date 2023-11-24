@@ -87,6 +87,14 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     @audience ||= activities.first&.audience
   end
 
+  def to
+    audience
+  end
+
+  def cc
+    public? ? DiscourseActivityPub::JsonLd.public_collection_id : nil
+  end
+
   def attributed_to_actor
     model&.activity_pub_actor
   end
@@ -129,7 +137,7 @@ end
 #  published_at  :datetime
 #  url           :string
 #  domain        :string
-#  summary       :string
+#  name          :string
 #
 # Indexes
 #

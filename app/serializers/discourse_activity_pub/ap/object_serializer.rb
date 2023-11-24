@@ -4,6 +4,8 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   attributes :id,
              :type,
              :audience,
+             :to,
+             :cc,
              :published,
              :updated,
              :url,
@@ -23,6 +25,14 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
 
   def include_audience?
     object.audience.present?
+  end
+
+  def include_to?
+    object.to.present?
+  end
+
+  def include_cc?
+    object.cc.present?
   end
 
   def include_published?

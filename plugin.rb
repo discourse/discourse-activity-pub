@@ -792,18 +792,21 @@ after_initialize do
     end
   end
 
-  # Currently we only resolve a primary target ('to') if it is an existing local Group (Category).
-  # We still process activities targeted at a Person (User) if they concern an existing Note (Post), 
-  # i.e. a Reply, Update, Delete or Like, in which case we don't need to resolve the target Actor
-  # as we validate and process the Activity Actor and Object directly (see Activity handlers below).
+  # Currently, we add a target (ap_id) to activities received to a specific actor's inbox. See 
+  # app/controllers/discourse_activity_pub/ap/inboxes_controller.rb. We only proccess targets in this
+  # handler that are existing local Groups (Categories). We still process activities sent to a Person
+  # (User), whether to the shared users inbox, or a user's personal inbox, if they concern an existing
+  # Note (Post), i.e. a Reply, Update, Delete or Like, in which case we don't need a target as we
+  # validate and process the activity actor and object directly (see handlers below).
   # See futher https://www.w3.org/TR/activitystreams-vocabulary/#audienceTargeting
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :target) do |activity|
-    ([*activity.json[:to]] || []).each do |target|
-      actor = DiscourseActivityPubActor.find_by(ap_id: target, local: true)
-
-      if actor&.ap.group?
-        activity.targets << actor
-      end
+    if activity.target.present?
+      actor = DiscourseActivityPubActor.find_by(
+        ap_id: activity.target,
+        local: true,
+        ap_type: DiscourseActivityPub::AP::Actor::Group.type
+      )
+      activity.targets << actor if actor
     end
   end
 

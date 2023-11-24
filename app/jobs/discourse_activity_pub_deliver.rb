@@ -42,8 +42,10 @@ module Jobs
       end
     ensure
       if @delivered
+        log_success
         failure_tracker.track_success
       else
+        log_failure
         failure_tracker.track_failure
       end
 
@@ -59,7 +61,7 @@ module Jobs
     end
 
     def has_required_args?
-      %i[object_id object_type from_actor_id send_to address_to].all? { |key| @args[key].present? }
+      %i[object_id object_type from_actor_id send_to].all? { |key| @args[key].present? }
     end
 
     def failure_tracker
@@ -104,21 +106,22 @@ module Jobs
     end
 
     def delivery_json
-      # Ensure we have the right context before we generate the json
-      final_object = announcing? ? delivery_object.announcement : delivery_object
-
-      address_args = {
-        to: @args[:address_to]
-      }
-      address_args[:cc] = DiscourseActivityPub::JsonLd.public_collection_id if object.public?
-
-      DiscourseActivityPub::JsonLd.address_json(final_object.ap.json, address_args)
+      @delivery_json ||= begin
+        final_object = announcing? ? delivery_object.announcement : delivery_object
+        final_object.ap.json
+      end
     end
 
-    def log_failure(message)
+    def log_failure(message = "Failed to POST")
       return false unless SiteSetting.activity_pub_verbose_logging
       prefix = "#{from_actor.ap_id} failed to deliver #{object&.ap_id}"
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
+    end
+  
+    def log_success
+      return false unless SiteSetting.activity_pub_verbose_logging
+      prefix = "JSON delivered to #{@args[:send_to]}"
+      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{JSON.generate(delivery_json)}")
     end
   end
 end
