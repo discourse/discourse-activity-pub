@@ -4,12 +4,18 @@ import { inject as service } from "@ember/service";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 
 export default class ActivityPubCategoryNav extends Component {
-  @service currentUser;
   @service router;
 
+  get showFollows() {
+    return this.args.category.can_edit;
+  }
+
+  get onFollowsRoute() {
+    return this.router.currentRouteName === "activityPub.category.follows";
+  }
+
   get showCreateFollow() {
-    return this.currentUser?.admin &&
-      this.router.currentRouteName === "activityPub.category.follows";
+    return this.showFollows && this.onFollowsRoute;
   }
 
   <template>
@@ -18,7 +24,7 @@ export default class ActivityPubCategoryNav extends Component {
         <NavItem
           @route="activityPub.category.followers"
           @label="discourse_activity_pub.category_nav.followers" />
-        {{#if this.currentUser.admin}}
+        {{#if this.showFollows}}
           <NavItem
             @route="activityPub.category.follows"
             @label="discourse_activity_pub.category_nav.follows" />

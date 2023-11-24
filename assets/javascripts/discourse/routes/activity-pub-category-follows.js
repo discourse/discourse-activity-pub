@@ -2,6 +2,7 @@ import DiscourseRoute from "discourse/routes/discourse";
 import { A } from "@ember/array";
 import ActivityPubCategory from "../models/activity-pub-category";
 import { bind } from "discourse-common/utils/decorators";
+import Category from "discourse/models/category";
 
 export default DiscourseRoute.extend({
   queryParams: {
@@ -9,18 +10,36 @@ export default DiscourseRoute.extend({
     asc: { refreshModel: true },
   },
 
-  model(params) {
-    const category = this.modelFor("activityPub.category").category;
-    return ActivityPubCategory.listActors(category, params, "follows");
+  model() {
+    return Category.reloadCategoryWithPermissions(
+      { slug: this.modelFor("activityPub.category").slug },
+      this.store,
+      this.site
+    );
+  },
+
+  afterModel(model, transition) {
+    const category = model;
+
+    if (!category.can_edit) {
+      this.router.replaceWith("/404");
+      return;
+    }
+
+    return ActivityPubCategory.listActors(
+      category.id,
+      transition.to.queryParams,
+      "follows"
+    ).then((response) => this.setProperties(response));
   },
 
   setupController(controller, model) {
     controller.setProperties({
       model: ActivityPubCategory.create({
-        category: model.category,
-        actors: A(model.actors || []),
-        loadMoreUrl: model.meta?.load_more_url,
-        total: model.meta?.total,
+        category: model,
+        actors: A(this.actors || []),
+        loadMoreUrl: this.meta?.load_more_url,
+        total: this.meta?.total,
       }),
     });
   },

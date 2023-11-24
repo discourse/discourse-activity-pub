@@ -8,18 +8,26 @@ export default DiscourseRoute.extend({
     asc: { refreshModel: true },
   },
 
-  model(params) {
-    const category = this.modelFor("activityPub.category").category;
-    return ActivityPubCategory.listActors(category, params, "followers");
+  model() {
+    return this.modelFor("activityPub.category");
+  },
+
+  afterModel(model, transition) {
+    const category = model;
+    return ActivityPubCategory.listActors(
+      category.id,
+      transition.to.queryParams,
+      "followers"
+    ).then((response) => this.setProperties(response));
   },
 
   setupController(controller, model) {
     controller.setProperties({
       model: ActivityPubCategory.create({
-        category: model.category,
-        actors: A(model.actors || []),
-        loadMoreUrl: model.meta?.load_more_url,
-        total: model.meta?.total,
+        category: model,
+        actors: A(this.actors || []),
+        loadMoreUrl: this.meta?.load_more_url,
+        total: this.meta?.total,
       }),
     });
   },

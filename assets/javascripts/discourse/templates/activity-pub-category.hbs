@@ -1,13 +1,13 @@
 <Discovery::Navigation
   @createTopic={{fn
     this.composer.openNewTopic
-    (hash category=this.model.category preferDraft=true)
+    (hash category=this.model preferDraft=true)
   }}
-  @category={{this.model.category}}
+  @category={{this.model}}
 />
 
-<ActivityPubCategoryBanner @category={{this.model.category}} />
+<ActivityPubCategoryBanner @category={{this.model}} />
 
-<ActivityPubCategoryNav @category={{this.model.category}} @follow={{route-action "follow"}} />
+<ActivityPubCategoryNav @category={{this.model}} @follow={{route-action "follow"}} />
 
 {{outlet}}

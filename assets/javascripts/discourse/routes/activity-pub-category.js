@@ -8,9 +8,7 @@ export default DiscourseRoute.extend({
   router: service(),
 
   model(params) {
-    return {
-      category: Category.findById(params.category_id),
-    };
+    return Category.findById(params.category_id);
   },
 
   setupController(controller, model) {

@@ -28,7 +28,7 @@ const ActivityPubCategory = EmberObject.extend({
 });
 
 ActivityPubCategory.reopenClass({
-  listActors(category, params, listType) {
+  listActors(categoryId, params, listType) {
     const queryParams = new URLSearchParams();
 
     if (params.order) {
@@ -39,16 +39,14 @@ ActivityPubCategory.reopenClass({
       queryParams.set("asc", params.asc);
     }
 
-    const path = `/ap/category/${category.id}/${listType}`;
+    const path = `/ap/category/${categoryId}/${listType}`;
 
     let url = `${path}.json`;
     if (queryParams.size) {
       url += `?${queryParams.toString()}`;
     }
 
-    return ajax(url)
-      .then((response) => ({ category, ...response }))
-      .catch(popupAjaxError);
+    return ajax(url).catch(popupAjaxError);
   },
 });
 
