@@ -55,7 +55,7 @@ export default DiscourseRoute.extend({
   @bind
   handleMessage(data) {
     const model = data.model;
-    const category = this.modelFor("activityPub.category").category;
+    const category = this.modelFor("activityPub.category");
     if (model && model.type === "category" && model.id === category.id) {
       this.refresh();
     }

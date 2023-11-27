@@ -43,7 +43,7 @@ en:
         follows: Follows
       banner:
         text: Follow %{category_name} on any service that supports federation
-        mobile_text: Federated
+        responsive_text: Federated
         public_full_topic: Each post of each topic will be published publicly via ActivityPub.
         public_first_post: The first post of each topic will be published publicly via ActivityPub.
         followers_only_full_topic: Each post of each topic is published to ActivityPub followers only.

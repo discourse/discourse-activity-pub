@@ -16,9 +16,14 @@ export default class ActivityPubCategoryBanner extends Component {
     return I18n.t(`discourse_activity_pub.banner.${visibility}_${publicationType}`);
   }
 
-  get bannerText() {
-    const key = this.site.mobileView ? 'mobile_text' : 'text';
-    return I18n.t(`discourse_activity_pub.banner.${key}`, {
+  get responsiveText() {
+    return I18n.t("discourse_activity_pub.banner.responsive_text", {
+      category_name: this.args.category.name
+    });
+  }
+
+  get desktopText() {
+    return I18n.t("discourse_activity_pub.banner.text", {
       category_name: this.args.category.name
     });
   }
@@ -31,9 +36,10 @@ export default class ActivityPubCategoryBanner extends Component {
             @icon="discourse-activity-pub"
             @content={{this.bannerDescription}}
           />
-          <span class="activity-pub-category-banner-text">
-            {{this.bannerText}}
-          </span>
+          <div class="activity-pub-category-banner-text">
+            <span class="desktop">{{this.desktopText}}</span>
+            <span class="responsive">{{this.responsiveText}}</span>
+          </div>
         </div>
         <div class="activity-pub-category-banner-right activity-pub-category-banner-side">
           {{#unless this.site.mobileView}}

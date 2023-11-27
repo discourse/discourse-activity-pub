@@ -233,6 +233,7 @@ body.user-preferences-activity-pub-page {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  container-type: inline-size;
 
   .activity-pub-category-banner-side {
     display: flex;
@@ -241,6 +242,26 @@ body.user-preferences-activity-pub-page {
 
   .fk-d-tooltip__trigger {
     margin-left: 0.5em;
+  }
+}
+
+.activity-pub-category-banner-text {
+  .desktop {
+    display: block;
+  }
+  .responsive {
+    display: none;
+  }
+}
+
+@container (max-width: 47em) {
+  .activity-pub-category-banner-text {
+    .desktop {
+      display: none;
+    }
+    .responsive {
+      display: block;
+    }
   }
 }
 
@@ -270,33 +291,26 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-follow-table-actor {
-  justify-content: flex-start;
-}
-
-@media all and (max-width: 1000px) {
-  .activity-pub-category-banner .activity-pub-handle,
+@container (max-width: 47em) {
   .activity-pub-follow-table-user,
   .activity-pub-follow-table-followed-at {
     display: none;
   }
-  .directory-table__cell:first-child {
-    padding: unset;
+  .activity-pub-follow-table-actions {
     width: 100%;
+    padding: 0.5em 0.25em 1em;
+    justify-content: start;
     grid-column-start: 1;
     grid-column-end: -1;
-    justify-content: start;
-    border: none;
-  }
-
-  .activity-pub-follow-table-actions {
-    margin-top: 1em;
-    padding: unset;
 
     .activity-pub-actor-unfollow-btn {
       width: 100%;
     }
   }
+}
+
+.activity-pub-follow-table-actor {
+  justify-content: flex-start;
 }
 
 .activity-pub-follow-controls {
