@@ -1,6 +1,4 @@
-@import "common/components/buttons";
-
-@mixin description-text {
+@mixin ap-description-text {
   color: var(--primary-medium);
   margin-top: 4px;
   margin-bottom: 10px;
@@ -54,7 +52,7 @@ div.activity-pub-status {
   }
 
   .activity-pub-setting-description {
-    @include description-text;
+    @include ap-description-text;
   }
 
   .activity-pub-setting-notice {
@@ -101,15 +99,10 @@ div.activity-pub-status {
     overflow: hidden;
     white-space: nowrap;
   }
-
-  button,
-  a {
-    @extend .btn-flat;
-  }
 }
 
 .activity-pub-handle-description {
-  @include description-text;
+  @include ap-description-text;
 }
 
 .activity-pub-discovery-dropdown {
@@ -285,15 +278,10 @@ body.user-preferences-activity-pub-page {
 
 .activity-pub-follow-domain-controls {
   display: flex;
-  align-items: center;
-
-  input {
-    margin: 0;
-  }
 }
 
 .activity-pub-follow-domain-footer {
-  @include description-text;
+  @include ap-description-text;
 
   &.error {
     color: var(--danger);
