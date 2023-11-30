@@ -18,21 +18,30 @@ RSpec.describe Topic do
   let!(:post1) { Fabricate(:post, topic: topic1) }
   let!(:post2) { Fabricate(:post, topic: topic1) }
   let!(:post3) { Fabricate(:post, topic: topic1) }
-  let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection1.id) }
-  let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection1.id) }
-  let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3, collection_id: collection1.id) }
+  let!(:note1) do
+    Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection1.id)
+  end
+  let!(:note2) do
+    Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection1.id)
+  end
+  let!(:note3) do
+    Fabricate(:discourse_activity_pub_object_note, model: post3, collection_id: collection1.id)
+  end
   let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, object: note1) }
   let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, object: note2) }
   let!(:activity3) { Fabricate(:discourse_activity_pub_activity_create, object: note3) }
 
   describe "move_posts" do
-    before do
-      toggle_activity_pub(category1, callbacks: true, publication_type: 'full_topic')
-    end
+    before { toggle_activity_pub(category1, callbacks: true, publication_type: "full_topic") }
 
     context "with an ap full_topic topic to a new ap full_topic topic" do
       before do
-        topic1.move_posts(user1, [post1.id, post3.id], title: "New topic in ap category", category_id: category1.id)
+        topic1.move_posts(
+          user1,
+          [post1.id, post3.id],
+          title: "New topic in ap category",
+          category_id: category1.id,
+        )
         @new_topic = post3.reload.topic
         @first_post = @new_topic.first_post
       end
@@ -89,7 +98,12 @@ RSpec.describe Topic do
 
     context "with an ap full_topic topic to a new non ap topic" do
       before do
-        topic1.move_posts(user1, [post1.id, post3.id], title: "New topic in another category", category_id: category2.id)
+        topic1.move_posts(
+          user1,
+          [post1.id, post3.id],
+          title: "New topic in another category",
+          category_id: category2.id,
+        )
         @new_topic = post3.reload.topic
         @first_post = @new_topic.first_post
       end
@@ -116,7 +130,12 @@ RSpec.describe Topic do
 
     context "with an ap full_topic topic to an existing non ap topic" do
       before do
-        topic1.move_posts(user1, [post1.id, post3.id], destination_topic_id: topic3.id, category_id: category2.id)
+        topic1.move_posts(
+          user1,
+          [post1.id, post3.id],
+          destination_topic_id: topic3.id,
+          category_id: category2.id,
+        )
         @first_post = topic3.first_post
       end
 

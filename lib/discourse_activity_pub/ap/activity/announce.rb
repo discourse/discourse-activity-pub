@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Announce < Activity
         def type
-          'Announce'
+          "Announce"
         end
       end
     end

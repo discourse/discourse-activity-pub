@@ -7,11 +7,11 @@ RSpec.describe PostDestroyer do
   let!(:post1) { Fabricate(:post, user: user, topic: topic) }
   let!(:post2) { Fabricate(:post, user: user) }
   let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
-  let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now) }
-
-  before do
-    toggle_activity_pub(category, callbacks: true)
+  let!(:activity) do
+    Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now)
   end
+
+  before { toggle_activity_pub(category, callbacks: true) }
 
   def perform_destroy(post)
     PostDestroyer.new(user, post).destroy

@@ -25,15 +25,15 @@ RSpec.describe DiscourseActivityPub::ContentParser do
     end
 
     it "does not convert local hashtags" do
-      Fabricate(:category, name: 'pavilion')
-      Fabricate(:tag, name: 'Discourse')
+      Fabricate(:category, name: "pavilion")
+      Fabricate(:tag, name: "Discourse")
       content = "This plugin is being developed by #pavilion for #Discourse"
       post = Fabricate(:post, raw: content)
       expect(described_class.get_content(post)).to eq(content)
     end
 
     it "does not convert local mentions" do
-      Fabricate(:user, username: 'angus')
+      Fabricate(:user, username: "angus")
       content = "This plugin is being developed by @angus@mastodon.pavilion.tech"
       post = Fabricate(:post, raw: content)
       expect(described_class.get_content(post)).to eq(content)
@@ -41,20 +41,17 @@ RSpec.describe DiscourseActivityPub::ContentParser do
 
     context "with Article" do
       it "returns all cooked content" do
-        Post.any_instance.stubs(:activity_pub_object_type).returns('Article')
+        Post.any_instance.stubs(:activity_pub_object_type).returns("Article")
         post = Fabricate(:post_with_very_long_raw_content)
         expect(described_class.get_content(post)).to eq(described_class.cook(post.raw))
       end
     end
 
     context "with Note" do
-      before do
-        Post.any_instance.stubs(:activity_pub_object_type).returns('Note')
-      end
+      before { Post.any_instance.stubs(:activity_pub_object_type).returns("Note") }
 
       context "with markdown" do
-        let(:raw_markdown) {
-          <<~STRING
+        let(:raw_markdown) { <<~STRING }
             # First Header
 
             ## Second Header
@@ -67,9 +64,7 @@ RSpec.describe DiscourseActivityPub::ContentParser do
 
             [Link](https://discourse.org)
           STRING
-        }
-        let(:cooked_markdown) {
-          <<~HTML
+        let(:cooked_markdown) { <<~HTML }
             <h1>First Header</h1>
             <h2>Second Header</h2>
             <h3>Third Header</h3>
@@ -77,12 +72,9 @@ RSpec.describe DiscourseActivityPub::ContentParser do
             Paragraph
             <a href="https://discourse.org">Link</a>
           HTML
-        }
         let!(:post) { Fabricate(:post, raw: raw_markdown) }
 
-        before do
-          SiteSetting.activity_pub_note_excerpt_maxlength = 1000
-        end
+        before { SiteSetting.activity_pub_note_excerpt_maxlength = 1000 }
 
         it "returns html" do
           expect(described_class.get_content(post)).to eq(cooked_markdown.strip)

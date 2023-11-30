@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class OAuthController < AuthController
       skip_before_action :preload_json, :check_xhr, only: [:redirect]
 
-      before_action :get_domain, only: [:authorize, :redirect]
+      before_action :get_domain, only: %i[authorize redirect]
 
       AUTHORIZE_DOMAIN_KEY = "activity_pub_authorize_domain"
       SESSION_EXPIRY_MINUTES = 10
@@ -39,17 +39,21 @@ module DiscourseActivityPub
 
         access_token = OAuth.get_token(@domain, params[:code])
 
-        raise Discourse::InvalidAccess.new(
-          I18n.t("discourse_activity_pub.auth.error.failed_to_authorize")
-        ) unless access_token
+        unless access_token
+          raise Discourse::InvalidAccess.new(
+                  I18n.t("discourse_activity_pub.auth.error.failed_to_authorize"),
+                )
+        end
 
         current_user.activity_pub_save_access_token(@domain, access_token)
 
         actor_id = OAuth.get_actor_id(@domain, access_token)
 
-        raise Discourse::NotFound.new(
-          I18n.t("discourse_activity_pub.auth.error.failed_to_get_actor")
-        ) unless actor_id
+        unless actor_id
+          raise Discourse::NotFound.new(
+                  I18n.t("discourse_activity_pub.auth.error.failed_to_get_actor"),
+                )
+        end
 
         current_user.activity_pub_save_actor_id(@domain, actor_id)
 
@@ -72,9 +76,11 @@ module DiscourseActivityPub
       def get_domain
         @domain = secure_session[AUTHORIZE_DOMAIN_KEY]
 
-        raise Discourse::InvalidAccess.new(
-          I18n.t("discourse_activity_pub.auth.error.oauth_session_expired")
-        ) unless @domain
+        unless @domain
+          raise Discourse::InvalidAccess.new(
+                  I18n.t("discourse_activity_pub.auth.error.oauth_session_expired"),
+                )
+        end
       end
 
       def set_domain(domain)

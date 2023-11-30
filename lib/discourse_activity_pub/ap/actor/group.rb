@@ -5,21 +5,21 @@ module DiscourseActivityPub
     class Actor
       class Group < Actor
         def type
-          'Group'
+          "Group"
         end
 
         def can_belong_to
-          %i(category)
+          %i[category]
         end
 
         def can_perform_activity
           {
             accept: [:follow],
             reject: [:follow],
-            create: [:note, :article],
-            delete: [:note, :article],
-            update: [:note, :article],
-            announce: [:create, :update, :delete, :ordered_collection]
+            create: %i[note article],
+            delete: %i[note article],
+            update: %i[note article],
+            announce: %i[create update delete ordered_collection],
           }
         end
       end

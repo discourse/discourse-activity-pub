@@ -10,6 +10,8 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
   protected
 
   def ensure_activity_exists
-    render_activity_pub_error("not_found", 404) unless @activity = DiscourseActivityPubActivity.find_by(ap_key: params[:key])
+    unless @activity = DiscourseActivityPubActivity.find_by(ap_key: params[:key])
+      render_activity_pub_error("not_found", 404)
+    end
   end
 end

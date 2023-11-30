@@ -2,9 +2,7 @@
 
 module DiscourseActivityPub
   class WebfingerSerializer < ActiveModel::Serializer
-    attributes :subject,
-               :aliases,
-               :links
+    attributes :subject, :aliases, :links
 
     def subject
       object.webfinger_uri

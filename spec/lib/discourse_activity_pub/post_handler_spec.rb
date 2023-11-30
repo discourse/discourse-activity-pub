@@ -7,16 +7,16 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     let(:topic) { Fabricate(:topic, category: category) }
     let!(:post) { Fabricate(:post, topic: topic) }
     let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-    let!(:object) { Fabricate(:discourse_activity_pub_object_note, model: nil, reply_to_id: note.ap_id) }
-
-    before do
-      topic.create_activity_pub_collection!
+    let!(:object) do
+      Fabricate(:discourse_activity_pub_object_note, model: nil, reply_to_id: note.ap_id)
     end
+
+    before { topic.create_activity_pub_collection! }
 
     context "when object has a model" do
       before do
         reply = Fabricate(:post)
-        object.update(model_id: reply.id, model_type: 'Post')
+        object.update(model_id: reply.id, model_type: "Post")
       end
 
       it "does nothing" do
@@ -25,9 +25,7 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     end
 
     context "when object is not in reply to another object" do
-      before do
-        object.update(reply_to_id: nil)
-      end
+      before { object.update(reply_to_id: nil) }
 
       it "does nothing" do
         expect(described_class.create(user, object)).to eq(nil)
@@ -37,9 +35,7 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     it "skips validations and events" do
       PostCreator
         .expects(:create!)
-        .with do |user, opts|
-          opts[:skip_validations] && opts[:skip_events]
-        end
+        .with { |user, opts| opts[:skip_validations] && opts[:skip_events] }
       described_class.create(user, object)
     end
 

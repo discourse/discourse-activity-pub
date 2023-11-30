@@ -9,25 +9,22 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Activity::Compose }
 
-  describe '#process' do
+  describe "#process" do
     before do
-      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
       topic.create_activity_pub_collection!
     end
 
     context "with Note inReplyTo to a Note" do
       let!(:original_object) { Fabricate(:discourse_activity_pub_object_note, model: post) }
       let(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
-      let(:reply_json) {
+      let(:reply_json) do
         build_activity_json(
           actor: person,
-          object: build_object_json(
-            in_reply_to: original_object.ap_id,
-            url: reply_external_url
-          ),
-          type: 'Create'
+          object: build_object_json(in_reply_to: original_object.ap_id, url: reply_external_url),
+          type: "Create",
         )
-      }
+      end
 
       before do
         freeze_time
@@ -47,8 +44,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           DiscourseActivityPubActivity.where(
             ap_id: reply_json[:id],
             ap_type: "Create",
-            actor_id: person.id
-          ).size
+            actor_id: person.id,
+          ).size,
         ).to be(1)
       end
 
@@ -58,23 +55,21 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             ap_type: "Note",
             model_id: Post.find_by(raw: reply_json[:object][:content]).id,
             model_type: "Post",
-            domain: "external.com"
-          ).size
+            domain: "external.com",
+          ).size,
         ).to be(1)
       end
     end
 
     context "with a Note inReplyTo a Note associated with a deleted Post" do
       let!(:original_object) { Fabricate(:discourse_activity_pub_object_note) }
-      let(:reply_json) {
+      let(:reply_json) do
         build_activity_json(
           actor: person,
-          object: build_object_json(
-            in_reply_to: original_object.ap_id
-          ),
-          type: 'Create'
+          object: build_object_json(in_reply_to: original_object.ap_id),
+          type: "Create",
         )
-      }
+      end
 
       before do
         SiteSetting.activity_pub_verbose_logging = true
@@ -90,9 +85,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       end
 
       it "does not create a post" do
-        expect(
-          Post.exists?(raw: reply_json[:object][:content])
-        ).to be(false)
+        expect(Post.exists?(raw: reply_json[:object][:content])).to be(false)
       end
 
       it "does not create an activity" do
@@ -100,26 +93,22 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           DiscourseActivityPubActivity.exists?(
             ap_id: reply_json[:id],
             ap_type: "Create",
-            actor_id: person.id
-          )
+            actor_id: person.id,
+          ),
         ).to be(false)
       end
 
       it "logs a warning" do
         expect(@fake_logger.warnings.last).to match(
-          I18n.t('discourse_activity_pub.process.warning.not_a_reply')
+          I18n.t("discourse_activity_pub.process.warning.not_a_reply"),
         )
       end
     end
 
     context "with a Note not inReplyTo another Note" do
-      let(:new_post_json) {
-        build_activity_json(
-          actor: person,
-          object: build_object_json,
-          type: 'Create'
-        )
-      }
+      let(:new_post_json) do
+        build_activity_json(actor: person, object: build_object_json, type: "Create")
+      end
 
       before do
         SiteSetting.activity_pub_verbose_logging = true
@@ -134,9 +123,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       end
 
       it "does not create a post" do
-        expect(
-          Post.exists?(raw: new_post_json[:object][:content])
-        ).to be(false)
+        expect(Post.exists?(raw: new_post_json[:object][:content])).to be(false)
       end
 
       it "does not create an activity" do
@@ -144,14 +131,14 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           DiscourseActivityPubActivity.exists?(
             ap_id: new_post_json[:id],
             ap_type: "Create",
-            actor_id: person.id
-          )
+            actor_id: person.id,
+          ),
         ).to be(false)
       end
 
       it "logs a warning" do
         expect(@fake_logger.warnings.last).to match(
-          I18n.t('discourse_activity_pub.process.warning.not_a_reply')
+          I18n.t("discourse_activity_pub.process.warning.not_a_reply"),
         )
       end
     end

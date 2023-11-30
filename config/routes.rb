@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 DiscourseActivityPub::Engine.routes.draw do
-  scope '/post', defaults: { format: :json } do
+  scope "/post", defaults: { format: :json } do
     post "schedule/:post_id" => "post#schedule"
     delete "schedule/:post_id" => "post#unschedule"
   end
 
-  scope '/category' do
+  scope "/category" do
     get "/:category_id" => "category#index"
     get "/:category_id/followers" => "category#followers"
   end
 
-  scope module: 'a_p' do
+  scope module: "a_p" do
     get "actor/:key" => "actors#show"
     post "actor/:key/inbox" => "inboxes#create"
     get "actor/:key/outbox" => "outboxes#index"
@@ -20,7 +20,7 @@ DiscourseActivityPub::Engine.routes.draw do
     get "object/:key" => "objects#show"
   end
 
-  get "auth" => "auth#index", defaults: { format: :json }
+  get "auth" => "auth#index", :defaults => { format: :json }
   scope module: "auth", path: "auth", defaults: { format: :json } do
     delete "authorization" => "authorization#destroy"
 

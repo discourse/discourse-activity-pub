@@ -6,7 +6,7 @@ RSpec.describe DiscourseActivityPubActor do
   describe "#create" do
     context "with an invalid model and activity pub type" do
       it "raises an error" do
-        expect{
+        expect {
           described_class.create!(
             local: true,
             model_id: category.id,
@@ -14,7 +14,7 @@ RSpec.describe DiscourseActivityPubActor do
             username: category.slug,
             ap_id: "foo",
             domain: "domain.com",
-            ap_type: DiscourseActivityPub::AP::Actor::Person.type
+            ap_type: DiscourseActivityPub::AP::Actor::Person.type,
           )
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
@@ -22,15 +22,16 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "with a valid model and activity pub type" do
       before do
-        @actor = described_class.create!(
-          local: true,
-          model_id: category.id,
-          model_type: category.class.name,
-          username: category.slug,
-          ap_id: "foo",
-          domain: "domain.com",
-          ap_type: DiscourseActivityPub::AP::Actor::Group.type
-        )
+        @actor =
+          described_class.create!(
+            local: true,
+            model_id: category.id,
+            model_type: category.class.name,
+            username: category.slug,
+            ap_id: "foo",
+            domain: "domain.com",
+            ap_type: DiscourseActivityPub::AP::Actor::Group.type,
+          )
       end
 
       it "creates an actor" do
@@ -46,12 +47,12 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "with no username" do
       it "raises an error" do
-        expect{
+        expect {
           described_class.create!(
             local: true,
             model_id: category.id,
             model_type: category.class.name,
-            ap_type: DiscourseActivityPub::AP::Actor::Person.type
+            ap_type: DiscourseActivityPub::AP::Actor::Person.type,
           )
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
@@ -59,14 +60,15 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "with a username" do
       it "creates an actor " do
-        actor = described_class.create!(
-          local: true,
-          model_id: category.id,
-          model_type: category.class.name,
-          ap_id: "foo",
-          ap_type: DiscourseActivityPub::AP::Actor::Group.type,
-          username: category.slug
-        )
+        actor =
+          described_class.create!(
+            local: true,
+            model_id: category.id,
+            model_type: category.class.name,
+            ap_id: "foo",
+            ap_type: DiscourseActivityPub::AP::Actor::Group.type,
+            username: category.slug,
+          )
         expect(actor.errors.any?).to eq(false)
         expect(actor.persisted?).to eq(true)
       end
@@ -75,16 +77,19 @@ RSpec.describe DiscourseActivityPubActor do
     context "with a remote actor with the same username" do
       let!(:username) { "angus" }
       let!(:user) { Fabricate(:user, username: username) }
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, username: username, local: false) }
+      let!(:actor) do
+        Fabricate(:discourse_activity_pub_actor_person, username: username, local: false)
+      end
 
       it "creates an actor" do
-        actor = described_class.create!(
-          local: true,
-          model_id: user.id,
-          model_type: user.class.name,
-          ap_type: DiscourseActivityPub::AP::Actor::Person.type,
-          username: user.username
-        )
+        actor =
+          described_class.create!(
+            local: true,
+            model_id: user.id,
+            model_type: user.class.name,
+            ap_type: DiscourseActivityPub::AP::Actor::Person.type,
+            username: user.username,
+          )
         expect(actor.errors.any?).to eq(false)
         expect(actor.persisted?).to eq(true)
       end
@@ -93,16 +98,18 @@ RSpec.describe DiscourseActivityPubActor do
     context "with a local actor with the same username" do
       let!(:username) { "angus" }
       let!(:user) { Fabricate(:user, username: username) }
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, username: username, local: true) }
+      let!(:actor) do
+        Fabricate(:discourse_activity_pub_actor_person, username: username, local: true)
+      end
 
       it "raises an error" do
-        expect{
+        expect {
           described_class.create!(
             local: true,
             model_id: user.id,
             model_type: user.class.name,
             ap_type: DiscourseActivityPub::AP::Actor::Person.type,
-            username: user.username
+            username: user.username,
           )
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
@@ -120,22 +127,21 @@ RSpec.describe DiscourseActivityPubActor do
     end
 
     context "with activity pub enabled on the object" do
-      before do
-        toggle_activity_pub(category)
-      end
+      before { toggle_activity_pub(category) }
 
       it "ensures a valid actor exists" do
         described_class.ensure_for(category.reload)
         expect(category.activity_pub_actor.present?).to eq(true)
-        expect(category.activity_pub_actor.ap_type).to eq('Group')
+        expect(category.activity_pub_actor.ap_type).to eq("Group")
       end
 
       it "publishes activity pub state" do
-        message = MessageBus.track_publish("/activity-pub") do
-          described_class.ensure_for(category.reload)
-        end.first
+        message =
+          MessageBus
+            .track_publish("/activity-pub") { described_class.ensure_for(category.reload) }
+            .first
         expect(message.data).to eq(
-          { model: { id: category.id, type: "category", ready: true, enabled: true } }
+          { model: { id: category.id, type: "category", ready: true, enabled: true } },
         )
       end
 

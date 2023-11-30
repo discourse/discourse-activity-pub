@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::CollectionSerializer < DiscourseActivityPub::AP::ObjectSerializer
-  attributes :items,
-             :totalItems,
-             :summary
+  attributes :items, :totalItems, :summary
 
   def items
     object.items.map(&:json)

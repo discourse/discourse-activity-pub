@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Create < Compose
         def type
-          'Create'
+          "Create"
         end
       end
     end

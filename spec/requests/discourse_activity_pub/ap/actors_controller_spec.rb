@@ -5,9 +5,7 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
-  before do
-    SiteSetting.activity_pub_require_signed_requests = false
-  end
+  before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid actor" do
     it "returns a not found error" do
@@ -39,9 +37,7 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
   end
 
   describe "#show" do
-    before do
-      toggle_activity_pub(actor.model)
-    end
+    before { toggle_activity_pub(actor.model) }
 
     it "returns actor json" do
       get_object(actor)

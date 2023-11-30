@@ -5,9 +5,7 @@ module DiscourseActivityPub
     class Authorization
       include ActiveModel::SerializerSupport
 
-      attr_reader :actor_id,
-                  :domain,
-                  :access
+      attr_reader :actor_id, :domain, :access
 
       def initialize(data = {})
         data.with_indifferent_access

@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
-  attributes :id,
-             :type,
-             :to,
-             :published,
-             :updated,
-             :url,
-             :attributedTo
+  attributes :id, :type, :to, :published, :updated, :url, :attributedTo
 
   def attributes(*args)
     hash = super

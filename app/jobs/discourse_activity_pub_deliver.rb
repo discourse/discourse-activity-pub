@@ -6,7 +6,7 @@ module Jobs
 
     MAX_RETRY_COUNT = 4
     RETRY_BACKOFF = 5
-    DELIVERABLE_OBJECTS = %w(DiscourseActivityPubActivity DiscourseActivityPubCollection)
+    DELIVERABLE_OBJECTS = %w[DiscourseActivityPubActivity DiscourseActivityPubCollection]
 
     def execute(args)
       @args = args
@@ -21,11 +21,12 @@ module Jobs
       retry_count = @args[:retry_count] || 0
 
       # TODO (future): use request in a Request Pool
-      request = DiscourseActivityPub::Request.new(
-        actor_id: from_actor.id,
-        uri: to_actor.inbox,
-        body: delivery_object.ap.json
-      )
+      request =
+        DiscourseActivityPub::Request.new(
+          actor_id: from_actor.id,
+          uri: to_actor.inbox,
+          body: delivery_object.ap.json,
+        )
 
       # TODO (future): raise redirects from Request and resolve with FinalDestination
       if request&.post_json_ld
@@ -35,7 +36,11 @@ module Jobs
         return if retry_count > MAX_RETRY_COUNT
 
         delay = RETRY_BACKOFF * (retry_count - 1)
-        ::Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, @args.merge(retry_count: retry_count))
+        ::Jobs.enqueue_in(
+          delay.minutes,
+          :discourse_activity_pub_deliver,
+          @args.merge(retry_count: retry_count),
+        )
       end
     ensure
       if @performed
@@ -47,10 +52,7 @@ module Jobs
     end
 
     def perform_request?
-      DiscourseActivityPub.enabled &&
-        has_required_args? &&
-        actors_ready? &&
-        object_ready? &&
+      DiscourseActivityPub.enabled && has_required_args? && actors_ready? && object_ready? &&
         failure_tracker.domain_available?
     end
 
@@ -79,7 +81,8 @@ module Jobs
     end
 
     def object_ready?
-      DELIVERABLE_OBJECTS.include?(@args[:object_type]) && object&.ready? && delivery_object.present?
+      DELIVERABLE_OBJECTS.include?(@args[:object_type]) && object&.ready? &&
+        delivery_object.present?
     end
 
     def announcing?
@@ -89,18 +92,21 @@ module Jobs
     end
 
     def delivery_object
-      @delivery_object ||= begin
-        if announcing?
-          begin
-            object.announce!(from_actor.id)
-            object.announcement
-          rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
-            log_failure(e.message)
+      @delivery_object ||=
+        begin
+          if announcing?
+            begin
+              object.announce!(from_actor.id)
+              object.announcement
+            rescue PG::UniqueViolation,
+                   ActiveRecord::RecordNotUnique,
+                   ActiveRecord::RecordInvalid => e
+              log_failure(e.message)
+            end
+          else
+            object
           end
-        else
-          object
         end
-      end
     end
 
     def log_failure(message)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   class URI
-    SUPPORTED_SCHEMES = %w(http https)
+    SUPPORTED_SCHEMES = %w[http https]
 
     def self.parse(uri)
       uri = "http://#{uri}" if Addressable::URI.parse(uri).scheme.nil?

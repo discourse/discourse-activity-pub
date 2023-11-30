@@ -27,7 +27,7 @@ module DiscourseActivityPub
       end
 
       def base_type
-        'Object'
+        "Object"
       end
 
       def object?
@@ -79,9 +79,8 @@ module DiscourseActivityPub
 
         if stored && klass = AP::Object.get_klass(type)
           serializer = "#{klass}Serializer".classify.constantize
-          @json = serializer.new(klass.new(stored: stored), root: false)
-            .as_json
-            .with_indifferent_access
+          @json =
+            serializer.new(klass.new(stored: stored), root: false).as_json.with_indifferent_access
           @json
         else
           {}
@@ -107,7 +106,7 @@ module DiscourseActivityPub
               ap_type: json[:type],
               content: json[:content],
               published_at: json[:published],
-              domain: domain_from_id(json[:id])
+              domain: domain_from_id(json[:id]),
             }
             params[:reply_to_id] = json[:inReplyTo] if json[:inReplyTo]
             params[:url] = json[:url] if json[:url]
@@ -127,7 +126,8 @@ module DiscourseActivityPub
       end
 
       def process_failed(warning_key)
-        action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
+        action =
+          I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
         if errors.any?
           message = errors.map { |e| e.full_message }.join(",")
         else
@@ -176,15 +176,16 @@ module DiscourseActivityPub
         if activity.composition?
           object = factory(raw_object)
           return process_failed(object_id, "cant_resolve_object") unless object.present?
-          return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)
+          unless object.can_belong_to.include?(:remote)
+            return process_failed(object_id, "object_not_supported")
+          end
 
           stored = object.find_stored_from_json
 
-          if activity.create? || activity.update?
-            stored = object.update_stored_from_json
-          end
+          stored = object.update_stored_from_json if activity.create? || activity.update?
         else
-          stored = case activity.type
+          stored =
+            case activity.type
             when AP::Activity::Like.type
               DiscourseActivityPubObject.find_by(ap_id: object_id)
             when AP::Activity::Follow.type

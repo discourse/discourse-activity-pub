@@ -3,9 +3,9 @@
 RSpec.describe DiscourseActivityPub::AP::Object do
   describe "#factory" do
     it "generates an AP object from json" do
-      expect(
-        described_class.factory(build_activity_json)
-      ).to be_a(DiscourseActivityPub::AP::Activity::Follow)
+      expect(described_class.factory(build_activity_json)).to be_a(
+        DiscourseActivityPub::AP::Activity::Follow,
+      )
     end
   end
 
@@ -15,9 +15,9 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
       it "generates json from storage" do
         ap = DiscourseActivityPub::AP::Activity::Follow.new(stored: follow_activity)
-        expect(ap.json['id']).to eq(follow_activity.ap_id)
-        expect(ap.json['actor']['id']).to eq(follow_activity.actor.ap_id)
-        expect(ap.json['object']['id']).to eq(follow_activity.object.ap_id)
+        expect(ap.json["id"]).to eq(follow_activity.ap_id)
+        expect(ap.json["actor"]["id"]).to eq(follow_activity.actor.ap_id)
+        expect(ap.json["object"]["id"]).to eq(follow_activity.object.ap_id)
       end
     end
   end

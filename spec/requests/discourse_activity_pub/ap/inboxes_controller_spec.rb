@@ -5,9 +5,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ActorsController }
 
-  before do
-    SiteSetting.activity_pub_require_signed_requests = false
-  end
+  before { SiteSetting.activity_pub_require_signed_requests = false }
 
   describe "#create" do
     before do
@@ -17,7 +15,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
 
     context "with invalid activity json" do
       it "returns a json not valid error" do
-        @json['@context'] = "https://www.w3.org/2018/credentials/v1"
+        @json["@context"] = "https://www.w3.org/2018/credentials/v1"
         post_to_inbox(actor, body: @json)
         expect(response.status).to eq(422)
         expect(response.parsed_body).to eq(activity_request_error("json_not_valid"))
@@ -28,11 +26,9 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       it "enqueues json processing" do
         post_to_inbox(actor, body: @json)
         expect(response.status).to eq(202)
-        expect(
-          job_enqueued?(job: :discourse_activity_pub_process, args: {
-            json: @json
-          })
-        ).to eq(true)
+        expect(job_enqueued?(job: :discourse_activity_pub_process, args: { json: @json })).to eq(
+          true,
+        )
       end
 
       it "rate limits requests" do

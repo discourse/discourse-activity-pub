@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::Object::ArticleSerializer < DiscourseActivityPub::AP::ObjectSerializer
-  attributes :content,
-             :inReplyTo,
-             :url,
-             :updated
+  attributes :content, :inReplyTo, :url, :updated
 
   def inReplyTo
     object.in_reply_to

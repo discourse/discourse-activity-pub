@@ -3,26 +3,25 @@
 module DiscourseActivityPub
   module AP
     class Activity < Object
-      class ValidationError < StandardError; end
-      class PerformanceError < StandardError; end
-      class StoreError < StandardError; end
+      class ValidationError < StandardError
+      end
+      class PerformanceError < StandardError
+      end
+      class StoreError < StandardError
+      end
 
-      HANDLER_TYPES = %w(validate perform store respond_to)
+      HANDLER_TYPES = %w[validate perform store respond_to]
 
       def base_type
-        'Activity'
+        "Activity"
       end
 
       def actor
-        stored ?
-          AP::Actor.new(stored: stored.actor) :
-          @actor
+        stored ? AP::Actor.new(stored: stored.actor) : @actor
       end
 
       def object
-        stored ?
-          AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object) :
-          @object
+        stored ? AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object) : @object
       end
 
       def process
@@ -87,15 +86,17 @@ module DiscourseActivityPub
       end
 
       def apply_handlers(handler_type)
-        Activity.handlers(type.to_sym, handler_type).all? do |proc|
-          begin
-            proc.call(self)
-            true
-          rescue ValidationError => error
-            add_error(error)
-            false
+        Activity
+          .handlers(type.to_sym, handler_type)
+          .all? do |proc|
+            begin
+              proc.call(self)
+              true
+            rescue ValidationError => error
+              add_error(error)
+              false
+            end
           end
-        end
       end
 
       def self.types
@@ -113,7 +114,7 @@ module DiscourseActivityPub
       end
 
       def self.handler_keys(activity_type, handler_type)
-        return [activity_type, handler_type.to_sym] if activity_type == :all
+        return activity_type, handler_type.to_sym if activity_type == :all
         return nil unless HANDLER_TYPES.include?(handler_type.to_s)
         klass = get_klass(activity_type.to_s)
         [klass.type.downcase.to_sym, handler_type.to_sym]
@@ -122,9 +123,9 @@ module DiscourseActivityPub
       def self.handlers(activity_type, handler_type)
         type, handler = handler_keys(activity_type, handler_type)
         return [] unless type && handler
-        [*([*sorted_handlers.dig(*[type, handler])] + [*sorted_handlers.dig(*[:all, handler])])]
-          .map { |h| h[:proc] }
-          .compact
+        [
+          *([*sorted_handlers.dig(*[type, handler])] + [*sorted_handlers.dig(*[:all, handler])]),
+        ].map { |h| h[:proc] }.compact
       end
 
       def self.add_handler(activity_type, handler_type, priority = 0, &block)
@@ -145,7 +146,9 @@ module DiscourseActivityPub
         @object = AP::Object.resolve_and_store(json[:object], self)
         return process_failed("cant_find_object") unless object.present?
         return process_failed("object_not_ready") unless object.stored.ready?(type)
-        return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)
+        unless actor.stored.can_perform_activity?(type, object.type)
+          return process_failed("activity_not_supported")
+        end
 
         true
       end

@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   class DeliveryHandler
-    attr_reader :actor,
-                :object,
-                :recipients,
-                :scheduled_at
+    attr_reader :actor, :object, :recipients, :scheduled_at
 
     def initialize(actor, object, recipients)
       @actor = actor
@@ -34,9 +31,7 @@ module DiscourseActivityPub
 
     def schedule_deliveries(delay = nil)
       recipients.each do |actor|
-        opts = {
-          to_actor_id: actor.id,
-        }
+        opts = { to_actor_id: actor.id }
         opts[:delay] = delay unless delay.nil?
         schedule_delivery(**opts)
       end
@@ -49,7 +44,7 @@ module DiscourseActivityPub
         object_id: object.id,
         object_type: object.class.name,
         from_actor_id: actor.id,
-        to_actor_id: to_actor_id
+        to_actor_id: to_actor_id,
       }
 
       Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)

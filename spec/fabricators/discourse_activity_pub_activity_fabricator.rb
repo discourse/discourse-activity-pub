@@ -17,10 +17,12 @@ Fabricator(:discourse_activity_pub_activity_accept, from: :discourse_activity_pu
   before_create do |activity|
     actor = self.actor || Fabricate(:discourse_activity_pub_actor_group)
     self.actor = actor
-    self.object = Fabricate(:discourse_activity_pub_activity_follow,
-      actor: Fabricate(:discourse_activity_pub_actor_person),
-      object: actor
-    )
+    self.object =
+      Fabricate(
+        :discourse_activity_pub_activity_follow,
+        actor: Fabricate(:discourse_activity_pub_actor_person),
+        object: actor,
+      )
   end
 end
 
@@ -30,10 +32,12 @@ Fabricator(:discourse_activity_pub_activity_reject, from: :discourse_activity_pu
   before_create do |activity|
     actor = self.actor || Fabricate(:discourse_activity_pub_actor_group)
     self.actor = actor
-    self.object = Fabricate(:discourse_activity_pub_activity_follow,
-      actor: Fabricate(:discourse_activity_pub_actor_person),
-      object: actor
-    )
+    self.object =
+      Fabricate(
+        :discourse_activity_pub_activity_follow,
+        actor: Fabricate(:discourse_activity_pub_actor_person),
+        object: actor,
+      )
   end
 end
 
@@ -45,7 +49,7 @@ Fabricator(:discourse_activity_pub_activity_create, from: :discourse_activity_pu
 
   after_create do |activity|
     if activity.published_at
-      object.model.custom_fields['activity_pub_published_at'] = activity.published_at
+      object.model.custom_fields["activity_pub_published_at"] = activity.published_at
       object.model.save_custom_fields(true)
     end
   end
@@ -58,7 +62,7 @@ Fabricator(:discourse_activity_pub_activity_update, from: :discourse_activity_pu
   local { true }
 
   after_create do |activity|
-    object.model.custom_fields['activity_pub_published_at'] = Time.now
+    object.model.custom_fields["activity_pub_published_at"] = Time.now
     object.model.save_custom_fields(true)
   end
 end
@@ -73,7 +77,7 @@ Fabricator(:discourse_activity_pub_activity_delete, from: :discourse_activity_pu
     object.model.deleted_at = Time.now
 
     if activity.published_at
-      object.model.custom_fields['activity_pub_deleted_at'] = activity.published_at
+      object.model.custom_fields["activity_pub_deleted_at"] = activity.published_at
     end
 
     object.model.save!

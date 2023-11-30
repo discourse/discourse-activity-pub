@@ -18,14 +18,14 @@ RSpec.describe PostActionCreator do
   describe "like" do
     context "with a full_topic activity pub post" do
       before do
-        toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+        toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
         post.topic.create_activity_pub_collection!
       end
 
       context "with a user with an actor" do
         it "doesnt create a new actor" do
           perform_like(user2, post)
-          expect(DiscourseActivityPubActor.where(ap_type: 'Person').size).to eq(2)
+          expect(DiscourseActivityPubActor.where(ap_type: "Person").size).to eq(2)
         end
 
         it "calls the like callback" do
@@ -60,9 +60,7 @@ RSpec.describe PostActionCreator do
     end
 
     context "with a first_post activity pub post" do
-      before do
-        toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
-      end
+      before { toggle_activity_pub(category, callbacks: true, publication_type: "first_post") }
 
       it "does not call any callbacks" do
         PostAction.any_instance.expects(:perform_activity_pub_activity).never

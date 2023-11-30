@@ -3,9 +3,8 @@
 module DiscourseActivityPub
   module AP
     class Actor < Object
-
       def base_type
-        'Actor'
+        "Actor"
       end
 
       def domain
@@ -37,7 +36,7 @@ module DiscourseActivityPub
       end
 
       def can_belong_to
-        %i()
+        %i[]
       end
 
       def can_perform_activity
@@ -50,11 +49,7 @@ module DiscourseActivityPub
 
       def public_key
         return nil unless stored&.public_key
-        {
-          id: signature_key_id(stored),
-          owner: id,
-          publicKeyPem: stored.public_key
-        }
+        { id: signature_key_id(stored), owner: id, publicKeyPem: stored.public_key }
       end
 
       def update_stored_from_json(stored_id = nil)
@@ -70,23 +65,24 @@ module DiscourseActivityPub
           end
 
           if !stored
-            @stored = DiscourseActivityPubActor.new(
-              ap_id: json[:id],
-              ap_type: json[:type],
-              domain: domain_from_id(json[:id]),
-              username: json[:preferredUsername],
-              inbox: json[:inbox],
-              outbox: json[:outbox],
-              name: json[:name],
-              icon_url: resolve_icon_url(json[:icon])
-            )
+            @stored =
+              DiscourseActivityPubActor.new(
+                ap_id: json[:id],
+                ap_type: json[:type],
+                domain: domain_from_id(json[:id]),
+                username: json[:preferredUsername],
+                inbox: json[:inbox],
+                outbox: json[:outbox],
+                name: json[:name],
+                icon_url: resolve_icon_url(json[:icon]),
+              )
           else
             stored.name = json[:name] if json[:name].present?
             stored.icon_url = resolve_icon_url(json[:icon]) if json[:icon].present?
           end
 
-          if json['publicKey'].is_a?(Hash) && json['publicKey']['owner'] == stored.ap_id
-            stored.public_key = json['publicKey']['publicKeyPem']
+          if json["publicKey"].is_a?(Hash) && json["publicKey"]["owner"] == stored.ap_id
+            stored.public_key = json["publicKey"]["publicKeyPem"]
           end
 
           if stored.new_record? || stored.changed?
@@ -106,7 +102,9 @@ module DiscourseActivityPub
         return process_failed(actor_id, "cant_resolve_actor") unless resolved_actor.present?
 
         ap_actor = factory(resolved_actor)
-        return process_failed(resolved_actor['id'], "actor_not_supported") unless ap_actor&.can_belong_to.include?(:remote)
+        unless ap_actor&.can_belong_to.include?(:remote)
+          return process_failed(resolved_actor["id"], "actor_not_supported")
+        end
 
         ap_actor.update_stored_from_json(stored ? actor_id : nil)
 

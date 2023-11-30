@@ -33,7 +33,9 @@ module DiscourseActivityPub
         unless ap
           self.errors.add(
             :ap_type,
-            I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
+            I18n.t(
+              "activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid",
+            ),
           )
 
           raise ActiveRecord::RecordInvalid

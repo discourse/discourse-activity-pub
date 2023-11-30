@@ -21,7 +21,7 @@ module DiscourseActivityPub
     end
 
     def self.activity_link(href)
-      { rel: 'self', type: JsonLd::ACTIVITY_CONTENT_TYPE, href: href }
+      { rel: "self", type: JsonLd::ACTIVITY_CONTENT_TYPE, href: href }
     end
   end
 end

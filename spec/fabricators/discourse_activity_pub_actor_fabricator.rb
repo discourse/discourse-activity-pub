@@ -3,7 +3,7 @@
 Fabricator(:discourse_activity_pub_actor) do
   ap_type { "Actor" }
   domain { "forum.com" }
-  username { sequence(:username) { |i| "username#{i}"} }
+  username { sequence(:username) { |i| "username#{i}" } }
 
   after_create do |actor|
     actor.inbox = "#{actor.ap_id}/inbox"

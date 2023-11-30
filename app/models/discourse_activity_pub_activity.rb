@@ -7,17 +7,16 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   belongs_to :object, polymorphic: true
 
   has_one :parent, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
-  has_one :announcement, -> {
-    where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
-  }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_one :announcement,
+          -> { where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type) },
+          class_name: "DiscourseActivityPubActivity",
+          foreign_key: "object_id"
 
   validates :actor_id, presence: true
   validate :validate_ap_type,
            if: Proc.new { |a| a.will_save_change_to_ap_type? || a.will_save_change_to_object_type? }
 
-  scope :likes, -> {
-    where(ap_type: DiscourseActivityPub::AP::Activity::Like.type)
-  }
+  scope :likes, -> { where(ap_type: DiscourseActivityPub::AP::Activity::Like.type) }
 
   def ready?(parent_ap_type = nil)
     case object_type
@@ -71,7 +70,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       object_id: self.id,
       object_type: self.class.name,
       ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-      visibility: DiscourseActivityPubActivity.visibilities[:public]
+      visibility: DiscourseActivityPubActivity.visibilities[:public],
     )
   end
 
@@ -96,7 +95,9 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     unless actor.can_perform_activity?(ap_type, object_ap_type)
       self.errors.add(
         :ap_type,
-        I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
+        I18n.t(
+          "activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid",
+        ),
       )
     end
   end

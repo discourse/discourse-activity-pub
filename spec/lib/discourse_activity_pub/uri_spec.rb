@@ -3,16 +3,10 @@
 RSpec.describe DiscourseActivityPub::URI do
   describe "#local?" do
     before do
-      Rails.application.config.hosts = [
-        IPAddr.new("0.0.0.0/0"),
-        IPAddr.new("::/0"),
-        "localhost"
-      ]
+      Rails.application.config.hosts = [IPAddr.new("0.0.0.0/0"), IPAddr.new("::/0"), "localhost"]
     end
 
-    after do
-      Rails.application.config.hosts = []
-    end
+    after { Rails.application.config.hosts = [] }
 
     context "with a local uri" do
       it "returns true" do

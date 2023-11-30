@@ -7,11 +7,23 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
-  has_many :announcements, class_name: "DiscourseActivityPubActivity", through: :activities, source: :announcement
-  has_many :likes, -> { likes }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_many :announcements,
+           class_name: "DiscourseActivityPubActivity",
+           through: :activities,
+           source: :announcement
+  has_many :likes,
+           -> { likes },
+           class_name: "DiscourseActivityPubActivity",
+           foreign_key: "object_id"
 
-  belongs_to :reply_to, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
-  has_many :replies, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
+  belongs_to :reply_to,
+             class_name: "DiscourseActivityPubObject",
+             primary_key: "ap_id",
+             foreign_key: "reply_to_id"
+  has_many :replies,
+           class_name: "DiscourseActivityPubObject",
+           primary_key: "ap_id",
+           foreign_key: "reply_to_id"
 
   def url
     if local?
@@ -42,7 +54,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def in_reply_to_post
-    reply_to&.model_type == 'Post' && reply_to.model
+    reply_to&.model_type == "Post" && reply_to.model
   end
 
   def after_deliver
@@ -51,9 +63,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def after_scheduled(scheduled_at, activity = nil)
     if model&.respond_to?(:activity_pub_after_scheduled)
-      args = {
-        scheduled_at: scheduled_at
-      }
+      args = { scheduled_at: scheduled_at }
       if activity&.ap.create?
         args[:published_at] = nil
         args[:deleted_at] = nil
@@ -84,17 +94,19 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def likes_collection
-    @likes_collection ||= begin
-      collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}#likes",
-        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
-        created_at: self.created_at,
-        updated_at: self.updated_at
-      )
-      collection.items = likes
-      collection.context = :likes
-      collection
-    end
+    @likes_collection ||=
+      begin
+        collection =
+          DiscourseActivityPubCollection.new(
+            ap_id: "#{self.ap_id}#likes",
+            ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+          )
+        collection.items = likes
+        collection.context = :likes
+        collection
+      end
   end
 end
 

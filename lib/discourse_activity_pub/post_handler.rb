@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   class PostHandler
-    attr_reader :user,
-                :object
+    attr_reader :user, :object
 
     def initialize(user, object)
       @user = user
@@ -24,10 +23,15 @@ module DiscourseActivityPub
             reply_to_post_number: reply_to.post_number,
             skip_events: true,
             skip_validations: true,
-            custom_fields: {}
+            custom_fields: {
+            },
           }
           if object.published_at
-            params[:custom_fields][:activity_pub_published_at] = object.published_at&.to_datetime.utc.iso8601
+            params[:custom_fields][:activity_pub_published_at] = object
+              .published_at
+              &.to_datetime
+              .utc
+              .iso8601
           end
           post = PostCreator.create!(user, params)
         rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
@@ -37,9 +41,9 @@ module DiscourseActivityPub
 
         if post
           object.update(
-            model_type: 'Post',
+            model_type: "Post",
             model_id: post.id,
-            collection_id: post.topic.activity_pub_object.id
+            collection_id: post.topic.activity_pub_object.id,
           )
         end
       end

@@ -8,7 +8,10 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   has_many :objects, class_name: "DiscourseActivityPubObject", foreign_key: "collection_id"
   has_many :activities, class_name: "DiscourseActivityPubActivity", through: :objects
-  has_many :announcements, class_name: "DiscourseActivityPubActivity", through: :objects, source: :announcements
+  has_many :announcements,
+           class_name: "DiscourseActivityPubActivity",
+           through: :objects,
+           source: :announcements
 
   attr_accessor :items
   attr_accessor :context
@@ -73,8 +76,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   def announce!(actor_id)
     DiscourseActivityPubActivity.upsert_all(
       activities
-        .where
-        .not(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
+        .where.not(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
         .map do |item|
           ap_key = generate_key
           {
@@ -85,9 +87,9 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
             actor_id: actor_id,
             object_id: item.id,
             object_type: item.class.name,
-            visibility: DiscourseActivityPubActivity.visibilities[:public]
+            visibility: DiscourseActivityPubActivity.visibilities[:public],
           }
-        end
+        end,
     )
   end
 
@@ -113,8 +115,6 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   protected
 
   def send_to_collection(method, value)
-    items.where(published_at: nil).each do |item|
-      item.send(method, value)
-    end
+    items.where(published_at: nil).each { |item| item.send(method, value) }
   end
 end

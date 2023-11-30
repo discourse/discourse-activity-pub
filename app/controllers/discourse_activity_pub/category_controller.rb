@@ -3,7 +3,7 @@
 module DiscourseActivityPub
   class CategoryController < ApplicationController
     PAGE_SIZE = 50
-    ORDER = %w(actor user followed_at)
+    ORDER = %w[actor user followed_at]
 
     before_action :ensure_site_enabled
     before_action :find_category
@@ -15,12 +15,13 @@ module DiscourseActivityPub
     def followers
       guardian.ensure_can_see!(@category)
 
-      followers = @category
-        .activity_pub_followers
-        .joins(:follow_follows)
-        .where(follow_follows: { followed_id: @category.activity_pub_actor.id })
-        .left_joins(:user)
-        .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
+      followers =
+        @category
+          .activity_pub_followers
+          .joins(:follow_follows)
+          .where(follow_follows: { followed_id: @category.activity_pub_actor.id })
+          .left_joins(:user)
+          .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
 
       limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)
       page = fetch_int_from_params(:page, default: 0)
@@ -32,7 +33,7 @@ module DiscourseActivityPub
         meta: {
           total: total,
           load_more_url: load_more_url(page),
-        }
+        },
       )
     end
 
@@ -44,19 +45,27 @@ module DiscourseActivityPub
 
     def order_table
       case permitted_order
-      when 'actor' then 'discourse_activity_pub_actors'
-      when 'user' then 'users'
-      when 'followed_at' then 'discourse_activity_pub_follows'
-      else 'discourse_activity_pub_follows'
+      when "actor"
+        "discourse_activity_pub_actors"
+      when "user"
+        "users"
+      when "followed_at"
+        "discourse_activity_pub_follows"
+      else
+        "discourse_activity_pub_follows"
       end
     end
 
     def order
       case permitted_order
-      when 'actor' then 'username'
-      when 'user' then 'username'
-      when 'followed_at' then 'created_at'
-      else 'created_at'
+      when "actor"
+        "username"
+      when "user"
+        "username"
+      when "followed_at"
+        "created_at"
+      else
+        "created_at"
       end
     end
 

@@ -4,16 +4,14 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
   fab!(:category) { Fabricate(:category) }
   fab!(:topic) { Fabricate(:topic, category: category) }
   fab!(:post) { Fabricate(:post, topic: topic, raw: "Post content") }
-  fab!(:post_creator_actor) { Fabricate(:discourse_activity_pub_actor_person, model: post.user, local: true) }
-
-  before do
-    toggle_activity_pub(category, callbacks: true)
+  fab!(:post_creator_actor) do
+    Fabricate(:discourse_activity_pub_actor_person, model: post.user, local: true)
   end
 
+  before { toggle_activity_pub(category, callbacks: true) }
+
   context "with link to forum enabled" do
-    before do
-      SiteSetting.activity_pub_note_link_to_forum = true
-    end
+    before { SiteSetting.activity_pub_note_link_to_forum = true }
 
     it "serializes note content with a link to the forum" do
       note = Fabricate(:discourse_activity_pub_object_note, model: post, local: true)
@@ -24,9 +22,7 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
   end
 
   context "with link to forum disabled" do
-    before do
-      SiteSetting.activity_pub_note_link_to_forum = false
-    end
+    before { SiteSetting.activity_pub_note_link_to_forum = false }
 
     it "serializes note content without a link to the forum" do
       note = Fabricate(:discourse_activity_pub_object_note, model: post, local: true)
@@ -43,7 +39,7 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
 
   context "with full_topic enabled" do
     before do
-      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
       post.topic.create_activity_pub_collection!
     end
 

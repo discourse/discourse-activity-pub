@@ -2,7 +2,6 @@
 module DiscourseActivityPub
   module AP
     class Collection < Object
-
       def id
         stored.ap_id
       end
@@ -12,7 +11,7 @@ module DiscourseActivityPub
       end
 
       def base_type
-        'Collection'
+        "Collection"
       end
 
       def items

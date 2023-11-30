@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Update < Compose
         def type
-          'Update'
+          "Update"
         end
       end
     end
