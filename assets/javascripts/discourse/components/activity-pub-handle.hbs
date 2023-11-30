@@ -6,19 +6,19 @@
         href={{@actor.url}}
         target="_blank"
         rel="noopener noreferrer"
-        class="btn btn-icon no-text"
+        class="btn btn-icon no-text btn-flat"
       >{{d-icon "external-link-alt"}}</a>
     {{/if}}
     {{#if this.copied}}
       <DButton
-        @class="btn-hover"
+        @class="btn-hover btn-flat"
         @icon="copy"
         @label="ip_lookup.copied"
       />
     {{else}}
       <DButton
         @action={{action "copy"}}
-        @class="no-text"
+        @class="no-text btn-flat"
         @icon="copy"
       />
     {{/if}}
