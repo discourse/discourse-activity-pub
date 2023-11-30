@@ -4,6 +4,8 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
   it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
 
   describe "#update_stored_from_json" do
+    subject(:instance) { described_class.new }
+
     let(:json) do
       {
         "@context": "https://www.w3.org/ns/activitystreams",
@@ -16,14 +18,10 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       }.with_indifferent_access
     end
 
-    let(:subject) do
-      actor = described_class.new
-      actor.json = json
-      actor
-    end
+    before { instance.json = json }
 
     it "creates an actor" do
-      subject.update_stored_from_json
+      instance.update_stored_from_json
 
       actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
       expect(actor.present?).to eq(true)
@@ -36,23 +34,23 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     it "updates an actor if optional attributes have changed" do
-      subject.update_stored_from_json
+      instance.update_stored_from_json
 
       json["name"] = "Bob McLeod"
-      subject.json = json
-      subject.update_stored_from_json
+      instance.json = json
+      instance.update_stored_from_json
 
       actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
       expect(actor.name).to eq("Bob McLeod")
     end
 
     it "creates a new actor if required attributes have changed" do
-      subject.update_stored_from_json
+      instance.update_stored_from_json
 
       original_id = json["id"]
       json["id"] = "https://external.com/u/bob"
-      subject.json = json
-      subject.update_stored_from_json
+      instance.json = json
+      instance.update_stored_from_json
 
       expect(DiscourseActivityPubActor.exists?(ap_id: original_id)).to eq(true)
       expect(DiscourseActivityPubActor.exists?(ap_id: json["id"])).to eq(true)
@@ -84,7 +82,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       orig_logger = Rails.logger
       Rails.logger = fake_logger = FakeLogger.new
 
-      threads = 5.times.map { Thread.new { subject.update_stored_from_json } }
+      threads = 5.times.map { Thread.new { instance.update_stored_from_json } }
       threads.map(&:join)
 
       expect(fake_logger.errors.empty?).to eq(true)

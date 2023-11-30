@@ -7,7 +7,7 @@ RSpec.describe PostRevisor do
   let!(:post) { Fabricate(:post, user: user, topic: topic) }
 
   describe "revise" do
-    subject { PostRevisor.new(post) }
+    subject(:post_revisor) { described_class.new(post) }
 
     before { toggle_activity_pub(category, callbacks: true) }
 
@@ -21,7 +21,7 @@ RSpec.describe PostRevisor do
       describe "with the same note content" do
         it "allows the revision" do
           updated_raw = "[note]#{post.raw}[/note] revision outside note"
-          expect { subject.revise!(user, raw: updated_raw) }.not_to raise_error
+          expect { post_revisor.revise!(user, raw: updated_raw) }.not_to raise_error
           post.reload
           expect(post.raw).to eq(updated_raw)
           expect(post.activity_pub_content).to eq(note.content)
@@ -30,13 +30,13 @@ RSpec.describe PostRevisor do
 
       describe "with different note content" do
         it "does not add an error" do
-          subject.revise!(user, raw: "#{post.raw} revision inside note")
+          post_revisor.revise!(user, raw: "#{post.raw} revision inside note")
           expect(post.errors.present?).to eq(false)
         end
 
         it "performs the edit" do
           updated_raw = "#{post.raw} revision inside note"
-          subject.revise!(user, raw: updated_raw)
+          post_revisor.revise!(user, raw: updated_raw)
           expect(post.reload.raw).to eq(updated_raw)
           expect(post.activity_pub_content).to eq(updated_raw)
         end
@@ -44,7 +44,7 @@ RSpec.describe PostRevisor do
 
       it "allows a category change" do
         category2 = Fabricate(:category)
-        expect { subject.revise!(user, category_id: category2.id) }.not_to raise_error
+        expect { post_revisor.revise!(user, category_id: category2.id) }.not_to raise_error
         post.topic.reload
         expect(post.topic.category_id).to eq(category2.id)
       end
@@ -58,7 +58,7 @@ RSpec.describe PostRevisor do
         context "with a topic title change" do
           it "updates the topic collection summary" do
             new_title = "New topic title"
-            expect { subject.revise!(user, title: new_title) }.not_to raise_error
+            expect { post_revisor.revise!(user, title: new_title) }.not_to raise_error
             expect(post.topic.reload.title).to eq(new_title)
             expect(post.topic.activity_pub_object.reload.summary).to eq(new_title)
           end
@@ -68,7 +68,7 @@ RSpec.describe PostRevisor do
           let!(:staff) { Fabricate(:moderator) }
 
           it "creates an activity with the revising user's actor" do
-            subject.revise!(staff, raw: "#{post.raw} revision")
+            post_revisor.revise!(staff, raw: "#{post.raw} revision")
             expect(
               staff
                 .reload
@@ -84,7 +84,7 @@ RSpec.describe PostRevisor do
           end
 
           it "does not create an activity with the post user's actor" do
-            subject.revise!(staff, raw: "#{post.raw} revision")
+            post_revisor.revise!(staff, raw: "#{post.raw} revision")
             expect(
               post_actor
                 .activities
@@ -108,7 +108,7 @@ RSpec.describe PostRevisor do
             let!(:another_user) { Fabricate(:user) }
 
             it "creates an activity with the revising user's actor" do
-              subject.revise!(another_user, raw: "#{post.raw} revision")
+              post_revisor.revise!(another_user, raw: "#{post.raw} revision")
               expect(
                 another_user
                   .reload
@@ -124,7 +124,7 @@ RSpec.describe PostRevisor do
             end
 
             it "does not create an activity with the post user's actor" do
-              subject.revise!(another_user, raw: "#{post.raw} revision")
+              post_revisor.revise!(another_user, raw: "#{post.raw} revision")
               expect(
                 post_actor
                   .activities
