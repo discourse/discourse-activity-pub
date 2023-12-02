@@ -3,7 +3,7 @@
 RSpec.describe PostsController do
   describe "#create" do
     describe "when logged in" do
-      fab!(:user) { Fabricate(:user) }
+      fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
       before { sign_in(user) }
 
       context "with a ready ActivityPub category" do
