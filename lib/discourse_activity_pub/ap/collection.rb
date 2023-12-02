@@ -32,10 +32,14 @@ module DiscourseActivityPub
           activity = DiscourseActivityPub::AP::Activity.factory(item)
 
           if activity&.respond_to?(:process)
-            activity.target = target if target
+            activity.delivered_to << delivered_to if delivered_to
             activity.process
           end
         end
+      end
+
+      def can_belong_to
+        %i()
       end
     end
   end

@@ -4,7 +4,7 @@ module DiscourseActivityPub
   module AP
     class Activity < Object
 
-      attr_accessor :parent_actor
+      attr_accessor :parent
 
       def base_type
         'Activity'
@@ -17,31 +17,26 @@ module DiscourseActivityPub
       end
 
       def object
-        stored ?
+        stored&.object ?
           AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object) :
           @object
       end
 
-      def targets
-        @targets ||= []
-      end
-
       def process
         return false unless process_actor_and_object
-        return false unless process_activity_targets
         return false unless perform_validate_activity
 
         ActiveRecord::Base.transaction do
-          perform_activity
-          store_activity
-          respond_to_activity
+          begin
+            perform_activity
+            store_activity
+            respond_to_activity
+          rescue DiscourseActivityPub::AP::Handlers::Error
+            raise ActiveRecord::Rollback
+          end
         end
-      end
 
-      def process_activity_targets
-        return true if target_activity
-        process_failed("activity_not_targeted")
-        false
+        forward_activity
       end
 
       def perform_validate_activity
@@ -50,24 +45,24 @@ module DiscourseActivityPub
         false
       end
 
-      def target_activity
-        apply_handlers(type, :target)
-      end
-
       def validate_activity
         apply_handlers(type, :validate)
       end
 
       def perform_activity
-        apply_handlers(type, :perform)
+        apply_handlers(type, :perform, raise_errors: true)
       end
 
       def store_activity
-        apply_handlers(type, :store)
+        apply_handlers(type, :store, raise_errors: true)
       end
 
       def respond_to_activity
-        apply_handlers(type, :respond_to)
+        apply_handlers(type, :respond_to, raise_errors: true)
+      end
+
+      def forward_activity
+        apply_handlers(type, :forward)
       end
 
       def response?

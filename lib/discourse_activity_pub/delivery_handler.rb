@@ -6,7 +6,7 @@ module DiscourseActivityPub
                 :recipient_ids,
                 :scheduled_at
 
-    def initialize(actor, object, recipient_ids)
+    def initialize(actor: nil, object: nil, recipient_ids: [])
       @actor = actor
       @object = object
       @recipient_ids = recipient_ids
@@ -19,8 +19,8 @@ module DiscourseActivityPub
       object
     end
 
-    def self.perform(actor: nil, object: nil, recipient_ids: nil, delay: 0)
-      new(actor, object, recipient_ids).perform(delay: delay)
+    def self.perform(actor: nil, object: nil, recipient_ids: [], delay: 0)
+      new(actor: actor, object: object, recipient_ids: recipient_ids).perform(delay: delay)
     end
 
     protected
@@ -68,10 +68,10 @@ module DiscourseActivityPub
       end
 
       args = {
-        object_id: object.id,
-        object_type: object.class.name,
         from_actor_id: actor.id,
-        send_to: send_to
+        send_to: send_to,
+        object_id: object.id,
+        object_type: object.class.name
       }
 
       Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
@@ -86,7 +86,7 @@ module DiscourseActivityPub
     end
 
     def after_scheduled
-      object.after_scheduled(scheduled_at) if object.respond_to?(:after_scheduled)
+      object.after_scheduled(scheduled_at) if object&.respond_to?(:after_scheduled)
     end
 
     def log_failure(message)

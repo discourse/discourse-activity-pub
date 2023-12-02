@@ -53,7 +53,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   end
 
   def audience
-    @audience ||= actor&.followers_collection&.ap_id
+    self.read_attribute(:audience) || actor&.ap_id
   end
 
   def to
@@ -125,8 +125,8 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     self
   end
 
-  def followers
-    # If an Actor are attributed a Note in a Topic they become a follower of its Collection.
+  def contributors
+    # If an Actor is attributed a Note in a Topic they become a contributor to its Collection.
     # See further activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
     objects.map(&:attributed_to_actor).compact
   end

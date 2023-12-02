@@ -127,10 +127,10 @@ def build_process_warning(key, object_id)
   "[Discourse Activity Pub] #{action}: #{message}"
 end
 
-def perform_process(json, target = nil)
+def perform_process(json, delivered_to = nil)
   klass = described_class.new
   klass.json = json
-  klass.target = target if target
+  klass.delivered_to << delivered_to if delivered_to
   klass.process
 end
 
@@ -166,4 +166,54 @@ end
 def published_json(object, args = {})
   object.before_deliver
   object.ap.json
+end
+
+def expect_no_request
+  DiscourseActivityPub::Request.expects(:new).never
+end
+
+def expect_request(body: nil, body_type: nil, actor_id: nil, uri: nil, returns: nil)
+  DiscourseActivityPub::Request
+    .expects(:new)
+    .with do |args|
+      (!actor_id || args[:actor_id] == actor_id) &&
+      (!uri || [*uri].include?(args[:uri])) &&
+      (!body || args[:body] == body) &&
+      (!body_type || args[:body][:type] == body_type)
+    end
+    .returns(returns)
+end
+
+def expect_post(returns: true)
+  DiscourseActivityPubActivity
+      .any_instance
+      .expects(:before_deliver)
+      .once
+
+  DiscourseActivityPub::Request
+    .any_instance
+    .expects(:post_json_ld)
+    .returns(returns)
+
+  if returns
+    DiscourseActivityPub::DeliveryFailureTracker
+      .any_instance
+      .expects(:track_success)
+      .once
+    DiscourseActivityPubActivity
+      .any_instance
+      .expects(:after_deliver)
+      .with(true)
+      .once
+  else
+    DiscourseActivityPub::DeliveryFailureTracker
+      .any_instance
+      .expects(:track_failure)
+      .once
+    DiscourseActivityPubActivity
+      .any_instance
+      .expects(:after_deliver)
+      .with(false)
+      .once
+  end
 end

@@ -46,30 +46,35 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     visibility === DiscourseActivityPubActivity.visibilities[:private]
   end
 
+  def base_object
+    @base_object ||= find_base_object(object)
+  end
+
   def audience
-    @audience ||= primary_actor.followers_collection.ap_id
+    base_object.ap.object? && base_object.audience
   end
 
   def to
-    audience
+    return nil unless local?
+    return audience if audience
+    return base_object.ap_id if base_object&.ap.actor?
   end
 
   def cc
-    public? ? DiscourseActivityPub::JsonLd.public_collection_id : nil
-  end
+    return nil unless local?
+    result = []
+    result << DiscourseActivityPub::JsonLd.public_collection_id if public?
 
-  def primary_actor
-    if parent && parent.parent && parent.parent.ap.activity?
-      parent.parent.actor
-    elsif parent && parent.ap.activity?
-      parent.actor
-    else
-      actor
+    if base_object&.ap.object?
+      reply_to_audience = base_object.reply_to&.audience
+      result << reply_to_audience if reply_to_audience && to != reply_to_audience
     end
+
+    result.present? ? result : nil
   end
 
   def announce!(actor_id)
-    DiscourseActivityPubActivity.create!(
+    DiscourseActivityPubActivity.find_or_create_by!(
       local: true,
       actor_id: actor_id,
       object_id: self.id,
@@ -116,6 +121,14 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         :ap_type,
         I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
       )
+    end
+  end
+
+  def find_base_object(current_object)
+    if current_object&.respond_to?(:object) && current_object.object
+      find_base_object(current_object.object)
+    else
+      current_object
     end
   end
 end

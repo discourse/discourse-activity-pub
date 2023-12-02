@@ -29,10 +29,6 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     local? ? model.activity_pub_ready? : available?
   end
 
-  def remote?
-    !local?
-  end
-
   def refresh_remote!
     DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id) unless local?
   end
@@ -89,7 +85,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def followers_collection
     @followers_collection ||= begin
       collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}#followers",
+        ap_id: "#{self.ap_id}/followers",
         ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
         created_at: self.created_at,
         updated_at: self.updated_at,
@@ -104,7 +100,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def outbox_collection
     @outbox_collection ||= begin
       collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}#activities",
+        ap_id: "#{self.ap_id}/outbox",
         ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
         created_at: self.created_at,
         updated_at: self.updated_at,
@@ -145,19 +141,38 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     return nil unless handle.valid?
     return nil unless !local || DiscourseActivityPub::URI.local?(handle.domain)
 
-    unless refresh
-      opts = { username: handle.username }
-      opts[:domain] = handle.domain if !local
-      actor = DiscourseActivityPubActor.find_by(opts)
-      return actor if actor
+    opts = {
+      username: handle.username
+    }
+    opts[:local] = true if local
+    opts[:domain] = handle.domain if !local
+    actor = DiscourseActivityPubActor.find_by(opts)
+
+    if (refresh || !actor) && !local
+      actor = resolve_and_store_by_handle(handle.to_s)
     end
 
-    return resolve_and_store(handle.to_s) if !local
-
-    nil
+    actor
   end
 
-  def self.resolve_and_store(raw_handle)
+  def self.find_by_ap_id(ap_id, local: false, refresh: false)
+    return nil unless !local || DiscourseActivityPub::URI.local?(ap_id)
+
+    opts = {
+      ap_id: ap_id
+    }
+    opts[:local] = true if local
+    actor = DiscourseActivityPubActor.find_by(opts)
+
+    if (refresh || !actor) && !local
+      ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)
+      actor = ap_actor.stored if ap_actor
+    end
+
+    actor
+  end
+
+  def self.resolve_and_store_by_handle(raw_handle)
     ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(raw_handle)
     return nil unless ap_id
 

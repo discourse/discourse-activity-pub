@@ -9,15 +9,12 @@ module DiscourseActivityPub
 
       attr_writer :json
       attr_accessor :stored
-      attr_accessor :target
+      attr_accessor :delivered_to
+      attr_accessor :cache
 
       def initialize(json: nil, stored: nil)
         @json = json
         @stored = stored
-      end
-
-      def context
-        DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT
       end
 
       def id
@@ -42,6 +39,10 @@ module DiscourseActivityPub
 
       def collection?
         base_type == "Collection"
+      end
+
+      def actor?
+        base_type == "Actor"
       end
 
       def url
@@ -82,6 +83,22 @@ module DiscourseActivityPub
 
       def name
         stored&.respond_to?(:name) && stored.name
+      end
+
+      def context
+        stored&.respond_to?(:context) && stored.context
+      end
+
+      def target
+        stored&.respond_to?(:target) && stored.target
+      end
+
+      def delivered_to
+        @delivered_to ||= []
+      end
+
+      def cache
+        @cache ||= {}
       end
 
       def self.type
@@ -160,7 +177,7 @@ module DiscourseActivityPub
       def self.resolve_and_store(raw_object, activity = nil)
         object = resolve(raw_object)
         return unless object
-        object.apply_handlers(type, :store, { activity: activity })
+        object.apply_handlers(type, :store, activity: activity)
         object
       end
 

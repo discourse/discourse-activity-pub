@@ -9,11 +9,15 @@ module DiscourseActivityPub
       @object = object
     end
 
-    def create(target: nil)
-      return nil if !user || !object || object.model_id || (
-        !object.in_reply_to_post && !can_create_topic?(target)
-      )
+    def create(category_id: nil)
+      return nil if !user || !object || object.model_id || (!object.in_reply_to_post && !category_id)
 
+      if category_id
+        category = Category.find_by(id: category_id)
+        return nil unless can_create_topic?(category)
+      end
+
+      new_topic = !object.in_reply_to_post && category
       params = {
         raw: object.content,
         skip_events: true,
@@ -21,15 +25,15 @@ module DiscourseActivityPub
         custom_fields: {}
       }
 
-      if object.in_reply_to_post
-        reply_to = object.in_reply_to_post
-        params[:topic_id] = reply_to.topic.id
-        params[:reply_to_post_number] = reply_to.post_number
-      else
+      if new_topic
         params[:title] = object.name || DiscourseActivityPub::ContentParser.get_title(
           object.content
         )
-        params[:category] = target.model.id
+        params[:category] = category.id
+      else
+        reply_to = object.in_reply_to_post
+        params[:topic_id] = reply_to.topic.id
+        params[:reply_to_post_number] = reply_to.post_number
       end
 
       if object.published_at
@@ -41,8 +45,11 @@ module DiscourseActivityPub
       ActiveRecord::Base.transaction do
         begin
           post = PostCreator.create!(user, params)
-          post.topic.create_activity_pub_collection! unless params[:topic_id]
-        rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
+          create_collection(post) if new_topic
+        rescue PG::UniqueViolation,
+               ActiveRecord::RecordNotUnique,
+               ActiveRecord::RecordInvalid,
+               DiscourseActivityPub::AP::Handlers => e
           log_failure("create", e.message)
           raise ActiveRecord::Rollback
         end
@@ -66,18 +73,38 @@ module DiscourseActivityPub
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
     end
 
-    def self.create(user, object, target = nil)
-      new(user, object).create(target: target)
+    def self.create(user, object, category_id: nil)
+      new(user, object).create(category_id: category_id)
     end
 
     protected
 
-    def can_create_topic?(target)
-      return false unless target&.model
-      return false unless target.model.is_a?(Category)
-      return false unless target.model.activity_pub_ready?
+    def can_create_topic?(category)
+      category && category.activity_pub_ready? && category.activity_pub_full_topic
+    end
 
-      target.model.activity_pub_full_topic
+    def create_collection(post)
+      # See https://codeberg.org/fediverse/fep/src/branch/main/fep/400e/fep-400e.md
+      # See https://socialhub.activitypub.rocks/t/standardizing-on-activitypub-groups/1984
+      raw_collection = object.context || object.target
+
+      if raw_collection
+        collection = DiscourseActivityPub::AP::Collection.resolve_and_store(raw_collection)
+
+        if collection
+          collection.stored.update(
+            model_type: 'Topic',
+            model_id: post.topic.id
+          )
+        else
+          raise DiscourseActivityPub::AP::Handlers::Error::Store,
+            I18n.t('discourse_activity_pub.process.warning.failed_to_save_collection',
+              collection: DiscourseActivityPub::JsonLd.resolve_id(raw_collection)
+            )
+        end
+      else
+        post.topic.create_activity_pub_collection!
+      end
     end
   end
 end

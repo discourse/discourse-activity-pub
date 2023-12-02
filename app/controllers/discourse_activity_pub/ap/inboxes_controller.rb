@@ -20,6 +20,6 @@ class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::Ac
   end
 
   def process_json
-    Jobs.enqueue(:discourse_activity_pub_process, json: @json, target: @actor.ap_id)
+    Jobs.enqueue(:discourse_activity_pub_process, json: @json, delivered_to: @actor.ap_id)
   end
 end

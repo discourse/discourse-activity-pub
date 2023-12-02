@@ -179,8 +179,8 @@ RSpec.describe DiscourseActivityPubActor do
         end
 
         context "when refresh param is true" do
-          it "calls resolve_and_store with the handle" do
-            DiscourseActivityPubActor.expects(:resolve_and_store).with(actor.handle).once
+          it "calls resolve_and_store_by_handle with the handle" do
+            DiscourseActivityPubActor.expects(:resolve_and_store_by_handle).with(actor.handle).once
             DiscourseActivityPubActor.find_by_handle(actor.handle, local: false, refresh: true)
           end
         end
@@ -191,22 +191,24 @@ RSpec.describe DiscourseActivityPubActor do
       let!(:handle) { "username@external.com" }
 
       context "when local param is true" do
-        it "does not call resolve_and_store" do
-          DiscourseActivityPubActor.expects(:resolve_and_store).never
+        it "does not call resolve_and_store_by_handle" do
+          DiscourseActivityPubActor.expects(:resolve_and_store_by_handle).never
           DiscourseActivityPubActor.find_by_handle(handle, local: true)
         end
       end
 
       context "when local param is false" do
-        it "calls resolve_and_store with the handle" do
-          DiscourseActivityPubActor.expects(:resolve_and_store).with(handle).once
-          DiscourseActivityPubActor.find_by_handle(handle, local: false)
+        context "when refresh param is true" do
+          it "calls resolve_and_store_by_handle with the handle" do
+            DiscourseActivityPubActor.expects(:resolve_and_store_by_handle).with(handle).once
+            DiscourseActivityPubActor.find_by_handle(handle, local: false, refresh: true)
+          end
         end
       end
     end
   end
 
-  describe "#resolve_and_store" do
+  describe "#resolve_and_store_by_handle" do
     let!(:actor) { build_actor_json }
     let!(:handle) { "#{actor[:preferredUsername]}@external.com" }
 
@@ -216,7 +218,7 @@ RSpec.describe DiscourseActivityPubActor do
       end
 
       it "returns nil" do
-        expect(DiscourseActivityPubActor.resolve_and_store(handle)).to eq(nil)
+        expect(DiscourseActivityPubActor.resolve_and_store_by_handle(handle)).to eq(nil)
       end
     end
 
@@ -228,7 +230,7 @@ RSpec.describe DiscourseActivityPubActor do
 
       it "stores and returns the actor" do
         expect(
-          DiscourseActivityPubActor.resolve_and_store(handle)
+          DiscourseActivityPubActor.resolve_and_store_by_handle(handle)
         ).to eq(
           DiscourseActivityPubActor.find_by(ap_id: actor[:id])
         )

@@ -11,15 +11,14 @@ module Jobs
     def execute(args)
       @args = args
       return unless perform_request?
+      before_perform_request
       perform_request
+      after_perform_request
     end
 
     private
 
     def perform_request
-
-      object.before_deliver
-
       @delivered = false
       retry_count = @args[:retry_count] || 0
 
@@ -48,8 +47,6 @@ module Jobs
         log_failure
         failure_tracker.track_failure
       end
-
-      object.after_deliver(@delivered)
     end
 
     def perform_request?
@@ -61,7 +58,7 @@ module Jobs
     end
 
     def has_required_args?
-      %i[object_id object_type from_actor_id send_to].all? { |key| @args[key].present? }
+      %i[from_actor_id send_to].all? { |key| @args[key].present? }
     end
 
     def failure_tracker
@@ -69,7 +66,10 @@ module Jobs
     end
 
     def object
-      @object ||= @args[:object_type].constantize.find_by(id: @args[:object_id])
+      @object ||= begin
+        return nil unless @args[:object_type] && @args[:object_id]
+        @args[:object_type].constantize.find_by(id: @args[:object_id])
+      end
     end
 
     def from_actor
@@ -114,7 +114,7 @@ module Jobs
 
     def log_failure(message = "Failed to POST")
       return false unless SiteSetting.activity_pub_verbose_logging
-      prefix = "#{from_actor.ap_id} failed to deliver #{object&.ap_id}"
+      prefix = "#{from_actor.ap_id} failed to deliver #{JSON.generate(delivery_json)}"
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
     end
   
@@ -122,6 +122,14 @@ module Jobs
       return false unless SiteSetting.activity_pub_verbose_logging
       prefix = "JSON delivered to #{@args[:send_to]}"
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{JSON.generate(delivery_json)}")
+    end
+
+    def before_perform_request
+      object.before_deliver if object.present?
+    end
+
+    def after_perform_request
+      object.after_deliver(@delivered) if object.present?
     end
   end
 end

@@ -15,11 +15,10 @@ module DiscourseActivityPub
 
           @object = Object.resolve_and_store(json[:object], self)
           return process_failed("cant_find_object") unless object.present?
-          return false unless process_activity_targets
           return false unless perform_validate_activity
 
-          object.parent_actor = @actor
-          object.target = target if target
+          object.parent = self
+          object.delivered_to << delivered_to if delivered_to
           object.process
         end
       end

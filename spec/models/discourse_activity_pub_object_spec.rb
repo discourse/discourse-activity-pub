@@ -75,24 +75,24 @@ RSpec.describe DiscourseActivityPubObject do
       end
 
       it "sets the collection audience" do
-        expect(collection.audience).to eq("#{group.ap_id}#followers")
+        expect(collection.audience).to eq(group.ap_id)
       end
 
       it "sets announce activities' audience" do
         collection.items.each do |item|
-          expect(item.audience).to eq("#{group.ap_id}#followers")
+          expect(item.audience).to eq(group.ap_id)
         end 
       end
 
       it "sets announced activities' audience" do
         collection.items.each do |item|
-          expect(item.object.audience).to eq("#{group.ap_id}#followers")
+          expect(item.object.audience).to eq(group.ap_id)
         end
       end
 
       it "sets announced activities' notes' audience" do
         collection.items.each do |item|
-          expect(item.object.object.audience).to eq("#{group.ap_id}#followers")
+          expect(item.object.object.audience).to eq(group.ap_id)
         end
       end
     end

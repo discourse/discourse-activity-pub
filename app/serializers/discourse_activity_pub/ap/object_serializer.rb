@@ -11,16 +11,21 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
              :url,
              :attributedTo,
              :name,
-             :summary
+             :summary,
+             :context
 
   def attributes(*args)
     hash = super
-    hash["@context"] = context
+    hash["@context"] = DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT
     hash
   end
 
   def context
     object.context
+  end
+
+  def include_context?
+    object.context.present?
   end
 
   def include_audience?

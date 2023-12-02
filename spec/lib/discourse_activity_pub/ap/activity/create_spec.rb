@@ -115,7 +115,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
     end
 
     context "with a Note not inReplyTo another Note" do
-      let!(:target) { category.activity_pub_actor.ap_id }
+      let!(:delivered_to) { category.activity_pub_actor.ap_id }
       let!(:object_json) { build_object_json(name: "My cool topic title") }
       let!(:new_post_json) {
         build_activity_json(
@@ -131,9 +131,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             follower: category.activity_pub_actor,
             followed: person
           )
-          perform_process(new_post_json, target)
+          perform_process(new_post_json, delivered_to)
         end
-  
+
         it "creates a new topic" do
           post = Post.find_by(raw: object_json[:content])
           expect(post.present?).to be(true)
@@ -141,7 +141,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           expect(post.topic.title).to eq(object_json[:name])
           expect(post.post_number).to be(1)
         end
-  
+
         it "creates an activity" do
           expect(
             DiscourseActivityPubActivity.exists?(
@@ -171,7 +171,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           )
           klass = DiscourseActivityPub::AP::Activity::Announce.new
           klass.json = announce_json
-          klass.target = target
+          klass.delivered_to << delivered_to
           klass.process
         end
   
@@ -199,7 +199,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           SiteSetting.activity_pub_verbose_logging = true
           @orig_logger = Rails.logger
           Rails.logger = @fake_logger = FakeLogger.new
-          perform_process(new_post_json, target)
+          perform_process(new_post_json, delivered_to)
         end
   
         after do
@@ -225,7 +225,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
   
         it "logs a warning" do
           expect(@fake_logger.warnings.last).to match(
-            I18n.t('discourse_activity_pub.process.warning.only_followed_actors_can_create_new')
+            I18n.t('discourse_activity_pub.process.warning.only_followed_actors_create_new_topics')
           )
         end
       end

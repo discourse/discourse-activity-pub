@@ -24,6 +24,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def ready?(parent_ap_type = nil)
     return true unless local?
+    return false unless model&.activity_pub_enabled
 
     case parent_ap_type
     when DiscourseActivityPub::AP::Activity::Create.type,
@@ -46,8 +47,16 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     !private?
   end
 
+  def post?
+    model_type == 'Post'
+  end
+
+  def closest_local_object
+    self.local? ? self : reply_to&.closest_local_object
+  end
+
   def in_reply_to_post
-    reply_to&.model_type == 'Post' && reply_to.model
+    reply_to&.post? && reply_to.model
   end
 
   def before_deliver
@@ -83,16 +92,20 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
+  def context
+    self.read_attribute(:context) || collection&.ap_id
+  end
+
+  def target
+    self.read_attribute(:target) || context
+  end
+
   def audience
-    @audience ||= activities.first&.audience
+    self.read_attribute(:audience) || topic_actor&.ap_id
   end
 
-  def to
-    audience
-  end
-
-  def cc
-    public? ? DiscourseActivityPub::JsonLd.public_collection_id : nil
+  def topic_actor
+    model.respond_to?(:activity_pub_topic_actor) ? model.activity_pub_topic_actor : nil
   end
 
   def attributed_to_actor

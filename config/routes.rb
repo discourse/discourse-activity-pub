@@ -12,7 +12,7 @@ DiscourseActivityPub::Engine.routes.draw do
     get ":category_id/follows" => "category#follows"
   end
 
-  post "users/inbox" => "ap/shared_inboxes#create"
+  post "users/inbox" => "a_p/shared_inboxes#create"
 
   scope '/actor', defaults: { format: :json } do
     post ":actor_id/follow" => "actor#follow"
@@ -27,6 +27,7 @@ DiscourseActivityPub::Engine.routes.draw do
     get "actor/:key/followers" => "followers#index"
     get "activity/:key" => "activities#show"
     get "object/:key" => "objects#show"
+    get "collection/:key" => "collections#show"
   end
 
   get "auth" => "auth#index", defaults: { format: :json }

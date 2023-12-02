@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPubActivity do
-  let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:category) { Fabricate(:category) }
+  let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow, object: actor) }
 
   describe "#create" do
@@ -49,13 +50,19 @@ RSpec.describe DiscourseActivityPubActivity do
   end
 
   describe '#audience' do
-    let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
-    let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
+    let!(:topic) { Fabricate(:topic, category: category) }
+    let!(:post) { Fabricate(:post, topic: topic) }
+    let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post)}
+    let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
     let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
     let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor) }
 
-    it "addresses activity to followers" do
-      expect(activity.ap.json[:audience]).to eq(actor.followers_collection.ap_id)
+    before do
+      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+    end
+
+    it "returns the group actor id" do
+      expect(activity.audience).to eq(actor.ap_id)
     end
   end
 

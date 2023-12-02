@@ -46,7 +46,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
 
       context "with an Undo of a Like" do
         let!(:user) { Fabricate(:user) }
-        let!(:post) { Fabricate(:post) }
+        let!(:topic) { Fabricate(:topic, category: group.model) }
+        let!(:post) { Fabricate(:post, topic: topic) }
         let!(:like) { Fabricate(:post_action, user: user, post: post, post_action_type_id: PostActionType.types[:like])}
         let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
         let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
