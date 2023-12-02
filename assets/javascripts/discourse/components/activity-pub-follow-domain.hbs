@@ -1,6 +1,6 @@
 <div class="activity-pub-follow-domain">
-  <label>{{i18n 'discourse_activity_pub.follow.domain.label'}}</label>
-  <div class="activity-pub-follow-domain-controls">
+  <label>{{i18n "discourse_activity_pub.follow.domain.label"}}</label>
+  <div class="activity-pub-follow-domain-controls inline-form">
     <Input
       id="activity_pub_follow_domain_input"
       @value={{this.domain}}
@@ -20,9 +20,9 @@
     {{#if this.error}}
       {{this.error}}
     {{else if this.verifying}}
-      {{i18n 'discourse_activity_pub.follow.domain.verifying'}}
+      {{i18n "discourse_activity_pub.follow.domain.verifying"}}
     {{else}}
-      {{i18n 'discourse_activity_pub.follow.domain.description'}}
+      {{i18n "discourse_activity_pub.follow.domain.description"}}
     {{/if}}
   </div>
 </div>
