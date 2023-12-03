@@ -3,6 +3,7 @@
 class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::ObjectsController
   before_action :ensure_actor_exists
   before_action :ensure_can_access_actor
+  before_action :ensure_can_access_actor_model
   before_action :ensure_actor_ready
 
   def show
@@ -16,6 +17,12 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   end
 
   def ensure_can_access_actor
+    unless (DiscourseActivityPub.publishing_enabled || @actor.ap.group?)
+      render_activity_pub_error("not_available", 401)
+    end
+  end
+
+  def ensure_can_access_actor_model
     render_activity_pub_error("not_available", 401) unless guardian.can_see?(@actor.model)
   end
 

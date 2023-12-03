@@ -1,10 +1,51 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::ObjectsController do
-  let(:object) { Fabricate(:discourse_activity_pub_object_note) }
+  let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:keypair) { OpenSSL::PKey::RSA.new(2048) }
+  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem) }
+  let!(:object) { Fabricate(:discourse_activity_pub_object_note) }
+  let!(:post_body) { build_activity_json(object: group) }
+  let!(:invalid_digest) { Digest::SHA256.base64digest("invalid body") }
+  let!(:valid_digest) { Digest::SHA256.base64digest(post_body.to_json) }
+  let!(:valid_digest_headers) {
+    build_headers(
+      custom_headers: {
+        "Digest" => "SHA-256=#{valid_digest}"
+      },
+      custom_verb: 'post',
+      custom_path: DiscourseActivityPub::URI.parse(group.inbox).path
+    )
+  }
+  let!(:invalid_digest_headers) {
+    build_headers(custom_headers: {
+      "Digest" => "SHA-256=#{invalid_digest}"
+    })
+  }
+
+  def build_headers(custom_object: nil, custom_actor: nil, custom_verb: nil, custom_path: nil, custom_key_id: nil, custom_keypair: true, custom_headers: {}, custom_params: {})
+    _object = custom_object || object
+    _actor = custom_actor || actor
+    _headers = {
+      "Host" => DiscourseActivityPub.host,
+      "Date" => Time.now.utc.httpdate,
+    }.merge(custom_headers)
+
+    _headers["Signature"] = DiscourseActivityPub::Request.build_signature(
+      verb: custom_verb || 'get',
+      path: custom_path || DiscourseActivityPub::URI.parse(_object.ap_id).path,
+      key_id: custom_key_id || signature_key_id(_actor),
+      keypair: custom_keypair ? keypair : _actor.keypair,
+      headers: _headers,
+      custom_params: custom_params
+    )
+
+    _headers
+  end
 
   before do
     SiteSetting.activity_pub_require_signed_requests = false
+    toggle_activity_pub(group.model)
   end
 
   context "without activity pub enabled" do
@@ -29,17 +70,32 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         SiteSetting.login_required = true
       end
 
-      it "returns a not enabled error" do
-        get_object(object)
-        expect(response.status).to eq(403)
-        expect(response.parsed_body).to eq(activity_request_error("not_enabled"))
+      context "with an object GET" do
+        it "returns a not enabled error" do
+          get_object(object)
+          expect(response.status).to eq(403)
+          expect(response.parsed_body).to eq(activity_request_error("not_enabled"))
+        end
+      end
+
+      context "with a POST to a group inbox" do
+        it "succeeeds" do
+          post_to_inbox(group, body: post_body)
+          expect(response.status).to eq(202)
+        end
+      end
+
+      context "with a POST to the users' shared inbox" do
+        it "returns a not enabled error" do
+          post_to_inbox(nil, url: DiscourseActivityPub.users_shared_inbox, body: post_body)
+          expect(response.status).to eq(403)
+          expect(response.parsed_body).to eq(activity_request_error("not_enabled"))
+        end
       end
     end
   end
 
   context "with an invalid content header" do
-    let(:group) { Fabricate(:discourse_activity_pub_actor_group) }
-
     context "with invalid Content-Type header" do
       it "returns bad request" do
         post_to_inbox(group, headers: { "Content-Type" => "application/json" })
@@ -103,30 +159,6 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
     end
 
     context "with a signature" do
-      let!(:keypair) { OpenSSL::PKey::RSA.new(2048) }
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem) }
-      let(:group) { Fabricate(:discourse_activity_pub_actor_group) }
-
-      def build_headers(custom_object: nil, custom_actor: nil, custom_verb: nil, custom_path: nil, custom_key_id: nil, custom_keypair: true, custom_headers: {}, custom_params: {})
-        _object = custom_object || object
-        _actor = custom_actor || actor
-        _headers = {
-          "Host" => DiscourseActivityPub.host,
-          "Date" => Time.now.utc.httpdate,
-        }.merge(custom_headers)
-
-        _headers["Signature"] = DiscourseActivityPub::Request.build_signature(
-          verb: custom_verb || 'get',
-          path: custom_path || DiscourseActivityPub::URI.parse(_object.ap_id).path,
-          key_id: custom_key_id || signature_key_id(_actor),
-          keypair: custom_keypair ? keypair : _actor.keypair,
-          headers: _headers,
-          custom_params: custom_params
-        )
-
-        _headers
-      end
-
       context "with missing signature params" do
         let(:headers) { build_headers(custom_key_id: "") }
 
@@ -236,8 +268,8 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       end
 
       context "with a new actor" do
-        let(:new_actor) { build_actor_json(keypair.public_key.to_pem) }
-        let(:headers) { build_headers(custom_key_id: new_actor[:publicKey][:id], custom_keypair: keypair) }
+        let!(:new_actor) { build_actor_json(keypair.public_key.to_pem) }
+        let!(:headers) { build_headers(custom_key_id: new_actor[:publicKey][:id], custom_keypair: keypair) }
 
         before do
           stub_request(:get, new_actor[:id])
@@ -252,41 +284,17 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       end
 
       context "with a post request" do
-        let(:body) { build_activity_json(object: group) }
-        let(:invalid_digest) { Digest::SHA256.base64digest("invalid body") }
-        let(:valid_digest) { Digest::SHA256.base64digest(body.to_json) }
-
         context "with an invalid digest" do
-          let(:headers) {
-            build_headers(custom_headers: {
-              "Digest" => "SHA-256=#{invalid_digest}"
-            })
-          }
-
           it "returns the right unauthorized error" do
-            post_to_inbox(group, body: body, headers: headers)
+            post_to_inbox(group, body: post_body, headers: invalid_digest_headers)
             expect(response.status).to eq(401)
             expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.invalid_digest", { computed: valid_digest, digest: invalid_digest })])
           end
         end
 
         context "with a valid digest" do
-          let(:headers) {
-            build_headers(
-              custom_headers: {
-                "Digest" => "SHA-256=#{valid_digest}"
-              },
-              custom_verb: 'post',
-              custom_path: DiscourseActivityPub::URI.parse(group.inbox).path
-            )
-          }
-
-          before do
-            toggle_activity_pub(group.model)
-          end
-
           it "succeeds" do
-            post_to_inbox(group, body: body, headers: headers)
+            post_to_inbox(group, body: post_body, headers: valid_digest_headers)
             expect(response.status).to eq(202)
           end
         end
