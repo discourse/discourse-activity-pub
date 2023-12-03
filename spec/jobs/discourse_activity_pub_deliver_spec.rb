@@ -36,14 +36,20 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       SiteSetting.activity_pub_enabled = true
     end
 
-    context "with login required" do
+    context "with model activity pub enabled" do
       before do
-        SiteSetting.login_required = true
+        toggle_activity_pub(category, callbacks: true)
       end
 
-      it "does not perform a request" do
-        expect_no_request
-        execute_job
+      context "with login required" do
+        before do
+          SiteSetting.login_required = true
+        end
+  
+        it "does not perform a request" do
+          expect_no_request
+          execute_job
+        end
       end
     end
   end
