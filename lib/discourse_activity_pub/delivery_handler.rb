@@ -26,6 +26,7 @@ module DiscourseActivityPub
     protected
 
     def can_deliver?
+      return log_failure("publishing disabled") unless DiscourseActivityPub.publishing_enabled
       return log_failure("delivery actor not ready") unless actor&.ready?
       return log_failure("object not ready") unless object&.ready?
       return log_failure("no recipients") if recipients.none?

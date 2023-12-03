@@ -53,6 +53,26 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
   end
 
   describe "#perform" do
+    context "with login required" do
+      before do
+        SiteSetting.login_required = true
+      end
+
+      it "returns false" do
+        expect(perform_delivery).to eq(false)
+      end
+
+      it "does not enqueue any delivery jobs" do
+        perform_delivery
+        expect_job(enqueued: false)
+      end
+
+      it "logs the right warning" do
+        perform_delivery
+        expect_log("publishing disabled")
+      end
+    end
+
     context "when delivery actor is not ready" do
       it "returns false" do
         expect(perform_delivery).to eq(false)

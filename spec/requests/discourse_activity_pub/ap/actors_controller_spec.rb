@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::ActorsController do
-  let(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:person) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
@@ -11,7 +12,7 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
 
   context "without a valid actor" do
     it "returns a not found error" do
-      get_object(actor, url: "/ap/actor/56")
+      get_object(group, url: "/ap/actor/56")
       expect(response.status).to eq(404)
       expect(response.parsed_body).to eq(activity_request_error("not_found"))
     end
@@ -19,12 +20,12 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
 
   context "without a public actor" do
     before do
-      actor.model.set_permissions(admins: :full)
-      actor.model.save!
+      group.model.set_permissions(admins: :full)
+      group.model.save!
     end
 
     it "returns a not available error" do
-      get_object(actor)
+      get_object(group)
       expect(response.status).to eq(401)
       expect(response.parsed_body).to eq(activity_request_error("not_available"))
     end
@@ -32,21 +33,43 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
 
   context "without activity pub ready on actor model" do
     it "returns a not available error" do
-      get_object(actor)
+      get_object(group)
       expect(response.status).to eq(403)
       expect(response.parsed_body).to eq(activity_request_error("not_available"))
     end
   end
 
-  describe "#show" do
+  context "with activity pub ready on actor model" do
     before do
-      toggle_activity_pub(actor.model)
+      toggle_activity_pub(group.model)
+    end
+
+    context "with publishing disabled" do
+      before do
+        SiteSetting.login_required = true
+      end
+
+      context "with a group actor" do
+        it "returns actor json" do
+          get_object(group)
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq(group.ap.json)
+        end
+      end
+
+      context "with a person actor" do
+        it "returns a not available error" do
+          get_object(person)
+          expect(response.status).to eq(401)
+          expect(response.parsed_body).to eq(activity_request_error("not_available"))
+        end
+      end
     end
 
     it "returns actor json" do
-      get_object(actor)
+      get_object(group)
       expect(response.status).to eq(200)
-      expect(response.parsed_body).to eq(actor.ap.json)
+      expect(response.parsed_body).to eq(group.ap.json)
     end
   end
 end

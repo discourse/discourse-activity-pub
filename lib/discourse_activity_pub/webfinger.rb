@@ -18,7 +18,19 @@ module DiscourseActivityPub
     end
 
     def find_actor(raw_handle)
-      DiscourseActivityPubActor.find_by_handle(raw_handle, local: true)
+      DiscourseActivityPubActor.find_by_handle(
+        raw_handle,
+        local: true,
+        types: [permitted_types]
+      )
+    end
+
+    def permitted_types
+      types = [DiscourseActivityPub::AP::Actor::Group.type]
+      if DiscourseActivityPub.publishing_enabled
+        types << DiscourseActivityPub::AP::Actor::Person.type
+      end
+      types
     end
 
     def self.find_by_handle(raw_handle)

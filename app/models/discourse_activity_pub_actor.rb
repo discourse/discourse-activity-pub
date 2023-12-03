@@ -136,7 +136,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def self.find_by_handle(raw_handle, local: false, refresh: false)
+  def self.find_by_handle(raw_handle, local: false, refresh: false, types: [])
     handle = DiscourseActivityPub::Webfinger::Handle.new(handle: raw_handle)
     return nil unless handle.valid?
     return nil unless !local || DiscourseActivityPub::URI.local?(handle.domain)
@@ -146,6 +146,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     }
     opts[:local] = true if local
     opts[:domain] = handle.domain if !local
+    opts[:ap_type] = types if types.present?
     actor = DiscourseActivityPubActor.find_by(opts)
 
     if (refresh || !actor) && !local

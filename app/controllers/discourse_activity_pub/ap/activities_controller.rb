@@ -2,7 +2,8 @@
 
 class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP::ObjectsController
   before_action :ensure_activity_exists
-  before_action :ensure_can_access_base_object
+  before_action :ensure_can_access_activity
+  before_action :ensure_can_access_activity_object_model
 
   def show
     render json: @activity.ap.json
@@ -16,7 +17,13 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
     end
   end
 
-  def ensure_can_access_base_object
+  def ensure_can_access_activity
+    unless (DiscourseActivityPub.publishing_enabled || @activity.ap.follow? || @activity.ap.response?)
+      render_activity_pub_error("not_available", 401)
+    end
+  end
+
+  def ensure_can_access_activity_object_model
     unless !@activity.base_object || guardian.can_see?(@activity.base_object.model)
       render_activity_pub_error("not_available", 401)
     end

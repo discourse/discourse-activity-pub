@@ -17,7 +17,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     end
   end
 
-  context "without a publicly available base model" do
+  context "without an available base model" do
     fab!(:staff_category) do
       Fabricate(:category).tap do |staff_category|
         staff_category.set_permissions(staff: :full)
@@ -36,15 +36,52 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     end
   end
 
-  describe "#show" do
+  describe "with an available base model" do
     before do
-      toggle_activity_pub(activity.base_object.model.topic.category)
+      category = activity.ap.composition? ?
+        activity.base_object.model.topic.category :
+        activity.object.model
+      toggle_activity_pub(category)
     end
 
     it "returns activity json" do
       get_object(activity)
       expect(response.status).to eq(200)
       expect(response.parsed_body).to eq(activity.ap.json)
+    end
+
+    context "with publishing disabled" do
+      before do
+        SiteSetting.login_required = true
+      end
+
+      context "with a composition activity" do
+        it "returns a not available error" do
+          get_object(activity)
+          expect(response.status).to eq(401)
+          expect(response.parsed_body).to eq(activity_request_error("not_available"))
+        end
+      end
+
+      context "with a follow actiivty" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_follow) }
+
+        it "returns activity json" do
+          get_object(activity)
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq(activity.ap.json)
+        end
+      end
+
+      context "with a response actiivty" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_follow) }
+
+        it "returns activity json" do
+          get_object(activity)
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq(activity.ap.json)
+        end
+      end
     end
   end
 end

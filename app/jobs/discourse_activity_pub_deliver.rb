@@ -54,7 +54,8 @@ module Jobs
         has_required_args? &&
         actors_ready? &&
         object_ready? &&
-        failure_tracker.domain_available?
+        failure_tracker.domain_available? &&
+        DiscourseActivityPub.publishing_enabled
     end
 
     def has_required_args?
