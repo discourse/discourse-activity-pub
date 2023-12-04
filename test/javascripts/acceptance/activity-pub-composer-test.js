@@ -26,7 +26,10 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
   });
 
   test("with a category with activity pub ready", async function (assert) {
-    Site.current().set("activity_pub_enabled", true);
+    Site.current().setProperties({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
     Category.findById(2).setProperties({
       activity_pub_ready: true,
       activity_pub_default_visibility: "public",

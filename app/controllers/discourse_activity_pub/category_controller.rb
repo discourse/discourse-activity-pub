@@ -6,6 +6,7 @@ module DiscourseActivityPub
     ORDER = %w(actor user followed_at)
 
     before_action :ensure_site_enabled
+    before_action :ensure_publishing_enabled, only: [:followers]
     before_action :find_category
     before_action :ensure_category_enabled
 
@@ -111,6 +112,10 @@ module DiscourseActivityPub
 
     def ensure_category_enabled
       render_category_error("not_enabled", 403) unless @category.activity_pub_enabled
+    end
+
+    def ensure_publishing_enabled
+      render_category_error("not_enabled", 403) unless DiscourseActivityPub.publishing_enabled
     end
 
     def ensure_site_enabled
