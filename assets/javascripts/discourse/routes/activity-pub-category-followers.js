@@ -14,6 +14,12 @@ export default DiscourseRoute.extend({
 
   afterModel(model, transition) {
     const category = model;
+
+    if (!this.site.activity_pub_publishing_enabled) {
+      this.router.replaceWith("/404");
+      return;
+    }
+
     return ActivityPubCategory.listActors(
       category.id,
       transition.to.queryParams,

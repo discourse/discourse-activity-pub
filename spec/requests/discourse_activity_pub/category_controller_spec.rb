@@ -49,48 +49,72 @@ RSpec.describe DiscourseActivityPub::CategoryController do
     )
   }
 
+  def build_error(key)
+    { "errors" => [I18n.t("discourse_activity_pub.category.error.#{key}")] }
+  end
+
   describe "#followers" do
-    context "with activity pub enabled" do
+    context "with a user" do
+      let!(:user) { Fabricate(:user) }
+
       before do
-        toggle_activity_pub(actor.model)
+        sign_in(user)
       end
 
-      it "returns the categories followers" do
-        get "/ap/category/#{actor.model.id}/followers.json"
-        expect(response.status).to eq(200)
-        expect(response.parsed_body['actors'].map{|f| f["url"] }).to eq(
-          [follower3.ap_id, follower2.ap_id, follower1.ap_id]
-        )
-      end
-
-      it "returns followers without users" do
-        get "/ap/category/#{actor.model.id}/followers.json"
-        expect(response.status).to eq(200)
-        expect(response.parsed_body['actors'].map{|f| f["username"] }).to include("jenny_ap")
-      end
-
-      it "orders by user" do
-        get "/ap/category/#{actor.model.id}/followers.json?order=user"
-        expect(response.status).to eq(200)
-        expect(response.parsed_body['actors'].map{|f| f.dig("user","username") }).to eq(
-          ["xavier_local", "bob_local", nil]
-        )
-      end
-
-      it "orders by actor" do
-        get "/ap/category/#{actor.model.id}/followers.json?order=actor"
-        expect(response.status).to eq(200)
-        expect(response.parsed_body['actors'].map{|f| f["username"] }).to eq(
-          ["xavier_ap", "jenny_ap", "bob_ap"]
-        )
-      end
-
-      it "paginates" do
-        get "/ap/category/#{actor.model.id}/followers.json?limit=2&page=1"
-        expect(response.status).to eq(200)
-        expect(response.parsed_body['actors'].map{|f| f["url"] }).to eq(
-          [follower1.ap_id]
-        )
+      context "with activity pub enabled" do
+        before do
+          toggle_activity_pub(actor.model)
+        end
+  
+        it "returns the categories followers" do
+          get "/ap/category/#{actor.model.id}/followers.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body['actors'].map{|f| f["url"] }).to eq(
+            [follower3.ap_id, follower2.ap_id, follower1.ap_id]
+          )
+        end
+  
+        it "returns followers without users" do
+          get "/ap/category/#{actor.model.id}/followers.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body['actors'].map{|f| f["username"] }).to include("jenny_ap")
+        end
+  
+        it "orders by user" do
+          get "/ap/category/#{actor.model.id}/followers.json?order=user"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body['actors'].map{|f| f.dig("user","username") }).to eq(
+            ["xavier_local", "bob_local", nil]
+          )
+        end
+  
+        it "orders by actor" do
+          get "/ap/category/#{actor.model.id}/followers.json?order=actor"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body['actors'].map{|f| f["username"] }).to eq(
+            ["xavier_ap", "jenny_ap", "bob_ap"]
+          )
+        end
+  
+        it "paginates" do
+          get "/ap/category/#{actor.model.id}/followers.json?limit=2&page=1"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body['actors'].map{|f| f["url"] }).to eq(
+            [follower1.ap_id]
+          )
+        end
+  
+        context "with publishing disabled" do
+          before do
+            SiteSetting.login_required = true
+          end
+  
+          it "returns the right error" do
+            get "/ap/category/#{actor.model.id}/followers.json"
+            expect(response.status).to eq(403)
+            expect(response.parsed_body).to eq(build_error("not_enabled"))
+          end
+        end
       end
     end
   end

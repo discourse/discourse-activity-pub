@@ -14,11 +14,11 @@ import { getOwner } from "@ember/application";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
-  context.siteSettings.login_required = attrs.login_required;
-  Site.current().set(
-    "activity_pub_enabled",
-    attrs.activity_pub_enabled && !attrs.login_required
-  );
+  context.siteSettings.login_required = !!attrs.activity_pub_publishing_enabled;
+  Site.current().setProperties({
+    activity_pub_enabled: attrs.activity_pub_enabled,
+    activity_pub_publishing_enabled: attrs.activity_pub_publishing_enabled,
+  });
 }
 
 function setCategory(context, attrs = {}) {
@@ -46,28 +46,37 @@ module(
     setupRenderingTest(hooks);
     const template = hbs`<ActivityPubStatus @model={{this.category}} @modelType="category" />`;
 
-    test("with login required enabled", async function (assert) {
-      setSite(this, { activity_pub_enabled: true, login_required: true });
-      setCategory(this);
+    test("with publishing disabled", async function (assert) {
+      setSite(this, {
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: false,
+      });
+      setCategory(this, {
+        activity_pub_enabled: true,
+        activity_pub_ready: true,
+      });
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-status.publishing-disabled");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.login_required_enabled"),
+        I18n.t("discourse_activity_pub.status.title.publishing_disabled"),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        I18n.t("discourse_activity_pub.status.label.publishing_disabled"),
         "has the right label"
       );
     });
 
     test("with plugin disabled", async function (assert) {
-      setSite(this, { activity_pub_enabled: false, login_required: false });
+      setSite(this, {
+        activity_pub_enabled: false,
+        activity_pub_publishing_enabled: true,
+      });
       setCategory(this);
 
       await render(template);
@@ -87,7 +96,10 @@ module(
     });
 
     test("with activity pub disabled on category", async function (assert) {
-      setSite(this, { activity_pub_enabled: true, login_required: false });
+      setSite(this, {
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
       setCategory(this, { activity_pub_enabled: false });
 
       await render(template);
@@ -109,7 +121,10 @@ module(
     });
 
     test("with activity pub not ready on category", async function (assert) {
-      setSite(this, { activity_pub_enabled: true, login_required: false });
+      setSite(this, {
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: false,
@@ -134,7 +149,10 @@ module(
     });
 
     test("with active activity pub", async function (assert) {
-      setSite(this, { activity_pub_enabled: true, login_required: false });
+      setSite(this, {
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: true,
@@ -160,7 +178,10 @@ module(
     });
 
     test("updates correctly after messageBus message", async function (assert) {
-      setSite(this, { activity_pub_enabled: true, login_required: false });
+      setSite(this, {
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: true,
@@ -195,7 +216,10 @@ module(
     test("when in the composer", async function (assert) {
       const composerTemplate = hbs`<ActivityPubStatus @model={{this.composer}} @modelType="composer" />`;
 
-      setSite(this, { activity_pub_enabled: true });
+      setSite(this, {
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
       setCategory(this, {
         activity_pub_enabled: true,
         activity_pub_ready: true,
