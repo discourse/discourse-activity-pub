@@ -2,6 +2,9 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
 import { bind } from "discourse-common/utils/decorators";
+import { dasherize } from "@ember/string";
+import DButton from "discourse/components/d-button";
+import icon from "discourse-common/helpers/d-icon";
 import I18n from "I18n";
 
 export default class ActivityPubStatus extends Component {
@@ -70,10 +73,7 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedTitleKey() {
-    if (this.siteSettings.login_required) {
-      return "login_required_enabled";
-    }
-    if (!this.siteSettings.activity_pub_enabled) {
+    if (!this.site.activity_pub_enabled) {
       return "plugin_disabled";
     }
     if (this.args.modelType === "category" && this.args.model.read_restricted) {
@@ -86,6 +86,9 @@ export default class ActivityPubStatus extends Component {
       return "model_not_ready";
     }
     if (this.active) {
+      if (!this.site.activity_pub_publishing_enabled) {
+        return "publishing_disabled";
+      }
       return "model_active.first_post";
     } else {
       return "model_not_active";
@@ -93,30 +96,39 @@ export default class ActivityPubStatus extends Component {
   }
 
   get statusKey() {
-    return this.active ? "active" : "not_active";
+    if (this.active) {
+      return !this.site.activity_pub_publishing_enabled ? "publishing_disabled" : "active";
+    } else {
+      return "not_active";
+    }
   }
 
   get classes() {
-    let result = `activity-pub-status ${this.statusClass}`;
+    let result = `activity-pub-status ${dasherize(this.statusKey)}`;
     if (this.args.onClick) {
       result += " clickable";
     }
     return result;
   }
 
-  get statusClass() {
-    return this.active ? "active" : "not-active";
-  }
-
   labelKey(type) {
-    let attribute = this.forComposer ? "visibility" : "status";
-    let key = this.forComposer
-      ? this.args.model.activity_pub_visibility
-      : this.statusKey;
+    let attribute = "status";
+    let key = this.statusKey;
+    if (this.forComposer && this.site.activity_pub_publishing_enabled) {
+      attribute = "visibility";
+      key = this.args.model.activity_pub_visibility;
+    }
     return `discourse_activity_pub.${attribute}.${type}.${key}`;
   }
 
   get translatedLabel() {
     return I18n.t(this.labelKey("label"));
   }
+
+  <template>
+    <div class={{this.classes}} title={{this.translatedTitle}} role="button">
+      {{icon "discourse-activity-pub"}}
+      <span class="label">{{this.translatedLabel}}</span>
+    </div>
+  </template>
 }

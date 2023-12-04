@@ -119,6 +119,7 @@ after_initialize do
   # DiscourseActivityPub.enabled is the single source of truth for whether
   # ActivityPub is enabled on the site level
   add_to_serializer(:site, :activity_pub_enabled) { DiscourseActivityPub.enabled }
+  add_to_serializer(:site, :activity_pub_publishing_enabled) { DiscourseActivityPub.publishing_enabled }
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
   Category.has_one :activity_pub_actor,

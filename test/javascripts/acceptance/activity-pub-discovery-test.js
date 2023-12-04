@@ -17,7 +17,10 @@ acceptance(
   "Discourse Activity Pub | Discovery without site enabled",
   function (needs) {
     needs.user();
-    needs.site({ activity_pub_enabled: false });
+    needs.site({
+      activity_pub_enabled: false,
+      activity_pub_publishing_enabled: false,
+    });
 
     test("with a non-category route", async function (assert) {
       await visit("/latest");
@@ -57,7 +60,10 @@ acceptance(
   "Discourse Activity Pub | Discovery with site enabled",
   function (needs) {
     needs.user();
-    needs.site({ activity_pub_enabled: true });
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
     needs.pretender((server, helper) => {
       server.get(`${followersPath}.json`, () =>
         helper.response({ followers: [] })
@@ -126,10 +132,78 @@ acceptance(
 );
 
 acceptance(
+  "Discourse Activity Pub | Discovery with publishing disabled",
+  function (needs) {
+    needs.user();
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: false,
+    });
+    needs.pretender((server, helper) => {
+      server.get(`/c/feature/find_by_slug.json`, () => {
+        return helper.response(200, {
+          category: {
+            id: 2,
+            name: "feature",
+            slug: "feature",
+            can_edit: true,
+            activity_pub_ready: true,
+            activity_pub_actor: {
+              name: "Angus",
+              handle: "angus@mastodon.pavilion.tech",
+            },
+          },
+        });
+      });
+      const path = `${followsPath}.json`;
+      server.get(path, () => helper.response(CategoryFollows[path]));
+    });
+
+    test("with a category route with activity pub ready", async function (assert) {
+      const category = Category.findById(2);
+      category.setProperties({
+        activity_pub_ready: true,
+        activity_pub_actor: {
+          name: "Angus",
+          handle: "angus@mastodon.pavilion.tech",
+        },
+      });
+
+      await visit(category.url);
+      await click(".activity-pub-category-route-nav");
+
+      assert.ok(
+        !exists(".activity-pub-category-banner"),
+        "the activitypub category banner is not visible"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Discovery activitypub category followers route with publishing disabled",
+  function (needs) {
+    needs.user();
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: false,
+    });
+
+    test("returns 404", async function (assert) {
+      await visit(followersPath);
+      assert.strictEqual(currentURL(), "/404");
+    });
+  }
+);
+
+acceptance(
   "Discourse Activity Pub | Discovery activitypub category followers route without followers",
   function (needs) {
     needs.user();
-    needs.site({ activity_pub_enabled: true });
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
     needs.pretender((server, helper) => {
       server.get(`${followersPath}.json`, () =>
         helper.response({ followers: [] })
@@ -165,7 +239,10 @@ acceptance(
   "Discourse Activity Pub | Discovery activitypub category followers route with followers",
   function (needs) {
     needs.user();
-    needs.site({ activity_pub_enabled: true });
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
     needs.pretender((server, helper) => {
       const path = `${followersPath}.json`;
       server.get(path, () => helper.response(CategoryFollowers[path]));
@@ -243,7 +320,10 @@ acceptance(
   "Discourse Activity Pub | Discovery activitypub category follows route with no edit permission",
   function (needs) {
     needs.user();
-    needs.site({ activity_pub_enabled: true });
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
     needs.pretender((server, helper) => {
       server.get(`/c/feature/find_by_slug.json`, () => {
         return helper.response(200, {
@@ -273,7 +353,10 @@ acceptance(
   "Discourse Activity Pub | Discovery activitypub category follows route with edit permission with followers",
   function (needs) {
     needs.user();
-    needs.site({ activity_pub_enabled: true });
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
     needs.pretender((server, helper) => {
       server.get(`/c/feature/find_by_slug.json`, () => {
         return helper.response(200, {

@@ -28,11 +28,15 @@ div.activity-pub-status {
   > .svg-icon {
     height: 1.2em;
     width: 1.2em;
-    color: var(--danger);
+    color: var(--danger) !important;
   }
 
   &.active > .svg-icon {
-    color: var(--success);
+    color: var(--success) !important;
+  }
+
+  &.publishing-disabled > .svg-icon {
+    color: var(--tertiary) !important;
   }
 
   .label {
@@ -124,14 +128,6 @@ div.activity-pub-status {
 
 #reply-control .activity-pub-status {
   margin-left: 1em;
-
-  > .svg-icon {
-    color: var(--danger) !important;
-  }
-
-  &.active > .svg-icon {
-    color: var(--success) !important;
-  }
 }
 
 .post-info.activity-pub {
