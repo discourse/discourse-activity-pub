@@ -126,8 +126,9 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   end
 
   def contributors
-    # If an Actor is attributed a Note in a Topic they become a contributor to its Collection.
-    # See further activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
+    # Contributors are added as recipients of the collection's activities.
+    # See activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
+    # See also lib/discourse_activity_pub/activity_forwarder.rb
     objects.map(&:attributed_to_actor).compact
   end
 

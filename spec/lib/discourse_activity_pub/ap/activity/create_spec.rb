@@ -13,6 +13,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
     before do
       toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
       topic.create_activity_pub_collection!
+      DiscourseActivityPub::DeliveryHandler.stubs(:perform).returns(true)
     end
 
     context "with Note inReplyTo to a Note" do

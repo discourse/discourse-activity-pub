@@ -27,9 +27,14 @@ module DiscourseActivityPub
 
       forward_to = []
 
-      if forward_to_local_topic_actor_followers?
+      if forward_to_local_followers_and_contributors?
         local_topic_actor.followers.each do |follower|
+          next if follower.id == activity.stored.actor.id || forward_to.include?(follower.id)
           forward_to << follower.id
+        end
+        base_object.collection.contributors.each do |contributor|
+          next if contributor.id == activity.stored.actor.id || forward_to.include?(contributor.id)
+          forward_to << contributor.id
         end
       end
 
@@ -82,7 +87,7 @@ module DiscourseActivityPub
       first_post_object.remote? && publicly_addressed? && remote_topic_actor
     end
 
-    def forward_to_local_topic_actor_followers?
+    def forward_to_local_followers_and_contributors?
       addressed_to.include?(local_topic_actor&.ap_id) || (
         first_post_object.local? && publicly_addressed?
       )

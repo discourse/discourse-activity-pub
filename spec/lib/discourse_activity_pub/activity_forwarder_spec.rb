@@ -13,6 +13,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
   let!(:post3) { Fabricate(:post, topic: topic, post_number: 3) }
   let!(:note3) { Fabricate(:discourse_activity_pub_object_note, local: false, model: post3, published_at: Time.now, collection_id: collection.id) }
 
+  let!(:contributor1) { Fabricate(:discourse_activity_pub_actor_person, local: false, model: post3.user) }
   let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
   let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category_actor) }
   let!(:follower2) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
@@ -37,24 +38,33 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
     end
 
     shared_examples "topic actor forward" do
-      it "forwards to followers" do
+      it "forwards to followers and contributors" do
         expect_request(
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
           returns: stub_everything(post_json_ld: true),
-          uri: [follower1.inbox, follower2.inbox]
-        ).twice
+          uri: [follower1.inbox, follower2.inbox, contributor1.inbox]
+        ).times(3)
         perform_process(activity)
       end
 
-      it "forwards to followers the activity is already addressed to" do
+      it "forwards to actors the activity is already addressed to" do
         expect_request(
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
           returns: stub_everything(post_json_ld: true),
-          uri: [follower1.inbox, follower2.inbox]
-        ).twice
+          uri: [follower1.inbox, follower2.inbox, contributor1.inbox]
+        ).times(3)
         activity.ap.json[:cc] << follower1.ap_id
+        perform_process(activity)
+      end
+
+      it "does not forward to the activity actor" do
+        DiscourseActivityPub::Request
+          .expects(:new)
+          .with { |args| args[:uri] != activity.actor.inbox }
+          .returns(stub_everything(post_json_ld: true))
+          .times(3)
         perform_process(activity)
       end
     end
