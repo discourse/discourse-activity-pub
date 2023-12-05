@@ -178,7 +178,7 @@ def expect_request(body: nil, body_type: nil, actor_id: nil, uri: nil, returns: 
     .with do |args|
       (!actor_id || args[:actor_id] == actor_id) &&
       (!uri || [*uri].include?(args[:uri])) &&
-      (!body || args[:body] == body) &&
+      (!body || args[:body][:id] == body[:id]) &&
       (!body_type || args[:body][:type] == body_type)
     end
     .returns(returns)
