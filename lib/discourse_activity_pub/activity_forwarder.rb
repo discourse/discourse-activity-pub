@@ -46,7 +46,8 @@ module DiscourseActivityPub
         DiscourseActivityPub::DeliveryHandler.perform(
           actor: local_topic_actor,
           object: activity.stored,
-          recipient_ids: forward_to
+          recipient_ids: forward_to,
+          skip_after_scheduled: true
         )
       end
     end

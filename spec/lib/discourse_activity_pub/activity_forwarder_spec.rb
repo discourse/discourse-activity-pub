@@ -67,6 +67,17 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
           .times(3)
         perform_process(activity)
       end
+
+      it "does not change the object model custom fields" do
+        published_at = Time.now
+        post4 = Fabricate(:post, topic: topic, post_number: 4)
+        post4.custom_fields['activity_pub_published_at'] = published_at
+        post4.save_custom_fields(true)
+        note4 = Fabricate(:discourse_activity_pub_object_note, local: false, model: post4, published_at: published_at, collection_id: collection.id)     
+        create_activity = Fabricate(:discourse_activity_pub_activity_create, object: note4, published_at: published_at)
+        perform_process(create_activity)
+        expect(post4.reload.activity_pub_published_at.to_datetime.to_i).to eq_time(published_at.to_i)
+      end
     end
 
     context "with a new activity" do

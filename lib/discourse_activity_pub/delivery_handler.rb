@@ -12,15 +12,16 @@ module DiscourseActivityPub
       @recipient_ids = recipient_ids
     end
 
-    def perform(delay: 0)
+    def perform(delay: 0, skip_after_scheduled: false)
       return false unless can_deliver?
       schedule_deliveries(delay)
-      after_scheduled
+      after_scheduled unless skip_after_scheduled
       object
     end
 
-    def self.perform(actor: nil, object: nil, recipient_ids: [], delay: 0)
-      new(actor: actor, object: object, recipient_ids: recipient_ids).perform(delay: delay)
+    def self.perform(actor: nil, object: nil, recipient_ids: [], delay: 0, skip_after_scheduled: false)
+      klass = new(actor: actor, object: object, recipient_ids: recipient_ids)
+      klass.perform(delay: delay, skip_after_scheduled: skip_after_scheduled)
     end
 
     protected
