@@ -164,10 +164,10 @@ module DiscourseActivityPub
         @activity_pub_delivery_recipient_ids ||= begin
           actor_ids = activity_pub_group_actor.reload.followers.map(&:id)
 
-          if self.respond_to?(:topic) && self.topic.activity_pub_object.present?
-            self.topic.activity_pub_object.reload.contributors.each do |topic_contributor|
-              if actor_ids.exclude?(topic_contributor.id) && topic_contributor.id != performing_activity_actor.id
-                actor_ids << topic_contributor.id
+          if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
+            activity_pub_collection.contributors.each do |contributor|
+              if actor_ids.exclude?(contributor.id) && contributor.id != performing_activity_actor.id
+                actor_ids << contributor.id
               end
             end
           end
@@ -192,7 +192,7 @@ module DiscourseActivityPub
 
       def activity_pub_delivery_object
         if !activity_pub_topic_published? && activity_pub_full_topic
-          activity_pub_topic_activities_collection
+          activity_pub_collection.activities_collection
         else
           performing_activity.stored
         end

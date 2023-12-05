@@ -496,8 +496,8 @@ after_initialize do
   add_to_class(:post, :activity_pub_group_actor) do
     topic.activity_pub_actor
   end
-  add_to_class(:post, :activity_pub_topic_activities_collection) do
-    topic.activity_pub_activities_collection
+  add_to_class(:post, :activity_pub_collection) do
+    topic.activity_pub_object
   end
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
@@ -620,8 +620,8 @@ after_initialize do
     post.activity_pub_topic_published?
   end
   add_to_class(:post_action, :activity_pub_is_first_post?) { false }
-  add_to_class(:post_action, :activity_pub_topic_activities_collection) do
-    post.activity_pub_topic_activities_collection
+  add_to_class(:post_action, :activity_pub_collection) do
+    post.activity_pub_collection
   end
   add_to_class(:post_action, :activity_pub_valid_activity?) do |activity, target_activity|
     return false unless activity_pub_full_topic

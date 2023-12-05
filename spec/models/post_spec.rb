@@ -1103,7 +1103,7 @@ RSpec.describe Post do
               post.save_custom_fields(true)
             end
 
-            it "sends the activity to the topic followers for delivery without delay" do
+            it "sends to the topic contributors for delivery without delay" do
               expect_delivery(
                 actor: topic.activity_pub_actor,
                 object_type: "Create",
@@ -1112,11 +1112,11 @@ RSpec.describe Post do
               perform_create
             end
 
-            context "when reply category has followers" do
+            context "when category has followers" do
               let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
               let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
 
-              it "sends the activity to the category and topic followers for delivery without delay" do
+              it "sends to followers and topic contributors for delivery without delay" do
                 expect_delivery(
                   actor: topic.activity_pub_actor,
                   object_type: "Create",
