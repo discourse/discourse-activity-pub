@@ -73,34 +73,32 @@ RSpec.describe PostAction do
             post.save_custom_fields(true)
           end
 
-          it "sends the activity as the post action actor for delivery without delay" do
-            expect_delivery(
-              actor: post_action.activity_pub_actor,
-              object_type: "Like"
-            )
-            perform_like
-          end
+          context "when the topic has remote contributors" do
+            before do
+              post.activity_pub_actor.update(local: false)
+            end
 
-          it "sends to the topic contributors for delivery without delay" do
-            expect_delivery(
-              actor: post_action.activity_pub_actor,
-              object_type: "Like",
-              recipient_ids: [post.activity_pub_actor.id]
-            )
-            perform_like
-          end
-
-          context "when category has followers" do
-            let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-            let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
-
-            it "sends to followers and topic contributors for delivery without delay" do
+            it "sends to the remote contributors for delivery without delay" do
               expect_delivery(
                 actor: post_action.activity_pub_actor,
                 object_type: "Like",
-                recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                recipient_ids: [post.activity_pub_actor.id]
               )
               perform_like
+            end
+
+            context "when the category has followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
+  
+              it "sends to followers and remote contributors for delivery without delay" do
+                expect_delivery(
+                  actor: post_action.activity_pub_actor,
+                  object_type: "Like",
+                  recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                )
+                perform_like
+              end
             end
           end
         end
@@ -137,26 +135,32 @@ RSpec.describe PostAction do
             post.save_custom_fields(true)
           end
 
-          it "sends to the topic contributors for delivery without delay" do
-            expect_delivery(
-              actor: post_action.activity_pub_actor,
-              object_type: "Undo",
-              recipient_ids: [post.activity_pub_actor.id]
-            )
-            perform_undo_like
-          end
+          context "when the topic has remote contributors" do
+            before do
+              post.activity_pub_actor.update(local: false)
+            end
 
-          context "when category has followers" do
-            let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-            let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
-
-            it "sends to followers and topic contributors for delivery without delay" do
+            it "sends to the remote contributors for delivery without delay" do
               expect_delivery(
                 actor: post_action.activity_pub_actor,
                 object_type: "Undo",
-                recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                recipient_ids: [post.activity_pub_actor.id]
               )
               perform_undo_like
+            end
+
+            context "when the category has followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
+
+              it "sends to followers and remote contributors for delivery without delay" do
+                expect_delivery(
+                  actor: post_action.activity_pub_actor,
+                  object_type: "Undo",
+                  recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                )
+                perform_undo_like
+              end
             end
           end
         end

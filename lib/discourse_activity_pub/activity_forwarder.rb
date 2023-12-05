@@ -4,7 +4,7 @@
 See "7.1.2 Forwarding from Inbox": https://www.w3.org/TR/activitypub/#inbox-forwarding
 
 We are intentionally violating the second requirement of "7.1.2 Forwarding from Inbox" by always 
-forwarding public activities to the topic's audience, even if that audience is not included in the 
+forwarding public activities to the topic's remote audience, even if that audience is not included in the 
 original activity's addressing. The thinking here is that reply-chain integrity, particularly for
 the original topic, is more important in the context of a forum topic than it is in the context 
 that 7.1.2, and "stream" implementations like Mastodon, seem to assume. Compare:
@@ -32,7 +32,7 @@ module DiscourseActivityPub
           next if follower.id == activity.stored.actor.id || forward_to.include?(follower.id)
           forward_to << follower.id
         end
-        base_object.collection.contributors.each do |contributor|
+        base_object.collection.contributors(local: false).each do |contributor|
           next if contributor.id == activity.stored.actor.id || forward_to.include?(contributor.id)
           forward_to << contributor.id
         end

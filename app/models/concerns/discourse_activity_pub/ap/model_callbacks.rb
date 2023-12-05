@@ -165,7 +165,7 @@ module DiscourseActivityPub
           actor_ids = activity_pub_group_actor.reload.followers.map(&:id)
 
           if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
-            activity_pub_collection.contributors.each do |contributor|
+            activity_pub_collection.contributors(local: false).each do |contributor|
               if actor_ids.exclude?(contributor.id) && contributor.id != performing_activity_actor.id
                 actor_ids << contributor.id
               end

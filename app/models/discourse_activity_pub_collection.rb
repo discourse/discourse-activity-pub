@@ -125,11 +125,14 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     self
   end
 
-  def contributors
+  def contributors(local: nil)
     # Contributors are added as recipients of the collection's activities.
     # See activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
     # See also lib/discourse_activity_pub/activity_forwarder.rb
-    objects.map(&:attributed_to_actor).compact
+    objects.each_with_object([]) do |object, result|
+      actor = object.attributed_to_actor
+      result << actor if actor && (local.nil? || actor.local? == local)
+    end
   end
 
   protected

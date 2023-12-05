@@ -1103,26 +1103,32 @@ RSpec.describe Post do
               post.save_custom_fields(true)
             end
 
-            it "sends to the topic contributors for delivery without delay" do
-              expect_delivery(
-                actor: topic.activity_pub_actor,
-                object_type: "Create",
-                recipient_ids: [post.activity_pub_actor.id]
-              )
-              perform_create
-            end
+            context "when the topic has a remote contributor" do
+              before do
+                post.activity_pub_actor.update(local: false)
+              end
 
-            context "when category has followers" do
-              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-              let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
-
-              it "sends to followers and topic contributors for delivery without delay" do
+              it "sends to remote contributors for delivery without delay" do
                 expect_delivery(
                   actor: topic.activity_pub_actor,
                   object_type: "Create",
-                  recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                  recipient_ids: [post.activity_pub_actor.id]
                 )
                 perform_create
+              end
+
+              context "when the category has followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
+  
+                it "sends to followers and remote contributors for delivery without delay" do
+                  expect_delivery(
+                    actor: topic.activity_pub_actor,
+                    object_type: "Create",
+                    recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                  )
+                  perform_create
+                end
               end
             end
           end

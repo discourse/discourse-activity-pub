@@ -38,7 +38,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
     end
 
     shared_examples "topic actor forward" do
-      it "forwards to followers and contributors" do
+      it "forwards to followers and remote contributors" do
         expect_request(
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
