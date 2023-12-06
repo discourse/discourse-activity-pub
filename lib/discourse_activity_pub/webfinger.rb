@@ -21,7 +21,7 @@ module DiscourseActivityPub
       DiscourseActivityPubActor.find_by_handle(raw_handle, local: true)
     end
 
-    def self.find_by_handle(raw_handle)
+    def self.resolve_handle(raw_handle)
       handle = Handle.new(handle: raw_handle)
       return nil if !handle.valid? || DiscourseActivityPub::URI.local?(handle.domain)
 
@@ -38,8 +38,8 @@ module DiscourseActivityPub
       JsonLd.parse_json_ld(response.body)
     end
 
-    def self.find_id_by_handle(uri)
-      account = find_by_handle(uri)
+    def self.resolve_id_by_handle(raw_handle)
+      account = resolve_handle(raw_handle)
       return nil unless account && account['links'].present?
 
       link = account['links'].find { |l| l['rel'] == 'self' }

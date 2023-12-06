@@ -173,7 +173,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def self.resolve_and_store_by_handle(raw_handle)
-    ap_id = DiscourseActivityPub::Webfinger.find_id_by_handle(raw_handle)
+    ap_id = DiscourseActivityPub::Webfinger.resolve_id_by_handle(raw_handle)
     return nil unless ap_id
 
     ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)

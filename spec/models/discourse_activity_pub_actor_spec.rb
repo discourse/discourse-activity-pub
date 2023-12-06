@@ -214,7 +214,7 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "when handle cant be webfingered" do
       before do
-        DiscourseActivityPub::Webfinger.expects(:find_id_by_handle).with(handle).returns(nil)
+        DiscourseActivityPub::Webfinger.expects(:resolve_id_by_handle).with(handle).returns(nil)
       end
 
       it "returns nil" do
@@ -224,7 +224,7 @@ RSpec.describe DiscourseActivityPubActor do
 
     context "when handle can be webfingered" do
       before do
-        DiscourseActivityPub::Webfinger.expects(:find_id_by_handle).with(handle).returns(actor[:id])
+        DiscourseActivityPub::Webfinger.expects(:resolve_id_by_handle).with(handle).returns(actor[:id])
         DiscourseActivityPub::JsonLd.expects(:resolve_object).with(actor[:id]).returns(actor)
       end
 

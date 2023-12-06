@@ -17,10 +17,10 @@ RSpec.describe DiscourseActivityPub::Webfinger do
     "https://#{domain}/#{path}"
   end
 
-  describe "#find_by_handle" do
+  describe "#resolve_handle" do
 
     def perform(handle)
-      DiscourseActivityPub::Webfinger.find_by_handle(handle)
+      DiscourseActivityPub::Webfinger.resolve_handle(handle)
     end
 
     context "with a local domain" do
@@ -59,10 +59,10 @@ RSpec.describe DiscourseActivityPub::Webfinger do
     end
   end
 
-  describe "#find_id_by_handle" do
+  describe "#resolve_id_by_handle" do
 
     def perform(handle)
-      DiscourseActivityPub::Webfinger.find_id_by_handle(handle)
+      DiscourseActivityPub::Webfinger.resolve_id_by_handle(handle)
     end
 
     context "with a local handle" do
