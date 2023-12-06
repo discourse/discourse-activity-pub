@@ -2,7 +2,7 @@
 module DiscourseActivityPub
     class Webfinger
         class Handle
-            SEPERATOR = "@"
+            SEPARATOR = "@"
             PREFIX = "@"
 
             attr_reader :raw_handle,
@@ -13,7 +13,7 @@ module DiscourseActivityPub
 
                 if handle
                     @raw_handle = handle
-                    @raw_username, _, @raw_domain = handle.rpartition(SEPERATOR)
+                    @raw_username, _, @raw_domain = handle.rpartition(SEPARATOR)
                 else
                     @raw_username = username
                     @raw_domain = domain
@@ -34,7 +34,7 @@ module DiscourseActivityPub
 
             def to_s
                 return nil unless valid?
-                "#{username}#{SEPERATOR}#{domain}"
+                "#{username}#{SEPARATOR}#{domain}"
             end
         end
     end
