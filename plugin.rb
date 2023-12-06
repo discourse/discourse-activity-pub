@@ -480,10 +480,10 @@ after_initialize do
     end
   end
   add_to_class(:post, :activity_pub_local?) do
-    activity_pub_enabled && activity_pub_object && activity_pub_object.local
+    activity_pub_enabled && (!activity_pub_object || activity_pub_object.local)
   end
   add_to_class(:post, :activity_pub_remote?) do
-    activity_pub_enabled && activity_pub_object && !activity_pub_object.local
+    activity_pub_enabled && !activity_pub_local?
   end
   add_to_class(:post, :activity_pub_topic_published?) do
     topic.activity_pub_published?
