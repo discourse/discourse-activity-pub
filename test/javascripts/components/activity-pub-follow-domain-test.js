@@ -36,7 +36,7 @@ module(
       await click("#activity_pub_follow_domain_button");
 
       assert.strictEqual(
-        query(".activity-pub-follow-domain-footer.error")?.textContent.trim(),
+        query(".activity-pub-follow-domain-footer.error").textContent.trim(),
         I18n.t("discourse_activity_pub.follow.domain.invalid"),
         "displays an invalid message"
       );
