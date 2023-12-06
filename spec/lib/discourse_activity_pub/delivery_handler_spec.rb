@@ -53,26 +53,6 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
   end
 
   describe "#perform" do
-    context "with login required" do
-      before do
-        SiteSetting.login_required = true
-      end
-
-      it "returns false" do
-        expect(perform_delivery).to eq(false)
-      end
-
-      it "does not enqueue any delivery jobs" do
-        perform_delivery
-        expect_job(enqueued: false)
-      end
-
-      it "logs the right warning" do
-        perform_delivery
-        expect_log("publishing disabled")
-      end
-    end
-
     context "when delivery actor is not ready" do
       it "returns false" do
         expect(perform_delivery).to eq(false)
@@ -94,6 +74,26 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
         toggle_activity_pub(category, callbacks: true)
       end
 
+      context "with publishing disabled" do
+        before do
+          SiteSetting.login_required = true
+        end
+  
+        it "returns false" do
+          expect(perform_delivery).to eq(false)
+        end
+  
+        it "does not enqueue any delivery jobs" do
+          perform_delivery
+          expect_job(enqueued: false)
+        end
+  
+        it "logs the right warning" do
+          perform_delivery
+          expect_log("object cant be published")
+        end
+      end
+
       context "when activity is not ready" do
         before do
           activity.object.model.trash!
@@ -109,7 +109,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
 
         it "logs the right warning" do
           perform_delivery
-          expect_log("object not ready")
+          expect_log("object cant be published")
         end
       end
 
