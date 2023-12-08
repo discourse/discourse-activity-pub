@@ -78,7 +78,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
           ).to eq(false)
         end
   
-        it "does not proces the announced activity" do
+        it "does not process the announced activity" do
           DiscourseActivityPub::AP::Activity::Create.any_instance.expects(:process).never
           perform_process(announce_json)
         end
