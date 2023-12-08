@@ -18,7 +18,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
     context "with a local target actor" do
       let!(:target_actor) { Fabricate(:discourse_activity_pub_actor_group, local: true) }
 
-      it "returns false" do
+      it "does not perform a follow action" do
         expect(perform(actor.id, target_actor.id)).to eq(false)
       end
     end
