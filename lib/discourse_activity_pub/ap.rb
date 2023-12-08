@@ -10,5 +10,6 @@ the data model in https://www.w3.org/TR/activitypub and related specifications.
 
 module DiscourseActivityPub
   module AP
+    cattr_accessor(:logger) { ::Logger.new("#{Rails.root}/log/activity_pub.log") }
   end
 end

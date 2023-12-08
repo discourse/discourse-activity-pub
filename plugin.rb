@@ -32,6 +32,7 @@ after_initialize do
     ../lib/discourse_activity_pub/auth/authorization.rb
     ../lib/discourse_activity_pub/webfinger/handle.rb
     ../lib/discourse_activity_pub/activity_forwarder.rb
+    ../lib/discourse_activity_pub/logger.rb
     ../lib/discourse_activity_pub/ap.rb
     ../lib/discourse_activity_pub/ap/handlers.rb
     ../lib/discourse_activity_pub/ap/object.rb
@@ -1001,6 +1002,7 @@ after_initialize do
         )
       end
     rescue ActiveRecord::RecordInvalid => error
+      DiscourseActivityPub::Logger.object_store_error(response, error)
       raise DiscourseActivityPub::AP::Handlers::Error::RespondTo,
         I18n.t('discourse_activity_pub.process.warning.failed_to_respond_to_follow',
           follow: activity.json[:id]
@@ -1033,15 +1035,6 @@ after_initialize do
     end
   end
 
-  def log_stored_save_error(error, json)
-    return unless SiteSetting.activity_pub_verbose_logging
-
-    prefix = "[Discourse Activity Pub] failed to save object"
-    ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
-    json = "JSON: #{JSON.generate(json)}"
-    Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
-  end
-
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :store) do |activity|
     public = DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
     visibility = public ? :public : :private
@@ -1057,7 +1050,7 @@ after_initialize do
         published_at: activity.json[:published]
       )
     rescue ActiveRecord::RecordInvalid => error
-      log_stored_save_error(error, activity.json)
+      DiscourseActivityPub::Logger.object_store_error(activity, error)
       raise DiscourseActivityPub::AP::Handlers::Error::Store,
         I18n.t('discourse_activity_pub.process.warning.failed_to_save_activity',
           activity: activity.json[:id]
@@ -1103,7 +1096,7 @@ after_initialize do
             begin
               object.stored.save!
             rescue ActiveRecord::RecordInvalid => error
-              log_stored_save_error(error, object.json)
+              DiscourseActivityPub::Logger.object_store_error(object, error)
               raise DiscourseActivityPub::AP::Handlers::Error::Store,
                 I18n.t('discourse_activity_pub.process.warning.failed_to_save_object',
                   object: object.json[:id]
@@ -1154,7 +1147,7 @@ after_initialize do
         begin
           actor.stored.save!
         rescue ActiveRecord::RecordInvalid => error
-          log_stored_save_error(error, actor.json)
+          DiscourseActivityPub::Logger.object_store_error(actor, error)
           raise DiscourseActivityPub::AP::Handlers::Error::Store,
             I18n.t('discourse_activity_pub.process.warning.failed_to_save_actor',
               actor: actor.json[:id]
@@ -1187,7 +1180,7 @@ after_initialize do
         begin
           collection.stored.save!
         rescue ActiveRecord::RecordInvalid => error
-          log_stored_save_error(error, collection.json)
+          DiscourseActivityPub::Logger.object_store_error(collection, error)
           raise DiscourseActivityPub::AP::Handlers::Error::Store,
             I18n.t('discourse_activity_pub.process.warning.failed_to_save_collection',
               collection: collection.json[:id]

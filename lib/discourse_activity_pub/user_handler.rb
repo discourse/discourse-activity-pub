@@ -36,7 +36,12 @@ module DiscourseActivityPub
               skip_email_validation: true
             )
         rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => error
-          log_failure("find_or_create", e.message)
+          DiscourseActivityPub::Logger.warn(
+            I18n.t("discourse_activity_pub.user.error.failed_to_create",
+              actor: actor.id,
+              message: error.message
+            )
+          )
           raise ActiveRecord::Rollback
         end
       end
@@ -132,13 +137,6 @@ module DiscourseActivityPub
           user.update!(uploaded_avatar_id: icon_upload.id)
         end
       end
-    end
-
-    def log_failure(verb, message)
-      return unless SiteSetting.activity_pub_verbose_logging
-
-      prefix = "Failed to #{verb} user for #{actor.id}"
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
     end
 
     def update_avatar?

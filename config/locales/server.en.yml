@@ -62,6 +62,7 @@ en:
         invalid_digest: "Invalid Digest value. Computed SHA-256 digest: %{computed}; given: %{digest}"
         invalid_signature_pseudo_header: 'Invalid Signature pseudo-header (%{header})'
         invalid_date_header: "Invalid Date header: %{reason}"
+        request_failed: "%{verb} request to %{uri} failed: %{message}"
     process:
       warning:
         failed_to_process: "Failed to process %{object_id}"
@@ -114,6 +115,10 @@ en:
         cant_unschedule_post: "Can't unschedule post"
         first_post_not_enabled: "First Post is not enabled"
         not_first_post: "Post is not the first post"
+        failed_to_create: "%{user} failed to create post for %{object}: %{message}"
+    user:
+      error:
+        failed_to_create: "Failed to create user for %{actor}: %{message}"
     object:
       note:
         link_to_forum: Discuss this on our forum.
@@ -135,6 +140,12 @@ en:
         oauth_session_expired: "ActivityPub OAuth session expired"
         failed_to_authorize: "ActivityPub OAuth failed to authorize"
         failed_to_get_actor: "ActivityPub OAuth failed to get actor"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} failed to schedule %{object_id} for delivery: %{reason}"
+        failed_to_deliver: "%{from_actor} failed to deliver to %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} successfully delivered to %{send_to}"
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."

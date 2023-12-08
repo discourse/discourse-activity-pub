@@ -112,16 +112,24 @@ module Jobs
       end
     end
 
-    def log_failure(message = "Failed to POST")
-      return false unless SiteSetting.activity_pub_verbose_logging
-      prefix = "#{from_actor.ap_id} failed to deliver #{JSON.generate(delivery_json)}"
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
+    def log_failure
+      DiscourseActivityPub::Logger.warn(
+        I18n.t("discourse_activity_pub.deliver.warning.failed_to_deliver",
+          from_actor: from_actor.ap_id,
+          send_to: @args[:send_to]
+        ),
+        json: delivery_json
+      )
     end
-  
+
     def log_success
-      return false unless SiteSetting.activity_pub_verbose_logging
-      prefix = "JSON delivered to #{@args[:send_to]}"
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{JSON.generate(delivery_json)}")
+      DiscourseActivityPub::Logger.info(
+        I18n.t("discourse_activity_pub.deliver.info.successfully_delivered",
+          from_actor: from_actor.ap_id,
+          send_to: @args[:send_to]
+        ),
+        json: delivery_json
+      )
     end
 
     def before_perform_request

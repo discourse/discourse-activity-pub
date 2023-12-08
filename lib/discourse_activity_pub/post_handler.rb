@@ -50,7 +50,13 @@ module DiscourseActivityPub
                ActiveRecord::RecordNotUnique,
                ActiveRecord::RecordInvalid,
                DiscourseActivityPub::AP::Handlers => e
-          log_failure("create", e.message)
+          DiscourseActivityPub::Logger.warn(
+            I18n.t("discourse_activity_pub.post.error.failed_to_create",
+              user: user.username,
+              object: object.id,
+              message: e.message
+            )
+          )
           raise ActiveRecord::Rollback
         end
 
@@ -64,13 +70,6 @@ module DiscourseActivityPub
       end
 
       post
-    end
-
-    def log_failure(verb, message)
-      return unless SiteSetting.activity_pub_verbose_logging
-
-      prefix = "#{user.username} failed to #{verb} post for #{object.id}"
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
     end
 
     def self.create(user, object, category_id: nil)
