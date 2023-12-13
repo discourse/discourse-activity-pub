@@ -27,6 +27,6 @@ SQL
   end
 
   def down
-    add_column :discourse_activity_pub_objects, :attributed_to_id
+    remove_column :discourse_activity_pub_objects, :attributed_to_id
   end
 end
