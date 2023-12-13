@@ -7,7 +7,7 @@ RSpec.describe PostAction do
   let!(:user) { Fabricate(:user) }
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
   let!(:post) { Fabricate(:post, topic: topic, user: user) }
-  let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: false, collection_id: collection.id) }
+  let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: false, collection_id: collection.id, attributed_to: person) }
   let!(:user2) { Fabricate(:user) }
   let!(:person2) { Fabricate(:discourse_activity_pub_actor_person, model: user2) }
   let!(:post_action) { Fabricate(:post_action, user: user2, post: post, post_action_type_id: PostActionType.types[:like]) }
@@ -82,7 +82,7 @@ RSpec.describe PostAction do
               expect_delivery(
                 actor: post_action.activity_pub_actor,
                 object_type: "Like",
-                recipient_ids: [post.activity_pub_actor.id]
+                recipient_ids: [person.id]
               )
               perform_like
             end
@@ -95,7 +95,7 @@ RSpec.describe PostAction do
                 expect_delivery(
                   actor: post_action.activity_pub_actor,
                   object_type: "Like",
-                  recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                  recipient_ids: [follower1.id] + [person.id]
                 )
                 perform_like
               end
@@ -144,7 +144,7 @@ RSpec.describe PostAction do
               expect_delivery(
                 actor: post_action.activity_pub_actor,
                 object_type: "Undo",
-                recipient_ids: [post.activity_pub_actor.id]
+                recipient_ids: [person.id]
               )
               perform_undo_like
             end
@@ -157,7 +157,7 @@ RSpec.describe PostAction do
                 expect_delivery(
                   actor: post_action.activity_pub_actor,
                   object_type: "Undo",
-                  recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                  recipient_ids: [follower1.id] + [person.id]
                 )
                 perform_undo_like
               end

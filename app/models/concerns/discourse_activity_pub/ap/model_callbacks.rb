@@ -73,6 +73,7 @@ module DiscourseActivityPub
           end
           if self.activity_pub_full_topic
             attrs[:collection_id] = self.topic.activity_pub_object.id
+            attrs[:attributed_to_id] = self.activity_pub_actor.ap_id
           end
           self.build_activity_pub_object(attrs)
         when :undo

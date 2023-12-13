@@ -40,19 +40,81 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
           announce_json[:cc] = DiscourseActivityPub::JsonLd.public_collection_id
         end
 
-        it 'does not create an announce activity' do
-          perform_process(announce_json)
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              ap_type: described_class.type,
-              actor_id: followed_actor.id
-            )
-          ).to eq(false)
+        context "when announcing an activity" do
+          it 'does not create an announce activity' do
+            perform_process(announce_json)
+            expect(
+              DiscourseActivityPubActivity.exists?(
+                ap_type: described_class.type,
+                actor_id: followed_actor.id
+              )
+            ).to eq(false)
+          end
+    
+          it "processes the announced activity" do
+            DiscourseActivityPub::AP::Activity::Create.any_instance.expects(:process).once
+            perform_process(announce_json)
+          end
         end
-  
-        it "processes the announced activity" do
-          DiscourseActivityPub::AP::Activity::Create.any_instance.expects(:process).once
-          perform_process(announce_json)
+
+        context "when announcing an object" do
+          let!(:note_actor_id) { "https://mastodon.discourse.com/users/1" }
+          let!(:note_actor) {
+            Fabricate(:discourse_activity_pub_actor_person,
+              ap_id: note_actor_id,
+              local: false
+            )
+          }
+          let!(:followed_actor_id) { "https://mastodon.discourse.com/users/2" }
+          let!(:followed_actor) {
+            Fabricate(:discourse_activity_pub_actor_person,
+              ap_id: followed_actor_id,
+              local: false
+            )
+          }
+          let!(:follow) {
+            Fabricate(:discourse_activity_pub_follow,
+              follower: category.activity_pub_actor,
+              followed: followed_actor
+            )
+          }
+          let!(:object_json) {
+            build_object_json(
+              attributed_to: note_actor_id,
+              name: "My cool topic title"
+            )
+          }
+          let(:announce_json) { 
+            build_activity_json(
+              id: "#{followed_actor_id}#note/1",
+              type: 'Announce',
+              actor: followed_actor,
+              object: object_json,
+              to: [category_actor.ap_id]
+            )
+          }
+
+          before do
+            stub_stored_request(note_actor)
+            perform_process(announce_json, category.activity_pub_actor.ap_id)
+          end
+
+          it 'creates an announce activity' do
+            expect(
+              DiscourseActivityPubActivity.exists?(
+                ap_type: described_class.type,
+                actor_id: followed_actor.id
+              )
+            ).to eq(true)
+          end
+
+          it "performs the announce activity as a create activity" do
+            post = Post.find_by(raw: object_json[:content])
+            expect(post.present?).to be(true)
+            expect(post.topic.present?).to be(true)
+            expect(post.topic.title).to eq(object_json[:name])
+            expect(post.post_number).to be(1)
+          end
         end
       end
 

@@ -89,10 +89,12 @@ module DiscourseActivityPub
     end
 
     def self.update_or_create_user(actor)
+      return nil unless actor
       new(actor: actor).update_or_create_user
     end
 
     def self.update_or_create_actor(user)
+      return nil unless user
       new(user: user).update_or_create_actor
     end
 

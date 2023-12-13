@@ -9,7 +9,7 @@ RSpec.describe PostActionCreator do
   let!(:actor1) { Fabricate(:discourse_activity_pub_actor_person, model: user1) }
   let!(:actor2) { Fabricate(:discourse_activity_pub_actor_person, model: user2) }
   let!(:post) { Fabricate(:post, user: user1, topic: topic) }
-  let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+  let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, attributed_to: actor1) }
 
   def perform_like(user, post)
     PostActionCreator.like(user, post)

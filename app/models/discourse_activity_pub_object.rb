@@ -14,6 +14,8 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :reply_to, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
   has_many :replies, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
 
+  belongs_to :attributed_to, class_name: "DiscourseActivityPubActor", primary_key: "ap_id", foreign_key: "attributed_to_id"
+
   def url
     if local?
       model&.activity_pub_full_url
@@ -30,7 +32,8 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     when DiscourseActivityPub::AP::Activity::Create.type,
          DiscourseActivityPub::AP::Activity::Update.type,
          DiscourseActivityPub::AP::Activity::Like.type,
-         DiscourseActivityPub::AP::Activity::Undo.type
+         DiscourseActivityPub::AP::Activity::Undo.type,
+         DiscourseActivityPub::AP::Activity::Announce.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
       !model || model.trashed?
@@ -108,12 +111,12 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     model.respond_to?(:activity_pub_topic_actor) ? model.activity_pub_topic_actor : nil
   end
 
-  def attributed_to_actor
-    model&.activity_pub_actor
-  end
-
   def attributed_to
-    @attributed_to ||= attributed_to_actor&.ap_id
+    if model&.activity_pub_first_post
+      topic_actor
+    else
+      super
+    end
   end
 
   def likes_collection

@@ -53,7 +53,7 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   end
 
   def attributedTo
-    object.attributed_to
+    object.attributed_to.id
   end
 
   def include_attributedTo?

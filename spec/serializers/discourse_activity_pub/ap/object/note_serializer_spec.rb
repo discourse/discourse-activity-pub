@@ -4,7 +4,7 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
   fab!(:category) { Fabricate(:category) }
   fab!(:topic) { Fabricate(:topic, category: category) }
   fab!(:post) { Fabricate(:post, topic: topic, raw: "Post content") }
-  fab!(:post_creator_actor) { Fabricate(:discourse_activity_pub_actor_person, model: post.user, local: true) }
+  fab!(:post_actor) { Fabricate(:discourse_activity_pub_actor_person, model: post.user, local: true) }
 
   before do
     toggle_activity_pub(category, callbacks: true)
@@ -47,9 +47,9 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
       post.topic.create_activity_pub_collection!
     end
 
-    it "serializes attributedTo as the post creator actor" do
-      note = Fabricate(:discourse_activity_pub_object_note, model: post, local: true)
-      expect(note.ap.json[:attributedTo]).to eq(post_creator_actor.ap_id)
+    it "serializes attributedTo as the post object attributed_to actor" do
+      note = Fabricate(:discourse_activity_pub_object_note, model: post, local: true, attributed_to: post_actor)
+      expect(note.ap.json[:attributedTo]).to eq(post_actor.ap_id)
     end
   end
 end

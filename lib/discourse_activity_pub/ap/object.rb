@@ -8,9 +8,11 @@ module DiscourseActivityPub
       include Handlers
 
       attr_writer :json
+      attr_writer :attributed_to
       attr_accessor :stored
       attr_accessor :delivered_to
       attr_accessor :cache
+      attr_accessor :parent
 
       def initialize(json: nil, stored: nil)
         @json = json
@@ -74,7 +76,9 @@ module DiscourseActivityPub
       end
 
       def attributed_to
-        stored&.respond_to?(:attributed_to) && stored.attributed_to
+        stored ?
+          stored.respond_to?(:attributed_to) && stored.attributed_to&.ap :
+          @attributed_to
       end
 
       def summary
@@ -174,10 +178,10 @@ module DiscourseActivityPub
         end
       end
 
-      def self.resolve_and_store(raw_object, activity = nil)
+      def self.resolve_and_store(raw_object, parent = nil)
         object = resolve(raw_object)
         return unless object
-        object.apply_handlers(type, :store, activity: activity)
+        object.apply_handlers(type, :store, parent: parent)
         object
       end
 
@@ -190,6 +194,11 @@ module DiscourseActivityPub
 
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
           return process_failed(resolved_object['id'], "object_not_supported")
+        end
+
+        if object.json[:attributedTo]
+          attributed_to = Actor.resolve_and_store(object.json[:attributedTo])
+          object.attributed_to = attributed_to if attributed_to.present?
         end
 
         object

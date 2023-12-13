@@ -896,15 +896,21 @@ after_initialize do
       raise DiscourseActivityPub::AP::Handlers::Error::Validate,
         I18n.t('discourse_activity_pub.process.warning.announce_not_publicly_addressed')
     end
+
+    if activity.object.object?
+      DiscourseActivityPub::AP::Activity.apply_handlers(activity, :create, :validate)
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|
-    user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
+    user = DiscourseActivityPub::UserHandler.update_or_create_user(
+      activity.object.stored.attributed_to
+    )
 
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
         I18n.t('discourse_activity_pub.activity.create.failed_to_create_user',
-          actor_id: activity.actor.id
+          actor_id: activity.object.stored.attributed_to&.id
         )
     end
 
@@ -976,6 +982,10 @@ after_initialize do
     else
       false
     end
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:announce, :perform) do |activity|
+    DiscourseActivityPub::AP::Activity.apply_handlers(activity, :create, :perform)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:follow, :respond_to) do |activity|
@@ -1067,47 +1077,46 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Object.add_handler(:object, :store) do |object, opts|
-    activity = opts[:activity]
+    activity = opts[:parent]
 
-    if activity&.composition?
+    if activity&.composition? || (object.object? && activity&.announce?)
       object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
 
-      if activity.create? || activity.update?
-        DiscourseActivityPubObject.transaction do
-          if object.stored
-            object.stored.content = object.json[:content] if object.json[:content].present?
-            object.stored.name = object.json[:name] if object.json[:name].present?
-            object.stored.audience = object.json[:audience] if object.json[:audience].present?
-            object.stored.context = object.json[:context] if object.json[:context].present?
-            object.stored.target = object.json[:target] if object.json[:target].present?
-          else
-            params = {
-              local: false,
-              ap_id: object.json[:id],
-              ap_type: object.json[:type],
-              content: object.json[:content],
-              published_at: object.json[:published],
-              domain: DiscourseActivityPub::JsonLd.domain_from_id(object.json[:id]),
-              name: object.json[:name]
-            }
-            params[:audience] = object.json[:audience] if object.json[:audience]
-            params[:context] = object.json[:context] if object.json[:context]
-            params[:target] = object.json[:target] if object.json[:target]
-            params[:reply_to_id] = object.json[:inReplyTo] if object.json[:inReplyTo]
-            params[:url] = object.json[:url] if object.json[:url]
-            object.stored = DiscourseActivityPubObject.new(params)
-          end
+      DiscourseActivityPubObject.transaction do
+        if object.stored && activity.update?
+          object.stored.content = object.json[:content] if object.json[:content].present?
+          object.stored.name = object.json[:name] if object.json[:name].present?
+          object.stored.audience = object.json[:audience] if object.json[:audience].present?
+          object.stored.context = object.json[:context] if object.json[:context].present?
+          object.stored.target = object.json[:target] if object.json[:target].present?
+        elsif !object.stored && (activity.create? || activity&.announce?)
+          params = {
+            local: false,
+            ap_id: object.json[:id],
+            ap_type: object.json[:type],
+            content: object.json[:content],
+            published_at: object.json[:published],
+            domain: DiscourseActivityPub::JsonLd.domain_from_id(object.json[:id]),
+            name: object.json[:name]
+          }
+          params[:audience] = object.json[:audience] if object.json[:audience]
+          params[:context] = object.json[:context] if object.json[:context]
+          params[:target] = object.json[:target] if object.json[:target]
+          params[:reply_to_id] = object.json[:inReplyTo] if object.json[:inReplyTo]
+          params[:url] = object.json[:url] if object.json[:url]
+          params[:attributed_to_id] = object.attributed_to.id if object.attributed_to.present?
+          object.stored = DiscourseActivityPubObject.new(params)
+        end
 
-          if object.stored.new_record? || object.stored.changed?
-            begin
-              object.stored.save!
-            rescue ActiveRecord::RecordInvalid => error
-              log_stored_save_error(error, object.json)
-              raise DiscourseActivityPub::AP::Handlers::Error::Store,
-                I18n.t('discourse_activity_pub.process.warning.failed_to_save_object',
-                  object: object.json[:id]
-                )
-            end
+        if object.stored && (object.stored.new_record? || object.stored.changed?)
+          begin
+            object.stored.save!
+          rescue ActiveRecord::RecordInvalid => error
+            log_stored_save_error(error, object.json)
+            raise DiscourseActivityPub::AP::Handlers::Error::Store,
+              I18n.t('discourse_activity_pub.process.warning.failed_to_save_object',
+                object: object.json[:id]
+              )
           end
         end
       end

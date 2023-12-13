@@ -21,7 +21,8 @@ module DiscourseActivityPub
             create: [:note, :article],
             update: [:note, :article],
             delete: [:note, :article],
-            like: [:note, :article]
+            like: [:note, :article],
+            announce: [:note, :article]
           }
         end
       end

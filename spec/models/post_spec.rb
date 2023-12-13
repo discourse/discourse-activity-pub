@@ -704,6 +704,9 @@ RSpec.describe Post do
             expect(
               post.activity_pub_object.reply_to_id
             ).to eq(nil)
+            expect(
+              post.activity_pub_object&.attributed_to_id
+            ).to eq(nil)
           end
         end
 
@@ -790,6 +793,9 @@ RSpec.describe Post do
             expect(
               post.activity_pub_object&.reply_to_id
             ).to eq(nil)
+            expect(
+              post.activity_pub_object&.attributed_to_id
+            ).to eq(post.user.activity_pub_actor.ap_id)
           end
 
           it "creates the right activity" do
@@ -1056,7 +1062,8 @@ RSpec.describe Post do
         let!(:post_note) {
           Fabricate(:discourse_activity_pub_object_note,
             model: post,
-            collection_id: topic.activity_pub_object.id
+            collection_id: topic.activity_pub_object.id,
+            attributed_to: post.activity_pub_actor
           )
         }
 
