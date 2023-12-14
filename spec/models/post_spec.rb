@@ -343,6 +343,9 @@ RSpec.describe Post do
         it "creates the right object" do
           perform_create
           expect(
+            post.activity_pub_object.name
+          ).to eq(post.activity_pub_name)
+          expect(
             post.activity_pub_object.content
           ).to eq(post.activity_pub_content)
           expect(
@@ -376,13 +379,13 @@ RSpec.describe Post do
               object_id: activity.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: category.activity_pub_actor.id,
-              to_actor_id: follower1.id
+              send_to: follower1.inbox
             }
             job2_args = {
               object_id: activity.id,
               object_type: 'DiscourseActivityPubActivity',
               from_actor_id: category.activity_pub_actor.id,
-              to_actor_id: follower2.id
+              send_to: follower2.inbox
             }
             expect(
               job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args, at: delay.minutes.from_now)
@@ -650,13 +653,13 @@ RSpec.describe Post do
                 object_id: activity.id,
                 object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: category.activity_pub_actor.id,
-                to_actor_id: follower1.id
+                send_to: follower1.inbox
               }
               job2_args = {
                 object_id: activity.id,
                 object_type: 'DiscourseActivityPubActivity',
                 from_actor_id: category.activity_pub_actor.id,
-                to_actor_id: follower2.id
+                send_to: follower2.inbox
               }
               expect(
                 job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args)
@@ -700,6 +703,9 @@ RSpec.describe Post do
             ).to eq('Article')
             expect(
               post.activity_pub_object.reply_to_id
+            ).to eq(nil)
+            expect(
+              post.activity_pub_object&.attributed_to_id
             ).to eq(nil)
           end
         end
@@ -787,6 +793,9 @@ RSpec.describe Post do
             expect(
               post.activity_pub_object&.reply_to_id
             ).to eq(nil)
+            expect(
+              post.activity_pub_object&.attributed_to_id
+            ).to eq(post.user.activity_pub_actor.ap_id)
           end
 
           it "creates the right activity" do
@@ -1050,7 +1059,13 @@ RSpec.describe Post do
       end
 
       context "with replies" do
-        let!(:post_note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+        let!(:post_note) {
+          Fabricate(:discourse_activity_pub_object_note,
+            model: post,
+            collection_id: topic.activity_pub_object.id,
+            attributed_to: post.activity_pub_actor
+          )
+        }
 
         context "with create" do
           def perform_create
@@ -1074,7 +1089,7 @@ RSpec.describe Post do
           it "creates the right activity" do
             perform_create
             expect(
-               reply.activity_pub_actor.activities.where(
+              reply.activity_pub_actor.activities.where(
                  object_id: reply.activity_pub_object.id,
                  object_type: 'DiscourseActivityPubObject',
                  ap_type: 'Create'
@@ -1095,12 +1110,33 @@ RSpec.describe Post do
               post.save_custom_fields(true)
             end
 
-            it "sends the activity as the topic actor for delivery without delay" do
-              expect_delivery(
-                actor: topic.activity_pub_actor,
-                object_type: "Create"
-              )
-              perform_create
+            context "when the topic has a remote contributor" do
+              before do
+                post.activity_pub_actor.update(local: false)
+              end
+
+              it "sends to remote contributors for delivery without delay" do
+                expect_delivery(
+                  actor: topic.activity_pub_actor,
+                  object_type: "Create",
+                  recipient_ids: [post.activity_pub_actor.id]
+                )
+                perform_create
+              end
+
+              context "when the category has followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category.activity_pub_actor) }
+  
+                it "sends to followers and remote contributors for delivery without delay" do
+                  expect_delivery(
+                    actor: topic.activity_pub_actor,
+                    object_type: "Create",
+                    recipient_ids: [follower1.id] + [post.activity_pub_actor.id]
+                  )
+                  perform_create
+                end
+              end
             end
           end
         end

@@ -7,8 +7,17 @@ DiscourseActivityPub::Engine.routes.draw do
   end
 
   scope '/category' do
-    get "/:category_id" => "category#index"
-    get "/:category_id/followers" => "category#followers"
+    get ":category_id" => "category#index"
+    get ":category_id/followers" => "category#followers"
+    get ":category_id/follows" => "category#follows"
+  end
+
+  post "users/inbox" => "a_p/shared_inboxes#create"
+
+  scope '/actor', defaults: { format: :json } do
+    post ":actor_id/follow" => "actor#follow"
+    delete ":actor_id/follow" => "actor#unfollow"
+    get ":actor_id/find-by-handle" => "actor#find_by_handle"
   end
 
   scope module: 'a_p' do
@@ -18,6 +27,7 @@ DiscourseActivityPub::Engine.routes.draw do
     get "actor/:key/followers" => "followers#index"
     get "activity/:key" => "activities#show"
     get "object/:key" => "objects#show"
+    get "collection/:key" => "collections#show"
   end
 
   get "auth" => "auth#index", defaults: { format: :json }

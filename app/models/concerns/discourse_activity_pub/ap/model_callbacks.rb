@@ -73,6 +73,7 @@ module DiscourseActivityPub
           end
           if self.activity_pub_full_topic
             attrs[:collection_id] = self.topic.activity_pub_object.id
+            attrs[:attributed_to_id] = self.activity_pub_actor.ap_id
           end
           self.build_activity_pub_object(attrs)
         when :undo
@@ -105,6 +106,7 @@ module DiscourseActivityPub
         return unless performing_activity
 
         if performing_activity.create? || performing_activity.update?
+          performing_activity_object.name = self.activity_pub_name if self.activity_pub_name
           performing_activity_object.content = self.activity_pub_content
           performing_activity_object.save!
         end
@@ -136,35 +138,20 @@ module DiscourseActivityPub
       end
 
       def activity_pub_deliver_activity
-        return if !performing_activity.stored
+        return if !activity_pub_delivery_object
 
-        if activity_pub_full_topic && !activity_pub_topic_published? && !activity_pub_is_first_post?
+        if activity_pub_schedule?
           activity_pub_after_scheduled(
             scheduled_at: activity_pub_first_post_scheduled_at
           ) if self.respond_to?(:activity_pub_after_scheduled)
           return
         end
 
-        delivery_actor = performing_activity.create? ?
-          activity_pub_group_actor :
-          performing_activity_actor
-        delivery_recipients = activity_pub_group_actor.followers
-        delivery_object = performing_activity.stored
-        delivery_delay = nil
-
-        if !activity_pub_topic_published?
-          delivery_delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
-
-          if activity_pub_full_topic
-            delivery_object = activity_pub_topic_activities_collection
-          end
-        end
-
         DiscourseActivityPub::DeliveryHandler.perform(
-          actor: delivery_actor,
-          object: delivery_object,
-          recipients: delivery_recipients,
-          delay: delivery_delay
+          actor: activity_pub_delivery_actor,
+          object: activity_pub_delivery_object,
+          recipient_ids: activity_pub_delivery_recipient_ids,
+          delay: activity_pub_delivery_delay
         )
       end
 
@@ -172,6 +159,52 @@ module DiscourseActivityPub
         @performing_activity = nil
         @performing_activity_object = nil
         @performing_activity_actor = nil
+      end
+
+      def activity_pub_delivery_recipient_ids
+        @activity_pub_delivery_recipient_ids ||= begin
+          actor_ids = activity_pub_group_actor.reload.followers.map(&:id)
+
+          if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
+            activity_pub_collection.contributors(local: false).each do |contributor|
+              if actor_ids.exclude?(contributor.id) && contributor.id != performing_activity_actor.id
+                actor_ids << contributor.id
+              end
+            end
+          end
+
+          actor_ids
+        end
+      end
+
+      def activity_pub_schedule?
+        activity_pub_full_topic && !activity_pub_topic_published? && (
+          !activity_pub_is_first_post? || !performing_activity.create?
+        )
+      end
+
+      def activity_pub_delivery_actor
+        if performing_activity.create?
+          activity_pub_group_actor
+        else
+          performing_activity_actor
+        end
+      end
+
+      def activity_pub_delivery_object
+        if !activity_pub_topic_published? && activity_pub_full_topic
+          activity_pub_collection.activities_collection
+        else
+          performing_activity.stored
+        end
+      end
+
+      def activity_pub_delivery_delay
+        if !activity_pub_topic_published?
+          SiteSetting.activity_pub_delivery_delay_minutes.to_i
+        else
+          nil
+        end
       end
     end
   end

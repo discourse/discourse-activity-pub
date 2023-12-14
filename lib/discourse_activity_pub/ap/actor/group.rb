@@ -9,7 +9,7 @@ module DiscourseActivityPub
         end
 
         def can_belong_to
-          %i(category)
+          %i(category remote)
         end
 
         def can_perform_activity
@@ -19,7 +19,9 @@ module DiscourseActivityPub
             create: [:note, :article],
             delete: [:note, :article],
             update: [:note, :article],
-            announce: [:create, :update, :delete, :ordered_collection]
+            announce: [:create, :update, :delete, :like, :undo, :ordered_collection],
+            follow: [:group, :person],
+            undo: [:follow]
           }
         end
       end

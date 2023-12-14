@@ -9,6 +9,7 @@
 register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
+register_svg_icon "user-check"
 
 after_initialize do
   %w[
@@ -24,16 +25,21 @@ after_initialize do
     ../lib/discourse_activity_pub/user_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
+    ../lib/discourse_activity_pub/follow_handler.rb
     ../lib/discourse_activity_pub/auth.rb
     ../lib/discourse_activity_pub/auth/oauth.rb
     ../lib/discourse_activity_pub/auth/oauth/app.rb
     ../lib/discourse_activity_pub/auth/authorization.rb
+    ../lib/discourse_activity_pub/webfinger/handle.rb
+    ../lib/discourse_activity_pub/activity_forwarder.rb
     ../lib/discourse_activity_pub/ap.rb
+    ../lib/discourse_activity_pub/ap/handlers.rb
     ../lib/discourse_activity_pub/ap/object.rb
     ../lib/discourse_activity_pub/ap/actor.rb
     ../lib/discourse_activity_pub/ap/actor/group.rb
     ../lib/discourse_activity_pub/ap/actor/person.rb
     ../lib/discourse_activity_pub/ap/actor/application.rb
+    ../lib/discourse_activity_pub/ap/actor/service.rb
     ../lib/discourse_activity_pub/ap/activity.rb
     ../lib/discourse_activity_pub/ap/activity/follow.rb
     ../lib/discourse_activity_pub/ap/activity/response.rb
@@ -71,12 +77,16 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/ap/outboxes_controller.rb
     ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
     ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
+    ../app/controllers/discourse_activity_pub/ap/collections_controller.rb
+    ../app/controllers/discourse_activity_pub/ap/shared_inboxes_controller.rb
     ../app/controllers/discourse_activity_pub/webfinger_controller.rb
+    ../app/controllers/discourse_activity_pub/webfinger/handle_controller.rb
     ../app/controllers/discourse_activity_pub/auth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
     ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
     ../app/controllers/discourse_activity_pub/post_controller.rb
     ../app/controllers/discourse_activity_pub/category_controller.rb
+    ../app/controllers/discourse_activity_pub/actor_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -98,7 +108,8 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
     ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
-    ../app/serializers/discourse_activity_pub/follower_serializer.rb
+    ../app/serializers/discourse_activity_pub/basic_actor_serializer.rb
+    ../app/serializers/discourse_activity_pub/actor_serializer.rb
     ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
     ../config/routes.rb
     ../extensions/discourse_activity_pub_category_extension.rb
@@ -117,6 +128,10 @@ after_initialize do
   Category.has_many :activity_pub_followers,
                     through: :activity_pub_actor,
                     source: :followers,
+                    class_name: "DiscourseActivityPubActor"
+  Category.has_many :activity_pub_follows,
+                    through: :activity_pub_actor,
+                    source: :follows,
                     class_name: "DiscourseActivityPubActor"
   Category.prepend DiscourseActivityPubCategoryExtension
 
@@ -214,6 +229,20 @@ after_initialize do
     :activity_pub_ready,
     include_condition: -> { object.activity_pub_enabled }
   ) { object.activity_pub_ready? }
+  add_to_serializer(
+    :site_category,
+    :activity_pub_actor,
+    include_condition: -> { object.activity_pub_enabled && object.respond_to?(:activity_pub_actor) }
+  ) do
+    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
+  end
+  add_to_serializer(
+    :category,
+    :activity_pub_actor,
+    include_condition: -> { object.activity_pub_enabled && object.respond_to?(:activity_pub_actor) }
+  ) do
+    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
+  end
 
   if respond_to?(:register_preloaded_category_custom_fields)
     register_preloaded_category_custom_fields("activity_pub_enabled")
@@ -278,7 +307,7 @@ after_initialize do
     create_activity_pub_object!(
       local: true,
       ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
-      summary: activity_pub_summary
+      name: activity_pub_name
     )
   end
   add_to_class(:topic, :activity_pub_activities_collection) do
@@ -290,7 +319,7 @@ after_initialize do
   add_to_class(:topic, :activity_pub_actor) do
     category&.activity_pub_actor
   end
-  add_to_class(:topic, :activity_pub_summary) do
+  add_to_class(:topic, :activity_pub_name) do
     title
   end
 
@@ -467,8 +496,8 @@ after_initialize do
   add_to_class(:post, :activity_pub_group_actor) do
     topic.activity_pub_actor
   end
-  add_to_class(:post, :activity_pub_topic_activities_collection) do
-    topic.activity_pub_activities_collection
+  add_to_class(:post, :activity_pub_collection) do
+    topic.activity_pub_object
   end
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
@@ -502,6 +531,12 @@ after_initialize do
   add_to_class(:post, :activity_pub_unschedule!) do
     return false if activity_pub_published? || !activity_pub_scheduled?
     activity_pub_delete!
+  end
+  add_to_class(:post, :activity_pub_name) do
+    is_first_post? ? topic.activity_pub_name : nil
+  end
+  add_to_class(:post, :activity_pub_topic_actor) do
+    activity_pub_object.local? ? topic.activity_pub_actor : nil
   end
 
   add_to_serializer(:post, :activity_pub_enabled) do
@@ -585,8 +620,8 @@ after_initialize do
     post.activity_pub_topic_published?
   end
   add_to_class(:post_action, :activity_pub_is_first_post?) { false }
-  add_to_class(:post_action, :activity_pub_topic_activities_collection) do
-    post.activity_pub_topic_activities_collection
+  add_to_class(:post_action, :activity_pub_collection) do
+    post.activity_pub_collection
   end
   add_to_class(:post_action, :activity_pub_valid_activity?) do |activity, target_activity|
     return false unless activity_pub_full_topic
@@ -659,6 +694,10 @@ after_initialize do
     end
   end
 
+  add_to_class(:user, :activity_pub_shared_inbox) do
+    DiscourseActivityPub.users_shared_inbox
+  end
+
   add_to_serializer(
     :user,
     :activity_pub_authorizations,
@@ -679,7 +718,7 @@ after_initialize do
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
     if post.activity_pub_full_topic && post_revisor.topic_title_changed?
-      post.topic.activity_pub_object.summary = post.topic.activity_pub_summary
+      post.topic.activity_pub_object.name = post.topic.activity_pub_name
       post.topic.activity_pub_object.save!
     end
     opts = post_revisor.instance_variable_get("@opts")
@@ -760,33 +799,64 @@ after_initialize do
     end
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:all, :validate) do |activity|
-    if activity.composition?
-      post = activity.create? ?
-        activity.object.stored.in_reply_to_post :
-        activity.object.stored.model
-
-      unless post.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Activity::ValidationError,
-          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
-      end
+  DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
+    if DiscourseActivityPubActivity.exists?(ap_id: activity.json[:id])
+      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        I18n.t('discourse_activity_pub.process.warning.activity_already_processed')
     end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
-    unless activity.actor.person?
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.invalid_create_actor')
-    end
+    reply_to_post = activity.object.stored.in_reply_to_post
 
-    unless activity.object.stored.in_reply_to_post
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.not_a_reply')
-    end
+    if reply_to_post
+      if reply_to_post.trashed?
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+          I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
+      end
+      unless reply_to_post.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
+      end
+    else
+      delivered_to_category_actors = []
 
-    if activity.object.stored.in_reply_to_post.trashed?
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
-        I18n.t('discourse_activity_pub.process.warning.cannot_reply_to_deleted_post')
+      activity.delivered_to.each do |delivered_to_id|
+        category_actor = DiscourseActivityPubActor.find_by(
+          ap_id: delivered_to_id,
+          local: true,
+          ap_type: DiscourseActivityPub::AP::Actor::Group.type,
+          model_type: Category
+        )
+        delivered_to_category_actors << category_actor if category_actor
+      end
+
+      if delivered_to_category_actors.blank?
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+          I18n.t('discourse_activity_pub.process.warning.only_category_actors_accept_new_topics')
+      end
+
+      unless delivered_to_category_actors.any? { |category_actor|
+        category_actor.following?(activity.actor.stored) ||
+        category_actor.following?(activity.parent&.actor&.stored)
+      }
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+          I18n.t('discourse_activity_pub.process.warning.only_followed_actors_create_new_topics')
+      end
+
+      delivered_to_category = delivered_to_category_actors.first.model
+
+      if !delivered_to_category.activity_pub_ready?
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+          I18n.t('discourse_activity_pub.process.warning.object_not_ready')
+      end
+
+      if !delivered_to_category.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
+      end
+
+      activity.cache['delivered_to_category_id'] = delivered_to_category.id
     end
   end
 
@@ -794,13 +864,18 @@ after_initialize do
     post = activity.object.stored.model
 
     unless post
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
+      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
         I18n.t('discourse_activity_pub.process.warning.cant_find_post')
     end
 
     if post.trashed?
-      raise DiscourseActivityPub::AP::Activity::ValidationError,
+      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
         I18n.t('discourse_activity_pub.process.warning.post_is_deleted')
+    end
+
+    unless post.activity_pub_full_topic
+      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
     end
   end
 
@@ -816,21 +891,38 @@ after_initialize do
     ensure_post(activity)
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:announce, :validate) do |activity|
+    unless DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
+      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        I18n.t('discourse_activity_pub.process.warning.announce_not_publicly_addressed')
+    end
+
+    if activity.object.object?
+      DiscourseActivityPub::AP::Activity.apply_handlers(activity, :create, :validate)
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|
-    user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
+    user = DiscourseActivityPub::UserHandler.update_or_create_user(
+      activity.object.stored.attributed_to
+    )
 
     unless user
-      raise DiscourseActivityPub::AP::Activity::PerformanceError,
-        I18n.t('discourse_activity_pub.create.failed_to_create_user',
-          actor_id: activity.actor.id
+      raise DiscourseActivityPub::AP::Handlers::Error::Perform,
+        I18n.t('discourse_activity_pub.activity.create.failed_to_create_user',
+          actor_id: activity.object.stored.attributed_to&.id
         )
     end
 
-    post = DiscourseActivityPub::PostHandler.create(user, activity.object.stored)
+    post = DiscourseActivityPub::PostHandler.create(
+      user,
+      activity.object.stored,
+      category_id: activity.cache['delivered_to_category_id']
+    )
 
     unless post
-      raise DiscourseActivityPub::AP::Activity::PerformanceError,
-        I18n.t('discourse_activity_pub.create.failed_to_create_post',
+      raise DiscourseActivityPub::AP::Handlers::Error::Perform,
+        I18n.t('discourse_activity_pub.activity.create.failed_to_create_post',
           user_id: user.id,
           object_id: activity.object.id
         )
@@ -853,7 +945,7 @@ after_initialize do
     user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
 
     unless user
-      raise DiscourseActivityPub::AP::Activity::PerformanceError,
+      raise DiscourseActivityPub::AP::Handlers::Error::Perform,
         I18n.t('discourse_activity_pub.create.failed_to_create_user',
           actor_id: activity.actor.id
         )
@@ -892,19 +984,8 @@ after_initialize do
     end
   end
 
-  DiscourseActivityPub::AP::Activity.add_handler(:all, :store) do |activity|
-    public = DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
-    visibility = public ? :public : :private
-
-    activity.stored = DiscourseActivityPubActivity.create!(
-      ap_id: activity.json[:id],
-      ap_type: activity.type,
-      actor_id: activity.actor.stored.id,
-      object_id: activity.object.stored.id,
-      object_type: activity.object.stored.class.name,
-      visibility: DiscourseActivityPubActivity.visibilities[visibility],
-      published_at: activity.json[:published]
-    )
+  DiscourseActivityPub::AP::Activity.add_handler(:announce, :perform) do |activity|
+    DiscourseActivityPub::AP::Activity.apply_handlers(activity, :create, :perform)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:follow, :respond_to) do |activity|
@@ -912,33 +993,227 @@ after_initialize do
     response.reject(message: activity.stored.errors.full_messages.join(', ')) if activity.stored&.errors.present?
     response.reject(key: "actor_already_following") if activity.actor.stored.following?(activity.object.stored)
 
-    response.stored = DiscourseActivityPubActivity.create!(
-      local: true,
-      ap_type: response.type,
-      actor_id: activity.object.stored.id,
-      object_id: activity.stored&.id,
-      object_type: 'DiscourseActivityPubActivity',
-      summary: response.summary
-    )
-
-    if response.accepted?
-      DiscourseActivityPubFollow.create!(
-        follower_id: activity.actor.stored.id,
-        followed_id: activity.object.stored.id
+    begin
+      response.stored = DiscourseActivityPubActivity.create!(
+        local: true,
+        ap_type: response.type,
+        actor_id: activity.object.stored.id,
+        object_id: activity.stored&.id,
+        object_type: 'DiscourseActivityPubActivity',
+        summary: response.summary
       )
+
+      if response.accepted?
+        DiscourseActivityPubFollow.create!(
+          follower_id: activity.actor.stored.id,
+          followed_id: activity.object.stored.id
+        )
+      end
+    rescue ActiveRecord::RecordInvalid => error
+      raise DiscourseActivityPub::AP::Handlers::Error::RespondTo,
+        I18n.t('discourse_activity_pub.process.warning.failed_to_respond_to_follow',
+          follow: activity.json[:id]
+        )
     end
 
     DiscourseActivityPub::DeliveryHandler.perform(
       actor: activity.object.stored,
       object: response.stored,
-      recipients: activity.object.stored.followers
+      recipient_ids: activity.object.stored.followers.map(&:id)
     )
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:accept, :perform) do |activity|
+    case activity.object.type
+    when DiscourseActivityPub::AP::Activity::Follow.type
+      DiscourseActivityPubFollow.create!(
+        follower_id: activity.object.actor.stored.id,
+        followed_id: activity.actor.stored.id
+      )
+      message = {
+        model: {
+          id: activity.object.actor.stored.model.id,
+          type: "category"
+        }
+      }
+      MessageBus.publish("/activity-pub", message)
+    else
+      false
+    end
+  end
+
+  def log_stored_save_error(error, json)
+    return unless SiteSetting.activity_pub_verbose_logging
+
+    prefix = "[Discourse Activity Pub] failed to save object"
+    ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
+    json = "JSON: #{JSON.generate(json)}"
+    Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:activity, :store) do |activity|
+    public = DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
+    visibility = public ? :public : :private
+
+    begin
+      activity.stored = DiscourseActivityPubActivity.create!(
+        ap_id: activity.json[:id],
+        ap_type: activity.type,
+        actor_id: activity.actor.stored.id,
+        object_id: activity.object.stored.id,
+        object_type: activity.object.stored.class.name,
+        visibility: DiscourseActivityPubActivity.visibilities[visibility],
+        published_at: activity.json[:published]
+      )
+    rescue ActiveRecord::RecordInvalid => error
+      log_stored_save_error(error, activity.json)
+      raise DiscourseActivityPub::AP::Handlers::Error::Store,
+        I18n.t('discourse_activity_pub.process.warning.failed_to_save_activity',
+          activity: activity.json[:id]
+        )
+    end
+
+    activity.cache['new'] = true # existing records will raise an error
+  end
+
+  DiscourseActivityPub::AP::Object.add_handler(:object, :store) do |object, opts|
+    activity = opts[:parent]
+
+    if activity&.composition? || (object.object? && activity&.announce?)
+      object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
+
+      DiscourseActivityPubObject.transaction do
+        if object.stored && activity.update?
+          object.stored.content = object.json[:content] if object.json[:content].present?
+          object.stored.name = object.json[:name] if object.json[:name].present?
+          object.stored.audience = object.json[:audience] if object.json[:audience].present?
+          object.stored.context = object.json[:context] if object.json[:context].present?
+          object.stored.target = object.json[:target] if object.json[:target].present?
+        elsif !object.stored && (activity.create? || activity&.announce?)
+          params = {
+            local: false,
+            ap_id: object.json[:id],
+            ap_type: object.json[:type],
+            content: object.json[:content],
+            published_at: object.json[:published],
+            domain: DiscourseActivityPub::JsonLd.domain_from_id(object.json[:id]),
+            name: object.json[:name]
+          }
+          params[:audience] = object.json[:audience] if object.json[:audience]
+          params[:context] = object.json[:context] if object.json[:context]
+          params[:target] = object.json[:target] if object.json[:target]
+          params[:reply_to_id] = object.json[:inReplyTo] if object.json[:inReplyTo]
+          params[:url] = object.json[:url] if object.json[:url]
+          params[:attributed_to_id] = object.attributed_to.id if object.attributed_to.present?
+          object.stored = DiscourseActivityPubObject.new(params)
+        end
+
+        if object.stored && (object.stored.new_record? || object.stored.changed?)
+          begin
+            object.stored.save!
+          rescue ActiveRecord::RecordInvalid => error
+            log_stored_save_error(error, object.json)
+            raise DiscourseActivityPub::AP::Handlers::Error::Store,
+              I18n.t('discourse_activity_pub.process.warning.failed_to_save_object',
+                object: object.json[:id]
+              )
+          end
+        end
+      end
+    elsif activity&.like?
+      object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
+    elsif activity&.follow?
+      object.stored = DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
+    elsif activity&.undo?
+      object.stored = DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+    elsif activity&.response?
+      object.stored = DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+    end
+  end
+
+  DiscourseActivityPub::AP::Object.add_handler(:actor, :store) do |actor|
+    actor.stored = DiscourseActivityPubActor.find_by(ap_id: actor.json[:id])
+
+    DiscourseActivityPubActor.transaction do
+      if !actor.stored
+        actor.stored = DiscourseActivityPubActor.new(
+          ap_id: actor.json[:id],
+          ap_type: actor.json[:type],
+          domain: DiscourseActivityPub::JsonLd.domain_from_id(actor.json[:id]),
+          username: actor.json[:preferredUsername],
+          inbox: actor.json[:inbox],
+          outbox: actor.json[:outbox],
+          name: actor.json[:name],
+          icon_url: DiscourseActivityPub::JsonLd.resolve_icon_url(actor.json[:icon])
+        )
+      else
+        actor.stored.name = actor.json[:name] if actor.json[:name].present?
+
+        if actor.json[:icon].present?
+          actor.stored.icon_url = DiscourseActivityPub::JsonLd.resolve_icon_url(actor.json[:icon])
+        end
+      end
+
+      if actor.json['publicKey'].is_a?(Hash) && actor.json['publicKey']['owner'] == actor.stored.ap_id
+        actor.stored.public_key = actor.json['publicKey']['publicKeyPem']
+      end
+
+      if actor.stored.new_record? || actor.stored.changed?
+        begin
+          actor.stored.save!
+        rescue ActiveRecord::RecordInvalid => error
+          log_stored_save_error(error, actor.json)
+          raise DiscourseActivityPub::AP::Handlers::Error::Store,
+            I18n.t('discourse_activity_pub.process.warning.failed_to_save_actor',
+              actor: actor.json[:id]
+            )
+        end
+      end
+    end
+  end
+
+  DiscourseActivityPub::AP::Collection.add_handler(:collection, :store) do |collection|
+    collection.stored = DiscourseActivityPubCollection.find_by(ap_id: collection.json[:id])
+
+    DiscourseActivityPubCollection.transaction do
+      if collection.stored
+        collection.stored.name = collection.json[:name] if collection.json[:name].present?
+        collection.stored.audience = collection.json[:audience] if collection.json[:audience].present?
+      else
+        params = {
+          local: false,
+          ap_id: collection.json[:id],
+          ap_type: collection.json[:type],
+          name: collection.json[:name],
+          audience: collection.json[:audience],
+          published_at: collection.json[:published],
+        }
+        collection.stored = DiscourseActivityPubCollection.new(params)
+      end
+
+      if collection.stored.new_record? || collection.stored.changed?
+        begin
+          collection.stored.save!
+        rescue ActiveRecord::RecordInvalid => error
+          log_stored_save_error(error, collection.json)
+          raise DiscourseActivityPub::AP::Handlers::Error::Store,
+            I18n.t('discourse_activity_pub.process.warning.failed_to_save_collection',
+              collection: collection.json[:id]
+            )
+        end
+      end
+    end
+  end
+
+  DiscourseActivityPub::AP::Activity.add_handler(:activity, :forward) do |activity|
+    DiscourseActivityPub::ActivityForwarder.perform(activity)
   end
 
   Discourse::Application.routes.prepend do
     mount DiscourseActivityPub::Engine, at: "ap"
 
     get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+    post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger/handle#validate", defaults: { format: :json }
     get "u/:username/preferences/activity-pub" => "users#preferences",
         :constraints => {
           username: RouteFormat.username,

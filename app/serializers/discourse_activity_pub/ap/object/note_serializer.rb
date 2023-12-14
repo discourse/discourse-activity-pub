@@ -2,7 +2,8 @@
 
 class DiscourseActivityPub::AP::Object::NoteSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :content,
-             :inReplyTo
+             :inReplyTo,
+             :context
 
   def content
     content = object.content

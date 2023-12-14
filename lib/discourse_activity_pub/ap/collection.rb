@@ -23,8 +23,23 @@ module DiscourseActivityPub
         items.size
       end
 
-      def summary
-        stored&.summary
+      def process_items
+        json["items"]
+      end
+
+      def process
+        process_items.each do |item|
+          activity = DiscourseActivityPub::AP::Activity.factory(item)
+
+          if activity&.respond_to?(:process)
+            activity.delivered_to << delivered_to if delivered_to
+            activity.process
+          end
+        end
+      end
+
+      def can_belong_to
+        %i()
       end
     end
   end

@@ -3,12 +3,12 @@
 class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::ObjectSerializer
   attributes :inbox,
              :outbox,
+             :sharedInbox,
              :followers,
              :preferredUsername,
              :publicKey,
              :url,
-             :icon,
-             :name
+             :icon
 
   def followers
     "#{object.id}/followers"
@@ -48,5 +48,13 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
 
   def include_name?
     object.stored.local? && object.name.present?
+  end
+
+  def sharedInbox
+    object.shared_inbox
+  end
+
+  def include_sharedInbox?
+    object.shared_inbox.present?
   end
 end

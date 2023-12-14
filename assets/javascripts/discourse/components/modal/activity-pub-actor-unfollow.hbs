@@ -1,0 +1,22 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-actor-unfollow-modal"
+>
+  <:body>
+    <div class="activity-pub-actor-unfollow">
+      {{i18n "discourse_activity_pub.actor_unfollow.confirm"
+        actor=@model.actor.name
+        followed_actor=@model.followedActor.handle}}
+    </div>
+  </:body>
+
+  <:footer>
+    <DButton
+      @action={{action "unfollow"}}
+      @label="discourse_activity_pub.actor_unfollow.label"
+      class="btn-primary"
+    />
+    <DModalCancel @close={{@closeModal}} />
+  </:footer>
+</DModal>

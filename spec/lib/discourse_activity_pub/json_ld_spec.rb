@@ -54,4 +54,64 @@ RSpec.describe DiscourseActivityPub::JsonLd do
       ).to eq(false)
     end
   end
+
+  describe "#address_json" do
+    let!(:to_actor_id) { "https://external.com/u/angus" }
+
+    context "with nested json" do
+      let!(:json) {
+        build_collection_json(
+          audience: described_class.public_collection_id,
+          items: [
+            build_activity_json(
+              type: 'Create',
+              audience: described_class.public_collection_id,
+              object: build_object_json(
+                audience: described_class.public_collection_id
+              )
+            ), 
+            build_activity_json(
+              type: 'Announce',
+              audience: described_class.public_collection_id,
+              object: build_activity_json(
+                type: 'Create',
+                audience: described_class.public_collection_id,
+                object: build_object_json(
+                  audience: described_class.public_collection_id
+                )
+              )
+            ),
+            build_activity_json(
+              type: 'Create',
+              audience: described_class.public_collection_id,
+              object: build_object_json(
+                audience: described_class.public_collection_id
+              )
+            ),
+            build_activity_json(type: "Update")
+          ]
+        )
+      }
+
+      it "copies to to to" do
+        addressed_json = described_class.address_json(json, { to: json['audience'] })
+        expect(addressed_json['to']).to eq(json['audience'])
+  
+        addressed_json['items'].each do |item|
+          expect(item['to']).to eq(json['audience'])
+          expect(item['object']['to']).to eq(json['audience'])
+        end
+      end
+
+      it "copies cc to cc" do
+        addressed_json = described_class.address_json(json, { cc: json['audience'] })
+        expect(addressed_json['cc']).to eq(json['audience'])
+  
+        addressed_json['items'].each do |item|
+          expect(item['cc']).to eq(json['audience'])
+          expect(item['object']['cc']).to eq(json['audience'])
+        end
+      end
+    end
+  end
 end

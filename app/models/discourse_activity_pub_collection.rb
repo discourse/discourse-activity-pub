@@ -23,12 +23,19 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   end
 
   def private?
-    items.any? { |item| item.private? }
+    items.any? { |item| item.respond_to?(:private) && item.private? }
   end
 
-  def after_deliver
+  def public?
+    !private?
+  end
+
+  def before_deliver
     @context = :activities
     after_published(Time.now.utc.iso8601)
+  end
+
+  def after_deliver(delivered = true)
   end
 
   def after_scheduled(scheduled_at, activity = nil)
@@ -42,11 +49,19 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   end
 
   def actor
-    model ? model.activity_pub_actor : object
+    model&.activity_pub_actor
+  end
+
+  def audience
+    self.read_attribute(:audience) || actor&.ap_id
   end
 
   def to
-    @to ||= public_collection_id
+    audience
+  end
+
+  def cc
+    public? ? DiscourseActivityPub::JsonLd.public_collection_id : nil
   end
 
   def items
@@ -110,6 +125,16 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     self
   end
 
+  def contributors(local: nil)
+    # Contributors are added as recipients of the collection's activities.
+    # See activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
+    # See also lib/discourse_activity_pub/activity_forwarder.rb
+    objects.each_with_object([]) do |object, result|
+      actor = object.attributed_to
+      result << actor if actor && (local.nil? || actor.local? == local)
+    end
+  end
+
   protected
 
   def send_to_collection(method, value)
@@ -118,3 +143,25 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_activity_pub_collections
+#
+#  id           :bigint           not null, primary key
+#  ap_id        :string           not null
+#  ap_key       :string
+#  ap_type      :string           not null
+#  local        :boolean
+#  model_id     :integer
+#  model_type   :string
+#  summary      :string
+#  published_at :datetime
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  name         :string
+#
+# Indexes
+#
+#  index_discourse_activity_pub_collections_on_ap_id  (ap_id)
+#

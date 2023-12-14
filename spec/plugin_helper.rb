@@ -50,6 +50,8 @@ def build_actor_json(public_key = nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: "https://external.com/u/angus",
+    name: "Angus McLeod",
+    preferredUsername: "angus",
     type: "Person",
     inbox: "https://external.com/u/angus/inbox",
     outbox: "https://external.com/u/angus/outbox"
@@ -62,7 +64,7 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_to: nil, published: nil, url: nil)
+def build_object_json(id: nil, type: 'Note', name: nil, content: 'My cool note', in_reply_to: nil, published: nil, url: nil, to: nil, cc: nil, audience: nil, attributed_to: nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
@@ -72,15 +74,32 @@ def build_object_json(id: nil, type: 'Note', content: 'My cool note', in_reply_t
     published: published || Time.now.iso8601
   }
   _json[:url] = url if url
+  _json[:to] = to if to
+  _json[:cc] = cc if cc
+  _json[:audience] = audience if audience
+  _json[:name] = name if name
+  _json[:attributedTo] = if attributed_to&.respond_to?(:ap_id)
+      attributed_to.ap_id
+    elsif attributed_to.respond_to?(:id)
+      attributed_to.id
+    else
+      attributed_to
+    end
   _json
 end
 
-def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil)
-  {
+def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', published: nil, to: nil, cc: nil, audience: nil)
+  _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
-    actor: actor ? actor.ap.json : build_actor_json,
+    actor: if actor&.respond_to?(:ap)
+        actor.ap.json
+      elsif actor.present?
+        actor
+      else
+        build_actor_json
+      end,
     object: if object&.respond_to?(:ap)
         object.ap.json
       elsif object.present?
@@ -89,7 +108,24 @@ def build_activity_json(id: nil, actor: nil, object: nil, type: 'Follow', publis
         build_object_json
       end,
     published: published || Time.now.iso8601
-  }.with_indifferent_access
+  }
+  _json[:to] = to if to
+  _json[:cc] = cc if cc
+  _json[:audience] = audience if audience
+  _json.with_indifferent_access
+end
+
+def build_collection_json(items: [], to: nil, cc: nil, audience: nil)
+  _json = {
+    '@context': 'https://www.w3.org/ns/activitystreams',
+    id: "https://external.com/collection/#{SecureRandom.hex(8)}",
+    type: "Collection",
+    items: items
+  }
+  _json[:to] = to if to
+  _json[:cc] = cc if cc
+  _json[:audience] = audience if audience
+  _json.with_indifferent_access
 end
 
 def build_process_warning(key, object_id)
@@ -98,13 +134,14 @@ def build_process_warning(key, object_id)
   "[Discourse Activity Pub] #{action}: #{message}"
 end
 
-def perform_process(json)
+def perform_process(json, delivered_to = nil)
   klass = described_class.new
   klass.json = json
+  klass.delivered_to << delivered_to if delivered_to
   klass.process
 end
 
-def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil)
+def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil, recipient_ids: nil)
   DiscourseActivityPub::DeliveryHandler
     .expects(:perform)
     .with do |args|
@@ -112,6 +149,7 @@ def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil)
       (!actor || args[:actor].id == actor.id) &&
       (!object || args[:object].id == object.id) &&
       (!object_type || args[:object].ap_type == object_type) &&
+      (!recipient_ids || args[:recipient_ids].sort == recipient_ids.sort) &&
       args[:delay] == delay
     end
     .once
@@ -121,4 +159,68 @@ def expect_no_delivery
   DiscourseActivityPub::DeliveryHandler
     .expects(:perform)
     .never
+end
+
+def stub_stored_request(object)
+  stub_request(:get, object.ap_id)
+    .to_return(
+      body: object.ap.json.to_json,
+      headers: { "Content-Type" => "application/json" },
+      status: 200
+    )
+end
+
+def published_json(object, args = {})
+  object.before_deliver
+  object.ap.json
+end
+
+def expect_no_request
+  DiscourseActivityPub::Request.expects(:new).never
+end
+
+def expect_request(body: nil, body_type: nil, actor_id: nil, uri: nil, returns: nil)
+  DiscourseActivityPub::Request
+    .expects(:new)
+    .with do |args|
+      (!actor_id || args[:actor_id] == actor_id) &&
+      (!uri || [*uri].include?(args[:uri])) &&
+      (!body || args[:body][:id] == body[:id]) &&
+      (!body_type || args[:body][:type] == body_type)
+    end
+    .returns(returns)
+end
+
+def expect_post(returns: true)
+  DiscourseActivityPubActivity
+      .any_instance
+      .expects(:before_deliver)
+      .once
+
+  DiscourseActivityPub::Request
+    .any_instance
+    .expects(:post_json_ld)
+    .returns(returns)
+
+  if returns
+    DiscourseActivityPub::DeliveryFailureTracker
+      .any_instance
+      .expects(:track_success)
+      .once
+    DiscourseActivityPubActivity
+      .any_instance
+      .expects(:after_deliver)
+      .with(true)
+      .once
+  else
+    DiscourseActivityPub::DeliveryFailureTracker
+      .any_instance
+      .expects(:track_failure)
+      .once
+    DiscourseActivityPubActivity
+      .any_instance
+      .expects(:after_deliver)
+      .with(false)
+      .once
+  end
 end

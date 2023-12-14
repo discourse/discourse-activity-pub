@@ -39,9 +39,11 @@ en:
       category_nav:
         label: Federation
         description: Federation for %{category_name}
+        followers: Followers
+        follows: Follows
       banner:
         text: Follow %{category_name} on any service that supports federation
-        mobile_text: Federated
+        responsive_text: Federated
         public_full_topic: Each post of each topic will be published publicly via ActivityPub.
         public_first_post: The first post of each topic will be published publicly via ActivityPub.
         followers_only_full_topic: Each post of each topic is published to ActivityPub followers only.
@@ -51,7 +53,7 @@ en:
         description: Use this handle to find and follow this category.
       follow:
         label: Follow
-        title: Follow %{name} via ActivityPub
+        title: Follow %{actor} via ActivityPub
         domain:
           label: Mastodon
           placeholder: domain
@@ -60,10 +62,37 @@ en:
           description: domain of your Mastodon account
           verifying: verifying the domain...
           invalid: not a valid Mastodon domain
-      follower:
+      actor_follow:
+        label: New Follow
+        title: New follow for %{actor} via ActivityPub
+        find:
+          label: Find an actor to follow
+          btn_label: Find
+          btn_title: Find the handle
+          description: "e.g. @announcements@meta.discourse.org"
+          validating: validating handle...
+          invalid: not a valid handle
+          finding: finding the actor...
+          not_found: 'could not find "%{handle}"'
+        follow:
+          label: Follow
+          title: 'Create a follow of "%{follow_actor}" for %{actor}'
+        following:
+          label: Following
+          title: '%{actor} is following %{follow_actor}'
+        follow_requested:
+          label: Follow Requested
+          title: '%{actor} has requested to follow %{follow_actor}'
+      actor_unfollow:
+        label: Unfollow
+        title: Unfollow for %{actor} via ActivityPub
+        modal_title: Confirm Unfollow
+        confirm: Are you sure you want %{actor} to unfollow %{followed_actor}?
+      follow_table:
         actor: Actor
         user: User
         followed_at: Followed
+        follow_pending: pending
       visibility:
         label:
           private: Followers Only

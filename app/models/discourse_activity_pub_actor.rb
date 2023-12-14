@@ -19,6 +19,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   before_save :ensure_keys, if: :local?
   before_save :ensure_inbox_and_outbox, if: :local?
 
+  attr_accessor :followed_at
+
   def available?
     local? ? true : self.available
   end
@@ -27,12 +29,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     local? ? model.activity_pub_ready? : available?
   end
 
-  def remote?
-    !local?
-  end
-
   def refresh_remote!
-    DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id, stored: true) unless local?
+    DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id) unless local?
   end
 
   def keypair
@@ -43,7 +41,15 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def following?(actor)
+    return false unless actor
     actor.followers.exists?(id: self.id)
+  end
+
+  def can_follow?(actor)
+    can_perform_activity?(
+      DiscourseActivityPub::AP::Activity::Follow.type,
+      actor.ap_type
+    )
   end
 
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)
@@ -57,6 +63,11 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def domain
     local? ? DiscourseActivityPub.host : self.read_attribute(:domain)
+  end
+
+  def handle
+    handle = DiscourseActivityPub::Webfinger::Handle.new(username: username, domain: domain)
+    handle.valid? ? handle.to_s : nil
   end
 
   def url
@@ -74,7 +85,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def followers_collection
     @followers_collection ||= begin
       collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}#followers",
+        ap_id: "#{self.ap_id}/followers",
         ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
         created_at: self.created_at,
         updated_at: self.updated_at,
@@ -89,7 +100,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def outbox_collection
     @outbox_collection ||= begin
       collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}#activities",
+        ap_id: "#{self.ap_id}/outbox",
         ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
         created_at: self.created_at,
         updated_at: self.updated_at,
@@ -98,6 +109,14 @@ class DiscourseActivityPubActor < ActiveRecord::Base
       collection.items = activities
       collection.context = :outbox
       collection
+    end
+  end
+
+  def shared_inbox
+    if local?
+      model.activity_pub_shared_inbox if model&.respond_to?(:activity_pub_shared_inbox)
+    else
+      self.read_attribute(:shared_inbox)
     end
   end
 
@@ -117,14 +136,48 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def self.find_by_handle(handle, local: false)
-    username, domain = handle.split('@')
-    return nil unless !local || DiscourseActivityPub::URI.local?(domain)
+  def self.find_by_handle(raw_handle, local: false, refresh: false)
+    handle = DiscourseActivityPub::Webfinger::Handle.new(handle: raw_handle)
+    return nil unless handle.valid?
+    return nil unless !local || DiscourseActivityPub::URI.local?(handle.domain)
 
-    opts = { username: username }
-    opts[:domain] = domain if !local
+    opts = {
+      username: handle.username
+    }
+    opts[:local] = true if local
+    opts[:domain] = handle.domain if !local
+    actor = DiscourseActivityPubActor.find_by(opts)
 
-    DiscourseActivityPubActor.find_by(opts)
+    if (refresh || !actor) && !local
+      actor = resolve_and_store_by_handle(handle.to_s)
+    end
+
+    actor
+  end
+
+  def self.find_by_ap_id(ap_id, local: false, refresh: false)
+    return nil unless !local || DiscourseActivityPub::URI.local?(ap_id)
+
+    opts = {
+      ap_id: ap_id
+    }
+    opts[:local] = true if local
+    actor = DiscourseActivityPubActor.find_by(opts)
+
+    if (refresh || !actor) && !local
+      ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)
+      actor = ap_actor.stored if ap_actor
+    end
+
+    actor
+  end
+
+  def self.resolve_and_store_by_handle(raw_handle)
+    ap_id = DiscourseActivityPub::Webfinger.resolve_id_by_handle(raw_handle)
+    return nil unless ap_id
+
+    ap_actor = DiscourseActivityPub::AP::Actor.resolve_and_store(ap_id)
+    ap_actor&.stored
   end
 
   def self.username_unique?(username, model_id: nil, local: true)
@@ -168,24 +221,25 @@ end
 #
 # Table name: discourse_activity_pub_actors
 #
-#  id          :bigint           not null, primary key
-#  ap_id       :string           not null
-#  ap_key      :string
-#  ap_type     :string           not null
-#  domain      :string
-#  local       :boolean
-#  available   :boolean          default(TRUE)
-#  inbox       :string
-#  outbox      :string
-#  username    :string
-#  name        :string
-#  model_id    :integer
-#  model_type  :string
-#  private_key :text
-#  public_key  :text
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  icon_url    :string
+#  id           :bigint           not null, primary key
+#  ap_id        :string           not null
+#  ap_key       :string
+#  ap_type      :string           not null
+#  domain       :string
+#  local        :boolean
+#  available    :boolean          default(TRUE)
+#  inbox        :string
+#  outbox       :string
+#  username     :string
+#  name         :string
+#  model_id     :integer
+#  model_type   :string
+#  private_key  :text
+#  public_key   :text
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  icon_url     :string
+#  shared_inbox :string
 #
 # Indexes
 #

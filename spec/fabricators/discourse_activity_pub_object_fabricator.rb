@@ -2,6 +2,7 @@
 
 Fabricator(:discourse_activity_pub_object) do
   ap_type { "Object" }
+  attributed_to { Fabricate(:discourse_activity_pub_actor_person) }
 
   before_create do |object|
     if !object.local && !object.ap_id

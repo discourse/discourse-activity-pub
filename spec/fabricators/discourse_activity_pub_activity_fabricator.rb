@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 Fabricator(:discourse_activity_pub_activity) do
-  ap_id { DiscourseActivityPub::JsonLd.json_ld_id("activity", SecureRandom.hex(16)) }
+  ap_key { SecureRandom.hex(16) }
   ap_type { "Activity" }
+
+  before_create do |activity|
+    self.ap_id = DiscourseActivityPub::JsonLd.json_ld_id("activity", activity.ap_key)
+  end
 end
 
 Fabricator(:discourse_activity_pub_activity_follow, from: :discourse_activity_pub_activity) do
@@ -91,4 +95,11 @@ Fabricator(:discourse_activity_pub_activity_like, from: :discourse_activity_pub_
   ap_type { DiscourseActivityPub::AP::Activity::Like.type }
   actor { Fabricate(:discourse_activity_pub_actor_person) }
   object { Fabricate(:discourse_activity_pub_object_note) }
+end
+
+Fabricator(:discourse_activity_pub_activity_undo, from: :discourse_activity_pub_activity) do
+  ap_type { DiscourseActivityPub::AP::Activity::Undo.type }
+  actor { Fabricate(:discourse_activity_pub_actor_group) }
+  object { Fabricate(:discourse_activity_pub_activity_follow) }
+  local { true }
 end

@@ -1,7 +1,8 @@
 export default {
   "/ap/category/2/followers.json": {
-    followers: [
+    actors: [
       {
+        handle: "@angus_ap@test.local",
         name: "Angus",
         username: "angus_ap",
         local: true,
@@ -14,6 +15,7 @@ export default {
         },
       },
       {
+        handle: "@angus_ap@test.local",
         name: "Bob",
         username: "bob_ap",
         local: false,

@@ -68,7 +68,7 @@ RSpec.describe PostCreator do
             expect(post.topic.activity_pub_object.ap_type).to eq(
               DiscourseActivityPub::AP::Collection::OrderedCollection.type
             )
-            expect(post.topic.activity_pub_object.summary).to eq(
+            expect(post.topic.activity_pub_object.name).to eq(
               post.topic.title
             )
             expect(post.topic.activity_pub_objects_collection.items.first.ap_id).to eq(

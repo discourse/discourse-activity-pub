@@ -1,7 +1,6 @@
 import DiscourseRoute from "discourse/routes/discourse";
-import Category from "discourse/models/category";
 import { A } from "@ember/array";
-import ActivityPubFollowers from "../models/activity-pub-followers";
+import ActivityPubCategory from "../models/activity-pub-category";
 
 export default DiscourseRoute.extend({
   queryParams: {
@@ -9,18 +8,26 @@ export default DiscourseRoute.extend({
     asc: { refreshModel: true },
   },
 
-  model(params) {
-    const category = Category.findById(params.category_id);
-    return ActivityPubFollowers.load(category, params);
+  model() {
+    return this.modelFor("activityPub.category");
+  },
+
+  afterModel(model, transition) {
+    const category = model;
+    return ActivityPubCategory.listActors(
+      category.id,
+      transition.to.queryParams,
+      "followers"
+    ).then((response) => this.setProperties(response));
   },
 
   setupController(controller, model) {
     controller.setProperties({
-      model: ActivityPubFollowers.create({
-        category: model.category,
-        followers: A(model.followers || []),
-        loadMoreUrl: model.meta?.load_more_url,
-        total: model.meta?.total,
+      model: ActivityPubCategory.create({
+        category: model,
+        actors: A(this.actors || []),
+        loadMoreUrl: this.meta?.load_more_url,
+        total: this.meta?.total,
       }),
     });
   },

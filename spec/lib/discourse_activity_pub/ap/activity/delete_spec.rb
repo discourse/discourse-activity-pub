@@ -19,7 +19,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
       let!(:activity_json) {
         build_activity_json(
           object: object_json,
-          type: 'Delete'
+          type: 'Delete',
+          to: [category.activity_pub_actor.ap_id]
         )
       }
       let!(:note) {

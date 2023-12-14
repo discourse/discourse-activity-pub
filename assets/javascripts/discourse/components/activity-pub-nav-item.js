@@ -37,7 +37,7 @@ export default class ActivityPubNavItem extends Component {
   }
 
   get classes() {
-    let result = "activity-pub-category-nav";
+    let result = "activity-pub-category-route-nav";
     if (this.visible) {
       result += " visible";
     }
@@ -52,6 +52,6 @@ export default class ActivityPubNavItem extends Component {
   }
 
   get active() {
-    return this.router.currentRouteName === "activityPub.category.followers";
+    return this.router.currentRouteName.includes("activityPub.category");
   }
 }

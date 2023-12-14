@@ -3,15 +3,20 @@
 class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   attributes :id,
              :type,
+             :audience,
              :to,
+             :cc,
              :published,
              :updated,
              :url,
-             :attributedTo
+             :attributedTo,
+             :name,
+             :summary,
+             :context
 
   def attributes(*args)
     hash = super
-    hash["@context"] = context
+    hash["@context"] = DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT
     hash
   end
 
@@ -19,12 +24,20 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
     object.context
   end
 
-  def to
-    object.to
+  def include_context?
+    object.context.present?
+  end
+
+  def include_audience?
+    object.audience.present?
   end
 
   def include_to?
     object.to.present?
+  end
+
+  def include_cc?
+    object.cc.present?
   end
 
   def include_published?
@@ -40,10 +53,18 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   end
 
   def attributedTo
-    object.attributed_to
+    object.attributed_to.id
   end
 
   def include_attributedTo?
     object.attributed_to.present?
+  end
+
+  def include_name?
+    object.name.present?
+  end
+
+  def include_summary?
+    object.summary.present?
   end
 end

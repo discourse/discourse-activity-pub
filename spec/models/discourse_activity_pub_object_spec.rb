@@ -41,13 +41,13 @@ RSpec.describe DiscourseActivityPubObject do
     end
   end
 
-  describe '#to' do
+  describe '#audience' do
     context "with a note" do
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
       let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
 
       it "inherits the addressing of its first activity" do
-        expect(note.to).to eq(activity.to)
+        expect(note.audience).to eq(activity.audience)
       end
     end
 
@@ -74,26 +74,26 @@ RSpec.describe DiscourseActivityPubObject do
         collection.context = :announcement
       end
 
-      it "publicly addresses the collection" do
-        expect(collection.to).to eq(public_collection_id)
+      it "sets the collection audience" do
+        expect(collection.audience).to eq(group.ap_id)
       end
 
-      it "publicly addresses all announce activities" do
-        expect(collection.items.map(&:to)).to match_array(
-          [public_collection_id, public_collection_id, public_collection_id]
-        )
+      it "sets announce activities' audience" do
+        collection.items.each do |item|
+          expect(item.audience).to eq(group.ap_id)
+        end 
       end
 
-      it "publicly addresses all announced activities" do
-        expect(collection.items.map(&:object).flatten.map(&:to)).to match_array(
-          [public_collection_id, public_collection_id, public_collection_id]
-        )
+      it "sets announced activities' audience" do
+        collection.items.each do |item|
+          expect(item.object.audience).to eq(group.ap_id)
+        end
       end
 
-      it "publicly addresses all notes" do
-        expect(collection.items.map{ |item| item.object.object }.flatten.map(&:to)).to match_array(
-          [public_collection_id, public_collection_id, public_collection_id]
-        )
+      it "sets announced activities' notes' audience" do
+        collection.items.each do |item|
+          expect(item.object.object.audience).to eq(group.ap_id)
+        end
       end
     end
   end

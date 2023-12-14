@@ -58,7 +58,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
       it "returns the categories followers" do
         get "/ap/category/#{actor.model.id}/followers.json"
         expect(response.status).to eq(200)
-        expect(response.parsed_body['followers'].map{|f| f["url"] }).to eq(
+        expect(response.parsed_body['actors'].map{|f| f["url"] }).to eq(
           [follower3.ap_id, follower2.ap_id, follower1.ap_id]
         )
       end
@@ -66,13 +66,13 @@ RSpec.describe DiscourseActivityPub::CategoryController do
       it "returns followers without users" do
         get "/ap/category/#{actor.model.id}/followers.json"
         expect(response.status).to eq(200)
-        expect(response.parsed_body['followers'].map{|f| f["username"] }).to include("jenny_ap")
+        expect(response.parsed_body['actors'].map{|f| f["username"] }).to include("jenny_ap")
       end
 
       it "orders by user" do
         get "/ap/category/#{actor.model.id}/followers.json?order=user"
         expect(response.status).to eq(200)
-        expect(response.parsed_body['followers'].map{|f| f.dig("user","username") }).to eq(
+        expect(response.parsed_body['actors'].map{|f| f.dig("user","username") }).to eq(
           ["xavier_local", "bob_local", nil]
         )
       end
@@ -80,7 +80,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
       it "orders by actor" do
         get "/ap/category/#{actor.model.id}/followers.json?order=actor"
         expect(response.status).to eq(200)
-        expect(response.parsed_body['followers'].map{|f| f["username"] }).to eq(
+        expect(response.parsed_body['actors'].map{|f| f["username"] }).to eq(
           ["xavier_ap", "jenny_ap", "bob_ap"]
         )
       end
@@ -88,7 +88,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
       it "paginates" do
         get "/ap/category/#{actor.model.id}/followers.json?limit=2&page=1"
         expect(response.status).to eq(200)
-        expect(response.parsed_body['followers'].map{|f| f["url"] }).to eq(
+        expect(response.parsed_body['actors'].map{|f| f["url"] }).to eq(
           [follower1.ap_id]
         )
       end

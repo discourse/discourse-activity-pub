@@ -46,26 +46,35 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     visibility === DiscourseActivityPubActivity.visibilities[:private]
   end
 
-  def to
-    if public?
-      public_collection_id
-    else
-      primary_actor.followers_collection.ap_id
-    end
+  def base_object
+    @base_object ||= find_base_object(object)
   end
 
-  def primary_actor
-    if parent && parent.parent && parent.parent.ap.activity?
-      parent.parent.actor
-    elsif parent && parent.ap.activity?
-      parent.actor
-    else
-      actor
+  def audience
+    base_object.ap.object? && base_object.audience
+  end
+
+  def to
+    return nil unless local?
+    return audience if audience
+    return base_object.ap_id if base_object&.ap.actor?
+  end
+
+  def cc
+    return nil unless local?
+    result = []
+    result << DiscourseActivityPub::JsonLd.public_collection_id if public?
+
+    if base_object&.ap.object?
+      reply_to_audience = base_object.reply_to&.audience
+      result << reply_to_audience if reply_to_audience && to != reply_to_audience
     end
+
+    result.present? ? result : nil
   end
 
   def announce!(actor_id)
-    DiscourseActivityPubActivity.create!(
+    DiscourseActivityPubActivity.find_or_create_by!(
       local: true,
       actor_id: actor_id,
       object_id: self.id,
@@ -75,8 +84,22 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     )
   end
 
-  def after_deliver
+  def before_deliver
+    # We have to set "published" on the JSON we deliver
     after_published(Time.now.utc.iso8601, self)
+  end 
+
+  def after_deliver(delivered = true)
+    if !delivered && local? && ap.follow?
+      return self.destroy!
+    end
+
+    if delivered && local? && ap.undo? && object.ap.follow?
+      DiscourseActivityPubFollow.where(
+        follower_id: actor_id,
+        followed_id: object.object.id
+      ).destroy_all
+    end
   end
 
   def after_scheduled(scheduled_at, _activity = nil)
@@ -100,6 +123,14 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       )
     end
   end
+
+  def find_base_object(current_object)
+    if current_object&.respond_to?(:object) && current_object.object
+      find_base_object(current_object.object)
+    else
+      current_object
+    end
+  end
 end
 
 # == Schema Information
@@ -112,7 +143,7 @@ end
 #  ap_type      :string           not null
 #  local        :boolean
 #  actor_id     :integer          not null
-#  object_id    :string
+#  object_id    :integer
 #  object_type  :string
 #  summary      :string
 #  published_at :datetime

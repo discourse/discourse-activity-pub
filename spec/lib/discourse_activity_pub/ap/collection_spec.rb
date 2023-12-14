@@ -38,4 +38,22 @@ RSpec.describe DiscourseActivityPub::AP::Collection do
       end
     end
   end
+
+  describe "#process" do
+    let!(:collection_json) {
+      build_collection_json(
+        items: [
+          build_activity_json(type: "Create"),
+          build_activity_json(type: "Create"),
+          build_activity_json(type: "Update")
+        ]
+      )
+    }
+
+    it "processes processable items" do
+      DiscourseActivityPub::AP::Activity::Create.any_instance.expects(:process).twice
+      DiscourseActivityPub::AP::Activity::Update.any_instance.expects(:process).once
+      perform_process(collection_json)
+    end
+  end
 end

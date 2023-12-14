@@ -20,7 +20,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Update do
       let!(:activity_json) {
         build_activity_json(
           object: object_json,
-          type: 'Update'
+          type: 'Update',
+          to: [category.activity_pub_actor.ap_id]
         )
       }
 

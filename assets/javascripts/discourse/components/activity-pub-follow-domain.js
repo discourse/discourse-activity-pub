@@ -4,7 +4,6 @@ import { inject as service } from "@ember/service";
 import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
 import { extractDomainFromUrl, hostnameValid } from "discourse/lib/utilities";
-import { buildHandle } from "../lib/activity-pub-utilities";
 import { Promise } from "rsvp";
 import I18n from "I18n";
 
@@ -21,7 +20,7 @@ const mastodonFollowUrl = (domain, handle) => {
 // See https://docs.joinmastodon.org/methods/instance/#v2
 const mastodonAboutPath = "api/v2/instance";
 
-export default class ActivityPubFollowMastodon extends Component {
+export default class ActivityPubFollowDomain extends Component {
   @service site;
   @tracked verifying = false;
   @tracked error = null;
@@ -68,10 +67,7 @@ export default class ActivityPubFollowMastodon extends Component {
       return;
     }
 
-    const model = this.args.model;
-    const site = this.site;
-    const handle = buildHandle({ model, site });
-
+    const handle = this.args.actor?.handle;
     if (!handle) {
       return;
     }

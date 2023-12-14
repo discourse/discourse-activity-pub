@@ -5,17 +5,18 @@ module DiscourseActivityPub
       include JsonLd
       include ActiveModel::SerializerSupport
       include HasErrors
+      include Handlers
 
       attr_writer :json
+      attr_writer :attributed_to
       attr_accessor :stored
+      attr_accessor :delivered_to
+      attr_accessor :cache
+      attr_accessor :parent
 
       def initialize(json: nil, stored: nil)
         @json = json
         @stored = stored
-      end
-
-      def context
-        DiscourseActivityPub::JsonLd::ACTIVITY_STREAMS_CONTEXT
       end
 
       def id
@@ -23,7 +24,7 @@ module DiscourseActivityPub
       end
 
       def type
-        stored&.ap_type
+        stored&.ap_type || base_type
       end
 
       def base_type
@@ -42,12 +43,24 @@ module DiscourseActivityPub
         base_type == "Collection"
       end
 
+      def actor?
+        base_type == "Actor"
+      end
+
       def url
         stored&.respond_to?(:url) && stored.url
       end
 
+      def audience
+        stored&.respond_to?(:audience) && stored.audience
+      end
+
       def to
         stored&.respond_to?(:to) && stored.to
+      end
+
+      def cc
+        stored&.respond_to?(:cc) && stored.cc
       end
 
       def start_time
@@ -63,7 +76,33 @@ module DiscourseActivityPub
       end
 
       def attributed_to
-        stored&.respond_to?(:attributed_to) && stored.attributed_to
+        stored ?
+          stored.respond_to?(:attributed_to) && stored.attributed_to&.ap :
+          @attributed_to
+      end
+
+      def summary
+        stored&.respond_to?(:summary) && stored.summary
+      end
+
+      def name
+        stored&.respond_to?(:name) && stored.name
+      end
+
+      def context
+        stored&.respond_to?(:context) && stored.context
+      end
+
+      def target
+        stored&.respond_to?(:target) && stored.target
+      end
+
+      def delivered_to
+        @delivered_to ||= []
+      end
+
+      def cache
+        @cache ||= {}
       end
 
       def self.type
@@ -88,44 +127,6 @@ module DiscourseActivityPub
         end
       end
 
-      def find_stored_from_json
-        return false unless json
-
-        @stored = DiscourseActivityPubObject.find_by(ap_id: json[:id])
-      end
-
-      def update_stored_from_json
-        return false unless json
-
-        DiscourseActivityPubObject.transaction do
-          if stored
-            stored.content = json[:content] if json[:content].present?
-          else
-            params = {
-              local: false,
-              ap_id: json[:id],
-              ap_type: json[:type],
-              content: json[:content],
-              published_at: json[:published],
-              domain: domain_from_id(json[:id])
-            }
-            params[:reply_to_id] = json[:inReplyTo] if json[:inReplyTo]
-            params[:url] = json[:url] if json[:url]
-            @stored = DiscourseActivityPubObject.new(params)
-          end
-
-          if stored.new_record? || stored.changed?
-            begin
-              stored.save!
-            rescue ActiveRecord::RecordInvalid => error
-              log_stored_save_error(error, json)
-            end
-          end
-        end
-
-        stored
-      end
-
       def process_failed(warning_key)
         action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
         if errors.any?
@@ -137,14 +138,22 @@ module DiscourseActivityPub
         false
       end
 
-      def self.process_failed(object_id, warning_key)
-        self.new(json: { id: object_id }).process_failed(warning_key)
-      end
-
       def log_warning(action, message)
         if SiteSetting.activity_pub_verbose_logging
           Rails.logger.warn("[Discourse Activity Pub] #{action}: #{message}")
         end
+      end
+
+      def self.type
+        self.new.type
+      end
+
+      def self.base_type
+        self.new.base_type
+      end
+
+      def self.process_failed(object_id, warning_key)
+        self.new(json: { id: object_id }).process_failed(warning_key)
       end
 
       def self.factory(json)
@@ -169,45 +178,30 @@ module DiscourseActivityPub
         end
       end
 
-      def self.resolve_and_store(raw_object, activity)
-        object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
-        return process_failed(object_id, "cant_resolve_object") unless object_id.present?
-
-        if activity.composition?
-          object = factory(raw_object)
-          return process_failed(object_id, "cant_resolve_object") unless object.present?
-          return process_failed(object_id, "object_not_supported") unless object.can_belong_to.include?(:remote)
-
-          stored = object.find_stored_from_json
-
-          if activity.create? || activity.update?
-            stored = object.update_stored_from_json
-          end
-        else
-          stored = case activity.type
-            when AP::Activity::Like.type
-              DiscourseActivityPubObject.find_by(ap_id: object_id)
-            when AP::Activity::Follow.type
-              DiscourseActivityPubActor.find_by(ap_id: object_id)
-            when AP::Activity::Undo.type
-              DiscourseActivityPubActivity.find_by(ap_id: object_id)
-            else
-              nil
-            end
-        end
-
-        stored&.ap
+      def self.resolve_and_store(raw_object, parent = nil)
+        object = resolve(raw_object)
+        return unless object
+        object.apply_handlers(type, :store, parent: parent)
+        object
       end
 
-      protected
+      def self.resolve(raw_object)
+        resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object)
+        return process_failed(raw_object, "cant_resolve_object") unless resolved_object.present?
 
-      def log_stored_save_error(error, json)
-        return unless SiteSetting.activity_pub_verbose_logging
+        object = factory(resolved_object)
+        return process_failed(resolved_object['id'], "cant_resolve_object") unless object.present?
 
-        prefix = "[Discourse Activity Pub] failed to save object"
-        ar_errors = "AR errors: #{error.record.errors.map { |e| e.full_message }.join(",")}"
-        json = "JSON: #{JSON.generate(json)}"
-        Rails.logger.error("#{prefix}. #{ar_errors}. #{json}")
+        if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
+          return process_failed(resolved_object['id'], "object_not_supported")
+        end
+
+        if object.json[:attributedTo]
+          attributed_to = Actor.resolve_and_store(object.json[:attributedTo])
+          object.attributed_to = attributed_to if attributed_to.present?
+        end
+
+        object
       end
     end
   end

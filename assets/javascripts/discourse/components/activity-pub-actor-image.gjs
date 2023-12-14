@@ -1,5 +1,4 @@
 import Component from "@glimmer/component";
-import { buildHandle } from "../lib/activity-pub-utilities";
 import { translateSize } from "discourse-common/lib/avatar-utils";
 
 export default class ActivityPubActorImage extends Component {
@@ -12,7 +11,7 @@ export default class ActivityPubActorImage extends Component {
     }
 
     get title() {
-        return buildHandle({ actor: this.args.actor });
+        return this.args.actor.handle;
     }
 
     <template>

@@ -6,51 +6,12 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
   let!(:activity) { Fabricate(:discourse_activity_pub_activity_accept, actor: group) }
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
 
-  def expect_no_request
-    DiscourseActivityPub::Request.expects(:new).never
-  end
-
-  def expect_request(body: nil, body_type: nil)
-    DiscourseActivityPub::Request
-      .expects(:new)
-      .with do |args|
-        args[:actor_id] == group.id &&
-        args[:uri] == person.inbox &&
-        (!body || args[:body] == body) &&
-        (!body_type || args[:body][:type] == body_type)
-      end
-      .once
-  end
-
-  def expect_post(returns: true)
-    DiscourseActivityPub::Request
-      .any_instance
-      .expects(:post_json_ld)
-      .returns(returns)
-
-    if returns
-      DiscourseActivityPub::DeliveryFailureTracker
-        .any_instance
-        .expects(:track_success)
-        .once
-      DiscourseActivityPubActivity
-        .any_instance
-        .expects(:after_deliver)
-        .once
-    else
-      DiscourseActivityPub::DeliveryFailureTracker
-        .any_instance
-        .expects(:track_failure)
-        .once
-    end
-  end
-
   def build_job_args(args = {})
     {
       object_id: args.key?(:object_id) ? args[:object_id] : activity.id,
       object_type: args.key?(:object_type) ? args[:object_type] : "DiscourseActivityPubActivity",
       from_actor_id: args.key?(:from_actor_id) ? args[:from_actor_id] : group.id,
-      to_actor_id: args.key?(:to_actor_id) ? args[:to_actor_id] : person.id,
+      send_to: args.key?(:send_to) ? args[:send_to] : person.inbox,
       retry_count: args.key?(:retry_count) ? args[:retry_count] : nil
     }
   end
@@ -101,6 +62,11 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
   context "with model activity pub enabled" do
     before do
       toggle_activity_pub(category, callbacks: true)
+      freeze_time
+    end
+
+    after do
+      unfreeze_time
     end
 
     context "without required arguments" do
@@ -108,7 +74,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_no_request
         execute_job(object_id: nil)
         execute_job(from_actor_id: nil)
-        execute_job(to_actor_id: nil)
+        execute_job(send_to: nil)
       end
     end
 
@@ -117,12 +83,11 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_no_request
         execute_job(object_id: activity.id + 20)
         execute_job(from_actor_id: activity.actor.id + 20)
-        execute_job(to_actor_id: activity.object.actor.id + 20)
       end
     end
 
     it "initializes the right request" do
-      expect_request(body: activity.ap.json)
+      expect_request(body: published_json(activity), actor_id: group.id, uri: person.inbox)
       execute_job
     end
 
@@ -167,156 +132,141 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       end
     end
 
-    context "when delivering a Create" do
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: group) }
+    context "with a ready object" do
+      let!(:topic) { Fabricate(:topic, category: group.model) }
+      let!(:post) { Fabricate(:post, topic: topic) }
+      let!(:note) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post) }
 
-      it "performs the right request" do
-        expect_request(body: activity.ap.json)
-        execute_job(
-          object_id: activity.id,
-          from_actor_id: activity.actor.id,
-          to_actor_id: person.id
-        )
-      end
+      context "when delivering a Create" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, actor: group) }
 
-      context "when associated post is trashed prior to delivery" do
-        before do
-          activity.object.model.trash!
-        end
-
-        it "does not perform a request" do
-          expect_no_request
+        it "performs the right request" do
+          expect_request(body: published_json(activity), actor_id: group.id, uri: person.inbox)
           execute_job(
             object_id: activity.id,
             from_actor_id: activity.actor.id,
-            to_actor_id: person.id
           )
         end
-      end
-    end
 
-    context "when delivering a Delete" do
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: group) }
-
-      it "performs the right request" do
-        expect_request(body: activity.ap.json)
-        execute_job(
-          object_id: activity.id,
-          from_actor_id: activity.actor.id,
-          to_actor_id: person.id
-        )
-      end
-
-      context "when associated post is restored prior to delivery" do
-        before do
-          activity.object.model.recover!
+        context "when associated post is trashed prior to delivery" do
+          before do
+            activity.object.model.trash!
+          end
+  
+          it "does not perform a request" do
+            expect_no_request
+            execute_job(
+              object_id: activity.id,
+              from_actor_id: activity.actor.id
+            )
+          end
         end
+      end
 
-        it "does not perform a request" do
-          expect_no_request
+      context "when delivering a Delete" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_delete, object: note, actor: group) }
+
+        it "performs the right request" do
+          expect_request(body: published_json(activity), actor_id: group.id, uri: person.inbox)
           execute_job(
             object_id: activity.id,
-            from_actor_id: activity.actor.id,
-            to_actor_id: person.id
+            from_actor_id: activity.actor.id
+          )
+        end
+
+        context "when associated post is restored prior to delivery" do
+          before do
+            activity.object.model.recover!
+          end
+  
+          it "does not perform a request" do
+            expect_no_request
+            execute_job(
+              object_id: activity.id,
+              from_actor_id: activity.actor.id
+            )
+          end
+        end
+      end
+
+      context "when delivering an Update" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, object: note, actor: group) }
+  
+        it "performs the right request" do
+          expect_request(body: published_json(activity), actor_id: group.id, uri: person.inbox)
+          execute_job(
+            object_id: activity.id,
+            from_actor_id: activity.actor.id
           )
         end
       end
-    end
 
-    context "when delivering an Update" do
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: group) }
+      context "when delivery actor and activity actor are different" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, actor: person) }
 
-      it "performs the right request" do
-        expect_request(body: activity.ap.json)
-        execute_job(
-          object_id: activity.id,
-          from_actor_id: activity.actor.id,
-          to_actor_id: person.id
-        )
-      end
-    end
-
-    context "when delivery actor and activity actor are different" do
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: person) }
-
-      def find_announce
-        DiscourseActivityPubActivity.find_by(
-          local: true,
-          actor_id: group.id,
-          object_id: activity.id,
-          object_type: activity.class.name,
-          ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-          visibility: DiscourseActivityPubActivity.visibilities[:public]
-        )
-      end
-
-      it "wraps the activity in an announce" do
-        expect_request
-        execute_job(
-          object_id: activity.id,
-          from_actor_id: group.id,
-          to_actor_id: person.id
-        )
-        expect(find_announce.present?).to eq(true)
-      end
-
-      it "delivers the announce activity" do
-        expect_request(body_type: 'Announce')
-        execute_job(
-          object_id: activity.id,
-          from_actor_id: group.id,
-          to_actor_id: person.id
-        )
-      end
-
-      context "when activities are in a collection" do
-        let!(:topic) { Fabricate(:topic, category: category) }
-        let!(:post1) { Fabricate(:post, topic: topic) }
-        let!(:post2) { Fabricate(:post, topic: topic) }
-        let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
-        let!(:note1) { Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id) }
-        let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id) }
-        let!(:activity1) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note1) }
-        let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note2) }
-
-        it "wraps the activities in announcements" do
-          expect_request
-          execute_job(
-            object_id: collection.id,
-            object_type: 'DiscourseActivityPubCollection',
-            from_actor_id: group.id,
-            to_actor_id: person.id
+        def find_announce
+          DiscourseActivityPubActivity.find_by(
+            local: true,
+            actor_id: group.id,
+            object_id: activity.id,
+            object_type: activity.class.name,
+            ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
+            visibility: DiscourseActivityPubActivity.visibilities[:public]
           )
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              local: true,
-              actor_id: group.id,
-              object_id: activity1.id,
-              object_type: activity1.class.name,
-              ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-              visibility: DiscourseActivityPubActivity.visibilities[:public]
-            )
-          ).to eq(true)
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              local: true,
-              actor_id: group.id,
-              object_id: activity2.id,
-              object_type: activity2.class.name,
-              ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-              visibility: DiscourseActivityPubActivity.visibilities[:public]
-            )
-          ).to eq(true)
         end
 
-        it "delivers the collection" do
-          expect_request(body_type: 'OrderedCollection')
+        it "wraps the activity in an announce" do
+          expect_request(actor_id: group.id, uri: person.inbox)
           execute_job(
-            object_id: collection.id,
-            object_type: 'DiscourseActivityPubCollection',
-            from_actor_id: group.id,
-            to_actor_id: person.id
+            object_id: activity.id,
+            from_actor_id: group.id
           )
+          expect(find_announce.present?).to eq(true)
+        end
+  
+        it "delivers the announce activity" do
+          expect_request(body_type: 'Announce', actor_id: group.id, uri: person.inbox)
+          execute_job(
+            object_id: activity.id,
+            from_actor_id: group.id
+          )
+        end
+  
+        context "when activities are in a collection" do
+          let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
+
+          before do
+            note.collection_id = collection.id
+            note.save!
+          end
+  
+          it "wraps the activities in announcements" do
+            expect_request(actor_id: group.id, uri: person.inbox)
+            execute_job(
+              object_id: collection.id,
+              object_type: 'DiscourseActivityPubCollection',
+              from_actor_id: group.id
+            )
+            expect(
+              DiscourseActivityPubActivity.exists?(
+                local: true,
+                actor_id: group.id,
+                object_id: activity.id,
+                object_type: activity.class.name,
+                ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
+                visibility: DiscourseActivityPubActivity.visibilities[:public]
+              )
+            ).to eq(true)
+          end
+  
+          it "delivers the collection" do
+            expect_request(body_type: 'OrderedCollection', actor_id: group.id, uri: person.inbox)
+            execute_job(
+              object_id: collection.id,
+              object_type: 'DiscourseActivityPubCollection',
+              from_actor_id: group.id
+            )
+          end
         end
       end
     end

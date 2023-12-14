@@ -3,11 +3,6 @@
 module DiscourseActivityPub
   module AP
     class Activity < Object
-      class ValidationError < StandardError; end
-      class PerformanceError < StandardError; end
-      class StoreError < StandardError; end
-
-      HANDLER_TYPES = %w(validate perform store respond_to)
 
       def base_type
         'Activity'
@@ -20,7 +15,7 @@ module DiscourseActivityPub
       end
 
       def object
-        stored ?
+        stored&.object ?
           AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object) :
           @object
       end
@@ -29,10 +24,19 @@ module DiscourseActivityPub
         return false unless process_actor_and_object
         return false unless perform_validate_activity
 
+        perform_transactions
+        forward_activity
+      end
+
+      def perform_transactions
         ActiveRecord::Base.transaction do
-          perform_activity
-          store_activity
-          respond_to_activity
+          begin
+            perform_activity
+            store_activity
+            respond_to_activity
+          rescue DiscourseActivityPub::AP::Handlers::Error
+            raise ActiveRecord::Rollback
+          end
         end
       end
 
@@ -43,19 +47,23 @@ module DiscourseActivityPub
       end
 
       def validate_activity
-        apply_handlers(:validate)
+        apply_handlers(type, :validate)
       end
 
       def perform_activity
-        apply_handlers(:perform)
+        apply_handlers(type, :perform, raise_errors: true)
       end
 
       def store_activity
-        apply_handlers(:store)
+        apply_handlers(type, :store, raise_errors: true)
       end
 
       def respond_to_activity
-        apply_handlers(:respond_to)
+        apply_handlers(type, :respond_to, raise_errors: true)
+      end
+
+      def forward_activity
+        apply_handlers(type, :forward)
       end
 
       def response?
@@ -86,16 +94,12 @@ module DiscourseActivityPub
         type == Undo.type
       end
 
-      def apply_handlers(handler_type)
-        Activity.handlers(type.to_sym, handler_type).all? do |proc|
-          begin
-            proc.call(self)
-            true
-          rescue ValidationError => error
-            add_error(error)
-            false
-          end
-        end
+      def follow?
+        type == Follow.type
+      end
+
+      def announce?
+        type == Announce.type
       end
 
       def self.types
@@ -104,47 +108,15 @@ module DiscourseActivityPub
         activity.types
       end
 
-      def self.sorted_handlers
-        @@sorted_handlers ||= clear_handlers!
-      end
-
-      def self.clear_handlers!
-        @@sorted_handlers = {}
-      end
-
-      def self.handler_keys(activity_type, handler_type)
-        return [activity_type, handler_type.to_sym] if activity_type == :all
-        return nil unless HANDLER_TYPES.include?(handler_type.to_s)
-        klass = get_klass(activity_type.to_s)
-        [klass.type.downcase.to_sym, handler_type.to_sym]
-      end
-
-      def self.handlers(activity_type, handler_type)
-        type, handler = handler_keys(activity_type, handler_type)
-        return [] unless type && handler
-        [*([*sorted_handlers.dig(*[type, handler])] + [*sorted_handlers.dig(*[:all, handler])])]
-          .map { |h| h[:proc] }
-          .compact
-      end
-
-      def self.add_handler(activity_type, handler_type, priority = 0, &block)
-        type, handler = handler_keys(activity_type, handler_type)
-        return nil unless type && handler
-        sorted_handlers[type] ||= {}
-        sorted_handlers[type][handler] ||= []
-        sorted_handlers[type][handler] << { priority: priority, proc: block }
-        @@sorted_handlers[type][handler].sort_by! { |h| -h[:priority] }
-      end
-
       protected
 
       def process_actor_and_object
-        @actor = AP::Actor.resolve_and_store(json[:actor])
+        @actor = Actor.resolve_and_store(json[:actor])
         return process_failed("cant_create_actor") unless actor.present?
 
-        @object = AP::Object.resolve_and_store(json[:object], self)
+        @object = Object.resolve_and_store(json[:object], self)
         return process_failed("cant_find_object") unless object.present?
-        return process_failed("object_not_ready") unless object.stored.ready?(type)
+        return process_failed("object_not_ready") unless object.stored&.ready?(type)
         return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)
 
         true

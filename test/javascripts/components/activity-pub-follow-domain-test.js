@@ -20,11 +20,13 @@ module(
     hooks.beforeEach(function () {
       Site.current().set("activity_pub_host", "forum.local");
       const category = Category.findById(2);
-      category.set("activity_pub_username", "announcements");
+      category.set("activity_pub_actor", {
+        handle: "announcements@forum.local",
+      });
       this.model = category;
     });
 
-    const template = hbs`<ActivityPubFollowDomain @model={{this.model}} />`;
+    const template = hbs`<ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />`;
 
     test("with a non domain input", async function (assert) {
       let domain = "notADomain";
@@ -52,7 +54,7 @@ module(
       await click("#activity_pub_follow_domain_button");
 
       assert.strictEqual(
-        query(".activity-pub-follow-domain-footer.error").textContent.trim(),
+        query(".activity-pub-follow-domain-footer.error")?.textContent.trim(),
         I18n.t("discourse_activity_pub.follow.domain.invalid"),
         "displays an invalid message"
       );
@@ -72,7 +74,7 @@ module(
       await click("#activity_pub_follow_domain_button");
 
       const url = `https://${domain}/authorize_interaction?uri=${encodeURIComponent(
-        "@announcements@forum.local"
+        "announcements@forum.local"
       )}`;
       assert.strictEqual(
         openStub.calledWith(url, "_blank"),

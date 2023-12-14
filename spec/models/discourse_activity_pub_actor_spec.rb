@@ -146,4 +146,95 @@ RSpec.describe DiscourseActivityPubActor do
       end
     end
   end
+
+  describe "#find_by_handle" do
+    context "with a stored local actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
+
+      context "when local param is true" do
+        it "returns the stored actor" do
+          expect(DiscourseActivityPubActor.find_by_handle(actor.handle, local: true)).to eq(actor)
+        end
+      end
+
+      context "when local param is false" do
+        it "does not return the stored actor" do
+          expect(DiscourseActivityPubActor.find_by_handle(actor.handle, local: false)).to eq(nil)
+        end
+      end
+    end
+
+    context "with a stored remote actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+
+      context "when local param is true" do
+        it "does not return the stored actor" do
+          expect(DiscourseActivityPubActor.find_by_handle(actor.handle, local: true)).to eq(nil)
+        end
+      end
+
+      context "when local param is false" do
+        it "returns the stored actor" do
+          expect(DiscourseActivityPubActor.find_by_handle(actor.handle, local: false)).to eq(actor)
+        end
+
+        context "when refresh param is true" do
+          it "calls resolve_and_store_by_handle with the handle" do
+            DiscourseActivityPubActor.expects(:resolve_and_store_by_handle).with(actor.handle).once
+            DiscourseActivityPubActor.find_by_handle(actor.handle, local: false, refresh: true)
+          end
+        end
+      end
+    end
+
+    context "without a stored actor" do
+      let!(:handle) { "username@external.com" }
+
+      context "when local param is true" do
+        it "does not call resolve_and_store_by_handle" do
+          DiscourseActivityPubActor.expects(:resolve_and_store_by_handle).never
+          DiscourseActivityPubActor.find_by_handle(handle, local: true)
+        end
+      end
+
+      context "when local param is false" do
+        context "when refresh param is true" do
+          it "calls resolve_and_store_by_handle with the handle" do
+            DiscourseActivityPubActor.expects(:resolve_and_store_by_handle).with(handle).once
+            DiscourseActivityPubActor.find_by_handle(handle, local: false, refresh: true)
+          end
+        end
+      end
+    end
+  end
+
+  describe "#resolve_and_store_by_handle" do
+    let!(:actor) { build_actor_json }
+    let!(:handle) { "#{actor[:preferredUsername]}@external.com" }
+
+    context "when handle cant be webfingered" do
+      before do
+        DiscourseActivityPub::Webfinger.expects(:resolve_id_by_handle).with(handle).returns(nil)
+      end
+
+      it "returns nil" do
+        expect(DiscourseActivityPubActor.resolve_and_store_by_handle(handle)).to eq(nil)
+      end
+    end
+
+    context "when handle can be webfingered" do
+      before do
+        DiscourseActivityPub::Webfinger.expects(:resolve_id_by_handle).with(handle).returns(actor[:id])
+        DiscourseActivityPub::JsonLd.expects(:resolve_object).with(actor[:id]).returns(actor)
+      end
+
+      it "stores and returns the actor" do
+        expect(
+          DiscourseActivityPubActor.resolve_and_store_by_handle(handle)
+        ).to eq(
+          DiscourseActivityPubActor.find_by(ap_id: actor[:id])
+        )
+      end
+    end
+  end
 end

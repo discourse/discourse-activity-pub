@@ -23,6 +23,10 @@ module DiscourseActivityPub
         !!self.local
       end
 
+      def remote?
+        !local?
+      end
+
       def _model
         self.respond_to?(:model) ? self.model : self.actor.model
       end

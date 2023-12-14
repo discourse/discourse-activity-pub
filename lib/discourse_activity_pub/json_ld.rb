@@ -90,11 +90,43 @@ module DiscourseActivityPub
     end
 
     def publicly_addressed?(json)
-      (([*json[:to]] + [*json[:cc]]) & PUBLIC_COLLECTION_IDS).any?
+      (addressed_to(json) & PUBLIC_COLLECTION_IDS).any?
+    end
+
+    def addressed_to(json)
+      ([*json[:to]] + [*json[:cc]] + [*json[:audience]]).uniq.compact
     end
 
     def generate_key
       SecureRandom.hex(16)
+    end
+
+    def address_json(json, args = {})
+      object_keys = %w(object)
+      item_keys = %w(items orderedItems)
+
+      json['to'] = args[:to]
+      json['cc'] = args[:cc] if args[:cc]
+
+      object_keys.each do |object_key|
+        json[object_key] = address_json(json[object_key], args) if json[object_key].present?
+      end
+
+      item_keys.each do |item_key|
+        if json[item_key].present?
+          json[item_key] = json[item_key].map do |item|
+            address_json(item, args)
+          end
+        end
+      end
+
+      json
+    end
+
+    def address_to_actor_id(audience)
+      audience
+        .chomp("#followers")
+        .chomp("/followers")
     end
 
     module_function :validate_json_ld
@@ -112,6 +144,10 @@ module DiscourseActivityPub
     module_function :public_collection_id
     module_function :resolve_icon_url
     module_function :publicly_addressed?
+    module_function :addressed_to
     module_function :generate_key
+    module_function :domain_from_id
+    module_function :address_json
+    module_function :address_to_actor_id
   end
 end

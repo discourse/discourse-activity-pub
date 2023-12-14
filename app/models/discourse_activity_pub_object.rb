@@ -5,6 +5,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::ModelValidations
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
+  belongs_to :collection, class_name: "DiscourseActivityPubCollection", foreign_key: "collection_id"
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
   has_many :announcements, class_name: "DiscourseActivityPubActivity", through: :activities, source: :announcement
@@ -12,6 +13,8 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   belongs_to :reply_to, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
   has_many :replies, class_name: "DiscourseActivityPubObject", primary_key: 'ap_id', foreign_key: 'reply_to_id'
+
+  belongs_to :attributed_to, class_name: "DiscourseActivityPubActor", primary_key: "ap_id", foreign_key: "attributed_to_id"
 
   def url
     if local?
@@ -23,12 +26,14 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def ready?(parent_ap_type = nil)
     return true unless local?
+    return false unless model&.activity_pub_enabled
 
     case parent_ap_type
     when DiscourseActivityPub::AP::Activity::Create.type,
          DiscourseActivityPub::AP::Activity::Update.type,
          DiscourseActivityPub::AP::Activity::Like.type,
-         DiscourseActivityPub::AP::Activity::Undo.type
+         DiscourseActivityPub::AP::Activity::Undo.type,
+         DiscourseActivityPub::AP::Activity::Announce.type
       !!model && !model.trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
       !model || model.trashed?
@@ -41,12 +46,27 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     activities.any? { |activity| activity.private? }
   end
 
-  def in_reply_to_post
-    reply_to&.model_type == 'Post' && reply_to.model
+  def public?
+    !private?
   end
 
-  def after_deliver
+  def post?
+    model_type == 'Post'
+  end
+
+  def closest_local_object
+    self.local? ? self : reply_to&.closest_local_object
+  end
+
+  def in_reply_to_post
+    reply_to&.post? && reply_to.model
+  end
+
+  def before_deliver
     after_published(Time.now.utc.iso8601)
+  end
+
+  def after_deliver(delivered = true)
   end
 
   def after_scheduled(scheduled_at, activity = nil)
@@ -75,12 +95,28 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
-  def to
-    @to ||= activities.first.present? ? activities.first.to : public_collection_id
+  def context
+    self.read_attribute(:context) || collection&.ap_id
+  end
+
+  def target
+    self.read_attribute(:target) || context
+  end
+
+  def audience
+    self.read_attribute(:audience) || topic_actor&.ap_id
+  end
+
+  def topic_actor
+    model.respond_to?(:activity_pub_topic_actor) ? model.activity_pub_topic_actor : nil
   end
 
   def attributed_to
-    @attributed_to ||= model&.activity_pub_actor&.ap_id
+    if model&.activity_pub_first_post
+      topic_actor
+    else
+      super
+    end
   end
 
   def likes_collection
@@ -102,19 +138,22 @@ end
 #
 # Table name: discourse_activity_pub_objects
 #
-#  id           :bigint           not null, primary key
-#  ap_id        :string           not null
-#  ap_key       :string
-#  ap_type      :string           not null
-#  local        :boolean
-#  model_id     :integer
-#  model_type   :string
-#  content      :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  reply_to_id  :string
-#  published_at :datetime
-#  url          :string
+#  id            :bigint           not null, primary key
+#  ap_id         :string           not null
+#  ap_key        :string
+#  ap_type       :string           not null
+#  local         :boolean
+#  model_id      :integer
+#  model_type    :string
+#  content       :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  reply_to_id   :string
+#  collection_id :integer
+#  published_at  :datetime
+#  url           :string
+#  domain        :string
+#  name          :string
 #
 # Indexes
 #

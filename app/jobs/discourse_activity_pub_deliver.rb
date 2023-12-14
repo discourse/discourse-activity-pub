@@ -11,25 +11,27 @@ module Jobs
     def execute(args)
       @args = args
       return unless perform_request?
+      before_perform_request
       perform_request
+      after_perform_request
     end
 
     private
 
     def perform_request
-      @performed = false
+      @delivered = false
       retry_count = @args[:retry_count] || 0
 
       # TODO (future): use request in a Request Pool
       request = DiscourseActivityPub::Request.new(
         actor_id: from_actor.id,
-        uri: to_actor.inbox,
-        body: delivery_object.ap.json
+        uri: @args[:send_to],
+        body: delivery_json
       )
 
       # TODO (future): raise redirects from Request and resolve with FinalDestination
       if request&.post_json_ld
-        @performed = true
+        @delivered = true
       else
         retry_count += 1
         return if retry_count > MAX_RETRY_COUNT
@@ -38,10 +40,11 @@ module Jobs
         ::Jobs.enqueue_in(delay.minutes, :discourse_activity_pub_deliver, @args.merge(retry_count: retry_count))
       end
     ensure
-      if @performed
+      if @delivered
+        log_success
         failure_tracker.track_success
-        object.after_deliver
       else
+        log_failure
         failure_tracker.track_failure
       end
     end
@@ -55,27 +58,26 @@ module Jobs
     end
 
     def has_required_args?
-      %i[object_id object_type from_actor_id to_actor_id].all? { |s| @args.key? s }
+      %i[from_actor_id send_to].all? { |key| @args[key].present? }
     end
 
     def failure_tracker
-      @failure_tracker ||= DiscourseActivityPub::DeliveryFailureTracker.new(to_actor.inbox)
+      @failure_tracker ||= DiscourseActivityPub::DeliveryFailureTracker.new(@args[:send_to])
     end
 
     def object
-      @object ||= @args[:object_type].constantize.find_by(id: @args[:object_id])
+      @object ||= begin
+        return nil unless @args[:object_type] && @args[:object_id]
+        @args[:object_type].constantize.find_by(id: @args[:object_id])
+      end
     end
 
     def from_actor
       @from_actor ||= DiscourseActivityPubActor.find_by(id: @args[:from_actor_id])
     end
 
-    def to_actor
-      @to_actor ||= DiscourseActivityPubActor.find_by(id: @args[:to_actor_id])
-    end
-
     def actors_ready?
-      from_actor&.ready? && to_actor&.ready?
+      from_actor&.ready?
     end
 
     def object_ready?
@@ -93,7 +95,7 @@ module Jobs
         if announcing?
           begin
             object.announce!(from_actor.id)
-            object.announcement
+            object
           rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
             log_failure(e.message)
           end
@@ -103,10 +105,31 @@ module Jobs
       end
     end
 
-    def log_failure(message)
+    def delivery_json
+      @delivery_json ||= begin
+        final_object = announcing? ? delivery_object.announcement : delivery_object
+        final_object.ap.json
+      end
+    end
+
+    def log_failure(message = "Failed to POST")
       return false unless SiteSetting.activity_pub_verbose_logging
-      prefix = "#{from_actor.ap_id} failed to deliver #{object&.ap_id}"
+      prefix = "#{from_actor.ap_id} failed to deliver #{JSON.generate(delivery_json)}"
       Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
+    end
+  
+    def log_success
+      return false unless SiteSetting.activity_pub_verbose_logging
+      prefix = "JSON delivered to #{@args[:send_to]}"
+      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{JSON.generate(delivery_json)}")
+    end
+
+    def before_perform_request
+      object.before_deliver if object.present?
+    end
+
+    def after_perform_request
+      object.after_deliver(@delivered) if object.present?
     end
   end
 end

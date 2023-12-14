@@ -1,0 +1,53 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-actor-follow-modal"
+>
+  <:body>
+    <div class="activity-pub-actor-follow">
+      <div class="activity-pub-actor-follow-controls">
+        <label>{{i18n 'discourse_activity_pub.actor_follow.find.label'}}</label>
+        <div class="activity-pub-actor-follow-find">
+          <Input
+            id="activity_pub_actor_follow_find_input"
+            @value={{this.handle}}
+            {{on "keyup" this.onKeyup}}
+          />
+          <DButton
+            @id="activity_pub_actor_follow_find_button"
+            @icon="search"
+            @action={{action "find"}}
+            @label="discourse_activity_pub.actor_follow.find.btn_label"
+            @title="discourse_activity_pub.actor_follow.find.btn_title"
+            @disabled={{this.validating}}
+          />
+        </div>
+        <div class={{footerClass}}>
+          {{#if this.error}}
+            {{this.error}}
+          {{else if this.validating}}
+            {{i18n 'discourse_activity_pub.actor_follow.find.validating'}}
+          {{else}}
+            {{i18n 'discourse_activity_pub.actor_follow.find.description'}}
+          {{/if}}
+        </div>
+      </div>
+      <div class={{this.actorClass}}>
+        {{#if this.followActor}}
+          <div class="activity-pub-actor-follow-actor">
+            <ActivityPubActor
+              @actor={{this.followActor}} />
+            <ActivityPubActorFollowBtn
+              @actor={{@model.actor}}
+              @followActor={{this.followActor}}
+              @follow={{action "follow"}} />
+          </div>
+        {{else if this.finding}}
+          {{loading-spinner size="small"}}
+        {{else if this.notFound}}
+          {{i18n 'discourse_activity_pub.actor_follow.find.not_found' handle=this.handle}}
+        {{/if}}
+      </div>
+    </div>
+  </:body>
+</DModal>

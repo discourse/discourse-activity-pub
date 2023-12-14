@@ -5,11 +5,11 @@
 >
   <:body>
     <div class="activity-pub-follow-controls">
-      <ActivityPubFollowDomain @model={{@model}} />
+      <ActivityPubFollowDomain @actor={{@model.actor}} />
       <label class="activity-pub-handle-label">
         {{i18n "discourse_activity_pub.handle.label"}}
       </label>
-      <ActivityPubHandle @model={{@model}} />
+      <ActivityPubHandle @actor={{@model.actor}} />
       <div class="activity-pub-handle-description">
         {{i18n "discourse_activity_pub.handle.description"}}
       </div>

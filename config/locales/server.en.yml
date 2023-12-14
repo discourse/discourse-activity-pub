@@ -67,20 +67,30 @@ en:
         failed_to_process: "Failed to process %{object_id}"
         cant_resolve_actor: "Could not resolve actor"
         cant_resolve_object: "Could not resolve object"
-        actor_not_supported: "Actor is not supported"
+        object_not_supported: "Object is not supported"
         cant_create_actor: "Could not create actor"
         cant_find_object: "Could not find object"
         object_not_ready: "Object is not ready"
+        activity_already_processed: "Activity has already been processed"
         activity_not_supported: "Activity is not supported for actor and object"
         activity_not_valid: "Activity is not valid"
         invalid_create_actor: "Actor cannot create posts"
-        not_a_reply: "Cannot create an object that is not inReplyTo a Post"
         cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
         undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
         activity_host_must_match_object_host: "Activity host must match Object host"
         cant_find_post: "Can't find post"
         post_is_deleted: "Post is deleted"
         full_topic_not_enabled: "Full topic is not enabled"
+        announce_not_publicly_addressed: "Announcement is not publicly addressed."
+        only_category_actors_accept_new_topics: "Only category actors accept new topics."
+        only_followed_actors_create_new_topics: "Only followed actors can create new topics."
+        failed_to_respond_to_follow: "Failed to respond to follow: %{follow}"
+        failed_to_save_activity: "Failed to save activity: %{activity}"
+        failed_to_save_object: "Failed to save object: %{object}"
+        failed_to_save_actor: "Failed to save actor: %{actor}"
+        failed_to_save_collection: "Failed to save collection: %{collection}"
+      info:
+        process_started: "Processing JSON delivered to %{delivered_to}"
     activity:
       create:
         failed_to_create_user: "Failed to create user for %{actor_id}"
@@ -112,6 +122,12 @@ en:
         summary: "%{actor}'s followers"
       outbox:
         summary: "%{actor}'s activities"
+      error:
+        not_enabled: "ActivityPub is not enabled"
+        actor_not_found: "Actor not found"
+        target_actor_not_found: "Target actor not found"
+        not_following_target_actor: "Actor is not following the target actor"
+        cant_follow_target_actor: "Actor cant follow the target actor"
     auth:
       error:
         not_enabled: "ActivityPub Auth is not enabled"

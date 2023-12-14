@@ -56,11 +56,11 @@ RSpec.describe PostRevisor do
         end
 
         context "with a topic title change" do
-          it "updates the topic collection summary" do
+          it "updates the topic collection name" do
             new_title = "New topic title"
             expect { subject.revise!(user, title: new_title) }.not_to raise_error
             expect(post.topic.reload.title).to eq(new_title)
-            expect(post.topic.activity_pub_object.reload.summary).to eq(new_title)
+            expect(post.topic.activity_pub_object.reload.name).to eq(new_title)
           end
         end
 
