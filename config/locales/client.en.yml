@@ -125,6 +125,7 @@ en:
           deleted: "%{object_type} was deleted via ActivityPub at %{time}."
           updated: "%{object_type} was updated via ActivityPub at %{time}."
           published_remote: "%{object_type} was published via ActivityPub from %{domain} at %{time}."
+          not_published: "%{object_type} was not published via ActivityPub."
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.

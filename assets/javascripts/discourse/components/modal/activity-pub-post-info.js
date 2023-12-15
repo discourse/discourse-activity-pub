@@ -9,18 +9,27 @@ export default class ActivityPubPostInfo extends Component {
   }
 
   get stateText() {
+    let opts = {
+      domain: this.args.model.post.activity_pub_domain,
+      object_type: this.args.model.post.activity_pub_object_type,
+    };
+    if (this.args.model.time) {
+      opts.time = this.args.model.time.format("h:mm a, MMM D");
+    }
     return I18n.t(
       `post.discourse_activity_pub.title.${this.args.model.state}`,
-      {
-        time: this.args.model.time.format("h:mm a, MMM D"),
-        domain: this.args.model.post.activity_pub_domain,
-        object_type: this.args.model.post.activity_pub_object_type,
-      }
+      opts
     );
   }
 
   get stateIcon() {
-    return this.args.model.post.activity_pub_local ? "upload" : "download";
+    if (this.args.model.state === "not_published") {
+      return "far-dot-circle";
+    } else {
+      return this.args.model.post.activity_pub_local
+        ? "arrow-up"
+        : "arrow-down";
+    }
   }
 
   get visibilityText() {
@@ -38,10 +47,21 @@ export default class ActivityPubPostInfo extends Component {
       : "lock";
   }
 
+  get showVisibility() {
+    return this.args.model.state !== "not_published";
+  }
+
   get urlText() {
     return I18n.t("post.discourse_activity_pub.info.url", {
       object_type: this.args.model.post.activity_pub_object_type,
       domain: this.args.model.post.activity_pub_domain,
     });
+  }
+
+  get showUrl() {
+    return (
+      !this.args.model.post.activity_pub_local &&
+      this.args.model.post.activity_pub_url
+    );
   }
 }
