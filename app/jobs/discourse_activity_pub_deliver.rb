@@ -81,7 +81,7 @@ module Jobs
     end
 
     def object_ready?
-      DELIVERABLE_OBJECTS.include?(@args[:object_type]) && object&.ready? && delivery_object.present?
+      DELIVERABLE_OBJECTS.include?(@args[:object_type]) && object&.publish? && delivery_object.present?
     end
 
     def announcing?

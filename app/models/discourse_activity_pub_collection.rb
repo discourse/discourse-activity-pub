@@ -22,6 +22,10 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     items.all? { |item| item.ready? }
   end
 
+  def publish?
+    items.all? { |item| item.publish? }
+  end
+
   def private?
     items.any? { |item| item.respond_to?(:private) && item.private? }
   end

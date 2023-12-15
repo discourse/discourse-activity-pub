@@ -29,6 +29,10 @@ module DiscourseActivityPub
   end
 
   def self.enabled
-    !SiteSetting.login_required && SiteSetting.activity_pub_enabled
+    SiteSetting.activity_pub_enabled
+  end
+
+  def self.publishing_enabled
+    enabled && !SiteSetting.login_required
   end
 end

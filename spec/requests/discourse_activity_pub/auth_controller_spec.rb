@@ -43,10 +43,9 @@ RSpec.describe DiscourseActivityPub::AuthController do
             SiteSetting.login_required = true
           end
 
-          it "returns a not enabled error" do
+          it "redirects to authorizations" do
             get "/ap/auth"
-            expect(response.status).to eq(403)
-            expect(response.parsed_body).to eq(build_error("not_enabled"))
+            expect(response).to redirect_to("/ap/auth/authorizations")
           end
         end
 

@@ -5,9 +5,14 @@ import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 
 export default class ActivityPubCategoryNav extends Component {
   @service router;
+  @service site;
 
   get showFollows() {
     return this.args.category.can_edit;
+  }
+
+  get showFollowers() {
+    return this.site.activity_pub_publishing_enabled;
   }
 
   get onFollowsRoute() {
@@ -21,9 +26,11 @@ export default class ActivityPubCategoryNav extends Component {
   <template>
     <div class="activity-pub-category-nav">
       <ul class="nav nav-pills">
-        <NavItem
-          @route="activityPub.category.followers"
-          @label="discourse_activity_pub.category_nav.followers" />
+        {{#if this.showFollowers}}
+          <NavItem
+            @route="activityPub.category.followers"
+            @label="discourse_activity_pub.category_nav.followers" />
+        {{/if}}
         {{#if this.showFollows}}
           <NavItem
             @route="activityPub.category.follows"

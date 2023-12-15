@@ -9,6 +9,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   before_action :rate_limit
   before_action :ensure_site_enabled
+  before_action :ensure_request_permitted
   before_action :validate_headers
   before_action :ensure_domain_allowed
   before_action :ensure_verified_signature, if: :require_signed_requests?
@@ -33,6 +34,12 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
     render_activity_pub_error("not_enabled", 403) unless DiscourseActivityPub.enabled
   end
 
+  def ensure_request_permitted
+    render_activity_pub_error("not_enabled", 403) unless (
+      DiscourseActivityPub.publishing_enabled || publishing_disabled_request_permitted?
+    )
+  end
+
   def validate_headers
     valid_content_header = case request.method
                            when "POST" then valid_content_type?(request.headers['Content-Type'])
@@ -47,6 +54,23 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   def is_object_controller
     controller_name === "objects"
+  end
+
+  def publishing_disabled_request_permitted?
+    # when publishing is disabled, actor and activity restrictions are handled in their controllers
+    post_to_actor_inbox? || get_actor? || get_activity?
+  end
+
+  def post_to_actor_inbox?
+    request.method == "POST" && controller_name == "inboxes"
+  end
+
+  def get_actor?
+    request.method == "GET" && controller_name == "actors"
+  end
+
+  def get_activity?
+    request.method == "GET" && controller_name == "activities"
   end
 
   def ensure_object_exists

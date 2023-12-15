@@ -316,10 +316,28 @@ RSpec.describe Post do
       end
     end
 
-    context "with an invalid activity type" do
-      it "does nothing" do
-        expect(post.perform_activity_pub_activity(:follow)).to eq(nil)
-        expect(post.reload.activity_pub_object.present?).to eq(false)
+    context "with activity pub enabled on the category" do
+      before do
+        toggle_activity_pub(category, callbacks: true)
+        post.reload
+      end
+
+      context "with login required" do
+        before do
+          SiteSetting.login_required = true
+        end
+
+        it "does nothing" do
+          expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+          expect(post.reload.activity_pub_object.present?).to eq(false)
+        end
+      end
+
+      context "with an invalid activity type" do
+        it "does nothing" do
+          expect(post.perform_activity_pub_activity(:follow)).to eq(nil)
+          expect(post.reload.activity_pub_object.present?).to eq(false)
+        end
       end
     end
 

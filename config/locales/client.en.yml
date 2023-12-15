@@ -25,7 +25,7 @@ en:
     discourse_activity_pub:
       status:
         title:
-          login_required_enabled: ActivityPub does not work with login required
+          publishing_disabled: ActivityPub publishing is disabled (login required). Outgoing follows and incoming activities are enabled.
           plugin_disabled: The ActivityPub plugin is disabled
           category_read_restricted: ActivityPub does not work with private categories
           model_disabled: AcivityPub is disabled for this %{model_type}
@@ -36,6 +36,7 @@ en:
         label:
           active: Active
           not_active: Not Active
+          publishing_disabled: Publishing Disabled
       category_nav:
         label: Federation
         description: Federation for %{category_name}
@@ -124,6 +125,7 @@ en:
           deleted: "%{object_type} was deleted via ActivityPub at %{time}."
           updated: "%{object_type} was updated via ActivityPub at %{time}."
           published_remote: "%{object_type} was published via ActivityPub from %{domain} at %{time}."
+          not_published: "%{object_type} was not published via ActivityPub."
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.

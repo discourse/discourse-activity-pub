@@ -30,6 +30,12 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     end
   end
 
+  def publish?
+    return false unless ready?
+    return true if ap.follow? || ap.response?
+    DiscourseActivityPub.publishing_enabled
+  end
+
   def self.visibilities
     @visibilities ||= Enum.new(private: 1, public: 2)
   end

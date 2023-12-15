@@ -6,7 +6,9 @@
   @category={{this.model}}
 />
 
-<ActivityPubCategoryBanner @category={{this.model}} />
+{{#if this.site.activity_pub_publishing_enabled}}
+  <ActivityPubCategoryBanner @category={{this.model}} />
+{{/if}}
 
 <ActivityPubCategoryNav @category={{this.model}} @follow={{route-action "follow"}} />
 

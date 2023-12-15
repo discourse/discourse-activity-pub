@@ -23,18 +23,6 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
         SiteSetting.activity_pub_enabled = true
       end
 
-      context "with login required" do
-        before do
-          SiteSetting.login_required = true
-        end
-
-        it "returns a not enabled error" do
-          get "/.well-known/webfinger"
-          expect(response.status).to eq(403)
-          expect(response.parsed_body).to eq(build_error("not_enabled"))
-        end
-      end
-
       context "with an unsupported scheme" do
         it "returns a not supported error" do
           get "/.well-known/webfinger?resource=https://forum.com/user/1"
@@ -44,11 +32,12 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
       end
 
       context "with a supported scheme" do
-        let(:actor) { Fabricate(:discourse_activity_pub_actor_group, domain: nil) }
+        let!(:group) { Fabricate(:discourse_activity_pub_actor_group, domain: nil) }
+        let!(:person) { Fabricate(:discourse_activity_pub_actor_person, domain: nil) }
 
         context "when the domain is incorrect" do
           it "returns a not found error" do
-            get "/.well-known/webfinger?resource=acct:#{actor.username}@anotherforum.com"
+            get "/.well-known/webfinger?resource=acct:#{group.username}@anotherforum.com"
             expect(response.status).to eq(400)
             expect(response.parsed_body).to eq(build_error("resource_not_found"))
           end
@@ -64,13 +53,35 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
         context "when the username and domain are correct" do
           it "returns the resource" do
-            get "/.well-known/webfinger?resource=acct:#{actor.username}@#{DiscourseActivityPub.host}"
+            get "/.well-known/webfinger?resource=acct:#{group.username}@#{DiscourseActivityPub.host}"
             expect(response.status).to eq(200)
 
             body = JSON.parse(response.body)
-            expect(body['subject']).to eq("acct:#{actor.username}@#{DiscourseActivityPub.host}")
-            expect(body['aliases']).to eq(actor.webfinger_aliases)
-            expect(body['links']).to eq(actor.webfinger_links.map(&:as_json))
+            expect(body['subject']).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
+            expect(body['aliases']).to eq(group.webfinger_aliases)
+            expect(body['links']).to eq(group.webfinger_links.map(&:as_json))
+          end
+        end
+
+        context "with login required" do
+          before do
+            SiteSetting.login_required = true
+          end
+
+          it "returns permitted resource types" do
+            get "/.well-known/webfinger?resource=acct:#{group.username}@#{DiscourseActivityPub.host}"
+            expect(response.status).to eq(200)
+
+            body = JSON.parse(response.body)
+            expect(body['subject']).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
+            expect(body['aliases']).to eq(group.webfinger_aliases)
+            expect(body['links']).to eq(group.webfinger_links.map(&:as_json))
+          end
+
+          it "does not return unpermitted resource types" do
+            get "/.well-known/webfinger?resource=acct:#{person.username}@#{DiscourseActivityPub.host}"
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("resource_not_found"))
           end
         end
       end

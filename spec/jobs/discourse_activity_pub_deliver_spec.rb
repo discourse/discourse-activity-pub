@@ -3,7 +3,10 @@
 RSpec.describe Jobs::DiscourseActivityPubDeliver do
   let!(:category) { Fabricate(:category) }
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-  let!(:activity) { Fabricate(:discourse_activity_pub_activity_accept, actor: group) }
+  let!(:topic) { Fabricate(:topic, category: category) }
+  let!(:post) { Fabricate(:post, topic: topic) }
+  let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+  let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
 
   def build_job_args(args = {})
@@ -36,14 +39,20 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       SiteSetting.activity_pub_enabled = true
     end
 
-    context "with login required" do
+    context "with model activity pub enabled" do
       before do
-        SiteSetting.login_required = true
+        toggle_activity_pub(category, callbacks: true)
       end
 
-      it "does not perform a request" do
-        expect_no_request
-        execute_job
+      context "with login required" do
+        before do
+          SiteSetting.login_required = true
+        end
+  
+        it "does not perform a request" do
+          expect_no_request
+          execute_job
+        end
       end
     end
   end
@@ -62,6 +71,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
   context "with model activity pub enabled" do
     before do
       toggle_activity_pub(category, callbacks: true)
+      activity.object.model.topic.create_activity_pub_collection!
       freeze_time
     end
 
@@ -87,7 +97,8 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     it "initializes the right request" do
-      expect_request(body: published_json(activity), actor_id: group.id, uri: person.inbox)
+      announcement = activity.announce!(group.id)
+      expect_request(body: published_json(announcement), actor_id: group.id, uri: person.inbox)
       execute_job
     end
 

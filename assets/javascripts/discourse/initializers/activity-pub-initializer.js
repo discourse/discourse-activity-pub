@@ -82,9 +82,11 @@ export default {
               state = moment().isAfter(moment(time))
                 ? "scheduled_past"
                 : "scheduled";
+            } else {
+              state = "not_published";
             }
 
-            if (time && state) {
+            if (state) {
               let replyToTabIndex = postStatuses.findIndex((postStatus) => {
                 return postStatus.name === "reply-to-tab";
               });

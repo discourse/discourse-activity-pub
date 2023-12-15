@@ -7,6 +7,7 @@ import { tracked } from "@glimmer/tracking";
 export default class ActivityPubNavItem extends Component {
   @service router;
   @service messageBus;
+  @service site;
 
   @tracked visible;
 
@@ -22,7 +23,10 @@ export default class ActivityPubNavItem extends Component {
 
   @bind
   didChangeCategory() {
-    this.visible = this.args.category?.activity_pub_ready;
+    const category = this.args.category;
+    this.visible =
+      category?.activity_pub_ready &&
+      (this.site.activity_pub_publishing_enabled || category.can_edit);
   }
 
   @bind
@@ -48,7 +52,10 @@ export default class ActivityPubNavItem extends Component {
   }
 
   get href() {
-    return getURL(`/ap/category/${this.args.category?.id}/followers`);
+    const path = this.site.activity_pub_publishing_enabled
+      ? "followers"
+      : "follows";
+    return getURL(`/ap/category/${this.args.category?.id}/${path}`);
   }
 
   get active() {
