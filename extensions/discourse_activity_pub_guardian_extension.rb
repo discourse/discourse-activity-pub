@@ -15,7 +15,7 @@ module DiscourseActivityPubGuardianExtension
   end
 
   def activity_pub_enabled_topic?
-    return false unless DiscourseActivityPub.enabled && request&.params["topic_id"]
+    return false unless DiscourseActivityPub.enabled && request&.params&.[]("topic_id")
     topic = Topic.find_by(id: request.params["topic_id"].to_i)
     topic&.activity_pub_enabled
   end

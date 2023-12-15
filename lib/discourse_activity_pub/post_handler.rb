@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   class PostHandler
-    attr_reader :user,
-                :object
+    attr_reader :user, :object
 
     def initialize(user, object)
       @user = user
@@ -10,7 +9,9 @@ module DiscourseActivityPub
     end
 
     def create(category_id: nil)
-      return nil if !user || !object || object.model_id || (!object.in_reply_to_post && !category_id)
+      if !user || !object || object.model_id || (!object.in_reply_to_post && !category_id)
+        return nil
+      end
 
       if category_id
         category = Category.find_by(id: category_id)
@@ -18,17 +19,11 @@ module DiscourseActivityPub
       end
 
       new_topic = !object.in_reply_to_post && category
-      params = {
-        raw: object.content,
-        skip_events: true,
-        skip_validations: true,
-        custom_fields: {}
-      }
+      params = { raw: object.content, skip_events: true, skip_validations: true, custom_fields: {} }
 
       if new_topic
-        params[:title] = object.name || DiscourseActivityPub::ContentParser.get_title(
-          object.content
-        )
+        params[:title] = object.name ||
+          DiscourseActivityPub::ContentParser.get_title(object.content)
         params[:category] = category.id
       else
         reply_to = object.in_reply_to_post
@@ -37,7 +32,11 @@ module DiscourseActivityPub
       end
 
       if object.published_at
-        params[:custom_fields][:activity_pub_published_at] = object.published_at&.to_datetime.utc.iso8601
+        params[:custom_fields][:activity_pub_published_at] = object
+          .published_at
+          &.to_datetime
+          &.utc
+          &.iso8601
       end
 
       post = nil
@@ -56,9 +55,9 @@ module DiscourseActivityPub
 
         if post
           object.update(
-            model_type: 'Post',
+            model_type: "Post",
             model_id: post.id,
-            collection_id: post.topic.activity_pub_object.id
+            collection_id: post.topic.activity_pub_object.id,
           )
         end
       end
@@ -92,15 +91,13 @@ module DiscourseActivityPub
         collection = DiscourseActivityPub::AP::Collection.resolve_and_store(raw_collection)
 
         if collection
-          collection.stored.update(
-            model_type: 'Topic',
-            model_id: post.topic.id
-          )
+          collection.stored.update(model_type: "Topic", model_id: post.topic.id)
         else
           raise DiscourseActivityPub::AP::Handlers::Error::Store,
-            I18n.t('discourse_activity_pub.process.warning.failed_to_save_collection',
-              collection: DiscourseActivityPub::JsonLd.resolve_id(raw_collection)
-            )
+                I18n.t(
+                  "discourse_activity_pub.process.warning.failed_to_save_collection",
+                  collection: DiscourseActivityPub::JsonLd.resolve_id(raw_collection),
+                )
         end
       else
         post.topic.create_activity_pub_collection!

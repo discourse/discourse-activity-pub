@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Undo < Activity
         def type
-          'Undo'
+          "Undo"
         end
 
         def validate_activity

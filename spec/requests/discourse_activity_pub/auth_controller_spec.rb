@@ -22,9 +22,7 @@ RSpec.describe DiscourseActivityPub::AuthController do
       before { sign_in(user) }
 
       context "without activity pub enabled" do
-        before do
-          SiteSetting.activity_pub_enabled = false
-        end
+        before { SiteSetting.activity_pub_enabled = false }
 
         it "returns a not enabled error" do
           get "/ap/auth"
@@ -34,14 +32,10 @@ RSpec.describe DiscourseActivityPub::AuthController do
       end
 
       context "with activity pub enabled" do
-        before do
-          SiteSetting.activity_pub_enabled = true
-        end
+        before { SiteSetting.activity_pub_enabled = true }
 
         context "with login required" do
-          before do
-            SiteSetting.login_required = true
-          end
+          before { SiteSetting.login_required = true }
 
           it "returns a not enabled error" do
             get "/ap/auth"

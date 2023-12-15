@@ -3,7 +3,7 @@
 Fabricator(:discourse_activity_pub_actor) do
   ap_type { "Actor" }
   domain { "forum.com" }
-  username { sequence(:username) { |i| "username#{i}"} }
+  username { sequence(:username) { |i| "username#{i}" } }
 
   before_create do
     self.ap_id = "https://#{self.domain}/actor/#{SecureRandom.hex(16)}" unless self.ap_id || local

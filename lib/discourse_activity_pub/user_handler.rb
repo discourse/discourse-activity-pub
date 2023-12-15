@@ -8,7 +8,7 @@ module DiscourseActivityPub
 
     def validate_actor
       # We only associated users with stored Persons
-      actor&.ap.person?
+      actor&.ap&.person?
     end
 
     def validate_user
@@ -33,15 +33,17 @@ module DiscourseActivityPub
               username: UserNameSuggester.suggest(actor.username.presence || actor.id),
               name: actor.name,
               staged: true,
-              skip_email_validation: true
+              skip_email_validation: true,
             )
-        rescue PG::UniqueViolation, ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => error
+        rescue PG::UniqueViolation,
+               ActiveRecord::RecordNotUnique,
+               ActiveRecord::RecordInvalid => error
           log_failure("find_or_create", e.message)
           raise ActiveRecord::Rollback
         end
       end
 
-      actor.update(model_id: user.id, model_type: 'User') unless user.activity_pub_actor.present?
+      actor.update(model_id: user.id, model_type: "User") unless user.activity_pub_actor.present?
     end
 
     def update_user
@@ -55,7 +57,7 @@ module DiscourseActivityPub
         local: true,
         domain: nil,
         inbox: nil,
-        outbox: nil
+        outbox: nil,
       }
       @actor = user.build_activity_pub_actor(attrs)
     end
@@ -103,9 +105,7 @@ module DiscourseActivityPub
 
       User
         .joins(:activity_pub_actor)
-        .where("discourse_activity_pub_actors.ap_id = :actor_id",
-          actor_id: actor_id
-        )
+        .where("discourse_activity_pub_actors.ap_id = :actor_id", actor_id: actor_id)
         .first
     end
 
@@ -114,10 +114,11 @@ module DiscourseActivityPub
 
       User
         .joins(:user_custom_fields)
-        .where("
+        .where(
+          "
           user_custom_fields.name = 'activity_pub_actor_ids' AND
           user_custom_fields.value::jsonb ? :actor_id",
-          actor_id: actor_id.to_s
+          actor_id: actor_id.to_s,
         )
         .first
     end
@@ -147,10 +148,7 @@ module DiscourseActivityPub
       return false unless actor.icon_url
       return true if !user || user.uploaded_avatar.blank?
 
-      DiscourseActivityPub::URI.matching_hosts?(
-        actor.icon_url,
-        user.uploaded_avatar.origin
-      )
+      DiscourseActivityPub::URI.matching_hosts?(actor.icon_url, user.uploaded_avatar.origin)
     end
   end
 end

@@ -7,17 +7,16 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   belongs_to :object, polymorphic: true
 
   has_one :parent, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
-  has_one :announcement, -> {
-    where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
-  }, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_one :announcement,
+          -> { where(ap_type: DiscourseActivityPub::AP::Activity::Announce.type) },
+          class_name: "DiscourseActivityPubActivity",
+          foreign_key: "object_id"
 
   validates :actor_id, presence: true
   validate :validate_ap_type,
            if: Proc.new { |a| a.will_save_change_to_ap_type? || a.will_save_change_to_object_type? }
 
-  scope :likes, -> {
-    where(ap_type: DiscourseActivityPub::AP::Activity::Like.type)
-  }
+  scope :likes, -> { where(ap_type: DiscourseActivityPub::AP::Activity::Like.type) }
 
   def ready?(parent_ap_type = nil)
     case object_type
@@ -57,7 +56,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   def to
     return nil unless local?
     return audience if audience
-    return base_object.ap_id if base_object&.ap.actor?
+    base_object.ap_id if base_object&.ap&.actor?
   end
 
   def cc
@@ -65,7 +64,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     result = []
     result << DiscourseActivityPub::JsonLd.public_collection_id if public?
 
-    if base_object&.ap.object?
+    if base_object&.ap&.object?
       reply_to_audience = base_object.reply_to&.audience
       result << reply_to_audience if reply_to_audience && to != reply_to_audience
     end
@@ -80,24 +79,22 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       object_id: self.id,
       object_type: self.class.name,
       ap_type: DiscourseActivityPub::AP::Activity::Announce.type,
-      visibility: DiscourseActivityPubActivity.visibilities[:public]
+      visibility: DiscourseActivityPubActivity.visibilities[:public],
     )
   end
 
   def before_deliver
     # We have to set "published" on the JSON we deliver
     after_published(Time.now.utc.iso8601, self)
-  end 
+  end
 
   def after_deliver(delivered = true)
-    if !delivered && local? && ap.follow?
-      return self.destroy!
-    end
+    return self.destroy! if !delivered && local? && ap.follow?
 
     if delivered && local? && ap.undo? && object.ap.follow?
       DiscourseActivityPubFollow.where(
         follower_id: actor_id,
-        followed_id: object.object.id
+        followed_id: object.object.id,
       ).destroy_all
     end
   end
@@ -115,17 +112,19 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   def validate_ap_type
     return unless actor
-    object_ap_type = object&.respond_to?(:ap_type) ? object.ap_type : nil
+    object_ap_type = object.respond_to?(:ap_type) ? object.ap_type : nil
     unless actor.can_perform_activity?(ap_type, object_ap_type)
       self.errors.add(
         :ap_type,
-        I18n.t("activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid")
+        I18n.t(
+          "activerecord.errors.models.discourse_activity_pub_activity.attributes.ap_type.invalid",
+        ),
       )
     end
   end
 
   def find_base_object(current_object)
-    if current_object&.respond_to?(:object) && current_object.object
+    if current_object.respond_to?(:object) && current_object&.object
       find_base_object(current_object.object)
     else
       current_object

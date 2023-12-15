@@ -11,8 +11,22 @@ RSpec.describe PostActionDestroyer do
   let!(:actor3) { Fabricate(:discourse_activity_pub_actor_person, model: user3) }
   let!(:post) { Fabricate(:post, user: user1, topic: topic) }
   let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-  let!(:post_action1) { Fabricate(:post_action, user: user2, post: post, post_action_type_id: PostActionType.types[:like]) }
-  let!(:post_action2) { Fabricate(:post_action, user: user3, post: post, post_action_type_id: PostActionType.types[:like]) }
+  let!(:post_action1) do
+    Fabricate(
+      :post_action,
+      user: user2,
+      post: post,
+      post_action_type_id: PostActionType.types[:like],
+    )
+  end
+  let!(:post_action2) do
+    Fabricate(
+      :post_action,
+      user: user3,
+      post: post,
+      post_action_type_id: PostActionType.types[:like],
+    )
+  end
   let!(:like1) { Fabricate(:discourse_activity_pub_activity_like, actor: actor2, object: note) }
   let!(:like2) { Fabricate(:discourse_activity_pub_activity_like, actor: actor3, object: note) }
 
@@ -23,7 +37,7 @@ RSpec.describe PostActionDestroyer do
   describe "destroy" do
     context "with a full_topic activity pub post" do
       before do
-        toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+        toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
         post.topic.create_activity_pub_collection!
       end
 
@@ -35,9 +49,7 @@ RSpec.describe PostActionDestroyer do
       end
 
       context "with a user without an actor" do
-        before do
-          actor3.destroy!
-        end
+        before { actor3.destroy! }
 
         it "does nothing" do
           PostAction.any_instance.expects(:perform_activity_pub_activity).never
@@ -59,9 +71,7 @@ RSpec.describe PostActionDestroyer do
     end
 
     context "with a first_post activity pub post" do
-      before do
-        toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
-      end
+      before { toggle_activity_pub(category, callbacks: true, publication_type: "first_post") }
 
       it "does not call any callbacks" do
         PostAction.any_instance.expects(:perform_activity_pub_activity).never

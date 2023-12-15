@@ -43,7 +43,12 @@ RSpec.describe CategoriesController do
               topic = Fabricate(:topic, category: category)
               collection = Fabricate(:discourse_activity_pub_ordered_collection, model: topic)
               post = Fabricate(:post, topic: topic)
-              note = Fabricate(:discourse_activity_pub_object_note, model: post, collection_id: collection.id)
+              note =
+                Fabricate(
+                  :discourse_activity_pub_object_note,
+                  model: post,
+                  collection_id: collection.id,
+                )
               activity = Fabricate(:discourse_activity_pub_activity_create, object: note)
             end
           end

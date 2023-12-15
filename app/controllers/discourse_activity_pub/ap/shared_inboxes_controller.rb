@@ -16,7 +16,12 @@ class DiscourseActivityPub::AP::SharedInboxesController < DiscourseActivityPub::
 
   def rate_limit
     limit = SiteSetting.activity_pub_rate_limit_post_to_inbox_per_minute
-    RateLimiter.new(nil, "activity-pub-inbox-post-min-#{request.remote_ip}", limit, 1.minute).performed!
+    RateLimiter.new(
+      nil,
+      "activity-pub-inbox-post-min-#{request.remote_ip}",
+      limit,
+      1.minute,
+    ).performed!
   end
 
   def process_json

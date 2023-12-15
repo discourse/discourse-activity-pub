@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::Object::NoteSerializer < DiscourseActivityPub::AP::ObjectSerializer
-  attributes :content,
-             :inReplyTo,
-             :context
+  attributes :content, :inReplyTo, :context
 
   def content
     content = object.content

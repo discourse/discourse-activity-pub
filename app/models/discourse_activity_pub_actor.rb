@@ -5,13 +5,33 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   include DiscourseActivityPub::WebfingerActorAttributes
 
   belongs_to :model, polymorphic: true, optional: true
-  belongs_to :user, -> { where(discourse_activity_pub_actors: { model_type: 'User' }) }, foreign_key: 'model_id', optional: true
+  belongs_to :user,
+             -> { where(discourse_activity_pub_actors: { model_type: "User" }) },
+             foreign_key: "model_id",
+             optional: true
 
-  has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "actor_id", dependent: :destroy
-  has_many :follow_followers, class_name: "DiscourseActivityPubFollow", foreign_key: "followed_id", dependent: :destroy
-  has_many :follow_follows, class_name: "DiscourseActivityPubFollow", foreign_key: "follower_id", dependent: :destroy
-  has_many :followers, class_name: "DiscourseActivityPubActor", through: :follow_followers, source: :follower, dependent: :destroy
-  has_many :follows, class_name: "DiscourseActivityPubActor", through: :follow_follows, source: :followed, dependent: :destroy
+  has_many :activities,
+           class_name: "DiscourseActivityPubActivity",
+           foreign_key: "actor_id",
+           dependent: :destroy
+  has_many :follow_followers,
+           class_name: "DiscourseActivityPubFollow",
+           foreign_key: "followed_id",
+           dependent: :destroy
+  has_many :follow_follows,
+           class_name: "DiscourseActivityPubFollow",
+           foreign_key: "follower_id",
+           dependent: :destroy
+  has_many :followers,
+           class_name: "DiscourseActivityPubActor",
+           through: :follow_followers,
+           source: :follower,
+           dependent: :destroy
+  has_many :follows,
+           class_name: "DiscourseActivityPubActor",
+           through: :follow_follows,
+           source: :followed,
+           dependent: :destroy
 
   validates :username, presence: true, if: :local?
   validate :local_username_uniqueness, if: :local?
@@ -34,10 +54,11 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def keypair
-    @keypair ||= begin
-      return nil unless private_key || public_key
-      OpenSSL::PKey::RSA.new(private_key || public_key)
-    end
+    @keypair ||=
+      begin
+        return nil unless private_key || public_key
+        OpenSSL::PKey::RSA.new(private_key || public_key)
+      end
   end
 
   def following?(actor)
@@ -46,19 +67,15 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def can_follow?(actor)
-    can_perform_activity?(
-      DiscourseActivityPub::AP::Activity::Follow.type,
-      actor.ap_type
-    )
+    can_perform_activity?(DiscourseActivityPub::AP::Activity::Follow.type, actor.ap_type)
   end
 
   def can_perform_activity?(activity_ap_type, object_ap_type = nil)
     return false unless ap && activity_ap_type
 
     activities = ap.can_perform_activity[activity_ap_type.underscore.to_sym]
-    activities.present? && (
-      object_ap_type.nil? || activities.include?(object_ap_type.underscore.to_sym)
-    )
+    activities.present? &&
+      (object_ap_type.nil? || activities.include?(object_ap_type.underscore.to_sym))
   end
 
   def domain
@@ -83,38 +100,42 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def followers_collection
-    @followers_collection ||= begin
-      collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}/followers",
-        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
-        created_at: self.created_at,
-        updated_at: self.updated_at,
-        summary: I18n.t("discourse_activity_pub.actor.followers.summary", actor: username)
-      )
-      collection.items = followers
-      collection.context = :followers
-      collection
-    end
+    @followers_collection ||=
+      begin
+        collection =
+          DiscourseActivityPubCollection.new(
+            ap_id: "#{self.ap_id}/followers",
+            ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            summary: I18n.t("discourse_activity_pub.actor.followers.summary", actor: username),
+          )
+        collection.items = followers
+        collection.context = :followers
+        collection
+      end
   end
 
   def outbox_collection
-    @outbox_collection ||= begin
-      collection = DiscourseActivityPubCollection.new(
-        ap_id: "#{self.ap_id}/outbox",
-        ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
-        created_at: self.created_at,
-        updated_at: self.updated_at,
-        summary: I18n.t("discourse_activity_pub.actor.outbox.summary", actor: username)
-      )
-      collection.items = activities
-      collection.context = :outbox
-      collection
-    end
+    @outbox_collection ||=
+      begin
+        collection =
+          DiscourseActivityPubCollection.new(
+            ap_id: "#{self.ap_id}/outbox",
+            ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            summary: I18n.t("discourse_activity_pub.actor.outbox.summary", actor: username),
+          )
+        collection.items = activities
+        collection.context = :outbox
+        collection
+      end
   end
 
   def shared_inbox
     if local?
-      model.activity_pub_shared_inbox if model&.respond_to?(:activity_pub_shared_inbox)
+      model.activity_pub_shared_inbox if model.respond_to?(:activity_pub_shared_inbox)
     else
       self.read_attribute(:shared_inbox)
     end
@@ -122,11 +143,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def self.ensure_for(model)
     if model.activity_pub_enabled
-      actor = model.activity_pub_actor ||
-        model.build_activity_pub_actor(
-          username: model.activity_pub_username,
-          local: true
-        )
+      actor =
+        model.activity_pub_actor ||
+          model.build_activity_pub_actor(username: model.activity_pub_username, local: true)
       actor.name = model.activity_pub_name
 
       if actor.new_record? || actor.changed?
@@ -141,16 +160,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     return nil unless handle.valid?
     return nil unless !local || DiscourseActivityPub::URI.local?(handle.domain)
 
-    opts = {
-      username: handle.username
-    }
+    opts = { username: handle.username }
     opts[:local] = true if local
     opts[:domain] = handle.domain if !local
     actor = DiscourseActivityPubActor.find_by(opts)
 
-    if (refresh || !actor) && !local
-      actor = resolve_and_store_by_handle(handle.to_s)
-    end
+    actor = resolve_and_store_by_handle(handle.to_s) if (refresh || !actor) && !local
 
     actor
   end
@@ -158,9 +173,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def self.find_by_ap_id(ap_id, local: false, refresh: false)
     return nil unless !local || DiscourseActivityPub::URI.local?(ap_id)
 
-    opts = {
-      ap_id: ap_id
-    }
+    opts = { ap_id: ap_id }
     opts[:local] = true if local
     actor = DiscourseActivityPubActor.find_by(opts)
 
@@ -196,7 +209,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
     keypair = OpenSSL::PKey::RSA.new(2048)
     self.private_key = keypair.to_pem
-    self.public_key  = keypair.public_key.to_pem
+    self.public_key = keypair.public_key.to_pem
 
     save!
   end
@@ -208,10 +221,11 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def local_username_uniqueness
     if will_save_change_to_username?
-      existing = DiscourseActivityPubActor
-        .where.not(id: self.id)
-        .where(local: true, username: self.username)
-        .exists?
+      existing =
+        DiscourseActivityPubActor
+          .where.not(id: self.id)
+          .where(local: true, username: self.username)
+          .exists?
       errors.add(:username, "Username taken by local actor") if existing
     end
   end

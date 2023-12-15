@@ -53,7 +53,7 @@ module DiscourseActivityPub
     end
 
     def today
-      Time.now.utc.strftime('%Y%m%d')
+      Time.now.utc.strftime("%Y%m%d")
     end
 
     def reached_failure_threshold?

@@ -25,7 +25,7 @@ module DiscourseActivityPub
       handle = Handle.new(handle: raw_handle)
       return nil if !handle.valid? || DiscourseActivityPub::URI.local?(handle.domain)
 
-      query = "resource=#{ACCOUNT_SCHEME}:#{handle.to_s}"
+      query = "resource=#{ACCOUNT_SCHEME}:#{handle}"
       webfinger_uri = DiscourseActivityPub::URI.parse("https://#{handle.domain}/#{PATH}?#{query}")
       return nil unless webfinger_uri
 
@@ -40,16 +40,16 @@ module DiscourseActivityPub
 
     def self.resolve_id_by_handle(raw_handle)
       account = resolve_handle(raw_handle)
-      return nil unless account && account['links'].present?
+      return nil unless account && account["links"].present?
 
-      link = account['links'].find { |l| l['rel'] == 'self' }
-      return nil unless link && link['href'].present?
+      link = account["links"].find { |l| l["rel"] == "self" }
+      return nil unless link && link["href"].present?
 
-      link['href']
+      link["href"]
     end
 
     def self.activity_link(href)
-      { rel: 'self', type: JsonLd::ACTIVITY_CONTENT_TYPE, href: href }
+      { rel: "self", type: JsonLd::ACTIVITY_CONTENT_TYPE, href: href }
     end
   end
 end

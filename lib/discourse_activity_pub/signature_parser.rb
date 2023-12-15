@@ -5,7 +5,8 @@
 
 module DiscourseActivityPub
   class SignatureParser
-    class Error < StandardError; end
+    class Error < StandardError
+    end
 
     def initialize(string)
       @string = string
@@ -32,7 +33,7 @@ module DiscourseActivityPub
     end
 
     def segment_pattern
-      %r{\A(keyId|algorithm|headers|signature|created|expires)="(.*)"\z}
+      /\A(keyId|algorithm|headers|signature|created|expires)="(.*)"\z/
     end
   end
 end

@@ -5,9 +5,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
-  before do
-    SiteSetting.activity_pub_require_signed_requests = false
-  end
+  before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid activity" do
     it "returns a not found error" do
@@ -25,9 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
       end
     end
 
-    before do
-      activity.base_object.model.topic.update(category: staff_category)
-    end
+    before { activity.base_object.model.topic.update(category: staff_category) }
 
     it "returns a not available error" do
       get_object(activity)
@@ -37,9 +33,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
   end
 
   describe "#show" do
-    before do
-      toggle_activity_pub(activity.base_object.model.topic.category)
-    end
+    before { toggle_activity_pub(activity.base_object.model.topic.category) }
 
     it "returns activity json" do
       get_object(activity)

@@ -2,6 +2,6 @@
 
 class DiscourseActivityPub::AP::FollowersController < DiscourseActivityPub::AP::ActorsController
   def index
-    render_ordered_collection(@actor, 'followers')
+    render_ordered_collection(@actor, "followers")
   end
 end
