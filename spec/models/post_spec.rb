@@ -923,7 +923,7 @@ RSpec.describe Post do
             end
           end
 
-          context "with post is trashed" do
+          context "when post is trashed" do
             def perform_delete
               topic.trash!
               post.trash!
@@ -944,7 +944,7 @@ RSpec.describe Post do
             end
           end
 
-          context "with post is destroyed" do
+          context "when post is destroyed" do
             def perform_delete
               topic.destroy!
               post.destroy!
