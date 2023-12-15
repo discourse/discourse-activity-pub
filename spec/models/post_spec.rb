@@ -316,13 +316,13 @@ RSpec.describe Post do
       end
     end
 
-    context "with activty pub enabled on the category" do
+    context "with activity pub enabled on the category" do
       before do
         toggle_activity_pub(category, callbacks: true)
         post.reload
       end
 
-      context "without login required" do
+      context "with login required" do
         before do
           SiteSetting.login_required = true
         end
