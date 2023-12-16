@@ -101,6 +101,10 @@ module DiscourseActivityPub
       SecureRandom.hex(16)
     end
 
+    def generate_id(type)
+      json_ld_id(type, generate_key)
+    end
+
     def address_json(json, args = {})
       object_keys = %w(object)
       item_keys = %w(items orderedItems)
@@ -146,6 +150,7 @@ module DiscourseActivityPub
     module_function :publicly_addressed?
     module_function :addressed_to
     module_function :generate_key
+    module_function :generate_id
     module_function :domain_from_id
     module_function :address_json
     module_function :address_to_actor_id

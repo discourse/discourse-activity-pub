@@ -181,11 +181,24 @@ module DiscourseActivityPub
       def self.resolve_and_store(raw_object, parent = nil)
         object = resolve(raw_object)
         return unless object
+        object.apply_handlers(type, :resolve, parent: parent)
         object.apply_handlers(type, :store, parent: parent)
         object
       end
 
       def self.resolve(raw_object)
+        object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
+        return process_failed(raw_object, "cant_resolve_object") unless object_id.present?
+
+        if DiscourseActivityPub::URI.local?(object_id)
+          object = if raw_object.is_a?(Hash)
+            factory(raw_object)
+          else
+            factory({ type: Object.type, id: object_id })
+          end
+          return object
+        end
+
         resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object)
         return process_failed(raw_object, "cant_resolve_object") unless resolved_object.present?
 

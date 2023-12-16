@@ -125,7 +125,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
           end
   
           context "when the first post note is remote" do
-            let!(:remote_topic_actor_ap_id) { "https://forum.com/actor/12345" }
+            let!(:remote_topic_actor_ap_id) { DiscourseActivityPub::JsonLd.generate_id('Actor') }
             let!(:remote_topic_actor) { Fabricate(:discourse_activity_pub_actor, ap_id: remote_topic_actor_ap_id, local: false) }
   
             before do
