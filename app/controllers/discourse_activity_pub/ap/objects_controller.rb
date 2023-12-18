@@ -57,7 +57,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def publishing_disabled_request_permitted?
-    # when publishing is disabled actor and activity restrictions are handled in their controllers
+    # when publishing is disabled, actor and activity restrictions are handled in their controllers
     post_to_actor_inbox? || get_actor? || get_activity?
   end
 

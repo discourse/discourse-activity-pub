@@ -316,13 +316,13 @@ RSpec.describe Post do
       end
     end
 
-    context "with activty pub enabled on the category" do
+    context "with activity pub enabled on the category" do
       before do
         toggle_activity_pub(category, callbacks: true)
         post.reload
       end
 
-      context "without login required" do
+      context "with login required" do
         before do
           SiteSetting.login_required = true
         end
@@ -722,6 +722,9 @@ RSpec.describe Post do
             expect(
               post.activity_pub_object.reply_to_id
             ).to eq(nil)
+            expect(
+              post.activity_pub_object&.attributed_to_id
+            ).to eq(nil)
           end
         end
 
@@ -808,6 +811,9 @@ RSpec.describe Post do
             expect(
               post.activity_pub_object&.reply_to_id
             ).to eq(nil)
+            expect(
+              post.activity_pub_object&.attributed_to_id
+            ).to eq(post.user.activity_pub_actor.ap_id)
           end
 
           it "creates the right activity" do
@@ -849,12 +855,7 @@ RSpec.describe Post do
           let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
           let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
 
-          def perform_delete
-            post.trash!
-            post.perform_activity_pub_activity(:delete)
-          end
-
-          context "while in pre publication period" do
+          shared_examples "pre publication delete" do
             it "does not create an activity" do
               perform_delete
               expect(
@@ -910,12 +911,7 @@ RSpec.describe Post do
             end
           end
 
-          context "after publication" do
-            before do
-              note.model.custom_fields['activity_pub_published_at'] = Time.now
-              note.model.save_custom_fields(true)
-            end
-
+          shared_examples "post publication delete" do
             it "creates the right activity" do
               perform_delete
               expect(
@@ -942,6 +938,48 @@ RSpec.describe Post do
                 object_type: "Delete"
               )
               perform_delete
+            end
+          end
+
+          context "when post is trashed" do
+            def perform_delete
+              topic.trash!
+              post.trash!
+              post.reload.perform_activity_pub_activity(:delete)
+            end
+  
+            context "while in pre publication period" do
+              include_examples "pre publication delete"
+            end
+  
+            context "after publication" do
+              before do
+                note.model.custom_fields['activity_pub_published_at'] = Time.now
+                note.model.save_custom_fields(true)
+              end
+  
+              include_examples "post publication delete"
+            end
+          end
+
+          context "when post is destroyed" do
+            def perform_delete
+              topic.destroy!
+              post.destroy!
+              post.perform_activity_pub_activity(:delete)
+            end
+
+            context "while in pre publication period" do
+              include_examples "pre publication delete"
+            end
+  
+            context "after publication" do
+              before do
+                note.model.custom_fields['activity_pub_published_at'] = Time.now
+                note.model.save_custom_fields(true)
+              end
+  
+              include_examples "post publication delete"
             end
           end
         end
@@ -1074,7 +1112,8 @@ RSpec.describe Post do
         let!(:post_note) {
           Fabricate(:discourse_activity_pub_object_note,
             model: post,
-            collection_id: topic.activity_pub_object.id
+            collection_id: topic.activity_pub_object.id,
+            attributed_to: post.activity_pub_actor
           )
         }
 

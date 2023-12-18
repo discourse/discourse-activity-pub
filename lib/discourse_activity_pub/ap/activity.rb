@@ -4,8 +4,6 @@ module DiscourseActivityPub
   module AP
     class Activity < Object
 
-      attr_accessor :parent
-
       def base_type
         'Activity'
       end
@@ -26,6 +24,11 @@ module DiscourseActivityPub
         return false unless process_actor_and_object
         return false unless perform_validate_activity
 
+        perform_transactions
+        forward_activity
+      end
+
+      def perform_transactions
         ActiveRecord::Base.transaction do
           begin
             perform_activity

@@ -75,6 +75,7 @@ module DiscourseActivityPub
           end
           if self.activity_pub_full_topic
             attrs[:collection_id] = self.topic.activity_pub_object.id
+            attrs[:attributed_to_id] = self.activity_pub_actor.ap_id
           end
           self.build_activity_pub_object(attrs)
         when :undo
@@ -179,7 +180,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_schedule?
-        activity_pub_full_topic && !activity_pub_topic_published? && (
+        !self.destroyed? && activity_pub_full_topic && !activity_pub_topic_published? && (
           !activity_pub_is_first_post? || !performing_activity.create?
         )
       end
@@ -193,7 +194,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_object
-        if !activity_pub_topic_published? && activity_pub_full_topic
+        if !self.destroyed? && !activity_pub_topic_published? && activity_pub_full_topic
           activity_pub_collection.activities_collection
         else
           performing_activity.stored
@@ -201,7 +202,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_delay
-        if !activity_pub_topic_published?
+        if !self.destroyed? && !activity_pub_topic_published?
           SiteSetting.activity_pub_delivery_delay_minutes.to_i
         else
           nil

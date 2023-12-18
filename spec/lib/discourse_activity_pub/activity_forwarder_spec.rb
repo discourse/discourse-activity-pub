@@ -7,13 +7,15 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
   let!(:topic) { Fabricate(:topic, category: category) }
   let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
   let!(:post1) { Fabricate(:post, topic: topic, post_number: 1) }
-  let!(:note1) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post1, published_at: Time.now, collection_id: collection.id) }
+  let!(:contributor1) { Fabricate(:discourse_activity_pub_actor_person, local: true, model: post1.user) }
+  let!(:note1) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post1, published_at: Time.now, collection_id: collection.id, attributed_to: contributor1) }
   let!(:post2) { Fabricate(:post, topic: topic, post_number: 2) }
-  let!(:note2) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post2, published_at: Time.now, collection_id: collection.id) }
+  let!(:contributor2) { Fabricate(:discourse_activity_pub_actor_person, local: true, model: post2.user) }
+  let!(:note2) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post2, published_at: Time.now, collection_id: collection.id, attributed_to: contributor2) }
   let!(:post3) { Fabricate(:post, topic: topic, post_number: 3) }
-  let!(:note3) { Fabricate(:discourse_activity_pub_object_note, local: false, model: post3, published_at: Time.now, collection_id: collection.id) }
+  let!(:contributor3) { Fabricate(:discourse_activity_pub_actor_person, local: false, model: post3.user) }
+  let!(:note3) { Fabricate(:discourse_activity_pub_object_note, local: false, model: post3, published_at: Time.now, collection_id: collection.id, attributed_to: contributor3) }
 
-  let!(:contributor1) { Fabricate(:discourse_activity_pub_actor_person, local: false, model: post3.user) }
   let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
   let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category_actor) }
   let!(:follower2) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
@@ -43,7 +45,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
           returns: stub_everything(post_json_ld: true),
-          uri: [follower1.inbox, follower2.inbox, contributor1.inbox]
+          uri: [follower1.inbox, follower2.inbox, contributor3.inbox]
         ).times(3)
         perform_process(activity)
       end
@@ -53,7 +55,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
           returns: stub_everything(post_json_ld: true),
-          uri: [follower1.inbox, follower2.inbox, contributor1.inbox]
+          uri: [follower1.inbox, follower2.inbox, contributor3.inbox]
         ).times(3)
         activity.ap.json[:cc] << follower1.ap_id
         perform_process(activity)

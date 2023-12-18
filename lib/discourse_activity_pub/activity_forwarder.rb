@@ -32,9 +32,11 @@ module DiscourseActivityPub
           next if follower.id == activity.stored.actor.id || forward_to.include?(follower.id)
           forward_to << follower.id
         end
-        base_object.collection.contributors(local: false).each do |contributor|
-          next if contributor.id == activity.stored.actor.id || forward_to.include?(contributor.id)
-          forward_to << contributor.id
+        if base_object.collection
+          base_object.collection.contributors(local: false).each do |contributor|
+            next if contributor.id == activity.stored.actor.id || forward_to.include?(contributor.id)
+            forward_to << contributor.id
+          end
         end
       end
 
@@ -63,12 +65,12 @@ module DiscourseActivityPub
     end
 
     def first_post_object
-      @topic ||= base_object&.model.topic.first_post.activity_pub_object
+      @topic ||= base_object.model && base_object.model.topic.first_post.activity_pub_object
     end
 
     def local_object
       @local_object ||= (
-        first_post_object.local? ? first_post_object : base_object.closest_local_object
+        first_post_object&.local? ? first_post_object : base_object.closest_local_object
       )
     end
 

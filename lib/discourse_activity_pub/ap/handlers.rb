@@ -14,16 +14,8 @@ module DiscourseActivityPub
         base.extend ClassMethods
       end
 
-      def apply_handlers(object_type, handler_type, activity: nil, raise_errors: false)
-        Object.handlers(object_type.to_sym, handler_type).all? do |proc|
-          begin
-            proc.call(self, { activity: activity })
-            true
-          rescue DiscourseActivityPub::AP::Handlers::Error => error
-            add_error(error)
-            raise_errors ? raise : false
-          end
-        end
+      def apply_handlers(object_type, handler_type, parent: nil, raise_errors: false)
+        self.class.apply_handlers(self, object_type, handler_type, parent: parent, raise_errors: false)
       end
 
       module ClassMethods
@@ -62,6 +54,18 @@ module DiscourseActivityPub
           sorted_handlers[type][handler] ||= []
           sorted_handlers[type][handler] << { priority: priority, proc: block }
           @@sorted_handlers[type][handler].sort_by! { |h| -h[:priority] }
+        end
+
+        def apply_handlers(activity, object_type, handler_type, parent: nil, raise_errors: false)
+          Object.handlers(object_type.to_sym, handler_type).all? do |proc|
+            begin
+              proc.call(activity, { parent: parent })
+              true
+            rescue DiscourseActivityPub::AP::Handlers::Error => error
+              activity.add_error(error)
+              raise_errors ? raise : false
+            end
+          end
         end
       end
     end

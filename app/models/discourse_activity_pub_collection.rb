@@ -134,7 +134,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     # See activity_pub_delivery_recipients in app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
     # See also lib/discourse_activity_pub/activity_forwarder.rb
     objects.each_with_object([]) do |object, result|
-      actor = object.attributed_to_actor
+      actor = object.attributed_to
       result << actor if actor && (local.nil? || actor.local? == local)
     end
   end

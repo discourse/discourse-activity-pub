@@ -65,7 +65,10 @@ acceptance(
     });
 
     test("When the plugin is disabled", async function (assert) {
-      Site.current().set("activity_pub_enabled", false);
+      Site.current().setProperties({
+        activity_pub_enabled: false,
+        activity_pub_publishing_enabled: false,
+      });
 
       await visit("/t/280");
 
@@ -76,7 +79,10 @@ acceptance(
     });
 
     test("ActivityPub indicator element", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -101,7 +107,10 @@ acceptance(
     setupServer(needs);
 
     test("ActivityPub indicator element", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -160,7 +169,10 @@ acceptance(
     });
 
     test("When the plugin is disabled", async function (assert) {
-      Site.current().set("activity_pub_enabled", false);
+      Site.current().setProperties({
+        activity_pub_enabled: false,
+        activity_pub_publishing_enabled: false,
+      });
 
       await visit("/t/280");
 
@@ -171,7 +183,10 @@ acceptance(
     });
 
     test("ActivityPub indicator element", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -186,7 +201,10 @@ acceptance(
     });
 
     test("ActivityPub state update", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -211,7 +229,10 @@ acceptance(
     });
 
     test("ActivityPub post info modal", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -250,7 +271,10 @@ acceptance(
     });
 
     test("When the plugin is disabled", async function (assert) {
-      Site.current().set("activity_pub_enabled", false);
+      Site.current().setProperties({
+        activity_pub_enabled: false,
+        activity_pub_publishing_enabled: false,
+      });
 
       await visit("/t/280");
 
@@ -261,7 +285,10 @@ acceptance(
     });
 
     test("ActivityPub indicator element", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -276,7 +303,10 @@ acceptance(
     });
 
     test("ActivityPub post info modal", async function (assert) {
-      Site.current().set("activity_pub_enabled", true);
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
 
       await visit("/t/280");
 
@@ -309,6 +339,71 @@ acceptance(
         query(".activity-pub-post-info-modal .activity-pub-url a").href,
         "https://external.com/note/1",
         "shows the right url href"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Published ActivityPub topic as staff with a unpublished Note",
+  function (needs) {
+    needs.user({ moderator: true, admin: false });
+    setupServer(needs, {
+      activity_pub_scheduled_at: null,
+    });
+
+    test("When the plugin is disabled", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_enabled: false,
+        activity_pub_publishing_enabled: false,
+      });
+
+      await visit("/t/280");
+
+      assert.ok(
+        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+        "the activity pub indicator is not visible"
+      );
+    });
+
+    test("ActivityPub indicator element", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: false,
+      });
+
+      await visit("/t/280");
+
+      assert.ok(
+        exists(
+          ".topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was not published via ActivityPub.']"
+        ),
+        "shows the right title"
+      );
+      assert.ok(
+        exists(
+          ".topic-post:nth-of-type(1) .post-info.activity-pub .d-icon-discourse-activity-pub-slash"
+        ),
+        "shows the right icon"
+      );
+    });
+
+    test("ActivityPub post info modal", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: false,
+      });
+
+      await visit("/t/280");
+
+      await click(".topic-post:nth-of-type(1) .post-info.activity-pub");
+      assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-info-modal .activity-pub-state"
+        ).innerText.trim(),
+        "Note was not published via ActivityPub.",
+        "shows the right state text"
       );
     });
   }

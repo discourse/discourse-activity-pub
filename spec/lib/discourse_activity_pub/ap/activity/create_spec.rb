@@ -24,7 +24,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           actor: person,
           object: build_object_json(
             in_reply_to: original_object.ap_id,
-            url: reply_external_url
+            url: reply_external_url,
+            attributed_to: original_object.attributed_to
           ),
           type: 'Create',
           to: [category.activity_pub_actor.ap_id]
@@ -33,6 +34,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
       before do
         freeze_time
+        stub_stored_request(original_object.attributed_to)
         perform_process(reply_json)
       end
 
@@ -117,7 +119,12 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
     context "with a Note not inReplyTo another Note" do
       let!(:delivered_to) { category.activity_pub_actor.ap_id }
-      let!(:object_json) { build_object_json(name: "My cool topic title") }
+      let!(:object_json) {
+        build_object_json(
+          name: "My cool topic title",
+          attributed_to: person
+        )
+      }
       let!(:new_post_json) {
         build_activity_json(
           actor: person,
@@ -125,6 +132,10 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           type: 'Create'
         )
       }
+
+      before do
+        stub_stored_request(person)
+      end
 
       context "when the target is following the create actor" do
         before do
@@ -141,6 +152,18 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           expect(post.topic.present?).to be(true)
           expect(post.topic.title).to eq(object_json[:name])
           expect(post.post_number).to be(1)
+        end
+
+        it "creates a note" do
+          post = Post.find_by(raw: object_json[:content])
+          expect(
+            DiscourseActivityPubObject.exists?(
+              ap_type: "Note",
+              model_id: post.id,
+              model_type: "Post",
+              attributed_to_id: person.ap_id
+            )
+          ).to eq(true)
         end
 
         it "creates an activity" do
@@ -184,6 +207,18 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           expect(post.post_number).to be(1)
         end
   
+        it "creates a note" do
+          post = Post.find_by(raw: object_json[:content])
+          expect(
+            DiscourseActivityPubObject.exists?(
+              ap_type: "Note",
+              model_id: post.id,
+              model_type: "Post",
+              attributed_to_id: person.ap_id
+            )
+          ).to eq(true)
+        end
+
         it "creates an activity" do
           expect(
             DiscourseActivityPubActivity.exists?(
@@ -214,6 +249,15 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           ).to be(false)
         end
   
+        it "does not create a note" do
+          expect(
+            DiscourseActivityPubObject.exists?(
+              ap_type: "Note",
+              attributed_to_id: person.ap_id
+            )
+          ).to eq(true)
+        end
+
         it "does not create an activity" do
           expect(
             DiscourseActivityPubActivity.exists?(

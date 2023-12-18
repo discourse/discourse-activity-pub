@@ -76,6 +76,10 @@ module DiscourseActivityPub
       new(user, object).create(category_id: category_id)
     end
 
+    def self.create(user, object, category_id: nil)
+      new(user, object).create(category_id: category_id)
+    end
+
     protected
 
     def can_create_topic?(category)

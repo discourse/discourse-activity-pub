@@ -1,7 +1,8 @@
-function showStatus(model) {
+function showStatus(attrs, component) {
   return (
-    model.get("category.activity_pub_ready") &&
-    model.get("action") === "createTopic"
+    attrs.model.get("category.activity_pub_ready") &&
+    attrs.model.get("action") === "createTopic" &&
+    component.site.activity_pub_publishing_enabled
   );
 }
 
@@ -11,12 +12,12 @@ export default {
   },
 
   setupComponent(attrs, component) {
-    component.set("showStatus", showStatus(attrs.model));
+    component.set("showStatus", showStatus(attrs, component));
     attrs.model.addObserver("category", () => {
       if (this._state === "destroying") {
         return;
       }
-      component.set("showStatus", showStatus(attrs.model));
+      component.set("showStatus", showStatus(attrs, component));
     });
   },
 };

@@ -24,7 +24,7 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
   end
 
   def ensure_can_access_activity_object_model
-    unless !@activity.base_object || guardian.can_see?(@activity.base_object.model)
+    if @activity.base_object.nil? || !guardian.can_see?(@activity.base_object.model)
       render_activity_pub_error("not_available", 401)
     end
   end

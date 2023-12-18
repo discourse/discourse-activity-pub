@@ -64,7 +64,7 @@ def build_actor_json(public_key = nil)
   _json
 end
 
-def build_object_json(id: nil, type: 'Note', name: nil, content: 'My cool note', in_reply_to: nil, published: nil, url: nil, to: nil, cc: nil, audience: nil)
+def build_object_json(id: nil, type: 'Note', name: nil, content: 'My cool note', in_reply_to: nil, published: nil, url: nil, to: nil, cc: nil, audience: nil, attributed_to: nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
@@ -78,6 +78,13 @@ def build_object_json(id: nil, type: 'Note', name: nil, content: 'My cool note',
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
   _json[:name] = name if name
+  _json[:attributedTo] = if attributed_to&.respond_to?(:ap_id)
+      attributed_to.ap_id
+    elsif attributed_to.respond_to?(:id)
+      attributed_to.id
+    else
+      attributed_to
+    end
   _json
 end
 
