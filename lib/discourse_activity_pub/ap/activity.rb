@@ -38,8 +38,6 @@ module DiscourseActivityPub
             raise ActiveRecord::Rollback
           end
         end
-
-        forward_activity
       end
 
       def perform_validate_activity

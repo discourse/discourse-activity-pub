@@ -18,7 +18,6 @@ RSpec.describe SiteController do
           # the categories are saved (below).
           Site.clear_anon_cache!
           Site.clear_cache
-          Category.clear_parent_ids
 
           disabled_queries =
             track_sql_queries do

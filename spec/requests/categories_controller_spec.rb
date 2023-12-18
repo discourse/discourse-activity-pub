@@ -14,8 +14,6 @@ RSpec.describe CategoriesController do
           get "/categories.json"
           expect(response.status).to eq(200)
 
-          Category.clear_parent_ids
-
           disabled_queries =
             track_sql_queries do
               get "/categories.json"

@@ -105,30 +105,6 @@ module DiscourseActivityPub
         @cache ||= {}
       end
 
-      def summary
-        stored&.respond_to?(:summary) && stored.summary
-      end
-
-      def name
-        stored&.respond_to?(:name) && stored.name
-      end
-
-      def context
-        stored&.respond_to?(:context) && stored.context
-      end
-
-      def target
-        stored&.respond_to?(:target) && stored.target
-      end
-
-      def delivered_to
-        @delivered_to ||= []
-      end
-
-      def cache
-        @cache ||= {}
-      end
-
       def self.type
         self.new.type
       end

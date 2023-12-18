@@ -139,19 +139,5 @@ module Jobs
     def after_perform_request
       object.after_deliver(@delivered) if object.present?
     end
-  
-    def log_success
-      return false unless SiteSetting.activity_pub_verbose_logging
-      prefix = "JSON delivered to #{@args[:send_to]}"
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{JSON.generate(delivery_json)}")
-    end
-
-    def before_perform_request
-      object.before_deliver if object.present?
-    end
-
-    def after_perform_request
-      object.after_deliver(@delivered) if object.present?
-    end
   end
 end
