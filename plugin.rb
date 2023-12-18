@@ -1083,12 +1083,28 @@ after_initialize do
     activity.cache['new'] = true # existing records will raise an error
   end
 
+  DiscourseActivityPub::AP::Object.add_handler(:object, :resolve) do |object, opts|
+    activity = opts[:parent]
+
+    stored = if activity&.composition? || (object.object? && activity&.announce?)
+      DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
+    elsif activity&.like?
+      DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
+    elsif activity&.follow?
+      DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
+    elsif activity&.undo?
+      DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+    elsif activity&.response?
+      DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+    end
+
+    object.stored = stored if stored
+  end
+
   DiscourseActivityPub::AP::Object.add_handler(:object, :store) do |object, opts|
     activity = opts[:parent]
 
     if activity&.composition? || (object.object? && activity&.announce?)
-      object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
-
       DiscourseActivityPubObject.transaction do
         if object.stored && activity.update?
           object.stored.content = object.json[:content] if object.json[:content].present?
@@ -1127,14 +1143,6 @@ after_initialize do
           end
         end
       end
-    elsif activity&.like?
-      object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
-    elsif activity&.follow?
-      object.stored = DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
-    elsif activity&.undo?
-      object.stored = DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
-    elsif activity&.response?
-      object.stored = DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
     end
   end
 
