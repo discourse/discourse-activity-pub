@@ -77,6 +77,34 @@ RSpec.describe DiscourseActivityPub::Logger do
           end
         end
       end
+
+      context "when object logging is enabled" do
+        before do
+          SiteSetting.activity_pub_object_logging = true
+        end
+
+        context "when given a JSON object" do
+          let!(:json) { { "key1": "value1", "key2": "value2" } }
+
+          context "when in a development environment" do
+            before do
+              Rails.env.stubs(:development?).returns(true)
+            end
+  
+            it "does not add anything to the rails log" do
+              perform(json: json)
+              expect(@rails_logger.errors.first).to eq(prefixed_message)
+            end
+          end
+  
+          context "when not in a development environment" do
+            it "adds a YAML representation of the JSON to the rails log" do
+              perform(json: json)
+              expect(@rails_logger.errors.first).to eq("#{prefixed_message}\n#{json.to_yaml}")
+            end
+          end
+        end
+      end
     end
   end
 end
