@@ -134,14 +134,8 @@ module DiscourseActivityPub
         else
           message = I18n.t("discourse_activity_pub.process.warning.#{warning_key}")
         end
-        log_warning(action, message)
+        DiscourseActivityPub::Logger.warn("#{action}: #{message}")
         false
-      end
-
-      def log_warning(action, message)
-        if SiteSetting.activity_pub_verbose_logging
-          Rails.logger.warn("[Discourse Activity Pub] #{action}: #{message}")
-        end
       end
 
       def self.type

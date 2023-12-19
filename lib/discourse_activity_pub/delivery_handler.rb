@@ -90,10 +90,14 @@ module DiscourseActivityPub
       object.after_scheduled(scheduled_at) if object&.respond_to?(:after_scheduled)
     end
 
-    def log_failure(message)
-      return false unless SiteSetting.activity_pub_verbose_logging
-      prefix = "#{actor.ap_id} failed to schedule #{object&.ap_id} for delivery"
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{message}")
+    def log_failure(reason)
+      DiscourseActivityPub::Logger.warn(
+        I18n.t("discourse_activity_pub.deliver.warning.failed_to_schedule",
+          actor_id: actor.ap_id,
+          object_id: object&.ap_id,
+          reason: reason
+        )
+      )
       false
     end
   end

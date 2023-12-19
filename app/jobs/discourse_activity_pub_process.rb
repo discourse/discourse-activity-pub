@@ -16,9 +16,12 @@ module Jobs
     protected
 
     def log_process_start
-      return unless SiteSetting.activity_pub_verbose_logging
-      prefix = I18n.t("discourse_activity_pub.process.info.process_started", delivered_to: @args[:delivered_to])
-      Rails.logger.warn("[Discourse Activity Pub] #{prefix}: #{JSON.generate(@args[:json])}")
+      DiscourseActivityPub::Logger.info(
+        I18n.t("discourse_activity_pub.process.info.process_started",
+          delivered_to: @args[:delivered_to]
+        ),
+        json: @args[:json]
+      )
     end
   end
 end

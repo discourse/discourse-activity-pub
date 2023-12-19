@@ -62,9 +62,13 @@ module DiscourseActivityPub
 
       Excon.send(verb, uri.to_s, options)
     rescue Excon::Error => e
-      if SiteSetting.activity_pub_verbose_logging
-        Rails.logger.warn("[Discourse Activity Pub] #{verb.upcase} request to #{uri.to_s} failed: #{e.message}")
-      end
+      DiscourseActivityPub::Logger.warn(
+        I18n.t("discourse_activity_pub.request.error.request_failed",
+          verb: verb.upcase,
+          uri: uri.to_s,
+          message: e.message
+        )
+      )
       # TODO (future): selectively raise expectation failures, e.g. to Deliver job.
       nil
     end
