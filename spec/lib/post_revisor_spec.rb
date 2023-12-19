@@ -3,7 +3,7 @@
 RSpec.describe PostRevisor do
   let!(:category) { Fabricate(:category) }
   let!(:topic) { Fabricate(:topic, category: category) }
-  let!(:user) { Fabricate(:user) }
+  let!(:user) { Fabricate(:user, refresh_auto_groups: true) }
   let!(:post) { Fabricate(:post, user: user, topic: topic) }
 
   describe "revise" do
