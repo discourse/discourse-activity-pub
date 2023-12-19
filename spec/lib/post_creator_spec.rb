@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe PostCreator do
-  let!(:user) { Fabricate(:user) }
+  let!(:user) { Fabricate(:user, refresh_auto_groups: true) }
   let!(:category) { Fabricate(:category) }
   let!(:params) do
     {
