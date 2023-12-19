@@ -855,12 +855,7 @@ RSpec.describe Post do
           let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
           let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
 
-          def perform_delete
-            post.trash!
-            post.perform_activity_pub_activity(:delete)
-          end
-
-          context "while in pre publication period" do
+          shared_examples "pre publication delete" do
             it "does not create an activity" do
               perform_delete
               expect(
@@ -916,12 +911,7 @@ RSpec.describe Post do
             end
           end
 
-          context "after publication" do
-            before do
-              note.model.custom_fields['activity_pub_published_at'] = Time.now
-              note.model.save_custom_fields(true)
-            end
-
+          shared_examples "post publication delete" do
             it "creates the right activity" do
               perform_delete
               expect(
@@ -948,6 +938,48 @@ RSpec.describe Post do
                 object_type: "Delete"
               )
               perform_delete
+            end
+          end
+
+          context "when post is trashed" do
+            def perform_delete
+              topic.trash!
+              post.trash!
+              post.reload.perform_activity_pub_activity(:delete)
+            end
+  
+            context "while in pre publication period" do
+              include_examples "pre publication delete"
+            end
+  
+            context "after publication" do
+              before do
+                note.model.custom_fields['activity_pub_published_at'] = Time.now
+                note.model.save_custom_fields(true)
+              end
+  
+              include_examples "post publication delete"
+            end
+          end
+
+          context "when post is destroyed" do
+            def perform_delete
+              topic.destroy!
+              post.destroy!
+              post.perform_activity_pub_activity(:delete)
+            end
+
+            context "while in pre publication period" do
+              include_examples "pre publication delete"
+            end
+  
+            context "after publication" do
+              before do
+                note.model.custom_fields['activity_pub_published_at'] = Time.now
+                note.model.save_custom_fields(true)
+              end
+  
+              include_examples "post publication delete"
             end
           end
         end

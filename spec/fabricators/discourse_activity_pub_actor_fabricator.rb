@@ -2,10 +2,11 @@
 
 Fabricator(:discourse_activity_pub_actor) do
   ap_type { "Actor" }
-  domain { "forum.com" }
+  domain { DiscourseActivityPub.host }
   username { sequence(:username) { |i| "username#{i}"} }
 
   before_create do
+    self.domain = "remote.com" unless local
     self.ap_id = "https://#{self.domain}/actor/#{SecureRandom.hex(16)}" unless self.ap_id || local
   end
 

@@ -28,7 +28,7 @@ module DiscourseActivityPub
         end
   
         def handler_types
-          %w(validate perform store respond_to forward)
+          %w(validate perform resolve store respond_to forward)
         end
   
         def handler_keys(object_type, handler_type)

@@ -282,8 +282,7 @@ after_initialize do
 
   Topic.has_one :activity_pub_object,
                 class_name: "DiscourseActivityPubCollection",
-                as: :model,
-                dependent: :destroy
+                as: :model
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
   add_to_class(:topic, :activity_pub_enabled) do
@@ -359,14 +358,14 @@ after_initialize do
     self.activity_pub_object&.domain
   end
   add_to_class(:post, :activity_pub_full_topic) do
-    topic&.activity_pub_full_topic && topic.activity_pub_object.present?
+    activity_pub_topic&.activity_pub_full_topic && activity_pub_topic.activity_pub_object.present?
   end
   add_to_class(:post, :activity_pub_first_post) do
     !activity_pub_full_topic
   end
   add_to_class(:post, :activity_pub_enabled) do
     return false unless DiscourseActivityPub.enabled
-    return false unless topic&.activity_pub_enabled
+    return false unless activity_pub_topic&.activity_pub_enabled
 
     is_first_post? || activity_pub_full_topic
   end
@@ -381,12 +380,12 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_actor) do
     return nil unless activity_pub_enabled
-    return nil unless topic.category
+    return nil unless activity_pub_topic.category
 
     if activity_pub_full_topic
       user.activity_pub_actor
     else
-      topic.activity_pub_actor
+      activity_pub_topic.activity_pub_actor
     end
   end
   add_to_class(:post, :activity_pub_update_custom_fields) do |args = {}|
@@ -415,7 +414,8 @@ after_initialize do
     if activity_pub_full_topic
       "public"
     else
-      custom_fields["activity_pub_visibility"] || topic.category&.activity_pub_default_visibility
+      custom_fields["activity_pub_visibility"] ||
+      activity_pub_topic.category&.activity_pub_default_visibility
     end
   end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
@@ -423,9 +423,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_scheduled?) { !!activity_pub_scheduled_at }
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
-
-    topic = Topic.with_deleted.find_by(id: self.topic_id)
-    return false unless topic
+    return false unless activity_pub_topic
 
     model = {
       id: self.id,
@@ -438,12 +436,14 @@ after_initialize do
 
     group_ids =[
       Group::AUTO_GROUPS[:staff],
-      *topic.category.reviewable_by_group_id
+      *activity_pub_topic.category.reviewable_by_group_id
     ]
 
     MessageBus.publish("/activity-pub", { model: model }, { group_ids: group_ids })
   end
   add_to_class(:post, :before_clear_all_activity_pub_objects) do
+    return if self.destroyed?
+
     activity_pub_post_custom_field_names.each do |field_name|
       self.custom_fields[field_name] = nil
     end
@@ -454,7 +454,7 @@ after_initialize do
 
     if performing_activity.delete?
       self.clear_all_activity_pub_objects
-      self.topic.clear_all_activity_pub_objects if is_first_post? && activity_pub_full_topic
+      self.activity_pub_topic.clear_all_activity_pub_objects if is_first_post? && activity_pub_full_topic
       self.activity_pub_publish_state
       return nil
     end
@@ -465,7 +465,7 @@ after_initialize do
     self.activity_pub_object&.ap_type || self.activity_pub_default_object_type
   end
   add_to_class(:post, :activity_pub_default_object_type) do
-    self.topic&.category&.activity_pub_post_object_type ||
+    self.activity_pub_topic&.category&.activity_pub_post_object_type ||
     DiscourseActivityPub::AP::Object::Note.type
   end
   add_to_class(:post, :activity_pub_reply_to_object) do
@@ -486,19 +486,19 @@ after_initialize do
     activity_pub_enabled && !activity_pub_local?
   end
   add_to_class(:post, :activity_pub_topic_published?) do
-    topic.activity_pub_published?
+    activity_pub_topic.activity_pub_published?
   end
   add_to_class(:post, :activity_pub_is_first_post?) do
     is_first_post?
   end
   add_to_class(:post, :activity_pub_first_post_scheduled_at) do
-    topic.first_post.activity_pub_scheduled_at
+    activity_pub_topic.first_post&.activity_pub_scheduled_at
   end
   add_to_class(:post, :activity_pub_group_actor) do
-    topic.activity_pub_actor
+    activity_pub_topic.activity_pub_actor
   end
   add_to_class(:post, :activity_pub_collection) do
-    topic.activity_pub_object
+    activity_pub_topic.activity_pub_object
   end
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
@@ -512,8 +512,8 @@ after_initialize do
 
     content = DiscourseActivityPub::ContentParser.get_content(self)
     visibility = is_first_post? ?
-      topic&.category.activity_pub_default_visibility :
-      topic.first_post.activity_pub_visibility
+      activity_pub_topic&.category.activity_pub_default_visibility :
+      activity_pub_topic.first_post.activity_pub_visibility
 
     custom_fields["activity_pub_content"] = content
     custom_fields["activity_pub_visibility"] = visibility
@@ -534,10 +534,16 @@ after_initialize do
     activity_pub_delete!
   end
   add_to_class(:post, :activity_pub_name) do
-    is_first_post? ? topic.activity_pub_name : nil
+    is_first_post? ? activity_pub_topic.activity_pub_name : nil
   end
   add_to_class(:post, :activity_pub_topic_actor) do
-    activity_pub_object.local? ? topic.activity_pub_actor : nil
+    activity_pub_object.local? ? activity_pub_topic.activity_pub_actor : nil
+  end
+  add_to_class(:post, :activity_pub_topic) do
+    topic || activity_pub_topic_trashed
+  end
+  add_to_class(:post, :activity_pub_topic_trashed) do
+    @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
 
   add_to_serializer(:post, :activity_pub_enabled) do
@@ -1077,12 +1083,28 @@ after_initialize do
     activity.cache['new'] = true # existing records will raise an error
   end
 
+  DiscourseActivityPub::AP::Object.add_handler(:object, :resolve) do |object, opts|
+    activity = opts[:parent]
+
+    stored = if activity&.composition? || (object.object? && activity&.announce?)
+      DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
+    elsif activity&.like?
+      DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
+    elsif activity&.follow?
+      DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
+    elsif activity&.undo?
+      DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+    elsif activity&.response?
+      DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+    end
+
+    object.stored = stored if stored
+  end
+
   DiscourseActivityPub::AP::Object.add_handler(:object, :store) do |object, opts|
     activity = opts[:parent]
 
     if activity&.composition? || (object.object? && activity&.announce?)
-      object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
-
       DiscourseActivityPubObject.transaction do
         if object.stored && activity.update?
           object.stored.content = object.json[:content] if object.json[:content].present?
@@ -1121,14 +1143,6 @@ after_initialize do
           end
         end
       end
-    elsif activity&.like?
-      object.stored = DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
-    elsif activity&.follow?
-      object.stored = DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
-    elsif activity&.undo?
-      object.stored = DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
-    elsif activity&.response?
-      object.stored = DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
     end
   end
 

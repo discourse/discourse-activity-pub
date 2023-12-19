@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
-  let(:category) { Fabricate(:category) }
+  let!(:category) { Fabricate(:category) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Activity }
 
@@ -44,51 +44,68 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
         end
 
         context 'when not following' do
-          before do
-            json = build_activity_json(object: category.activity_pub_actor)
-            perform_process(json)
-            @actor = DiscourseActivityPubActor.find_by(ap_id: json['actor']['id'])
-            @activity = DiscourseActivityPubActivity.find_by(ap_id: json['id'])
+          shared_examples "processes a new follow" do
+            it 'creates an actor' do
+              expect(@actor.present?).to eq(true)
+            end
+  
+            it 'creates an activity' do
+              expect(
+                DiscourseActivityPubActivity.exists?(
+                  ap_type: described_class.type,
+                  actor_id: @actor.id
+                )
+              ).to eq(true)
+            end
+  
+            it 'creates a follow' do
+              expect(
+                DiscourseActivityPubFollow.exists?(
+                  follower_id: @actor.id,
+                  followed_id: category.activity_pub_actor.id
+                )
+              ).to eq(true)
+            end
+  
+            it 'enqueues an accept' do
+              response_actor = category.activity_pub_actor
+              response_activity = DiscourseActivityPubActivity.find_by(
+                ap_type: DiscourseActivityPub::AP::Activity::Accept.type,
+                actor_id: response_actor.id,
+                object_id: @activity.id
+              ) 
+              args = {
+                object_id: response_activity.id,
+                object_type: 'DiscourseActivityPubActivity',
+                from_actor_id: response_activity.actor.id,
+                send_to: response_activity.object.actor.inbox
+              }
+              expect(
+                job_enqueued?(job: :discourse_activity_pub_deliver, args: args)
+              ).to eq(true)
+            end
           end
 
-          it 'creates an actor' do
-            expect(@actor.present?).to eq(true)
+          context "when given an actor object" do
+            before do
+              json = build_activity_json(object: category.activity_pub_actor)
+              perform_process(json)
+              @actor = DiscourseActivityPubActor.find_by(ap_id: json['actor']['id'])
+              @activity = DiscourseActivityPubActivity.find_by(ap_id: json['id'])
+            end
+
+            include_examples "processes a new follow"
           end
 
-          it 'creates an activity' do
-            expect(
-              DiscourseActivityPubActivity.exists?(
-                ap_type: described_class.type,
-                actor_id: @actor.id
-              )
-            ).to eq(true)
-          end
-
-          it 'creates a follow' do
-            expect(
-              DiscourseActivityPubFollow.exists?(
-                follower_id: @actor.id,
-                followed_id: category.activity_pub_actor.id
-              )
-            ).to eq(true)
-          end
-
-          it 'enqueues an accept' do
-            response_actor = category.activity_pub_actor
-            response_activity = DiscourseActivityPubActivity.find_by(
-              ap_type: DiscourseActivityPub::AP::Activity::Accept.type,
-              actor_id: response_actor.id,
-              object_id: @activity.id
-            ) 
-            args = {
-              object_id: response_activity.id,
-              object_type: 'DiscourseActivityPubActivity',
-              from_actor_id: response_activity.actor.id,
-              send_to: response_activity.object.actor.inbox
-            }
-            expect(
-              job_enqueued?(job: :discourse_activity_pub_deliver, args: args)
-            ).to eq(true)
+          context "when given an actor id" do
+            before do
+              json = build_activity_json(object: category.activity_pub_actor.ap_id)
+              perform_process(json)
+              @actor = DiscourseActivityPubActor.find_by(ap_id: json['actor']['id'])
+              @activity = DiscourseActivityPubActivity.find_by(ap_id: json['id'])
+            end
+  
+            include_examples "processes a new follow"
           end
         end
 

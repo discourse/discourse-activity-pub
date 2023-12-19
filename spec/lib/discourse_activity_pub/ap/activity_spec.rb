@@ -146,6 +146,21 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
             expect(@fake_logger.warnings.any?).to eq(false)
           end
         end
+
+        context "with a local object uri" do
+          let!(:json) {
+            build_activity_json(
+              object: note.ap.json['id'],
+              type: activity_type,
+              actor: person
+            )
+          }
+
+          it "resolves the local object without a request" do
+            expect_no_request
+            expect(perform_process(json, activity_type)).to eq(true)
+          end
+        end
       end
     end
 

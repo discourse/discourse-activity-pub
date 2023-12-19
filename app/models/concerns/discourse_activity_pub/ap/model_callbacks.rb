@@ -180,7 +180,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_schedule?
-        activity_pub_full_topic && !activity_pub_topic_published? && (
+        !self.destroyed? && activity_pub_full_topic && !activity_pub_topic_published? && (
           !activity_pub_is_first_post? || !performing_activity.create?
         )
       end
@@ -194,7 +194,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_object
-        if !activity_pub_topic_published? && activity_pub_full_topic
+        if !self.destroyed? && !activity_pub_topic_published? && activity_pub_full_topic
           activity_pub_collection.activities_collection
         else
           performing_activity.stored
@@ -202,7 +202,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_delay
-        if !activity_pub_topic_published?
+        if !self.destroyed? && !activity_pub_topic_published?
           SiteSetting.activity_pub_delivery_delay_minutes.to_i
         else
           nil
