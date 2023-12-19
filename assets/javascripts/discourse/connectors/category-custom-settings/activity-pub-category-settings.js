@@ -5,6 +5,10 @@ const customFieldDefaults = {
 };
 
 export default {
+  shouldRender(_, ctx) {
+    return ctx.site.activity_pub_enabled;
+  },
+
   setupComponent(attrs) {
     Object.keys(customFieldDefaults).forEach((key) => {
       if (attrs.category.custom_fields[key] === undefined) {

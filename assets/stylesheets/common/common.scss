@@ -80,6 +80,29 @@ div.activity-pub-status {
   }
 }
 
+.activity-pub-enabled .activity-pub-setting-description {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-pub-site-setting {
+  margin-top: 0.5em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+a.activity-pub-site-setting-label {
+  gap: 0.5em;
+  display: inline-flex;
+  align-items: center;
+  color: unset;
+  background-color: var(--primary-200);
+  border-radius: 2px;
+  padding: 0 0.25em;
+  white-space: nowrap;
+}
+
 #activity-pub-username {
   width: min(250px, 90%);
 }

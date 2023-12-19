@@ -4,6 +4,7 @@ import { computed } from "@ember/object";
 
 export default ComboBoxComponent.extend({
   classNames: ["activity-pub-publication-type-dropdown"],
+  nameProperty: "label",
 
   content: computed(function () {
     return [
