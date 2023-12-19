@@ -144,7 +144,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     opts = {
       username: handle.username
     }
-    opts[:local] = true if local
+    opts[:local] = local ? true : [false, nil]
     opts[:domain] = handle.domain if !local
     opts[:ap_type] = types if types.present?
     actor = DiscourseActivityPubActor.find_by(opts)
@@ -162,7 +162,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     opts = {
       ap_id: ap_id
     }
-    opts[:local] = true if local
+    opts[:local] = local ? true : [false, nil]
     actor = DiscourseActivityPubActor.find_by(opts)
 
     if (refresh || !actor) && !local
