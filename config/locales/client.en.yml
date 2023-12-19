@@ -10,7 +10,6 @@ en:
         settings_heading: ActivityPub
         enable: Enable ActivityPub in this category.
         site_setting:
-          label: Site Settings
           activity_pub_enabled:
             label: ActivityPub plugin is enabled
             title: The ActivityPub plugin is enabled by the activity pub enabled site setting.
