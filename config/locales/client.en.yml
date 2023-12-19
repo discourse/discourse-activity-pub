@@ -9,11 +9,20 @@ en:
       discourse_activity_pub:
         settings_heading: ActivityPub
         enable: Enable ActivityPub in this category.
-        enable_description: Site settings 'activity pub enabled' and 'login required' also affect whether ActivityPub is active.
+        site_setting:
+          label: Site Settings
+          activity_pub_enabled:
+            label: ActivityPub plugin is enabled
+            title: The ActivityPub plugin is enabled by the activity pub enabled site setting.
+            description: Incoming activities addressed to this category will be processed.
+          login_required:
+            label: Login is required
+            title: Login is required by the login required site setting.
+            description: Only outgoing follow requests and the category actor attributes (below) are published.
         username: ActivityPub username for this category.
         username_description: Cannot be changed once saved.
         handle: ActivityPub handle for this category.
-        handle_description: Used to follow this category on services using Webfinger (e.g. Mastodon).
+        handle_description: Used to identify this category on services using Webfinger (e.g. Mastodon).
         name: ActivityPub name for this category.
         name_description: Used as a display name on some services (e.g. Mastodon).
         default_visibility: ActivityPub visibility for this category.
@@ -25,7 +34,7 @@ en:
     discourse_activity_pub:
       status:
         title:
-          publishing_disabled: ActivityPub publishing is disabled (login required). Outgoing follows and incoming activities are enabled.
+          publishing_disabled: ActivityPub publishing is disabled by the login required site setting. Incoming activities and outgoing follows are enabled.
           plugin_disabled: The ActivityPub plugin is disabled
           category_read_restricted: ActivityPub does not work with private categories
           model_disabled: AcivityPub is disabled for this %{model_type}
