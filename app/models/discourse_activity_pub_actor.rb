@@ -4,6 +4,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   include DiscourseActivityPub::AP::ModelValidations
   include DiscourseActivityPub::WebfingerActorAttributes
 
+  APPLICATION_ACTOR_ID = -1
+  APPLICATION_ACTOR_USERNAME = 'discourse.internal'
+
   belongs_to :model, polymorphic: true, optional: true
   belongs_to :user, -> { where(discourse_activity_pub_actors: { model_type: 'User' }) }, foreign_key: 'model_id', optional: true
 
@@ -26,6 +29,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def ready?(parent_ap_type = nil)
+    return true if self.id == APPLICATION_ACTOR_ID
     local? ? model.activity_pub_ready? : available?
   end
 
@@ -71,12 +75,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def url
-    local? ? model&.activity_pub_url : self.ap_id
+    if local?
+      model ? model.activity_pub_url : DiscourseActivityPub.base_url
+    else
+      self.ap_id
+    end
   end
 
   def icon_url
     if local?
-      model.activity_pub_icon_url
+      model ? model.activity_pub_icon_url : DiscourseActivityPub.icon_url
     else
       self.read_attribute(:icon_url)
     end
@@ -188,6 +196,18 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     args = { username: username }
     args[:model_id] = model_id if model_id
     self.where(sql, args).exists?
+  end
+
+  # Equivalent of mastodon/mastodon/app/models/concerns/account_finder_concern.rb#representative
+  def self.application
+    DiscourseActivityPubActor.find(DiscourseActivityPubActor::APPLICATION_ACTOR_ID)
+  rescue ActiveRecord::RecordNotFound
+    DiscourseActivityPubActor.create!(
+      id: DiscourseActivityPubActor::APPLICATION_ACTOR_ID,
+      ap_type: DiscourseActivityPub::AP::Actor::Application.type,
+      username: DiscourseActivityPubActor::APPLICATION_ACTOR_USERNAME,
+      local: true
+    )
   end
 
   protected

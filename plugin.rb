@@ -102,6 +102,7 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/ap/activity/like_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/undo_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor_serializer.rb
+    ../app/serializers/discourse_activity_pub/ap/actor/application_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/group_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/actor/person_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/object/note_serializer.rb
@@ -148,7 +149,7 @@ after_initialize do
     "#{DiscourseActivityPub.base_url}#{self.url}"
   end
   add_to_class(:category, :activity_pub_icon_url) do
-    SiteIconManager.large_icon_url
+    DiscourseActivityPub.icon_url
   end
   add_to_class(:category, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && !self.read_restricted &&

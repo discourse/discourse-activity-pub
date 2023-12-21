@@ -23,6 +23,7 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   end
 
   def ensure_can_access_actor_model
+    return true if @actor.ap.application?
     render_activity_pub_error("not_available", 401) unless guardian.can_see?(@actor.model)
   end
 

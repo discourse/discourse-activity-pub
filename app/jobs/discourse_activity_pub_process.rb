@@ -19,8 +19,7 @@ module Jobs
       DiscourseActivityPub::Logger.info(
         I18n.t("discourse_activity_pub.process.info.process_started",
           delivered_to: @args[:delivered_to]
-        ),
-        json: @args[:json]
+        )
       )
     end
   end

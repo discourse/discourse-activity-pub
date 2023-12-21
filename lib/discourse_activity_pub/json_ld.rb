@@ -12,7 +12,7 @@ module DiscourseActivityPub
 
     def validate_json_ld(json)
       parsed_json = parse_json_ld(json)
-      return false unless required_contexts?(parsed_json) && required_properties?(parsed_json)
+      return false unless parsed_json && required_contexts?(parsed_json) && required_properties?(parsed_json)
       format_jsonld(parsed_json)
     end
 

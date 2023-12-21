@@ -73,8 +73,12 @@ module DiscourseActivityPub
       nil
     end
 
+    def actor
+      @actor || DiscourseActivityPubActor.application
+    end
+
     def self.build_signature(verb: nil, path: nil, key_id: nil, keypair: nil, headers: {}, custom_params: {})
-      request_target = "#{verb} #{path}"
+      request_target = "#{verb.to_s} #{path}"
       created = Time.now.to_i
       # TODO: is this expiry right?
       expires = 1.hour.from_now.to_i

@@ -12,8 +12,8 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :ensure_request_permitted
   before_action :validate_headers
   before_action :ensure_domain_allowed
-  before_action :ensure_verified_signature, if: :require_signed_requests?
   before_action :ensure_object_exists, if: :is_object_controller
+  before_action :set_raw_body
 
   def show
     render json: @object.ap.json
@@ -84,5 +84,9 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   def render_ordered_collection(stored, collection_for)
     collection = DiscourseActivityPub::AP::Collection::OrderedCollection.new(stored: stored.send("#{collection_for}_collection"))
     render json: DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(collection, root: false).as_json
+  end
+
+  def set_raw_body
+    @raw_body = request.body.read
   end
 end

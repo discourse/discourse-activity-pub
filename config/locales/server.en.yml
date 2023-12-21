@@ -91,7 +91,8 @@ en:
         failed_to_save_actor: "Failed to save actor: %{actor}"
         failed_to_save_collection: "Failed to save collection: %{collection}"
       info:
-        process_started: "Processing JSON delivered to %{delivered_to}"
+        received_json: "Received JSON delivered to %{delivered_to}"
+        processing_json: "Processing JSON delivered to %{delivered_to}"
     activity:
       create:
         failed_to_create_user: "Failed to create user for %{actor_id}"
