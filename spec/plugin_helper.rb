@@ -46,6 +46,38 @@ def activity_request_error(key)
   { "errors" => [I18n.t("discourse_activity_pub.request.error.#{key}")] }
 end
 
+def default_headers
+  {
+    "Host" => DiscourseActivityPub.host,
+    "Date" => Time.now.utc.httpdate,
+  }
+end
+
+def build_signature(actor: nil, verb: "get", path: DiscourseActivityPub.host, key_id: nil, keypair: nil, headers: {}, params: {})
+  DiscourseActivityPub::Request.build_signature(
+    verb: verb,
+    path: path,
+    key_id: key_id || signature_key_id(actor),
+    keypair: keypair.present? ? keypair : actor.keypair,
+    headers: headers.present? ? headers : default_headers,
+    custom_params: params
+  )
+end
+
+def build_headers(object: nil, actor: nil, verb: nil, path: nil, key_id: nil, keypair: nil, headers: {}, params: {})
+  return {} unless object && actor
+  _headers = default_headers.merge(headers)
+  _headers["Signature"] = build_signature(
+    verb: verb,
+    path: path || DiscourseActivityPub::URI.parse(object.ap_id).path,
+    key_id: key_id || signature_key_id(actor),
+    keypair: keypair.present? ? keypair : actor.keypair,
+    headers: _headers,
+    params: params
+  )
+  _headers
+end
+
 def build_actor_json(public_key = nil)
   _json = {
     '@context': 'https://www.w3.org/ns/activitystreams',

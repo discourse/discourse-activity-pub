@@ -35,4 +35,8 @@ module DiscourseActivityPub
   def self.publishing_enabled
     enabled && !SiteSetting.login_required
   end
+
+  def self.icon_url
+    SiteIconManager.large_icon_url
+  end
 end

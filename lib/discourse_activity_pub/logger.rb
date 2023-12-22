@@ -23,7 +23,7 @@ module DiscourseActivityPub
     def formatted_message(message, json: nil)
       result = "#{PREFIX} #{message}"
       if json.present?
-        json = parse_json_ld(value) if json.is_a?(String)
+        json = parse_json_ld(json) if json.is_a?(String)
         result += "\n#{json.to_yaml}" if json.present?
       end
       result

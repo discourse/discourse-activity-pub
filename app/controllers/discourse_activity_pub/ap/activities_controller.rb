@@ -18,7 +18,12 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
   end
 
   def ensure_can_access_activity
-    unless (DiscourseActivityPub.publishing_enabled || @activity.ap.follow? || @activity.ap.response?)
+    unless (
+      DiscourseActivityPub.publishing_enabled ||
+      @activity.ap.follow? ||
+      @activity.ap.response? ||
+      @activity.ap.undo?
+    )
       render_activity_pub_error("not_available", 401)
     end
   end

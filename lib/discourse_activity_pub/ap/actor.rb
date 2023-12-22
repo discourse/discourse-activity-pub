@@ -52,6 +52,10 @@ module DiscourseActivityPub
         type == Group.type
       end
 
+      def application?
+        type == Application.type
+      end
+
       def public_key
         return nil unless stored&.public_key
         {

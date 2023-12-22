@@ -6,42 +6,6 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem) }
   let!(:object) { Fabricate(:discourse_activity_pub_object_note) }
   let!(:post_body) { build_activity_json(object: group) }
-  let!(:invalid_digest) { Digest::SHA256.base64digest("invalid body") }
-  let!(:valid_digest) { Digest::SHA256.base64digest(post_body.to_json) }
-  let!(:valid_digest_headers) {
-    build_headers(
-      custom_headers: {
-        "Digest" => "SHA-256=#{valid_digest}"
-      },
-      custom_verb: 'post',
-      custom_path: DiscourseActivityPub::URI.parse(group.inbox).path
-    )
-  }
-  let!(:invalid_digest_headers) {
-    build_headers(custom_headers: {
-      "Digest" => "SHA-256=#{invalid_digest}"
-    })
-  }
-
-  def build_headers(custom_object: nil, custom_actor: nil, custom_verb: nil, custom_path: nil, custom_key_id: nil, custom_keypair: true, custom_headers: {}, custom_params: {})
-    _object = custom_object || object
-    _actor = custom_actor || actor
-    _headers = {
-      "Host" => DiscourseActivityPub.host,
-      "Date" => Time.now.utc.httpdate,
-    }.merge(custom_headers)
-
-    _headers["Signature"] = DiscourseActivityPub::Request.build_signature(
-      verb: custom_verb || 'get',
-      path: custom_path || DiscourseActivityPub::URI.parse(_object.ap_id).path,
-      key_id: custom_key_id || signature_key_id(_actor),
-      keypair: custom_keypair ? keypair : _actor.keypair,
-      headers: _headers,
-      custom_params: custom_params
-    )
-
-    _headers
-  end
 
   before do
     SiteSetting.activity_pub_require_signed_requests = false
@@ -79,7 +43,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       end
 
       context "with a POST to a group inbox" do
-        it "succeeeds" do
+        it "succeeds" do
           post_to_inbox(group, body: post_body)
           expect(response.status).to eq(202)
         end
@@ -142,163 +106,6 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
     it "allows unblocked domains" do
       get_object(object, headers: { ORIGIN: "https://allowed.com" })
       expect(response.status).to eq(200)
-    end
-  end
-
-  context "with signature required" do
-    before do
-      SiteSetting.activity_pub_require_signed_requests = true
-    end
-
-    context 'without a signature' do
-      it "returns the right unauthorized error" do
-        get_object(object)
-        expect(response.status).to eq(401)
-        expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.not_signed")])
-      end
-    end
-
-    context "with a signature" do
-      context "with missing signature params" do
-        let(:headers) { build_headers(custom_key_id: "") }
-
-        it "returns the right unauthorized error" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.missing_signature_params")])
-        end
-      end
-
-      context "with an unsupported algorithm" do
-        let(:headers) { build_headers(custom_params: { algorithm: "hmac-sha256" }) }
-
-        it "returns the right unauthorized error" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.unsupported_signature_algorithm")])
-        end
-      end
-
-      context "with a rsa-sha256 algorithm" do
-        let(:headers) { build_headers(custom_params: { algorithm: "rsa-sha256" }) }
-
-        it "suceeds" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(200)
-        end
-
-        context "with an invalid date" do
-          let(:headers) { build_headers(custom_params: { algorithm: "rsa-sha256" }, custom_headers: { "Date" => "not a date" }) }
-
-          it "returns the right unauthorized error" do
-            get_object(object, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.invalid_date_header", reason: "not RFC 2616 compliant date: \"not a date\"")])
-          end
-        end
-
-        context "with a stale date" do
-          let(:headers) { build_headers(custom_params: { algorithm: "rsa-sha256" }, custom_headers: { "Date" => 2.days.ago.utc.httpdate }) }
-
-          it "returns the right unauthorized error" do
-            get_object(object, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.stale_request")])
-          end
-        end
-      end
-
-      context "with a missing Signature pseudo-param" do
-        let(:headers) { build_headers(custom_params: { "headers" => "(request-target) host" }) }
-
-        it "returns the right unauthorized error" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.date_must_be_signed")])
-        end
-      end
-
-      context "with an invalid public key" do
-        let(:headers) { build_headers }
-
-        before do
-          actor.public_key = "not a real key"
-          actor.save!
-        end
-
-        it "attempts to refresh actor and returns the right error" do
-          DiscourseActivityPubActor.any_instance.expects(:refresh_remote!).once.returns(nil)
-          get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.signature_verification_failed", id: actor.ap_id)])
-        end
-
-        it "succeeds if actor is refreshed with a valid public key" do
-          actor_ap_json = actor.ap.json
-          actor_ap_json["publicKey"] = {
-            id: signature_key_id(actor),
-            owner: actor.ap_id,
-            publicKeyPem: keypair.public_key.to_pem
-          }
-
-          stub_request(:get, actor.ap_id)
-            .to_return(body: actor_ap_json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
-
-          get_object(object, headers: headers)
-          expect(response.status).to eq(200)
-        end
-
-        it "fails with the right error if the actor is not refreshed with a valid public key" do
-          stub_request(:get, actor.ap_id)
-            .to_return(body: nil, status: 400)
-
-          get_object(object, headers: headers)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.signature_verification_failed", id: actor.ap_id)])
-        end
-      end
-
-      context "with a valid public key" do
-        let(:headers) { build_headers }
-
-        it "succeeds" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(200)
-        end
-      end
-
-      context "with a new actor" do
-        let!(:new_actor) { build_actor_json(keypair.public_key.to_pem) }
-        let!(:headers) { build_headers(custom_key_id: new_actor[:publicKey][:id], custom_keypair: keypair) }
-
-        before do
-          stub_request(:get, new_actor[:id])
-            .to_return(body: new_actor.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
-        end
-
-        it "succeeds and creates the actor" do
-          get_object(object, headers: headers)
-          expect(response.status).to eq(200)
-          expect(DiscourseActivityPubActor.exists?(ap_id: new_actor[:id])).to eq(true)
-        end
-      end
-
-      context "with a post request" do
-        context "with an invalid digest" do
-          it "returns the right unauthorized error" do
-            post_to_inbox(group, body: post_body, headers: invalid_digest_headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq([I18n.t("discourse_activity_pub.request.error.invalid_digest", { computed: valid_digest, digest: invalid_digest })])
-          end
-        end
-
-        context "with a valid digest" do
-          it "succeeds" do
-            post_to_inbox(group, body: post_body, headers: valid_digest_headers)
-            expect(response.status).to eq(202)
-          end
-        end
-      end
     end
   end
 

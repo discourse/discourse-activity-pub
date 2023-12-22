@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::ActorsController do
+  let!(:application) { Fabricate(:discourse_activity_pub_actor_application, local: true) }
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
 
@@ -54,6 +55,14 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
           get_object(group)
           expect(response.status).to eq(200)
           expect(response.parsed_body).to eq(group.ap.json)
+        end
+      end
+
+      context "with an application actor" do
+        it "returns actor json" do
+          get_object(application)
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq(application.ap.json)
         end
       end
 

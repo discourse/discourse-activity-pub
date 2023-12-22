@@ -11,6 +11,59 @@ RSpec.describe DiscourseActivityPub::Request do
     }.with_indifferent_access
   }
 
+  context "with signature required" do
+    let!(:keypair) { OpenSSL::PKey::RSA.new(2048) }
+    let!(:actor) { 
+      Fabricate(:discourse_activity_pub_actor_person,
+        private_key: keypair.to_pem,
+        public_key: keypair.public_key.to_pem
+      )
+    }
+    let!(:target) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
+
+    before do
+      SiteSetting.activity_pub_require_signed_requests = true
+      freeze_time
+    end
+
+    after do
+      unfreeze_time
+    end
+
+    def perform(actor_id: nil)
+      described_class.new(actor_id: actor_id, uri: target.ap_id).perform(:get)
+    end
+
+    context "with an actor" do
+      it "signs requests as the actor" do
+        signature = build_signature(
+          actor: actor,
+          path: DiscourseActivityPub::URI.parse(target.ap_id).path
+        )
+        Excon
+          .expects(:get)
+          .with { |url, options| options[:headers]['Signature'] == signature }
+          .once
+        perform(actor_id: actor.id)
+      end
+    end
+
+    context "without an actor" do
+      it "signs requests as the application actor" do
+        actor = DiscourseActivityPubActor.application
+        signature = build_signature(
+          actor: actor,
+          path: DiscourseActivityPub::URI.parse(target.ap_id).path
+        )
+        Excon
+          .expects(:get)
+          .with { |url, options| options[:headers]['Signature'] == signature }
+          .once
+        perform
+      end
+    end
+  end
+
   describe "#get_json_ld" do
     context "with a successful response" do
       before do

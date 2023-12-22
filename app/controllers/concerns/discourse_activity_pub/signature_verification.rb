@@ -130,6 +130,13 @@ module DiscourseActivityPub
             _type = signed_header.delete('()')
             raise Error.new(header: _type), "invalid_signature_pseudo_header" if signature_params[_type].blank?
             "(#{_type}): #{signature_params[_type]}"
+          elsif signed_header.downcase == 'host'
+            value = if Rails.env.development?
+                request.headers['HTTP_X_FORWARDED_HOST']
+              else
+                request.headers[to_header_name(signed_header)]
+              end
+            "#{signed_header}: #{value}"
           else
             "#{signed_header}: #{request.headers[to_header_name(signed_header)]}"
           end
@@ -163,7 +170,7 @@ module DiscourseActivityPub
     end
 
     def body_digest
-      @body_digest ||= Digest::SHA256.base64digest(request.raw_post)
+      @body_digest ||= Digest::SHA256.base64digest(@raw_body)
     end
 
     def to_header_name(name)
