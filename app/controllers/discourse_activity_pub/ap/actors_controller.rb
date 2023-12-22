@@ -17,7 +17,7 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   end
 
   def ensure_can_access_actor
-    unless (DiscourseActivityPub.publishing_enabled || @actor.ap.group?)
+    unless (DiscourseActivityPub.publishing_enabled || @actor.ap.group? || @actor.ap.application?)
       render_activity_pub_error("not_available", 401)
     end
   end

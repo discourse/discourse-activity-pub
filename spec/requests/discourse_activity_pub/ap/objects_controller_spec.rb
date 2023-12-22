@@ -43,7 +43,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       end
 
       context "with a POST to a group inbox" do
-        it "succeeeds" do
+        it "succeeds" do
           post_to_inbox(group, body: post_body)
           expect(response.status).to eq(202)
         end

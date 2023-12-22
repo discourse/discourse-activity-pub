@@ -27,6 +27,13 @@ Fabricator(:discourse_activity_pub_actor_group, from: :discourse_activity_pub_ac
   local { true }
 end
 
+Fabricator(:discourse_activity_pub_actor_application, from: :discourse_activity_pub_actor) do
+  id { DiscourseActivityPubActor::APPLICATION_ACTOR_ID }
+  username { DiscourseActivityPubActor::APPLICATION_ACTOR_USERNAME }
+  ap_type { DiscourseActivityPub::AP::Actor::Application.type }
+  local { true }
+end
+
 Fabricator(:discourse_activity_pub_actor_service, from: :discourse_activity_pub_actor) do
   ap_type { DiscourseActivityPub::AP::Actor::Service.type }
 end

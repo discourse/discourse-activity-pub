@@ -40,7 +40,11 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     before do
       category = activity.ap.composition? ?
         activity.base_object.model.topic.category :
-        activity.object.model
+        (
+          activity.object.respond_to?(:model) ?
+          activity.object.model :
+          activity.object&.object.model
+        )
       toggle_activity_pub(category)
     end
 
@@ -75,6 +79,16 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
 
       context "with a response actiivty" do
         let!(:activity) { Fabricate(:discourse_activity_pub_activity_follow) }
+
+        it "returns activity json" do
+          get_object(activity)
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq(activity.ap.json)
+        end
+      end
+
+      context "with an undo actiivty" do
+        let!(:activity) { Fabricate(:discourse_activity_pub_activity_undo) }
 
         it "returns activity json" do
           get_object(activity)

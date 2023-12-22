@@ -32,7 +32,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   def publish?
     return false unless ready?
-    return true if ap.follow? || ap.response?
+    return true if ap.follow? || ap.response? || ap.undo?
     DiscourseActivityPub.publishing_enabled
   end
 
