@@ -79,7 +79,7 @@ module DiscourseActivityPub
     protected
 
     def can_create_topic?(category)
-      category && category.activity_pub_ready? && category.activity_pub_full_topic
+      category&.activity_pub_ready?
     end
 
     def create_collection(post)
