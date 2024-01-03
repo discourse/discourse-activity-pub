@@ -860,11 +860,6 @@ after_initialize do
           I18n.t('discourse_activity_pub.process.warning.object_not_ready')
       end
 
-      if !delivered_to_category.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
-          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
-      end
-
       activity.cache['delivered_to_category_id'] = delivered_to_category.id
     end
   end

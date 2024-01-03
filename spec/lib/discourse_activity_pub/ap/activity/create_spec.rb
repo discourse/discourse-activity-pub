@@ -137,16 +137,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         stub_stored_request(person)
       end
 
-      context "when the target is following the create actor" do
-        before do
-          Fabricate(:discourse_activity_pub_follow,
-            follower: category.activity_pub_actor,
-            followed: person
-          )
-          perform_process(new_post_json, delivered_to)
-        end
-
+      shared_examples "creates a new topic" do
         it "creates a new topic" do
+          perform_process(new_post_json, delivered_to)
           post = Post.find_by(raw: object_json[:content])
           expect(post.present?).to be(true)
           expect(post.topic.present?).to be(true)
@@ -155,6 +148,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
 
         it "creates a note" do
+          perform_process(new_post_json, delivered_to)
           post = Post.find_by(raw: object_json[:content])
           expect(
             DiscourseActivityPubObject.exists?(
@@ -167,6 +161,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
 
         it "creates an activity" do
+          perform_process(new_post_json, delivered_to)
           expect(
             DiscourseActivityPubActivity.exists?(
               ap_id: new_post_json[:id],
@@ -174,6 +169,26 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
               actor_id: person.id
             )
           ).to be(true)
+        end
+      end
+
+      context "when the target is following the create actor" do
+        before do
+          Fabricate(:discourse_activity_pub_follow,
+            follower: category.activity_pub_actor,
+            followed: person
+          )
+        end
+
+        include_examples "creates a new topic"
+
+        context "when the category has first_post enabled" do
+          before do
+            category.custom_fields['activity_pub_publication_type'] = 'first_post'
+            category.save_custom_fields(true)
+          end
+
+          include_examples "creates a new topic"
         end
       end
 
@@ -199,35 +214,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           klass.process
         end
   
-        it "creates a new topic" do
-          post = Post.find_by(raw: object_json[:content])
-          expect(post.present?).to be(true)
-          expect(post.topic.present?).to be(true)
-          expect(post.topic.title).to eq(object_json[:name])
-          expect(post.post_number).to be(1)
-        end
-  
-        it "creates a note" do
-          post = Post.find_by(raw: object_json[:content])
-          expect(
-            DiscourseActivityPubObject.exists?(
-              ap_type: "Note",
-              model_id: post.id,
-              model_type: "Post",
-              attributed_to_id: person.ap_id
-            )
-          ).to eq(true)
-        end
-
-        it "creates an activity" do
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              ap_id: new_post_json[:id],
-              ap_type: "Create",
-              actor_id: person.id
-            )
-          ).to be(true)
-        end
+        include_examples "creates a new topic"
       end
 
       context "when the target is not following the create actor" do
