@@ -15,9 +15,12 @@ module DiscourseActivityPub
       end
 
       def object
-        stored&.object ?
-          AP::Object.get_klass(stored.object.ap_type).new(stored: stored.object) :
+        if stored&.object
+          klass = AP::Object.get_klass(stored.object.ap_type)
+          klass.new(stored: stored.object, parent: self)
+        else
           @object
+        end
       end
 
       def process
