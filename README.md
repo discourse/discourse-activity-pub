@@ -41,6 +41,7 @@ classes:
 
 - store and migrate ActivityPub data;
 - establish relationships between the stored data;
+- manage ActivityPub workers (jobs);
 - perform specific ActivityPub functions, e.g. handlers, parsers, trackers and validators; and
 - provide a backend for the ActivityPub functionality in the Discourse client.
 
@@ -69,11 +70,57 @@ When writing tests there's a few things to keep in mind:
 If the environment variable `RAILS_DEVELOPMENT_HOSTS` is set the plugin will use the first domain in the variable as the local domain for the purposes of ActivityPub. For example, if you run Discourse like so
 
 ```
-RAILS_DEVELOPMENT_HOSTS=angus.eu.ngrok.io bin/rails s
+RAILS_DEVELOPMENT_HOSTS=discourse.ngrok.io bin/rails s
 ```
 
 You will be able to use ActivityPub category handles on remote ActivityPub servers like so
 
 ```
-announcements@angus.eu.ngrok.io
+announcements@discourse.ngrok.io
+```
+
+### Logging
+
+When running in a Development environment the plugin's logger (`DiscourseActivityPub::Logger`) will log all ActivityPub messages with both the Rails logger *and* the AP Logger, which is set to log to `discourse/discourse/logs/activity_pub.log`. The AP logger will also log all incoming and outgoing ActivityPub objects in that dedicated file (formatted as yaml to make them easier to read).
+
+### Delivery
+
+Use the env variable `DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY` to manually override the delivery delay of ActivityPub objects, e.g.
+
+```
+DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY=0
+```
+
+### Multiple Local Instances
+
+When testing Discourse to Discourse federation you may need to run multiple instances of Discourse locally. This will be an environment-specific question. One way of doing this is cloning two separate versions of `discourse/discourse` and using directory-specific environment variables (e.g. [direnv](https://direnv.net/) on a Mac) to manage the ports and database connections. A `.env` configuration that has worked is:
+
+`~/discourse/discourse`
+
+```
+DISCOURSE_DEV_ALLOW_ANON_TO_IMPERSONATE=1
+RAILS_DEVELOPMENT_HOSTS=discourse.ngrok.io
+ALLOW_EMBER_CLI_PROXY_BYPASS=1
+DISCOURSE_DEV_DB=discourse_development
+DISCOURSE_DEV_LOG_LEVEL=debug
+LOAD_PLUGINS=1
+DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY=0
+OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+```
+
+`~/discourse/discourse_two`
+
+```
+DISCOURSE_DEV_ALLOW_ANON_TO_IMPERSONATE=1
+RAILS_DEVELOPMENT_HOSTS=discourse-two.ngrok.io
+ALLOW_EMBER_CLI_PROXY_BYPASS=1
+DISCOURSE_DEV_DB=discourse_development_two
+UNICORN_PORT=6000
+PORT=6200
+REDIS_PORT=6380
+DISCOURSE_REDIS_PORT=6380
+DISCOURSE_DEV_LOG_LEVEL=debug
+LOAD_PLUGINS=1
+DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY=0
+OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 ```
