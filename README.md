@@ -8,7 +8,7 @@ This section is about contributing to the plugin and assumes familiarity with Di
 
 ### Server
 
-This section concerns how to think about the plugin server. Think about the server as comprising three parts:
+Think about the plugin server as comprising three parts:
 
 1. the AP module;
 2. the plugin; and
