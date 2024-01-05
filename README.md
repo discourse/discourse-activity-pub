@@ -48,7 +48,7 @@ As far as possible these classes should not *directly* integrate with `discourse
 
 #### Discourse Integration
 
-All direct `discourse/discourse` integration is in the `plugin.rb` and the `/extensions`. Ideally, all `/extensions` will become integrations in the `plugin.rb` as `discourse/discourse` implements new server-side hooks and plugin methods. Some specific `discourse/discourse` updates to improve integration are suggested in `TODO` comments throught the plugin code.
+All direct `discourse/discourse` server integration is in the `plugin.rb` and the `/extensions`. Ideally, all `/extensions` will become integrations in the `plugin.rb` as `discourse/discourse` implements new server-side hooks and plugin methods. Some specific `discourse/discourse` updates to improve integration are suggested in `TODO` comments throught the plugin code.
 
 ### Tests
 
