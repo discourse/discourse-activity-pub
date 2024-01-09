@@ -138,7 +138,7 @@ def build_object_json(
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
   _json[:name] = name if name
-  _json[:attributedTo] = if attributed_to&.respond_to?(:ap_id)
+  _json[:attributedTo] = if attributed_to.respond_to?(:ap_id)
     attributed_to.ap_id
   elsif attributed_to.respond_to?(:id)
     attributed_to.id
@@ -163,7 +163,7 @@ def build_activity_json(
     id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     actor:
-      if actor&.respond_to?(:ap)
+      if actor.respond_to?(:ap)
         actor.ap.json
       elsif actor.present?
         actor
@@ -171,7 +171,7 @@ def build_activity_json(
         build_actor_json
       end,
     object:
-      if object&.respond_to?(:ap)
+      if object.respond_to?(:ap)
         object.ap.json
       elsif object.present?
         object

@@ -86,7 +86,7 @@ module DiscourseActivityPub
     end
 
     def after_scheduled
-      object.after_scheduled(scheduled_at) if object&.respond_to?(:after_scheduled)
+      object.after_scheduled(scheduled_at) if object.respond_to?(:after_scheduled)
     end
 
     def log_failure(reason)

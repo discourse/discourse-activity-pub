@@ -12,7 +12,8 @@ module DiscourseActivityPub
     EXPIRES_HEADER = "(expires)"
     SIGNAUTRE_ALGORITHM = "hs2019"
 
-    attr_accessor :uri, :headers, :body, :expects, :middlewares, :actor
+    attr_accessor :uri, :headers, :body, :expects, :middlewares
+    attr_writer :actor
 
     def initialize(actor_id: nil, uri: "", headers: {}, body: nil)
       @actor = DiscourseActivityPubActor.find_by(id: actor_id) if actor_id
@@ -81,7 +82,7 @@ module DiscourseActivityPub
       headers: {},
       custom_params: {}
     )
-      request_target = "#{verb.to_s} #{path}"
+      request_target = "#{verb} #{path}"
       created = Time.now.to_i
       # TODO: is this expiry right?
       expires = 1.hour.from_now.to_i

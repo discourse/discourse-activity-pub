@@ -29,24 +29,24 @@ module DiscourseActivityPub
 
     def ensure_first_post
       return render_post_error("first_post_not_enabled", 403) unless @post.activity_pub_first_post
-      return render_post_error("not_first_post", 422) unless @post.activity_pub_is_first_post?
+      render_post_error("not_first_post", 422) unless @post.activity_pub_is_first_post?
     end
 
     def ensure_can_schedule
       if (@post.activity_pub_published? || @post.activity_pub_scheduled?)
-        return render_post_error("cant_schedule_post", 422)
+        render_post_error("cant_schedule_post", 422)
       end
     end
 
     def ensure_can_unschedule
       if (@post.activity_pub_published? || !@post.activity_pub_scheduled?)
-        return render_post_error("cant_unschedule_post", 422)
+        render_post_error("cant_unschedule_post", 422)
       end
     end
 
     def find_post
       @post = Post.find_by(id: params[:post_id])
-      return render_post_error("post_not_found", 400) unless @post.present?
+      render_post_error("post_not_found", 400) unless @post.present?
     end
 
     def ensure_site_enabled

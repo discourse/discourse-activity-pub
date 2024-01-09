@@ -313,7 +313,7 @@ after_initialize do
 
   activity_pub_post_custom_fields = %i[scheduled_at published_at deleted_at updated_at visibility]
   activity_pub_post_custom_field_names =
-    activity_pub_post_custom_fields.map { |field_name| "activity_pub_#{field_name.to_s}" }
+    activity_pub_post_custom_fields.map { |field_name| "activity_pub_#{field_name}" }
   activity_pub_post_custom_field_names.each do |field_name|
     register_post_custom_field_type(field_name, :string)
   end
@@ -356,7 +356,7 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_update_custom_fields) do |args = {}|
     return nil if !activity_pub_enabled || (args.keys & activity_pub_post_custom_fields).empty?
-    args.keys.each { |key| custom_fields["activity_pub_#{key.to_s}"] = args[key] }
+    args.keys.each { |key| custom_fields["activity_pub_#{key}"] = args[key] }
     save_custom_fields(true)
     activity_pub_publish_state
   end
@@ -388,7 +388,7 @@ after_initialize do
     model = { id: self.id, type: "post" }
 
     activity_pub_post_custom_fields.each do |field|
-      model[field.to_sym] = self.send("activity_pub_#{field.to_s}")
+      model[field.to_sym] = self.send("activity_pub_#{field}")
     end
 
     group_ids = [Group::AUTO_GROUPS[:staff], *activity_pub_topic.category.reviewable_by_group_id]
@@ -458,7 +458,7 @@ after_initialize do
     visibility =
       (
         if is_first_post?
-          activity_pub_topic&.category.activity_pub_default_visibility
+          activity_pub_topic&.category&.activity_pub_default_visibility
         else
           activity_pub_topic.first_post.activity_pub_visibility
         end
@@ -662,7 +662,7 @@ after_initialize do
   end
   on(:post_moved) do |post, original_topic_id|
     topic = post.topic
-    full_topic_enabled = topic&.activity_pub_enabled && topic.activity_pub_full_topic
+    full_topic_enabled = topic&.activity_pub_enabled && topic&.activity_pub_full_topic
 
     if full_topic_enabled
       topic.create_activity_pub_collection! if !topic.activity_pub_object
@@ -1005,7 +1005,7 @@ after_initialize do
           object.stored.audience = object.json[:audience] if object.json[:audience].present?
           object.stored.context = object.json[:context] if object.json[:context].present?
           object.stored.target = object.json[:target] if object.json[:target].present?
-        elsif !object.stored && (activity.create? || activity&.announce?)
+        elsif !object.stored && (activity&.create? || activity&.announce?)
           params = {
             local: false,
             ap_id: object.json[:id],

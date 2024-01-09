@@ -13,9 +13,9 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
            through: :objects,
            source: :announcements
 
-  attr_accessor :items
   attr_accessor :context
-  attr_accessor :to
+  attr_writer :items
+  attr_writer :to
 
   def url
     model&.activity_pub_full_url

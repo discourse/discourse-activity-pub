@@ -16,7 +16,7 @@ module DiscourseActivityPub
     def follows
       guardian.ensure_can_edit!(@category)
 
-      actors.each { |actor| actor.followed_at = actor.follow_followers&.first.followed_at }
+      actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
 
       render_actors
     end
@@ -24,7 +24,7 @@ module DiscourseActivityPub
     def followers
       guardian.ensure_can_see!(@category)
 
-      actors.each { |actor| actor.followed_at = actor.follow_follows&.first.followed_at }
+      actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
 
       render_actors
     end

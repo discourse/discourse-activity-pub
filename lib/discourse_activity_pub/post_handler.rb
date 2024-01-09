@@ -35,8 +35,8 @@ module DiscourseActivityPub
         params[:custom_fields][:activity_pub_published_at] = object
           .published_at
           &.to_datetime
-          .utc
-          .iso8601
+          &.utc
+          &.iso8601
       end
 
       post = nil

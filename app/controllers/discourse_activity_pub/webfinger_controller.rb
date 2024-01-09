@@ -26,7 +26,7 @@ module DiscourseActivityPub
       end
 
       @resource = Webfinger.new(scheme).find(uri)
-      return render_webfinger_error("resource_not_found", 400) unless @resource.present?
+      render_webfinger_error("resource_not_found", 400) unless @resource.present?
     end
 
     def ensure_site_enabled

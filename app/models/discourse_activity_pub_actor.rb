@@ -143,7 +143,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   def shared_inbox
     if local?
-      model.activity_pub_shared_inbox if model&.respond_to?(:activity_pub_shared_inbox)
+      model.activity_pub_shared_inbox if model.respond_to?(:activity_pub_shared_inbox)
     else
       self.read_attribute(:shared_inbox)
     end

@@ -43,7 +43,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
               if activity.object.respond_to?(:model)
                 activity.object.model
               else
-                activity.object&.object.model
+                activity.object&.object&.model
               end
             )
           end

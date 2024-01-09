@@ -30,7 +30,7 @@ module DiscourseActivityPub
         process_items.each do |item|
           activity = DiscourseActivityPub::AP::Activity.factory(item)
 
-          if activity&.respond_to?(:process)
+          if activity.respond_to?(:process)
             activity.delivered_to << delivered_to if delivered_to
             activity.process
           end

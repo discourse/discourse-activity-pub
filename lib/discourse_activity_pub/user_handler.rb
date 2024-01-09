@@ -8,7 +8,7 @@ module DiscourseActivityPub
 
     def validate_actor
       # We only associated users with stored Persons
-      actor&.ap.person?
+      actor&.ap&.person?
     end
 
     def validate_user

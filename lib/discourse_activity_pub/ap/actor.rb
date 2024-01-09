@@ -60,9 +60,7 @@ module DiscourseActivityPub
         { id: signature_key_id(stored), owner: id, publicKeyPem: stored.public_key }
       end
 
-      def self.resolve_and_store(actor_id)
-        super(actor_id)
-      end
+      
     end
   end
 end

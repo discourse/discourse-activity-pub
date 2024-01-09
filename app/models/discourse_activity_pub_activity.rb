@@ -62,7 +62,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   def to
     return nil unless local?
     return audience if audience
-    return base_object.ap_id if base_object&.ap.actor?
+    base_object.ap_id if base_object&.ap&.actor?
   end
 
   def cc
@@ -70,7 +70,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     result = []
     result << DiscourseActivityPub::JsonLd.public_collection_id if public?
 
-    if base_object&.ap.object?
+    if base_object&.ap&.object?
       reply_to_audience = base_object.reply_to&.audience
       result << reply_to_audience if reply_to_audience && to != reply_to_audience
     end
@@ -118,7 +118,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   def validate_ap_type
     return unless actor
-    object_ap_type = object&.respond_to?(:ap_type) ? object.ap_type : nil
+    object_ap_type = object.respond_to?(:ap_type) ? object.ap_type : nil
     unless actor.can_perform_activity?(ap_type, object_ap_type)
       self.errors.add(
         :ap_type,
@@ -130,7 +130,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def find_base_object(current_object)
-    if current_object&.respond_to?(:object) && current_object.object
+    if current_object.respond_to?(:object) && current_object&.object
       find_base_object(current_object.object)
     else
       current_object

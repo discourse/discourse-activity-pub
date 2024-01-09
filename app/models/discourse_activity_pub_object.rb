@@ -74,7 +74,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def in_reply_to_post
-    reply_to&.post? && reply_to.model
+    reply_to&.post? && reply_to&.model
   end
 
   def before_deliver
@@ -85,9 +85,9 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def after_scheduled(scheduled_at, activity = nil)
-    if model&.respond_to?(:activity_pub_after_scheduled)
+    if model.respond_to?(:activity_pub_after_scheduled)
       args = { scheduled_at: scheduled_at }
-      if activity&.ap.create?
+      if activity&.ap&.create?
         args[:published_at] = nil
         args[:deleted_at] = nil
         args[:updated_at] = nil
@@ -99,11 +99,11 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   def after_published(published_at, activity = nil)
     self.update(published_at: published_at)
 
-    if model&.respond_to?(:activity_pub_after_publish)
+    if model.respond_to?(:activity_pub_after_publish)
       args = {}
-      args[:published_at] = published_at if activity&.ap.create?
-      args[:deleted_at] = published_at if activity&.ap.delete?
-      args[:updated_at] = published_at if activity&.ap.update?
+      args[:published_at] = published_at if activity&.ap&.create?
+      args[:deleted_at] = published_at if activity&.ap&.delete?
+      args[:updated_at] = published_at if activity&.ap&.update?
       model.activity_pub_after_publish(args)
     end
   end
