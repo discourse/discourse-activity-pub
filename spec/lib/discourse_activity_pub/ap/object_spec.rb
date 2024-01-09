@@ -19,6 +19,18 @@ RSpec.describe DiscourseActivityPub::AP::Object do
         expect(ap.json['actor']['id']).to eq(follow_activity.actor.ap_id)
         expect(ap.json['object']['id']).to eq(follow_activity.object.ap_id)
       end
+
+      context "with a create object" do
+        let!(:audience) { "https://forum.com/actor/1/followers" }
+        let!(:note) { Fabricate(:discourse_activity_pub_object_note, audience: audience) }
+        let!(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+        it "copies the activity addressing to the object" do
+          ap = DiscourseActivityPub::AP::Activity::Create.new(stored: create_activity)
+          expect(ap.json['object']['to']).to eq(create_activity.to)
+          expect(ap.json['object']['cc']).to eq(create_activity.cc)
+        end
+      end
     end
   end
 

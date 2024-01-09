@@ -14,9 +14,10 @@ module DiscourseActivityPub
       attr_accessor :cache
       attr_accessor :parent
 
-      def initialize(json: nil, stored: nil)
+      def initialize(json: nil, stored: nil, parent: nil)
         @json = json
         @stored = stored
+        @parent = parent
       end
 
       def id
@@ -56,11 +57,19 @@ module DiscourseActivityPub
       end
 
       def to
-        stored&.respond_to?(:to) && stored.to
+        return nil unless stored
+        return stored.to if stored.respond_to?(:to)
+
+        # See https://www.w3.org/TR/activitypub/#create-activity-outbox
+        return parent.stored.to if parent&.create? && parent&.stored&.respond_to?(:to)
       end
 
       def cc
-        stored&.respond_to?(:cc) && stored.cc
+        return nil unless stored
+        return stored.cc if stored.respond_to?(:cc)
+
+        # See https://www.w3.org/TR/activitypub/#create-activity-outbox
+        return parent.stored.cc if parent&.create? && parent&.stored&.respond_to?(:cc)
       end
 
       def start_time
@@ -118,7 +127,9 @@ module DiscourseActivityPub
 
         if stored && klass = AP::Object.get_klass(type)
           serializer = "#{klass}Serializer".classify.constantize
-          @json = serializer.new(klass.new(stored: stored), root: false)
+          object = klass.new(stored: stored)
+          object.parent = parent if parent.present?
+          @json = serializer.new(object, root: false)
             .as_json
             .with_indifferent_access
           @json
