@@ -26,7 +26,7 @@ As far as practicable this module should:
 
 - be non-Discourse specific;
 - reflect ActivityPub specifications; and
-- reflect, and support, common practices in the fediverse.
+- reflect, and support common practices in the fediverse.
 
 This focus allows for:
 
@@ -49,13 +49,13 @@ As far as possible these classes should not *directly* integrate with `discourse
 
 #### Discourse Integration
 
-All direct `discourse/discourse` server integration is in the `plugin.rb` and the `/extensions`. Ideally, all `/extensions` will become integrations in the `plugin.rb` as `discourse/discourse` implements new server-side hooks and plugin methods. Some specific `discourse/discourse` updates to improve integration are suggested in `TODO` comments throught the plugin code.
+All direct `discourse/discourse` server integration is in the `plugin.rb` and the `/extensions`. Ideally, all `/extensions` will become integrations in the `plugin.rb` as `discourse/discourse` implements new server-side hooks and plugin methods. Some specific `discourse/discourse` updates to improve integration are suggested in `TODO` comments throughout the plugin code.
 
 ### Tests
 
 When writing tests there's a few things to keep in mind:
 
-1. The plugin has a few different interconnected states which sometimes need to tested separately:
+1. The plugin has a few different interconnected states which sometimes need to be tested separately:
    - Plugin: enabled / disabled
    - Actor (i.e. Category): enabled / disabled
    - Publishing (i.e. login required): enabled / disabled
