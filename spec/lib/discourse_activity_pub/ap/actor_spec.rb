@@ -6,7 +6,6 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
   it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
 
   describe "#resolve_and_store" do
-
     def perform(extra_json = {})
       DiscourseActivityPub::AP::Actor.resolve_and_store(json.merge(extra_json))
     end
@@ -14,7 +13,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     it "creates an actor" do
       perform
 
-      actor = DiscourseActivityPubActor.find_by(ap_id: json['id'])
+      actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
       expect(actor.present?).to eq(true)
       expect(actor.domain).to eq("external.com")
       expect(actor.ap_type).to eq(json["type"])
@@ -27,19 +26,19 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     it "updates an actor if optional attributes have changed" do
       perform
 
-      actor = DiscourseActivityPubActor.find_by(ap_id: json['id'])
+      actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
       expect(actor.name).to eq("Angus McLeod")
 
       perform(name: "Bob McLeod")
 
-      actor = DiscourseActivityPubActor.find_by(ap_id: json['id'])
+      actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
       expect(actor.name).to eq("Bob McLeod")
     end
 
     it "creates a new actor if required attributes have changed" do
       perform
 
-      original_id = json['id']
+      original_id = json["id"]
       new_id = "https://external.com/u/bob"
       perform(id: new_id)
 
@@ -48,9 +47,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     context "with verbose logging enabled" do
-      before do
-        SiteSetting.activity_pub_verbose_logging = true
-      end
+      before { SiteSetting.activity_pub_verbose_logging = true }
 
       it "logs a detailed error if validations fail" do
         orig_logger = Rails.logger
@@ -62,7 +59,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
         perform(stored.ap.json)
 
         expect(fake_logger.errors.first).to include(
-          "[Discourse Activity Pub] Ap has already been taken"
+          "[Discourse Activity Pub] Ap has already been taken",
         )
 
         Rails.logger = orig_logger
@@ -73,11 +70,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       orig_logger = Rails.logger
       Rails.logger = fake_logger = FakeLogger.new
 
-      threads = 5.times.map do
-        Thread.new do
-          perform
-        end
-      end
+      threads = 5.times.map { Thread.new { perform } }
       threads.map(&:join)
 
       expect(fake_logger.errors.empty?).to eq(true)

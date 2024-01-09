@@ -6,7 +6,7 @@ RSpec.describe ListController do
       fab!(:category1) { Fabricate(:category) }
       fab!(:category2) { Fabricate(:category) }
       fab!(:category3) { Fabricate(:category) }
-      fab!(:topic_ids) {
+      fab!(:topic_ids) do
         topic_ids = []
         [category1, category2].each do |category|
           5.times do
@@ -14,12 +14,17 @@ RSpec.describe ListController do
             topic_ids << topic.id
             collection = Fabricate(:discourse_activity_pub_ordered_collection, model: topic)
             post = Fabricate(:post, topic: topic)
-            note = Fabricate(:discourse_activity_pub_object_note, model: post, collection_id: collection.id)
+            note =
+              Fabricate(
+                :discourse_activity_pub_object_note,
+                model: post,
+                collection_id: collection.id,
+              )
             activity = Fabricate(:discourse_activity_pub_activity_create, object: note)
           end
         end
         topic_ids
-      }
+      end
 
       def track_index_queries
         track_sql_queries do
@@ -53,9 +58,7 @@ RSpec.describe ListController do
       context "with a logged in user" do
         let!(:user) { Fabricate(:user) }
 
-        before do
-          sign_in(user)
-        end
+        before { sign_in(user) }
 
         it "does not increase the number of queries" do
           SiteSetting.activity_pub_enabled = false

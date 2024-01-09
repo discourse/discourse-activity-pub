@@ -8,13 +8,13 @@ RSpec.describe DiscourseActivityPubActivity do
   describe "#create" do
     context "with an invalid object type" do
       it "raises an error" do
-        expect{
+        expect {
           described_class.create!(
             actor: actor,
             local: true,
             ap_type: DiscourseActivityPub::AP::Activity::Follow.type,
             object_id: actor.model.id,
-            object_type: actor.model.class.name
+            object_type: actor.model.class.name,
           )
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
@@ -22,13 +22,13 @@ RSpec.describe DiscourseActivityPubActivity do
 
     context "with an invalid activity pub type" do
       it "raises an error" do
-        expect{
+        expect {
           described_class.create!(
             actor: actor,
             local: true,
-            ap_type: 'Maybe',
+            ap_type: "Maybe",
             object_id: follow_activity.id,
-            object_type: follow_activity.class.name
+            object_type: follow_activity.class.name,
           )
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
@@ -36,30 +36,31 @@ RSpec.describe DiscourseActivityPubActivity do
 
     context "with a valid model and activity pub type" do
       it "creates an activity" do
-        accept = described_class.create!(
-          actor: actor,
-          local: true,
-          ap_type: DiscourseActivityPub::AP::Activity::Accept.type,
-          object_id: follow_activity.id,
-          object_type: follow_activity.class.name
-        )
+        accept =
+          described_class.create!(
+            actor: actor,
+            local: true,
+            ap_type: DiscourseActivityPub::AP::Activity::Accept.type,
+            object_id: follow_activity.id,
+            object_type: follow_activity.class.name,
+          )
         expect(accept.errors.any?).to eq(false)
         expect(accept.persisted?).to eq(true)
       end
     end
   end
 
-  describe '#audience' do
+  describe "#audience" do
     let!(:topic) { Fabricate(:topic, category: category) }
     let!(:post) { Fabricate(:post, topic: topic) }
-    let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post)}
+    let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
     let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
     let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-    let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor) }
-
-    before do
-      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+    let!(:follow1) do
+      Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor)
     end
+
+    before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
 
     it "returns the group actor id" do
       expect(activity.audience).to eq(actor.ap_id)
@@ -69,14 +70,14 @@ RSpec.describe DiscourseActivityPubActivity do
   describe "#after_scheduled" do
     let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
 
-    before do
-      freeze_time
-    end
+    before { freeze_time }
 
     it "calls activity_pub_after_scheduled with correct arguments" do
-      Post.any_instance.expects(:activity_pub_after_scheduled).with({
-        scheduled_at: Time.now.utc.iso8601
-      }).once
+      Post
+        .any_instance
+        .expects(:activity_pub_after_scheduled)
+        .with({ scheduled_at: Time.now.utc.iso8601 })
+        .once
       activity.after_scheduled(Time.now.utc.iso8601)
     end
 
@@ -84,12 +85,18 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
 
       it "calls activity_pub_after_scheduled with correct arguments" do
-        Post.any_instance.expects(:activity_pub_after_scheduled).with({
-          scheduled_at: Time.now.utc.iso8601,
-          published_at: nil,
-          deleted_at: nil,
-          updated_at: nil
-        }).once
+        Post
+          .any_instance
+          .expects(:activity_pub_after_scheduled)
+          .with(
+            {
+              scheduled_at: Time.now.utc.iso8601,
+              published_at: nil,
+              deleted_at: nil,
+              updated_at: nil,
+            },
+          )
+          .once
         activity.after_scheduled(Time.now.utc.iso8601)
       end
     end
@@ -98,24 +105,30 @@ RSpec.describe DiscourseActivityPubActivity do
       let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection) }
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.id) }
       let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
+      let!(:activity) do
+        Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note)
+      end
 
       it "calls activity_pub_after_scheduled with correct arguments" do
-        Post.any_instance.expects(:activity_pub_after_scheduled).with({
-          scheduled_at: Time.now.utc.iso8601,
-          published_at: nil,
-          deleted_at: nil,
-          updated_at: nil
-        }).once
+        Post
+          .any_instance
+          .expects(:activity_pub_after_scheduled)
+          .with(
+            {
+              scheduled_at: Time.now.utc.iso8601,
+              published_at: nil,
+              deleted_at: nil,
+              updated_at: nil,
+            },
+          )
+          .once
         collection.after_scheduled(Time.now.utc.iso8601)
       end
     end
   end
 
   describe "#before_deliver" do
-    before do
-      freeze_time
-    end
+    before { freeze_time }
 
     it "records published_at if not set" do
       original_time = Time.now.utc.iso8601
@@ -134,7 +147,11 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
 
       it "calls activity_pub_after_publish on associated object models" do
-        Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once
+        Post
+          .any_instance
+          .expects(:activity_pub_after_publish)
+          .with({ published_at: Time.now.utc.iso8601 })
+          .once
         create_activity.before_deliver
       end
     end
@@ -143,7 +160,11 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:delete_activity) { Fabricate(:discourse_activity_pub_activity_delete, actor: actor) }
 
       it "calls activity_pub_after_publish on associated object models" do
-        Post.any_instance.expects(:activity_pub_after_publish).with({ deleted_at: Time.now.utc.iso8601 }).once
+        Post
+          .any_instance
+          .expects(:activity_pub_after_publish)
+          .with({ deleted_at: Time.now.utc.iso8601 })
+          .once
         delete_activity.before_deliver
       end
     end
@@ -152,7 +173,11 @@ RSpec.describe DiscourseActivityPubActivity do
       let(:update_activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
 
       it "calls activity_pub_after_publish on associated object models" do
-        Post.any_instance.expects(:activity_pub_after_publish).with({ updated_at: Time.now.utc.iso8601 }).once
+        Post
+          .any_instance
+          .expects(:activity_pub_after_publish)
+          .with({ updated_at: Time.now.utc.iso8601 })
+          .once
         update_activity.before_deliver
       end
     end
@@ -170,28 +195,32 @@ RSpec.describe DiscourseActivityPubActivity do
       let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection) }
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, collection_id: collection.id) }
       let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
-      let!(:create) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_announce, actor: actor, object: create) }
+      let!(:create) do
+        Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note)
+      end
+      let!(:activity) do
+        Fabricate(:discourse_activity_pub_activity_announce, actor: actor, object: create)
+      end
 
       it "calls activity_pub_after_publish with correct arguments" do
-        Post.any_instance.expects(:activity_pub_after_publish).with({ published_at: Time.now.utc.iso8601 }).once
+        Post
+          .any_instance
+          .expects(:activity_pub_after_publish)
+          .with({ published_at: Time.now.utc.iso8601 })
+          .once
         activity.before_deliver
       end
     end
   end
 
   describe "#after_deliver" do
-    before do
-      freeze_time
-    end
+    before { freeze_time }
 
     context "with a follow activity" do
       let(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow, actor: actor) }
 
       context "when local" do
-        before do
-          follow_activity.update(local: true)
-        end
+        before { follow_activity.update(local: true) }
 
         context "when not delivered" do
           it "destroys the activity" do
@@ -209,9 +238,7 @@ RSpec.describe DiscourseActivityPubActivity do
       end
 
       context "when remote" do
-        before do
-          follow_activity.update(local: false)
-        end
+        before { follow_activity.update(local: false) }
 
         context "when not delivered" do
           it "does not destroy the activity" do
@@ -231,8 +258,17 @@ RSpec.describe DiscourseActivityPubActivity do
 
     context "with a local undo follow activity" do
       let!(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow, actor: actor) }
-      let!(:undo_activity) { Fabricate(:discourse_activity_pub_activity_undo, actor: actor, object: follow_activity, local: true) }
-      let!(:follow) { Fabricate(:discourse_activity_pub_follow, follower: actor, followed: follow_activity.object)}
+      let!(:undo_activity) do
+        Fabricate(
+          :discourse_activity_pub_activity_undo,
+          actor: actor,
+          object: follow_activity,
+          local: true,
+        )
+      end
+      let!(:follow) do
+        Fabricate(:discourse_activity_pub_follow, follower: actor, followed: follow_activity.object)
+      end
 
       context "when not delivered" do
         it "does not destroy the follow" do

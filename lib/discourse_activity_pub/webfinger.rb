@@ -18,11 +18,7 @@ module DiscourseActivityPub
     end
 
     def find_actor(raw_handle)
-      DiscourseActivityPubActor.find_by_handle(
-        raw_handle,
-        local: true,
-        types: [permitted_types]
-      )
+      DiscourseActivityPubActor.find_by_handle(raw_handle, local: true, types: [permitted_types])
     end
 
     def permitted_types
@@ -52,16 +48,16 @@ module DiscourseActivityPub
 
     def self.resolve_id_by_handle(raw_handle)
       account = resolve_handle(raw_handle)
-      return nil unless account && account['links'].present?
+      return nil unless account && account["links"].present?
 
-      link = account['links'].find { |l| l['rel'] == 'self' }
-      return nil unless link && link['href'].present?
+      link = account["links"].find { |l| l["rel"] == "self" }
+      return nil unless link && link["href"].present?
 
-      link['href']
+      link["href"]
     end
 
     def self.activity_link(href)
-      { rel: 'self', type: JsonLd::ACTIVITY_CONTENT_TYPE, href: href }
+      { rel: "self", type: JsonLd::ACTIVITY_CONTENT_TYPE, href: href }
     end
   end
 end

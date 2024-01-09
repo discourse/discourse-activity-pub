@@ -5,11 +5,11 @@ module DiscourseActivityPub
     class Actor
       class Service < Actor
         def type
-          'Service'
+          "Service"
         end
 
         def can_belong_to
-          %i()
+          %i[]
         end
 
         def can_perform_activity

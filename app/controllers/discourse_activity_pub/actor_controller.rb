@@ -5,7 +5,7 @@ module DiscourseActivityPub
     before_action :ensure_admin
     before_action :ensure_site_enabled
     before_action :find_actor
-    before_action :find_target_actor, only: [:follow, :unfollow]
+    before_action :find_target_actor, only: %i[follow unfollow]
 
     def follow
       if !@actor.can_follow?(@target_actor)

@@ -2,6 +2,6 @@
 
 class DiscourseActivityPub::AP::OutboxesController < DiscourseActivityPub::AP::ActorsController
   def index
-    render_ordered_collection(@actor, 'outbox')
+    render_ordered_collection(@actor, "outbox")
   end
 end

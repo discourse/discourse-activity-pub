@@ -4,22 +4,25 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
   let!(:user) { Fabricate(:user) }
   let!(:domain1) { "https://external1.com" }
   let!(:domain2) { "https://external2.com" }
-  let!(:redirect_uri) { "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}" }
+  let!(:redirect_uri) do
+    "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::OAuth::REDIRECT_PATH}"
+  end
   let!(:client_id) { "TWhM-tNSuncnqN7DBJmoyeLnk6K3iJJ71KKXxgL1hPM" }
   let!(:client_secret) { "ZEaFUFmF0umgBX1qKJDjaU99Q31lDkOU8NutzTOoliw" }
   let!(:access_token1) { "ZA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
   let!(:code) { "123456" }
-  let!(:app_json) {
+  let!(:app_json) do
     {
-      "id": "563419",
-      "name": "test app",
-      "website": "",
-      "redirect_uri": redirect_uri,
-      "client_id": client_id,
-      "client_secret": client_secret,
-      "vapid_key": "BCk-QqERU0q-CfYZjcuB6lnyyOYfJ2AifKqfeGIm7Z-HiTU5T9eTG5GxVA0_OH5mMlI4UkkDTpaZwozy0TzdZ2M="
+      id: "563419",
+      name: "test app",
+      website: "",
+      redirect_uri: redirect_uri,
+      client_id: client_id,
+      client_secret: client_secret,
+      vapid_key:
+        "BCk-QqERU0q-CfYZjcuB6lnyyOYfJ2AifKqfeGIm7Z-HiTU5T9eTG5GxVA0_OH5mMlI4UkkDTpaZwozy0TzdZ2M=",
     }
-  }
+  end
   let(:actor_id) { "https://external1.com/users/user1" }
 
   def build_error(key)
@@ -55,13 +58,13 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
         it "creates an app and returns the domain" do
           post "/ap/auth/oauth/verify", params: { domain: domain1 }
           expect(response.status).to eq(200)
-          expect(response.parsed_body['domain']).to eq(domain1)
+          expect(response.parsed_body["domain"]).to eq(domain1)
         end
 
         it "sets the domain as the verified domain in the session" do
           post "/ap/auth/oauth/verify", params: { domain: domain1 }
           expect(
-            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY]
+            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY],
           ).to eq(domain1)
         end
       end
@@ -77,13 +80,13 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
         it "does not create an app and returns the error" do
           post "/ap/auth/oauth/verify", params: { domain: domain2 }
           expect(response.status).to eq(422)
-          expect(response.parsed_body['errors'].first).to eq("Not a valid domain")
+          expect(response.parsed_body["errors"].first).to eq("Not a valid domain")
         end
 
         it "does not set the domain as the verified domain in the session" do
           get "/ap/auth/oauth/authorize", params: { domain: domain1 }
           expect(
-            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY]
+            read_secure_session[DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY],
           ).to eq(nil)
         end
       end
@@ -102,7 +105,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
       before do
         write_secure_session(
           DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY,
-          domain1
+          domain1,
         )
       end
 
@@ -115,21 +118,19 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
         it "redirects to the authorize url for the app" do
           get "/ap/auth/oauth/authorize"
           expect(response).to redirect_to(
-            DiscourseActivityPub::Auth::OAuth.get_authorize_url(domain1)
+            DiscourseActivityPub::Auth::OAuth.get_authorize_url(domain1),
           )
         end
       end
 
       context "when domain does not have an app" do
-        before do
-          DiscourseActivityPub::Auth::OAuth.any_instance.stubs(:get_app).returns(nil)
-        end
+        before { DiscourseActivityPub::Auth::OAuth.any_instance.stubs(:get_app).returns(nil) }
 
         it "does not redirect and returns an error" do
           get "/ap/auth/oauth/authorize"
           expect(response.status).to eq(404)
-          expect(response.parsed_body['errors'].first).to eq(
-            I18n.t("discourse_activity_pub.auth.error.invalid_oauth_domain")
+          expect(response.parsed_body["errors"].first).to eq(
+            I18n.t("discourse_activity_pub.auth.error.invalid_oauth_domain"),
           )
         end
       end
@@ -148,7 +149,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
       before do
         write_secure_session(
           DiscourseActivityPub::Auth::OAuthController::AUTHORIZE_DOMAIN_KEY,
-          domain1
+          domain1,
         )
       end
 
@@ -164,10 +165,7 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
 
       context "with an unsuccessful request for an access token for the domain" do
         before do
-          DiscourseActivityPub::Auth::OAuth
-            .stubs(:get_token)
-            .with(domain1, code)
-            .returns(nil)
+          DiscourseActivityPub::Auth::OAuth.stubs(:get_token).with(domain1, code).returns(nil)
         end
 
         it "raises and invalid access error" do
@@ -204,15 +202,13 @@ RSpec.describe DiscourseActivityPub::Auth::OAuthController do
 
           context "with an existing user with an actor with the returned actor id" do
             let!(:user2) { Fabricate(:user) }
-            let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, ap_id: actor_id, model: user2) }
+            let!(:actor) do
+              Fabricate(:discourse_activity_pub_actor_person, ap_id: actor_id, model: user2)
+            end
 
             it "enqueues a job to merge the existing user into the current user" do
               get "/ap/auth/oauth/redirect", params: { code: code }
-              args = {
-                user_id: user2.id,
-                target_user_id: user.id,
-                current_user_id: user.id,
-              }
+              args = { user_id: user2.id, target_user_id: user.id, current_user_id: user.id }
               expect(job_enqueued?(job: :merge_user, args: args)).to eq(true)
             end
           end

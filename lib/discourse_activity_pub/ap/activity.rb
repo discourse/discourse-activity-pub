@@ -3,15 +3,12 @@
 module DiscourseActivityPub
   module AP
     class Activity < Object
-
       def base_type
-        'Activity'
+        "Activity"
       end
 
       def actor
-        stored ?
-          AP::Actor.new(stored: stored.actor) :
-          @actor
+        stored ? AP::Actor.new(stored: stored.actor) : @actor
       end
 
       def object
@@ -120,7 +117,9 @@ module DiscourseActivityPub
         @object = Object.resolve_and_store(json[:object], self)
         return process_failed("cant_find_object") unless object.present?
         return process_failed("object_not_ready") unless object.stored&.ready?(type)
-        return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)
+        unless actor.stored.can_perform_activity?(type, object.type)
+          return process_failed("activity_not_supported")
+        end
 
         true
       end

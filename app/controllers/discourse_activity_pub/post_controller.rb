@@ -5,7 +5,7 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
     before_action :ensure_staff
     before_action :find_post
-    before_action :ensure_first_post, only: [:schedule, :unschedule]
+    before_action :ensure_first_post, only: %i[schedule unschedule]
     before_action :ensure_can_schedule, only: [:schedule]
     before_action :ensure_can_unschedule, only: [:unschedule]
 
@@ -33,15 +33,15 @@ module DiscourseActivityPub
     end
 
     def ensure_can_schedule
-      return render_post_error("cant_schedule_post", 422) if (
-        @post.activity_pub_published? || @post.activity_pub_scheduled?
-      )
+      if (@post.activity_pub_published? || @post.activity_pub_scheduled?)
+        return render_post_error("cant_schedule_post", 422)
+      end
     end
 
     def ensure_can_unschedule
-      return render_post_error("cant_unschedule_post", 422) if (
-        @post.activity_pub_published? || !@post.activity_pub_scheduled?
-      )
+      if (@post.activity_pub_published? || !@post.activity_pub_scheduled?)
+        return render_post_error("cant_unschedule_post", 422)
+      end
     end
 
     def find_post

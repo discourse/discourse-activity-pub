@@ -8,7 +8,11 @@ class CreateDiscourseActivityPubFollows < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_foreign_key :discourse_activity_pub_follows, :discourse_activity_pub_actors, column: :follower_id
-    add_foreign_key :discourse_activity_pub_follows, :discourse_activity_pub_actors, column: :followed_id
+    add_foreign_key :discourse_activity_pub_follows,
+                    :discourse_activity_pub_actors,
+                    column: :follower_id
+    add_foreign_key :discourse_activity_pub_follows,
+                    :discourse_activity_pub_actors,
+                    column: :followed_id
   end
 end

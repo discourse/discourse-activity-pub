@@ -9,13 +9,13 @@ RSpec.describe PostRevisor do
   describe "revise" do
     subject { PostRevisor.new(post) }
 
-    before do
-      toggle_activity_pub(category, callbacks: true)
-    end
+    before { toggle_activity_pub(category, callbacks: true) }
 
     context "when revising a published activity pub post" do
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: true) }
-      let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now) }
+      let!(:activity) do
+        Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now)
+      end
       let!(:post_actor) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
 
       describe "with the same note content" do
@@ -51,7 +51,7 @@ RSpec.describe PostRevisor do
 
       context "with full_topic enabled" do
         before do
-          toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+          toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
           topic.create_activity_pub_collection!
         end
 
@@ -70,22 +70,30 @@ RSpec.describe PostRevisor do
           it "creates an activity with the revising user's actor" do
             subject.revise!(staff, raw: "#{post.raw} revision")
             expect(
-               staff.reload.activity_pub_actor.activities.where(
-                 object_id: post.activity_pub_object.id,
-                 object_type: 'DiscourseActivityPubObject',
-                 ap_type: 'Update'
-              ).exists?
+              staff
+                .reload
+                .activity_pub_actor
+                .activities
+                .where(
+                  object_id: post.activity_pub_object.id,
+                  object_type: "DiscourseActivityPubObject",
+                  ap_type: "Update",
+                )
+                .exists?,
             ).to eq(true)
           end
 
           it "does not create an activity with the post user's actor" do
             subject.revise!(staff, raw: "#{post.raw} revision")
             expect(
-               post_actor.activities.where(
-                 object_id: post.activity_pub_object.id,
-                 object_type: 'DiscourseActivityPubObject',
-                 ap_type: 'Update'
-              ).exists?
+              post_actor
+                .activities
+                .where(
+                  object_id: post.activity_pub_object.id,
+                  object_type: "DiscourseActivityPubObject",
+                  ap_type: "Update",
+                )
+                .exists?,
             ).to eq(false)
           end
         end
@@ -102,22 +110,30 @@ RSpec.describe PostRevisor do
             it "creates an activity with the revising user's actor" do
               subject.revise!(another_user, raw: "#{post.raw} revision")
               expect(
-                 another_user.reload.activity_pub_actor.activities.where(
-                   object_id: post.activity_pub_object.id,
-                   object_type: 'DiscourseActivityPubObject',
-                   ap_type: 'Update'
-                ).exists?
+                another_user
+                  .reload
+                  .activity_pub_actor
+                  .activities
+                  .where(
+                    object_id: post.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                  )
+                  .exists?,
               ).to eq(true)
             end
 
             it "does not create an activity with the post user's actor" do
               subject.revise!(another_user, raw: "#{post.raw} revision")
               expect(
-                 post_actor.activities.where(
-                   object_id: post.activity_pub_object.id,
-                   object_type: 'DiscourseActivityPubObject',
-                   ap_type: 'Update'
-                ).exists?
+                post_actor
+                  .activities
+                  .where(
+                    object_id: post.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                  )
+                  .exists?,
               ).to eq(false)
             end
           end

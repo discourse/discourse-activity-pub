@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Announce < Activity
         def type
-          'Announce'
+          "Announce"
         end
 
         def process
@@ -19,7 +19,9 @@ module DiscourseActivityPub
             # If the Announce wraps an object we process the Announce.
             # See https://github.com/mastodon/mastodon/issues/16974
             return process_failed("object_not_ready") unless object.stored&.ready?(type)
-            return process_failed("activity_not_supported") unless actor.stored.can_perform_activity?(type, object.type)
+            unless actor.stored.can_perform_activity?(type, object.type)
+              return process_failed("activity_not_supported")
+            end
             return false unless perform_validate_activity
 
             perform_transactions

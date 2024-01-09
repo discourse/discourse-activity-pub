@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::FollowHandler do
-
   describe "#follow" do
     let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
 
@@ -22,7 +21,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
         expect(perform(actor.id, target_actor.id)).to eq(false)
       end
     end
-    
+
     context "with a remote target actor" do
       let!(:target_actor) { Fabricate(:discourse_activity_pub_actor_group, local: false) }
 
@@ -30,12 +29,12 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
         perform(actor.id, target_actor.id)
         expect(
           DiscourseActivityPubActivity.exists?(
-              local: true,
-              actor_id: actor.id,
-              object_id: target_actor.id,
-              object_type: target_actor.class.name,
-              ap_type: DiscourseActivityPub::AP::Activity::Follow.type,
-          )
+            local: true,
+            actor_id: actor.id,
+            object_id: target_actor.id,
+            object_type: target_actor.class.name,
+            ap_type: DiscourseActivityPub::AP::Activity::Follow.type,
+          ),
         ).to eq(true)
       end
 
@@ -43,7 +42,7 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
         expect_delivery(
           actor: actor,
           object_type: DiscourseActivityPub::AP::Activity::Follow.type,
-          recipient_ids: [target_actor.id]
+          recipient_ids: [target_actor.id],
         )
         perform(actor.id, target_actor.id)
       end
@@ -81,41 +80,39 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
       end
 
       context "with a published follow activity" do
-        let!(:follow_activity) {
-          Fabricate(:discourse_activity_pub_activity_follow,
+        let!(:follow_activity) do
+          Fabricate(
+            :discourse_activity_pub_activity_follow,
             local: true,
             actor: actor,
             object: target_actor,
-            published_at: Time.now
+            published_at: Time.now,
           )
-        }
+        end
 
         context "when the actor is following the target actor" do
-          let!(:follow) {
-            Fabricate(:discourse_activity_pub_follow,
-              follower: actor,
-              followed: target_actor
-            )
-          }
+          let!(:follow) do
+            Fabricate(:discourse_activity_pub_follow, follower: actor, followed: target_actor)
+          end
 
           it "creates an undo activity" do
             perform(actor.id, target_actor.id)
             expect(
               DiscourseActivityPubActivity.exists?(
-                  local: true,
-                  actor_id: actor.id,
-                  object_id: follow_activity.id,
-                  object_type: follow_activity.class.name,
-                  ap_type: DiscourseActivityPub::AP::Activity::Undo.type,
-              )
+                local: true,
+                actor_id: actor.id,
+                object_id: follow_activity.id,
+                object_type: follow_activity.class.name,
+                ap_type: DiscourseActivityPub::AP::Activity::Undo.type,
+              ),
             ).to eq(true)
           end
-    
+
           it "performs the right delivery" do
             expect_delivery(
               actor: actor,
               object_type: DiscourseActivityPub::AP::Activity::Undo.type,
-              recipient_ids: [target_actor.id]
+              recipient_ids: [target_actor.id],
             )
             perform(actor.id, target_actor.id)
           end

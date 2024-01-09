@@ -7,33 +7,70 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
   let!(:topic) { Fabricate(:topic, category: category) }
   let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
   let!(:post1) { Fabricate(:post, topic: topic, post_number: 1) }
-  let!(:contributor1) { Fabricate(:discourse_activity_pub_actor_person, local: true, model: post1.user) }
-  let!(:note1) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post1, published_at: Time.now, collection_id: collection.id, attributed_to: contributor1) }
+  let!(:contributor1) do
+    Fabricate(:discourse_activity_pub_actor_person, local: true, model: post1.user)
+  end
+  let!(:note1) do
+    Fabricate(
+      :discourse_activity_pub_object_note,
+      local: true,
+      model: post1,
+      published_at: Time.now,
+      collection_id: collection.id,
+      attributed_to: contributor1,
+    )
+  end
   let!(:post2) { Fabricate(:post, topic: topic, post_number: 2) }
-  let!(:contributor2) { Fabricate(:discourse_activity_pub_actor_person, local: true, model: post2.user) }
-  let!(:note2) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post2, published_at: Time.now, collection_id: collection.id, attributed_to: contributor2) }
+  let!(:contributor2) do
+    Fabricate(:discourse_activity_pub_actor_person, local: true, model: post2.user)
+  end
+  let!(:note2) do
+    Fabricate(
+      :discourse_activity_pub_object_note,
+      local: true,
+      model: post2,
+      published_at: Time.now,
+      collection_id: collection.id,
+      attributed_to: contributor2,
+    )
+  end
   let!(:post3) { Fabricate(:post, topic: topic, post_number: 3) }
-  let!(:contributor3) { Fabricate(:discourse_activity_pub_actor_person, local: false, model: post3.user) }
-  let!(:note3) { Fabricate(:discourse_activity_pub_object_note, local: false, model: post3, published_at: Time.now, collection_id: collection.id, attributed_to: contributor3) }
+  let!(:contributor3) do
+    Fabricate(:discourse_activity_pub_actor_person, local: false, model: post3.user)
+  end
+  let!(:note3) do
+    Fabricate(
+      :discourse_activity_pub_object_note,
+      local: false,
+      model: post3,
+      published_at: Time.now,
+      collection_id: collection.id,
+      attributed_to: contributor3,
+    )
+  end
 
   let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
-  let!(:follow1) { Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category_actor) }
+  let!(:follow1) do
+    Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category_actor)
+  end
   let!(:follower2) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
-  let!(:follow2) { Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: category_actor) }
+  let!(:follow2) do
+    Fabricate(:discourse_activity_pub_follow, follower: follower2, followed: category_actor)
+  end
 
-  let!(:activity) { Fabricate(:discourse_activity_pub_activity_like, object: note3, published_at: Time.now) }
+  let!(:activity) do
+    Fabricate(:discourse_activity_pub_activity_like, object: note3, published_at: Time.now)
+  end
   let!(:announcement) { activity.announce!(category_actor.id) }
 
   describe "#perform" do
     before do
       Jobs.run_immediately!
-      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
       freeze_time
     end
 
-    after do
-      unfreeze_time
-    end
+    after { unfreeze_time }
 
     def perform_process(activity)
       described_class.perform(activity.ap)
@@ -45,7 +82,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
           returns: stub_everything(post_json_ld: true),
-          uri: [follower1.inbox, follower2.inbox, contributor3.inbox]
+          uri: [follower1.inbox, follower2.inbox, contributor3.inbox],
         ).times(3)
         perform_process(activity)
       end
@@ -55,7 +92,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
           actor_id: topic.activity_pub_actor.id,
           body: announcement.ap.json,
           returns: stub_everything(post_json_ld: true),
-          uri: [follower1.inbox, follower2.inbox, contributor3.inbox]
+          uri: [follower1.inbox, follower2.inbox, contributor3.inbox],
         ).times(3)
         activity.ap.json[:cc] << follower1.ap_id
         perform_process(activity)
@@ -73,19 +110,31 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
       it "does not change the object model custom fields" do
         published_at = Time.now
         post4 = Fabricate(:post, topic: topic, post_number: 4)
-        post4.custom_fields['activity_pub_published_at'] = published_at
+        post4.custom_fields["activity_pub_published_at"] = published_at
         post4.save_custom_fields(true)
-        note4 = Fabricate(:discourse_activity_pub_object_note, local: false, model: post4, published_at: published_at, collection_id: collection.id)     
-        create_activity = Fabricate(:discourse_activity_pub_activity_create, object: note4, published_at: published_at)
+        note4 =
+          Fabricate(
+            :discourse_activity_pub_object_note,
+            local: false,
+            model: post4,
+            published_at: published_at,
+            collection_id: collection.id,
+          )
+        create_activity =
+          Fabricate(
+            :discourse_activity_pub_activity_create,
+            object: note4,
+            published_at: published_at,
+          )
         perform_process(create_activity)
-        expect(post4.reload.activity_pub_published_at.to_datetime.to_i).to eq_time(published_at.to_i)
+        expect(post4.reload.activity_pub_published_at.to_datetime.to_i).to eq_time(
+          published_at.to_i,
+        )
       end
     end
 
     context "with a new activity" do
-      before do
-        activity.ap.cache['new'] = true
-      end
+      before { activity.ap.cache["new"] = true }
 
       context "with a close local object" do
         before do
@@ -106,7 +155,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
         context "when the activity is not addressed to the topic actor" do
           before do
             follower2.model_id = post3.user_id
-            follower2.model_type = 'User'
+            follower2.model_type = "User"
             follower2.save!
 
             activity.ap.json[:to] = follower2.ap_id
@@ -120,37 +169,41 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
         end
 
         context "when the activity is publicly addressed" do
-          before do
-            activity.ap.json[:cc] = [DiscourseActivityPub::JsonLd.public_collection_id]
-          end
-  
+          before { activity.ap.json[:cc] = [DiscourseActivityPub::JsonLd.public_collection_id] }
+
           context "when the first post note is remote" do
-            let!(:remote_topic_actor_ap_id) { DiscourseActivityPub::JsonLd.generate_id('Actor') }
-            let!(:remote_topic_actor) { Fabricate(:discourse_activity_pub_actor, ap_id: remote_topic_actor_ap_id, local: false) }
-  
+            let!(:remote_topic_actor_ap_id) { DiscourseActivityPub::JsonLd.generate_id("Actor") }
+            let!(:remote_topic_actor) do
+              Fabricate(
+                :discourse_activity_pub_actor,
+                ap_id: remote_topic_actor_ap_id,
+                local: false,
+              )
+            end
+
             before do
               note1.local = false
               note1.save!
             end
-  
+
             context "when it has an audience" do
               before do
                 note1.audience = remote_topic_actor_ap_id
                 note1.save!
               end
-  
+
               it "forwards to the audience" do
                 expect_request(
                   actor_id: topic.activity_pub_actor.id,
                   body: announcement.ap.json,
                   returns: stub_everything(post_json_ld: true),
-                  uri: remote_topic_actor.inbox
+                  uri: remote_topic_actor.inbox,
                 ).once
                 perform_process(activity)
               end
             end
           end
-  
+
           context "when the first post note is local" do
             before do
               note1.local = true

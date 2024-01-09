@@ -29,7 +29,7 @@ module DiscourseActivityPub
       end
 
       def base_type
-        'Object'
+        "Object"
       end
 
       def object?
@@ -85,9 +85,7 @@ module DiscourseActivityPub
       end
 
       def attributed_to
-        stored ?
-          stored.respond_to?(:attributed_to) && stored.attributed_to&.ap :
-          @attributed_to
+        stored ? stored.respond_to?(:attributed_to) && stored.attributed_to&.ap : @attributed_to
       end
 
       def summary
@@ -129,9 +127,7 @@ module DiscourseActivityPub
           serializer = "#{klass}Serializer".classify.constantize
           object = klass.new(stored: stored)
           object.parent = parent if parent.present?
-          @json = serializer.new(object, root: false)
-            .as_json
-            .with_indifferent_access
+          @json = serializer.new(object, root: false).as_json.with_indifferent_access
           @json
         else
           {}
@@ -139,7 +135,8 @@ module DiscourseActivityPub
       end
 
       def process_failed(warning_key)
-        action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
+        action =
+          I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
         if errors.any?
           message = errors.map { |e| e.full_message }.join(",")
         else
@@ -196,11 +193,12 @@ module DiscourseActivityPub
         return process_failed(raw_object, "cant_resolve_object") unless object_id.present?
 
         if DiscourseActivityPub::URI.local?(object_id)
-          object = if raw_object.is_a?(Hash)
-            factory(raw_object)
-          else
-            factory({ type: Object.type, id: object_id })
-          end
+          object =
+            if raw_object.is_a?(Hash)
+              factory(raw_object)
+            else
+              factory({ type: Object.type, id: object_id })
+            end
           return object
         end
 
@@ -208,10 +206,10 @@ module DiscourseActivityPub
         return process_failed(raw_object, "cant_resolve_object") unless resolved_object.present?
 
         object = factory(resolved_object)
-        return process_failed(resolved_object['id'], "cant_resolve_object") unless object.present?
+        return process_failed(resolved_object["id"], "cant_resolve_object") unless object.present?
 
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
-          return process_failed(resolved_object['id'], "object_not_supported")
+          return process_failed(resolved_object["id"], "object_not_supported")
         end
 
         if object.json[:attributedTo]

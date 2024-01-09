@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Accept < Response
         def type
-          'Accept'
+          "Accept"
         end
       end
     end

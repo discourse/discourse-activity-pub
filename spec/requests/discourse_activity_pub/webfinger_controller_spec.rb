@@ -7,9 +7,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
   describe "#index" do
     context "without activity pub enabled" do
-      before do
-        SiteSetting.activity_pub_enabled = false
-      end
+      before { SiteSetting.activity_pub_enabled = false }
 
       it "returns a not enabled error" do
         get "/.well-known/webfinger"
@@ -19,9 +17,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
     end
 
     context "with activity pub enabled" do
-      before do
-        SiteSetting.activity_pub_enabled = true
-      end
+      before { SiteSetting.activity_pub_enabled = true }
 
       context "with an unsupported scheme" do
         it "returns a not supported error" do
@@ -57,25 +53,23 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
             expect(response.status).to eq(200)
 
             body = JSON.parse(response.body)
-            expect(body['subject']).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
-            expect(body['aliases']).to eq(group.webfinger_aliases)
-            expect(body['links']).to eq(group.webfinger_links.map(&:as_json))
+            expect(body["subject"]).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
+            expect(body["aliases"]).to eq(group.webfinger_aliases)
+            expect(body["links"]).to eq(group.webfinger_links.map(&:as_json))
           end
         end
 
         context "with login required" do
-          before do
-            SiteSetting.login_required = true
-          end
+          before { SiteSetting.login_required = true }
 
           it "returns permitted resource types" do
             get "/.well-known/webfinger?resource=acct:#{group.username}@#{DiscourseActivityPub.host}"
             expect(response.status).to eq(200)
 
             body = JSON.parse(response.body)
-            expect(body['subject']).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
-            expect(body['aliases']).to eq(group.webfinger_aliases)
-            expect(body['links']).to eq(group.webfinger_links.map(&:as_json))
+            expect(body["subject"]).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
+            expect(body["aliases"]).to eq(group.webfinger_aliases)
+            expect(body["links"]).to eq(group.webfinger_links.map(&:as_json))
           end
 
           it "does not return unpermitted resource types" do

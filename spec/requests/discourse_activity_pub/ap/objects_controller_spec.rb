@@ -3,7 +3,9 @@
 RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
   let!(:keypair) { OpenSSL::PKey::RSA.new(2048) }
-  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem) }
+  let!(:actor) do
+    Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem)
+  end
   let!(:object) { Fabricate(:discourse_activity_pub_object_note) }
   let!(:post_body) { build_activity_json(object: group) }
 
@@ -13,9 +15,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   end
 
   context "without activity pub enabled" do
-    before do
-      SiteSetting.activity_pub_enabled = false
-    end
+    before { SiteSetting.activity_pub_enabled = false }
 
     it "returns a not enabled error" do
       get_object(object)
@@ -25,14 +25,10 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   end
 
   context "with activity pub enabled" do
-    before do
-      SiteSetting.activity_pub_enabled = true
-    end
+    before { SiteSetting.activity_pub_enabled = true }
 
     context "with login required" do
-      before do
-        SiteSetting.login_required = true
-      end
+      before { SiteSetting.login_required = true }
 
       context "with an object GET" do
         it "returns a not enabled error" do
@@ -78,9 +74,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   end
 
   context "with allowed domains" do
-    before do
-      SiteSetting.activity_pub_allowed_request_origins = "allowed.com"
-    end
+    before { SiteSetting.activity_pub_allowed_request_origins = "allowed.com" }
 
     it "allows allowed domains" do
       get_object(object, headers: { ORIGIN: "https://allowed.com" })
@@ -94,9 +88,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   end
 
   context "with blocked domains" do
-    before do
-      SiteSetting.activity_pub_blocked_request_origins = "notallowed.com"
-    end
+    before { SiteSetting.activity_pub_blocked_request_origins = "notallowed.com" }
 
     it "blocks blocked domains" do
       get_object(object, headers: { ORIGIN: "https://notallowed.com" })

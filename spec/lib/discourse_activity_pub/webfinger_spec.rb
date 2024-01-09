@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::Webfinger do
-  let!(:account) { 
+  let!(:account) do
     File.open(
-      File.join(File.expand_path("../../..", __dir__), "spec", "fixtures", "account.json")
+      File.join(File.expand_path("../../..", __dir__), "spec", "fixtures", "account.json"),
     ).read
-  }
+  end
 
   def build_handle(domain)
     "username@#{domain}"
@@ -18,7 +18,6 @@ RSpec.describe DiscourseActivityPub::Webfinger do
   end
 
   describe "#resolve_handle" do
-
     def perform(handle)
       DiscourseActivityPub::Webfinger.resolve_handle(handle)
     end
@@ -36,10 +35,7 @@ RSpec.describe DiscourseActivityPub::Webfinger do
       let!(:handle) { build_handle(domain) }
 
       context "with an inaccessible remote" do
-        before do
-          stub_request(:get, build_url(domain, handle))
-            .to_return(status: 404)
-        end
+        before { stub_request(:get, build_url(domain, handle)).to_return(status: 404) }
 
         it "returns nil" do
           expect(perform(handle)).to eq(nil)
@@ -48,8 +44,7 @@ RSpec.describe DiscourseActivityPub::Webfinger do
 
       context "with an accessible remote" do
         before do
-          stub_request(:get, build_url(domain, handle))
-            .to_return(body: account, status: 200)
+          stub_request(:get, build_url(domain, handle)).to_return(body: account, status: 200)
         end
 
         it "returns response json" do
@@ -60,7 +55,6 @@ RSpec.describe DiscourseActivityPub::Webfinger do
   end
 
   describe "#resolve_id_by_handle" do
-
     def perform(handle)
       DiscourseActivityPub::Webfinger.resolve_id_by_handle(handle)
     end
@@ -78,10 +72,7 @@ RSpec.describe DiscourseActivityPub::Webfinger do
       let!(:handle) { build_handle(domain) }
 
       context "with an inaccessible remote" do
-        before do
-          stub_request(:get, build_url(domain, handle))
-            .to_return(status: 404)
-        end
+        before { stub_request(:get, build_url(domain, handle)).to_return(status: 404) }
 
         it "returns nil" do
           expect(perform(handle)).to eq(nil)
@@ -90,13 +81,12 @@ RSpec.describe DiscourseActivityPub::Webfinger do
 
       context "with an accessible remote" do
         before do
-          stub_request(:get, build_url(domain, handle))
-            .to_return(body: account, status: 200)
+          stub_request(:get, build_url(domain, handle)).to_return(body: account, status: 200)
         end
 
         it "returns account id" do
           account_json = JSON.parse(account)
-          expect(perform(handle)).to eq(account_json["links"][1]['href'])
+          expect(perform(handle)).to eq(account_json["links"][1]["href"])
         end
       end
     end

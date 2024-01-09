@@ -16,11 +16,11 @@ module DiscourseActivityPub
     end
 
     def allowed_domains
-      @allowed_domains ||= SiteSetting.activity_pub_allowed_request_origins.split('|')
+      @allowed_domains ||= SiteSetting.activity_pub_allowed_request_origins.split("|")
     end
 
     def blocked_domains
-      @blocked_domains ||= SiteSetting.activity_pub_blocked_request_origins.split('|')
+      @blocked_domains ||= SiteSetting.activity_pub_blocked_request_origins.split("|")
     end
   end
 end

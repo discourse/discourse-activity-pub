@@ -2,7 +2,7 @@
 
 RSpec.describe DiscourseActivityPub::Logger do
   describe "#log" do
-    let!(:default_message) { 'log message' }
+    let!(:default_message) { "log message" }
     let!(:prefixed_message) { "#{described_class::PREFIX} #{default_message}" }
 
     before do
@@ -23,9 +23,7 @@ RSpec.describe DiscourseActivityPub::Logger do
     end
 
     context "with verbose logging disabled" do
-      before do 
-        SiteSetting.activity_pub_verbose_logging = false
-      end
+      before { SiteSetting.activity_pub_verbose_logging = false }
 
       it "does not log anything" do
         expect(perform).to eq(nil)
@@ -35,9 +33,7 @@ RSpec.describe DiscourseActivityPub::Logger do
     end
 
     context "with verbose logging enabled" do
-      before do 
-        SiteSetting.activity_pub_verbose_logging = true
-      end
+      before { SiteSetting.activity_pub_verbose_logging = true }
 
       it "returns true" do
         expect(perform).to eq(true)
@@ -54,9 +50,7 @@ RSpec.describe DiscourseActivityPub::Logger do
       end
 
       context "when in a development environment" do
-        before do
-          Rails.env.stubs(:development?).returns(true)
-        end
+        before { Rails.env.stubs(:development?).returns(true) }
 
         it "logs a prefixed message in activitypub" do
           perform
@@ -64,13 +58,13 @@ RSpec.describe DiscourseActivityPub::Logger do
         end
 
         context "when given a JSON object" do
-          let!(:json) { { "key1": "value1", "key2": "value2" } }
-  
+          let!(:json) { { key1: "value1", key2: "value2" } }
+
           it "does not add anything to the rails log" do
             perform(json: json)
             expect(@rails_logger.errors.first).to eq(prefixed_message)
           end
-  
+
           it "adds a YAML representation of the JSON to the activitypub log" do
             perform(json: json)
             expect(@ap_logger.errors.first).to eq("#{prefixed_message}\n#{json.to_yaml}")
@@ -79,24 +73,20 @@ RSpec.describe DiscourseActivityPub::Logger do
       end
 
       context "when object logging is enabled" do
-        before do
-          SiteSetting.activity_pub_object_logging = true
-        end
+        before { SiteSetting.activity_pub_object_logging = true }
 
         context "when given a JSON object" do
-          let!(:json) { { "key1": "value1", "key2": "value2" } }
+          let!(:json) { { key1: "value1", key2: "value2" } }
 
           context "when in a development environment" do
-            before do
-              Rails.env.stubs(:development?).returns(true)
-            end
-  
+            before { Rails.env.stubs(:development?).returns(true) }
+
             it "does not add anything to the rails log" do
               perform(json: json)
               expect(@rails_logger.errors.first).to eq(prefixed_message)
             end
           end
-  
+
           context "when not in a development environment" do
             it "adds a YAML representation of the JSON to the rails log" do
               perform(json: json)

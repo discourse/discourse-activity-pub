@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
   class DeliveryHandler
-    attr_reader :actor,
-                :object,
-                :recipient_ids,
-                :scheduled_at
+    attr_reader :actor, :object, :recipient_ids, :scheduled_at
 
     def initialize(actor: nil, object: nil, recipient_ids: [])
       @actor = actor
@@ -19,7 +16,13 @@ module DiscourseActivityPub
       object
     end
 
-    def self.perform(actor: nil, object: nil, recipient_ids: [], delay: 0, skip_after_scheduled: false)
+    def self.perform(
+      actor: nil,
+      object: nil,
+      recipient_ids: [],
+      delay: 0,
+      skip_after_scheduled: false
+    )
       klass = new(actor: actor, object: object, recipient_ids: recipient_ids)
       klass.perform(delay: delay, skip_after_scheduled: skip_after_scheduled)
     end
@@ -43,17 +46,13 @@ module DiscourseActivityPub
         .group_by(&:shared_inbox)
         .each do |shared_inbox, actors|
           if shared_inbox
-            opts = {
-              send_to: shared_inbox,
-            }
+            opts = { send_to: shared_inbox }
             opts[:delay] = delay unless delay.nil?
             schedule_delivery(**opts)
           else
             # Recipient Actor does not have a shared inbox.
             actors.each do |actor|
-              opts = {
-                send_to: actor.inbox
-              }
+              opts = { send_to: actor.inbox }
               opts[:delay] = delay unless delay.nil?
               schedule_delivery(**opts)
             end
@@ -64,15 +63,15 @@ module DiscourseActivityPub
     def schedule_delivery(send_to: nil, delay: nil)
       return unless send_to.present?
 
-      if !Rails.env.test? && ENV['DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY'].present?
-        delay = ENV['DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY'].to_i
+      if !Rails.env.test? && ENV["DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY"].present?
+        delay = ENV["DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY"].to_i
       end
 
       args = {
         from_actor_id: actor.id,
         send_to: send_to,
         object_id: object.id,
-        object_type: object.class.name
+        object_type: object.class.name,
       }
 
       Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
@@ -92,11 +91,12 @@ module DiscourseActivityPub
 
     def log_failure(reason)
       DiscourseActivityPub::Logger.warn(
-        I18n.t("discourse_activity_pub.deliver.warning.failed_to_schedule",
+        I18n.t(
+          "discourse_activity_pub.deliver.warning.failed_to_schedule",
           actor_id: actor.ap_id,
           object_id: object&.ap_id,
-          reason: reason
-        )
+          reason: reason,
+        ),
       )
       false
     end

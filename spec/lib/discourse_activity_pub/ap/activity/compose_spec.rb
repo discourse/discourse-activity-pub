@@ -10,20 +10,21 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
   describe "#process" do
     let!(:object_json) { build_object_json }
-    let!(:activity_json) {
+    let!(:activity_json) do
       build_activity_json(
         object: object_json,
-        type: 'Update',
-        to: [category.activity_pub_actor.ap_id]
+        type: "Update",
+        to: [category.activity_pub_actor.ap_id],
       )
-    }
-    let!(:note) {
-      Fabricate(:discourse_activity_pub_object_note,
+    end
+    let!(:note) do
+      Fabricate(
+        :discourse_activity_pub_object_note,
         ap_id: object_json[:id],
         local: false,
-        model: post
+        model: post,
       )
-    }
+    end
 
     def process_json(json)
       # Compose is a pseudo parent so we use a real activity, Update, to test.
@@ -34,7 +35,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
     context "with full topic enabled" do
       before do
-        toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+        toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
         topic.create_activity_pub_collection!
       end
 
@@ -50,7 +51,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
           Rails.logger = @fake_logger = FakeLogger.new
 
           @mismatched_json = activity_json.dup
-          @mismatched_json[:id] = "https://other-external.com/activity/update/#{SecureRandom.hex(8)}"
+          @mismatched_json[
+            :id
+          ] = "https://other-external.com/activity/update/#{SecureRandom.hex(8)}"
 
           process_json(@mismatched_json)
         end
@@ -65,16 +68,12 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
         end
 
         it "does not create an activity" do
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              ap_id: @mismatched_json[:id]
-            )
-          ).to be(false)
+          expect(DiscourseActivityPubActivity.exists?(ap_id: @mismatched_json[:id])).to be(false)
         end
 
         it "logs a warning" do
           expect(@fake_logger.warnings.first).to match(
-            I18n.t('discourse_activity_pub.process.warning.activity_host_must_match_object_host')
+            I18n.t("discourse_activity_pub.process.warning.activity_host_must_match_object_host"),
           )
         end
       end
@@ -85,7 +84,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
         SiteSetting.activity_pub_verbose_logging = true
         @orig_logger = Rails.logger
         Rails.logger = @fake_logger = FakeLogger.new
-        toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+        toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
         process_json(activity_json)
       end
 
@@ -100,7 +99,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
       it "logs a warning" do
         expect(@fake_logger.warnings.first).to match(
-          I18n.t('discourse_activity_pub.process.warning.full_topic_not_enabled')
+          I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled"),
         )
       end
     end
