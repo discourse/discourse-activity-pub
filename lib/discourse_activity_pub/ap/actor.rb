@@ -59,8 +59,6 @@ module DiscourseActivityPub
         return nil unless stored&.public_key
         { id: signature_key_id(stored), owner: id, publicKeyPem: stored.public_key }
       end
-
-      
     end
   end
 end
