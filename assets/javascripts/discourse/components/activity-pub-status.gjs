@@ -1,10 +1,9 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
-import { bind } from "discourse-common/utils/decorators";
 import { dasherize } from "@ember/string";
-import DButton from "discourse/components/d-button";
 import icon from "discourse-common/helpers/d-icon";
+import { bind } from "discourse-common/utils/decorators";
 import I18n from "I18n";
 
 export default class ActivityPubStatus extends Component {
@@ -31,12 +30,14 @@ export default class ActivityPubStatus extends Component {
       this.messageBus.subscribe("/activity-pub", this.handleMessage);
 
       if (this.forComposer && !this.args.model.activity_pub_visibility) {
-        this.args.model.activity_pub_visibility = this.category.activity_pub_default_visibility;
+        this.args.model.activity_pub_visibility =
+          this.category.activity_pub_default_visibility;
       }
     }
   }
 
   willDestroy() {
+    super.willDestroy(...arguments);
     this.messageBus.unsubscribe("/activity-pub", this.handleMessage);
   }
 
@@ -64,7 +65,8 @@ export default class ActivityPubStatus extends Component {
     };
     if (this.active) {
       args.category_name = this.category.name;
-      args.delay_minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
+      args.delay_minutes =
+        this.siteSettings.activity_pub_delivery_delay_minutes;
     }
     return I18n.t(
       `discourse_activity_pub.status.title.${this.translatedTitleKey}`,
@@ -97,7 +99,9 @@ export default class ActivityPubStatus extends Component {
 
   get statusKey() {
     if (this.active) {
-      return !this.site.activity_pub_publishing_enabled ? "publishing_disabled" : "active";
+      return !this.site.activity_pub_publishing_enabled
+        ? "publishing_disabled"
+        : "active";
     } else {
       return "not_active";
     }

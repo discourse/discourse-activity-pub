@@ -1,8 +1,8 @@
-import ComboBoxComponent from "select-kit/components/combo-box";
-import I18n from "I18n";
 import { computed } from "@ember/object";
 import { equal } from "@ember/object/computed";
-import { scheduleOnce } from "@ember/runloop";
+import { schedule } from "@ember/runloop";
+import I18n from "I18n";
+import ComboBoxComponent from "select-kit/components/combo-box";
 
 export default ComboBoxComponent.extend({
   classNames: ["activity-pub-visibility-dropdown"],
@@ -34,14 +34,14 @@ export default ComboBoxComponent.extend({
     if (this.fullTopicPublication) {
       this.set("value", "public");
     }
-    scheduleOnce("afterRender", () => {
+    schedule("afterRender", () => {
       this.set("selectKit.options.disabled", this.fullTopicPublication);
     });
   },
 
   actions: {
     onChange(value) {
-      this.attrs.onChange && this.attrs.onChange(value);
+      this.onChange?.(value);
     },
   },
 });

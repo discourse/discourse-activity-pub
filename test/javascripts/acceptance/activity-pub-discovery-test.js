@@ -1,14 +1,14 @@
+import { click, currentURL, triggerEvent, visit } from "@ember/test-helpers";
+import { test } from "qunit";
+import Category from "discourse/models/category";
 import {
   acceptance,
   exists,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
-import { test } from "qunit";
-import { currentURL, visit } from "@ember/test-helpers";
-import Category from "discourse/models/category";
+import I18n from "I18n";
 import { default as CategoryFollowers } from "../fixtures/category-followers-fixtures";
 import { default as CategoryFollows } from "../fixtures/category-follows-fixtures";
-import I18n from "I18n";
 
 const followersPath = "/ap/category/2/followers";
 const followsPath = "/ap/category/2/follows";
@@ -115,7 +115,7 @@ acceptance(
         exists(".activity-pub-category-banner"),
         "the activitypub category banner is visible"
       );
-      assert.ok(
+      assert.strictEqual(
         query(".activity-pub-category-banner-text").innerText,
         I18n.t("`discourse_activity_pub.banner.text"),
         "shows the right category banner text"

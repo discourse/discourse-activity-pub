@@ -5,9 +5,11 @@
 >
   <:body>
     <div class="activity-pub-actor-unfollow">
-      {{i18n "discourse_activity_pub.actor_unfollow.confirm"
+      {{i18n
+        "discourse_activity_pub.actor_unfollow.confirm"
         actor=@model.actor.name
-        followed_actor=@model.followedActor.handle}}
+        followed_actor=@model.followedActor.handle
+      }}
     </div>
   </:body>
 

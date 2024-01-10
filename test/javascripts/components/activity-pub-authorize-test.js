@@ -1,10 +1,10 @@
-import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import { exists, query } from "discourse/tests/helpers/qunit-helpers";
+import { click, fillIn, render } from "@ember/test-helpers";
 import hbs from "htmlbars-inline-precompile";
-import { click, render } from "@ember/test-helpers";
-import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { module, test } from "qunit";
 import sinon from "sinon";
+import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import pretender, { response } from "discourse/tests/helpers/create-pretender";
+import { exists, query } from "discourse/tests/helpers/qunit-helpers";
 
 module(
   "Discourse Activity Pub | Component | activity-pub-authorize",

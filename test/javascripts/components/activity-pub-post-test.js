@@ -1,8 +1,8 @@
+import { click, render } from "@ember/test-helpers";
+import hbs from "htmlbars-inline-precompile";
+import { module, skip } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import { exists } from "discourse/tests/helpers/qunit-helpers";
-import hbs from "htmlbars-inline-precompile";
-import { click, render } from "@ember/test-helpers";
-import { module, skip } from "qunit";
 
 module("Discourse Activity Pub | Component | Widget | post", function (hooks) {
   setupRenderingTest(hooks);

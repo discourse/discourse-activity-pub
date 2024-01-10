@@ -1,15 +1,23 @@
 <div class="activity-pub-category-settings-title">
-  <h3>{{i18n 'category.discourse_activity_pub.settings_heading'}}</h3>
+  <h3>{{i18n "category.discourse_activity_pub.settings_heading"}}</h3>
   <ActivityPubStatus @model={{this.category}} @modelType="category" />
 </div>
 
-<section class='field activity-pub-setting activity-pub-enabled'>
+<section class="field activity-pub-setting activity-pub-enabled">
   <label>
-    <Input @type="checkbox" @checked={{this.category.custom_fields.activity_pub_enabled}} />
-    {{i18n 'category.discourse_activity_pub.enable'}}
+    <Input
+      @type="checkbox"
+      @checked={{this.category.custom_fields.activity_pub_enabled}}
+    />
+    {{i18n "category.discourse_activity_pub.enable"}}
   </label>
   <div class="activity-pub-setting-description">
-    {{#if (and this.category.custom_fields.activity_pub_enabled this.siteSettings.login_required)}}
+    {{#if
+      (and
+        this.category.custom_fields.activity_pub_enabled
+        this.siteSettings.login_required
+      )
+    }}
       <ActivityPubSiteSettingNotice @setting="activity_pub_enabled" />
       <ActivityPubSiteSettingNotice @setting="login_required" />
     {{/if}}
@@ -17,68 +25,92 @@
 </section>
 
 {{#if this.category.activity_pub_actor.handle}}
-  <section class='field activity-pub-setting activity-pub-handle-field'>
-    <label>{{i18n 'category.discourse_activity_pub.handle'}}</label>
+  <section class="field activity-pub-setting activity-pub-handle-field">
+    <label>{{i18n "category.discourse_activity_pub.handle"}}</label>
     <ActivityPubHandle @actor={{this.category.activity_pub_actor}} />
     <div class="activity-pub-setting-description">
-      {{i18n 'category.discourse_activity_pub.handle_description'}}
+      {{i18n "category.discourse_activity_pub.handle_description"}}
     </div>
   </section>
 
 {{else}}
-  <section class='field activity-pub-setting activity-pub-username'>
-    <label for="activity-pub-username">{{i18n 'category.discourse_activity_pub.username'}}</label>
+  <section class="field activity-pub-setting activity-pub-username">
+    <label for="activity-pub-username">{{i18n
+        "category.discourse_activity_pub.username"
+      }}</label>
     <div class="activity-pub-username-input">
-      <Input id="activity-pub-username" @value={{this.category.custom_fields.activity_pub_username}} />
+      <Input
+        id="activity-pub-username"
+        @value={{this.category.custom_fields.activity_pub_username}}
+      />
       <span class="activity-pub-host">@{{this.site.activity_pub_host}}</span>
     </div>
     <div class="activity-pub-setting-notice">
-      <span>{{d-icon 'exclamation-triangle'}}{{i18n 'category.discourse_activity_pub.username_description'}}</span>
+      <span>{{d-icon "exclamation-triangle"}}{{i18n
+          "category.discourse_activity_pub.username_description"
+        }}</span>
     </div>
   </section>
 {{/if}}
 
-<section class='field activity-pub-setting activity-pub-name'>
-  <label for="activity-pub-name">{{i18n 'category.discourse_activity_pub.name'}}</label>
-  <Input id="activity-pub-name" @value={{this.category.custom_fields.activity_pub_name}} />
+<section class="field activity-pub-setting activity-pub-name">
+  <label for="activity-pub-name">{{i18n
+      "category.discourse_activity_pub.name"
+    }}</label>
+  <Input
+    id="activity-pub-name"
+    @value={{this.category.custom_fields.activity_pub_name}}
+  />
   <div class="activity-pub-setting-description">
-    {{i18n 'category.discourse_activity_pub.name_description'}}
+    {{i18n "category.discourse_activity_pub.name_description"}}
   </div>
 </section>
 
 {{#if this.site.activity_pub_publishing_enabled}}
-  <section class='field activity-pub-setting activity-pub-default-visibility'>
-    <label for="activity-pub-default-visibility">{{i18n 'category.discourse_activity_pub.default_visibility'}}</label>
+  <section class="field activity-pub-setting activity-pub-default-visibility">
+    <label for="activity-pub-default-visibility">{{i18n
+        "category.discourse_activity_pub.default_visibility"
+      }}</label>
     <ActivityPubVisibilityDropdown
       @value={{this.category.custom_fields.activity_pub_default_visibility}}
-      @onChange={{action (mut this.category.custom_fields.activity_pub_default_visibility)}}
+      @onChange={{action
+        (mut this.category.custom_fields.activity_pub_default_visibility)
+      }}
       @publicationType={{this.category.custom_fields.activity_pub_publication_type}}
       @objectType={{this.category.custom_fields.activity_pub_post_object_type}}
     />
     <div class="activity-pub-setting-description">
-      {{i18n 'category.discourse_activity_pub.default_visibility_description'}}
+      {{i18n "category.discourse_activity_pub.default_visibility_description"}}
     </div>
   </section>
 
-  <section class='field activity-pub-setting activity-pub-post-object-type'>
-    <label for="activity-pub-post-object-type">{{i18n 'category.discourse_activity_pub.post_object_type'}}</label>
+  <section class="field activity-pub-setting activity-pub-post-object-type">
+    <label for="activity-pub-post-object-type">{{i18n
+        "category.discourse_activity_pub.post_object_type"
+      }}</label>
     <ActivityPubPostObjectTypeDropdown
       @value={{this.category.custom_fields.activity_pub_post_object_type}}
-      @onChange={{action (mut this.category.custom_fields.activity_pub_post_object_type)}}
+      @onChange={{action
+        (mut this.category.custom_fields.activity_pub_post_object_type)
+      }}
     />
     <div class="activity-pub-setting-description">
-      {{i18n 'category.discourse_activity_pub.post_object_type_description'}}
+      {{i18n "category.discourse_activity_pub.post_object_type_description"}}
     </div>
   </section>
 
-  <section class='field activity-pub-setting activity-pub-publication-type'>
-    <label for="activity-pub-post-object-type">{{i18n 'category.discourse_activity_pub.publication_type'}}</label>
+  <section class="field activity-pub-setting activity-pub-publication-type">
+    <label for="activity-pub-post-object-type">{{i18n
+        "category.discourse_activity_pub.publication_type"
+      }}</label>
     <ActivityPubPublicationTypeDropdown
       @value={{this.category.custom_fields.activity_pub_publication_type}}
-      @onChange={{action (mut this.category.custom_fields.activity_pub_publication_type)}}
+      @onChange={{action
+        (mut this.category.custom_fields.activity_pub_publication_type)
+      }}
     />
     <div class="activity-pub-setting-description">
-      {{i18n 'category.discourse_activity_pub.publication_type_description'}}
+      {{i18n "category.discourse_activity_pub.publication_type_description"}}
     </div>
   </section>
 {{/if}}

@@ -1,5 +1,5 @@
-import DiscourseRoute from "discourse/routes/discourse";
 import { A } from "@ember/array";
+import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubCategory from "../models/activity-pub-category";
 
 export default DiscourseRoute.extend({

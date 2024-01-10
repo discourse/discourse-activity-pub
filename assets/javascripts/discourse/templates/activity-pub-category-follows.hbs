@@ -27,41 +27,48 @@
           @order={{this.order}}
           @asc={{this.asc}}
         />
-        <th class="activity-pub-follow-table-actions directory-table__column-header"></th>
+        <th
+          class="activity-pub-follow-table-actions directory-table__column-header"
+        ></th>
       </:header>
       <:body>
-      {{#each this.model.actors as |actor|}}
-        <div class="directory-table__row activity-pub-follow-table-row">
-          <div class="directory-table__cell activity-pub-follow-table-actor">
-            <ActivityPubActor @actor={{actor}} />
+        {{#each this.model.actors as |actor|}}
+          <div class="directory-table__row activity-pub-follow-table-row">
+            <div class="directory-table__cell activity-pub-follow-table-actor">
+              <ActivityPubActor @actor={{actor}} />
+            </div>
+            <div class="directory-table__cell activity-pub-follow-table-user">
+              {{#if actor.user}}
+                <a
+                  class="avatar"
+                  href={{concat "/u/" actor.user.username}}
+                  data-user-card={{actor.user.username}}
+                >
+                  {{avatar actor.user imageSize="small"}}
+                </a>
+              {{/if}}
+            </div>
+            <div
+              class="directory-table__cell activity-pub-follow-table-followed-at"
+            >
+              {{#if actor.followed_at}}
+                {{bound-date actor.followed_at}}
+              {{else}}
+                {{i18n "discourse_activity_pub.follow_table.follow_pending"}}
+              {{/if}}
+            </div>
+            <div
+              class="directory-table__cell activity-pub-follow-table-actions"
+            >
+              <ActivityPubFollowBtn
+                @actor={{this.model.category.activity_pub_actor}}
+                @followedActor={{actor}}
+                @unfollow={{route-action "unfollow"}}
+                @type="actor_unfollow"
+              />
+            </div>
           </div>
-          <div class="directory-table__cell activity-pub-follow-table-user">
-            {{#if actor.user}}
-              <a
-                class="avatar"
-                href={{concat "/u/" actor.user.username}}
-                data-user-card={{actor.user.username}}
-              >
-                {{avatar actor.user imageSize="small"}}
-              </a>
-            {{/if}}
-          </div>
-          <div class="directory-table__cell activity-pub-follow-table-followed-at">
-            {{#if actor.followed_at}}
-              {{bound-date actor.followed_at}}
-            {{else}}
-              {{i18n "discourse_activity_pub.follow_table.follow_pending"}}
-            {{/if}}
-          </div>
-          <div class="directory-table__cell activity-pub-follow-table-actions">
-            <ActivityPubFollowBtn
-              @actor={{this.model.category.activity_pub_actor}}
-              @followedActor={{actor}}
-              @unfollow={{route-action "unfollow"}}
-              @type="actor_unfollow" />
-          </div>
-        </div>
-      {{/each}}
+        {{/each}}
       </:body>
     </ResponsiveTable>
 

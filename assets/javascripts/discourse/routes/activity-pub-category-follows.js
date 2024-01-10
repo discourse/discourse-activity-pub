@@ -1,8 +1,8 @@
-import DiscourseRoute from "discourse/routes/discourse";
 import { A } from "@ember/array";
-import ActivityPubCategory from "../models/activity-pub-category";
-import { bind } from "discourse-common/utils/decorators";
 import Category from "discourse/models/category";
+import DiscourseRoute from "discourse/routes/discourse";
+import { bind } from "discourse-common/utils/decorators";
+import ActivityPubCategory from "../models/activity-pub-category";
 
 export default DiscourseRoute.extend({
   queryParams: {

@@ -1,16 +1,16 @@
+import { getOwner } from "@ember/application";
+import { render } from "@ember/test-helpers";
+import hbs from "htmlbars-inline-precompile";
+import { module, test } from "qunit";
+import Site from "discourse/models/site";
+import AppEvents from "discourse/services/app-events";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import {
   currentUser,
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
-import hbs from "htmlbars-inline-precompile";
-import { render } from "@ember/test-helpers";
-import { module, test } from "qunit";
 import I18n from "I18n";
-import Site from "discourse/models/site";
-import AppEvents from "discourse/services/app-events";
-import { getOwner } from "@ember/application";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;

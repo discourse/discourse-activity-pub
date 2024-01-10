@@ -1,6 +1,6 @@
+import { dasherize } from "@ember/string";
 import { createWidget } from "discourse/widgets/widget";
 import { iconNode } from "discourse-common/lib/icon-library";
-import { dasherize } from "@ember/string";
 import I18n from "I18n";
 import ActivityPubPostInfoModal from "../components/modal/activity-pub-post-info";
 

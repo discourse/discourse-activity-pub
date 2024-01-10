@@ -1,10 +1,10 @@
+import { visit } from "@ember/test-helpers";
+import { test } from "qunit";
 import {
   acceptance,
   exists,
   loggedInUser,
 } from "discourse/tests/helpers/qunit-helpers";
-import { test } from "qunit";
-import { visit } from "@ember/test-helpers";
 
 acceptance("Discourse Activity Pub | Preferences", function (needs) {
   needs.user({

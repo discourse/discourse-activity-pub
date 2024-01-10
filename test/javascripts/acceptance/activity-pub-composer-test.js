@@ -1,13 +1,13 @@
+import { click, visit } from "@ember/test-helpers";
+import { test } from "qunit";
+import Category from "discourse/models/category";
+import Site from "discourse/models/site";
 import {
   acceptance,
   exists,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
-import { test } from "qunit";
-import { visit } from "@ember/test-helpers";
-import Category from "discourse/models/category";
-import Site from "discourse/models/site";
 import I18n from "I18n";
 
 acceptance("Discourse Activity Pub | composer", function (needs) {

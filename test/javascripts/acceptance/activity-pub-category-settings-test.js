@@ -1,7 +1,7 @@
-import { acceptance, exists } from "discourse/tests/helpers/qunit-helpers";
+import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import { visit } from "@ember/test-helpers";
 import Site from "discourse/models/site";
+import { acceptance, exists } from "discourse/tests/helpers/qunit-helpers";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
