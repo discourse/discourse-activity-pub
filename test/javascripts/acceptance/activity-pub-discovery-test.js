@@ -117,7 +117,7 @@ acceptance(
       );
       assert.strictEqual(
         query(".activity-pub-category-banner-text").innerText,
-        I18n.t("discourse_activity_pub.banner.text", {category_name: category.name}),
+        I18n.t("discourse_activity_pub.banner.text", { category_name: category.name }),
         "shows the right category banner text"
       );
 
