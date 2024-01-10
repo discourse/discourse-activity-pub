@@ -1,13 +1,13 @@
+import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
-import { notEmpty } from "@ember/object/computed";
 import { action } from "@ember/object";
+import { notEmpty } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { tracked } from "@glimmer/tracking";
 
 export default class PreferencesActivityPubController extends Controller {
-  @notEmpty("authorizations") hasAuthorizations;
   @tracked authorizations = null;
+  @notEmpty("authorizations") hasAuthorizations;
 
   @action
   removeAuthorization(actorId) {

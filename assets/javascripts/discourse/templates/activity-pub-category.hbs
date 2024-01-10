@@ -10,6 +10,9 @@
   <ActivityPubCategoryBanner @category={{this.model}} />
 {{/if}}
 
-<ActivityPubCategoryNav @category={{this.model}} @follow={{route-action "follow"}} />
+<ActivityPubCategoryNav
+  @category={{this.model}}
+  @follow={{route-action "follow"}}
+/>
 
 {{outlet}}

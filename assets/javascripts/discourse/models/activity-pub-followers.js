@@ -1,7 +1,7 @@
 import EmberObject from "@ember/object";
+import { notEmpty } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { notEmpty } from "@ember/object/computed";
 
 const ActivityPubFollowers = EmberObject.extend({
   hasFollowers: notEmpty("followers"),

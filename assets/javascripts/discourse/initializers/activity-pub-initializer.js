@@ -1,8 +1,8 @@
+import { Promise } from "rsvp";
+import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { bind } from "discourse-common/utils/decorators";
-import { Promise } from "rsvp";
-import { popupAjaxError } from "discourse/lib/ajax-error";
-import { ajax } from "discourse/lib/ajax";
 
 export default {
   name: "activity-pub",

@@ -6,8 +6,8 @@ export default function () {
       resetNamespace: true,
     },
     function () {
-      this.route("followers", { path: "followers" });
-      this.route("follows", { path: "follows" });
+      this.route("followers");
+      this.route("follows");
     }
   );
 }

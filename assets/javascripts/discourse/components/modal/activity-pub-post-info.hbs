@@ -5,13 +5,21 @@
 >
   <:body>
     <div class="activity-pub-post-info-list">
-      <span class="activity-pub-state">{{d-icon this.stateIcon}}{{this.stateText}}</span>
+      <span class="activity-pub-state">{{d-icon
+          this.stateIcon
+        }}{{this.stateText}}</span>
       {{#if showVisibility}}
-        <span class="activity-pub-visibility">{{d-icon this.visibilityIcon}}{{this.visibilityText}}</span>
+        <span class="activity-pub-visibility">{{d-icon
+            this.visibilityIcon
+          }}{{this.visibilityText}}</span>
       {{/if}}
       {{#if showUrl}}
         <span class="activity-pub-url">
-          <a href={{@model.post.activity_pub_url}} target="_blank" rel="noopener noreferrer">
+          <a
+            href={{@model.post.activity_pub_url}}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {{d-icon "external-link-alt"}}
             {{this.urlText}}
           </a>

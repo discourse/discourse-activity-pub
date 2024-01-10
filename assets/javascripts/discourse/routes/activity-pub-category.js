@@ -1,7 +1,7 @@
-import DiscourseRoute from "discourse/routes/discourse";
-import Category from "discourse/models/category";
 import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
+import Category from "discourse/models/category";
+import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default DiscourseRoute.extend({

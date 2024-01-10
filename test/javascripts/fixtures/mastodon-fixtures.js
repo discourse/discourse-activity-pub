@@ -12,8 +12,7 @@ export default {
       },
     },
     thumbnail: {
-      url:
-        "https://files.mastodon.social/site_uploads/files/000/000/001/@1x/57c12f441d083cde.png",
+      url: "https://files.mastodon.social/site_uploads/files/000/000/001/@1x/57c12f441d083cde.png",
       blurhash: "UeKUpFxuo~R%0nW;WCnhF6RjaJt757oJodS$",
       versions: {
         "@1x":

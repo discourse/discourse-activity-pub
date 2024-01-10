@@ -1,9 +1,7 @@
-import Component from "@glimmer/component";
+const ActivityPubActorHandleLink = <template>
+  <a href={{@actor.url}} target="_blank" rel="noopener noreferrer">
+    {{@actor.handle}}
+  </a>
+</template>;
 
-export default class ActivityPubActorHandleLink extends Component {
-    <template>
-        <a href={{this.args.actor.url}} target="_blank" rel="noopener noreferrer">
-            {{this.args.actor.handle}}
-        </a>
-    </template>
-}
+export default ActivityPubActorHandleLink;

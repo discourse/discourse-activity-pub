@@ -29,27 +29,29 @@
         />
       </:header>
       <:body>
-      {{#each this.model.actors as |actor|}}
-        <div class="directory-table__row activity-pub-follow-table-row">
-          <div class="directory-table__cell activity-pub-follow-table-actor">
-            <ActivityPubActor @actor={{actor}} />
+        {{#each this.model.actors as |actor|}}
+          <div class="directory-table__row activity-pub-follow-table-row">
+            <div class="directory-table__cell activity-pub-follow-table-actor">
+              <ActivityPubActor @actor={{actor}} />
+            </div>
+            <div class="directory-table__cell activity-pub-follow-table-user">
+              {{#if actor.user}}
+                <a
+                  class="avatar"
+                  href={{concat "/u/" actor.user.username}}
+                  data-user-card={{actor.user.username}}
+                >
+                  {{avatar actor.user imageSize="small"}}
+                </a>
+              {{/if}}
+            </div>
+            <div
+              class="directory-table__cell activity-pub-follow-table-followed-at"
+            >
+              {{bound-date actor.followed_at}}
+            </div>
           </div>
-          <div class="directory-table__cell activity-pub-follow-table-user">
-            {{#if actor.user}}
-              <a
-                class="avatar"
-                href={{concat "/u/" actor.user.username}}
-                data-user-card={{actor.user.username}}
-              >
-                {{avatar actor.user imageSize="small"}}
-              </a>
-            {{/if}}
-          </div>
-          <div class="directory-table__cell activity-pub-follow-table-followed-at">
-            {{bound-date actor.followed_at}}
-          </div>
-        </div>
-      {{/each}}
+        {{/each}}
       </:body>
     </ResponsiveTable>
 

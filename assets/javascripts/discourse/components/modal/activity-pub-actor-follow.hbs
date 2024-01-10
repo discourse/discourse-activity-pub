@@ -6,7 +6,7 @@
   <:body>
     <div class="activity-pub-actor-follow">
       <div class="activity-pub-actor-follow-controls">
-        <label>{{i18n 'discourse_activity_pub.actor_follow.find.label'}}</label>
+        <label>{{i18n "discourse_activity_pub.actor_follow.find.label"}}</label>
         <div class="activity-pub-actor-follow-find">
           <Input
             id="activity_pub_actor_follow_find_input"
@@ -26,26 +26,29 @@
           {{#if this.error}}
             {{this.error}}
           {{else if this.validating}}
-            {{i18n 'discourse_activity_pub.actor_follow.find.validating'}}
+            {{i18n "discourse_activity_pub.actor_follow.find.validating"}}
           {{else}}
-            {{i18n 'discourse_activity_pub.actor_follow.find.description'}}
+            {{i18n "discourse_activity_pub.actor_follow.find.description"}}
           {{/if}}
         </div>
       </div>
       <div class={{this.actorClass}}>
         {{#if this.followActor}}
           <div class="activity-pub-actor-follow-actor">
-            <ActivityPubActor
-              @actor={{this.followActor}} />
+            <ActivityPubActor @actor={{this.followActor}} />
             <ActivityPubActorFollowBtn
               @actor={{@model.actor}}
               @followActor={{this.followActor}}
-              @follow={{action "follow"}} />
+              @follow={{action "follow"}}
+            />
           </div>
         {{else if this.finding}}
           {{loading-spinner size="small"}}
         {{else if this.notFound}}
-          {{i18n 'discourse_activity_pub.actor_follow.find.not_found' handle=this.handle}}
+          {{i18n
+            "discourse_activity_pub.actor_follow.find.not_found"
+            handle=this.handle
+          }}
         {{/if}}
       </div>
     </div>

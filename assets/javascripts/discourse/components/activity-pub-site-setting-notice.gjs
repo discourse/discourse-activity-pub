@@ -1,9 +1,9 @@
 import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
-import I18n from "I18n";
 import { dasherize } from "@ember/string";
-import getURL from "discourse-common/lib/get-url"
 import icon from "discourse-common/helpers/d-icon";
+import getURL from "discourse-common/lib/get-url";
+import I18n from "I18n";
 
 export default class ActivityPubSiteSettingNotice extends Component {
   @service siteSettings;
@@ -13,19 +13,27 @@ export default class ActivityPubSiteSettingNotice extends Component {
   }
 
   get label() {
-    return I18n.t(`category.discourse_activity_pub.site_setting.${this.args.setting}.label`);
+    return I18n.t(
+      `category.discourse_activity_pub.site_setting.${this.args.setting}.label`
+    );
   }
 
   get title() {
-    return I18n.t(`category.discourse_activity_pub.site_setting.${this.args.setting}.title`);
+    return I18n.t(
+      `category.discourse_activity_pub.site_setting.${this.args.setting}.title`
+    );
   }
 
   get description() {
-    return I18n.t(`category.discourse_activity_pub.site_setting.${this.args.setting}.description`);
+    return I18n.t(
+      `category.discourse_activity_pub.site_setting.${this.args.setting}.description`
+    );
   }
 
   get url() {
-    return getURL(`/admin/site_settings/category/all_results?filter=${this.args.setting}`);
+    return getURL(
+      `/admin/site_settings/category/all_results?filter=${this.args.setting}`
+    );
   }
 
   <template>

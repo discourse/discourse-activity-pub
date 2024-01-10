@@ -1,14 +1,14 @@
-import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import { query } from "discourse/tests/helpers/qunit-helpers";
+import { click, fillIn, render } from "@ember/test-helpers";
 import hbs from "htmlbars-inline-precompile";
-import { render } from "@ember/test-helpers";
-import pretender, { response } from "discourse/tests/helpers/create-pretender";
-import { default as Mastodon } from "../fixtures/mastodon-fixtures";
 import { module, test } from "qunit";
+import sinon from "sinon";
 import Category from "discourse/models/category";
 import Site from "discourse/models/site";
-import sinon from "sinon";
+import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import pretender, { response } from "discourse/tests/helpers/create-pretender";
+import { query } from "discourse/tests/helpers/qunit-helpers";
 import I18n from "I18n";
+import { default as Mastodon } from "../fixtures/mastodon-fixtures";
 
 const mastodonAboutPath = "api/v2/instance";
 

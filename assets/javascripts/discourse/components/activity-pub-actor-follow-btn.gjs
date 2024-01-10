@@ -1,9 +1,8 @@
 import Component from "@glimmer/component";
-import { action } from "@ember/object";
 import { tracked } from "@glimmer/tracking";
-import I18n from "discourse-i18n";
+import { action } from "@ember/object";
 import DButton from "discourse/components/d-button";
-import ActivityPubActor from "../models/activity-pub-actor";
+import I18n from "discourse-i18n";
 
 export default class ActivityPubActorFollowBtn extends Component {
   @tracked followed = false;
@@ -27,12 +26,12 @@ export default class ActivityPubActorFollowBtn extends Component {
     this.args.follow(this.args.actor, this.args.followActor).then((result) => {
       this.followRequested = result;
       this.following = false;
-    })  
+    });
   }
 
   get icon() {
     if (this.followed) {
-      return "user-check"
+      return "user-check";
     } else if (this.followRequested) {
       return null;
     } else {
@@ -42,20 +41,23 @@ export default class ActivityPubActorFollowBtn extends Component {
 
   get i18nKey() {
     if (this.followed) {
-      return 'following';
+      return "following";
     } else if (this.followRequested) {
-      return 'follow_requested';
+      return "follow_requested";
     } else {
-      return 'follow';
+      return "follow";
     }
   }
 
   get title() {
     const opts = {
       actor: this.args.actor.username,
-      follow_actor: this.args.followActor.username
-    }
-    return I18n.t(`discourse_activity_pub.actor_follow.${this.i18nKey}.title`, opts);
+      follow_actor: this.args.followActor.username,
+    };
+    return I18n.t(
+      `discourse_activity_pub.actor_follow.${this.i18nKey}.title`,
+      opts
+    );
   }
 
   get label() {

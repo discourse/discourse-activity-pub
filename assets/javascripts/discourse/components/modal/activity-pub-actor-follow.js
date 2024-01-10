@@ -1,10 +1,10 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
-import { tracked } from "@glimmer/tracking";
 import I18n from "I18n";
-import ActivityPubWebfinger from "../../models/activity-pub-webfinger";
 import ActivityPubActor from "../../models/activity-pub-actor";
+import ActivityPubWebfinger from "../../models/activity-pub-webfinger";
 
 export default class ActivityPubFollowRemote extends Component {
   @service site;
