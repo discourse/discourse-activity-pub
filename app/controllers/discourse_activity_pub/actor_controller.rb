@@ -5,7 +5,7 @@ module DiscourseActivityPub
     before_action :ensure_admin
     before_action :ensure_site_enabled
     before_action :find_actor
-    before_action :find_target_actor, only: [:follow, :unfollow]
+    before_action :find_target_actor, only: %i[follow unfollow]
 
     def follow
       if !@actor.can_follow?(@target_actor)
@@ -50,12 +50,12 @@ module DiscourseActivityPub
 
     def find_actor
       @actor = DiscourseActivityPubActor.find_by_id(params.require(:actor_id))
-      return render_actor_error("actor_not_found", 404) unless @actor.present?
+      render_actor_error("actor_not_found", 404) unless @actor.present?
     end
 
     def find_target_actor
       @target_actor = DiscourseActivityPubActor.find_by_id(params[:target_actor_id])
-      return render_actor_error("target_actor_not_found", 404) unless @target_actor.present?
+      render_actor_error("target_actor_not_found", 404) unless @target_actor.present?
     end
 
     def ensure_site_enabled

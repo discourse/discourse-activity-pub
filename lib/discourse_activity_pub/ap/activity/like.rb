@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Like < Activity
         def type
-          'Like'
+          "Like"
         end
       end
     end

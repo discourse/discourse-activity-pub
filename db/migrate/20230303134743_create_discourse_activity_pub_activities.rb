@@ -15,6 +15,8 @@ class CreateDiscourseActivityPubActivities < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_foreign_key :discourse_activity_pub_activities, :discourse_activity_pub_actors, column: :actor_id
+    add_foreign_key :discourse_activity_pub_activities,
+                    :discourse_activity_pub_actors,
+                    column: :actor_id
   end
 end

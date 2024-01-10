@@ -7,7 +7,9 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
   let!(:post) { Fabricate(:post, user: user, topic: topic) }
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
   let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-  let!(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note) }
+  let!(:activity) do
+    Fabricate(:discourse_activity_pub_activity_create, actor: person, object: note)
+  end
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:follow) { Fabricate(:discourse_activity_pub_follow, follower: person, followed: group) }
 
@@ -15,20 +17,18 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
     args = {
       args: {
         object_id: object_id || activity.id,
-        object_type: object_type || 'DiscourseActivityPubActivity',
+        object_type: object_type || "DiscourseActivityPubActivity",
         from_actor_id: group.id,
-        send_to: person.inbox
+        send_to: person.inbox,
       },
-      at: (delay || SiteSetting.activity_pub_delivery_delay_minutes).to_i.minutes.from_now
+      at: (delay || SiteSetting.activity_pub_delivery_delay_minutes).to_i.minutes.from_now,
     }
     expect(job_enqueued?(job: :discourse_activity_pub_deliver, **args)).to eq(enqueued)
   end
 
   def expect_log(message)
     prefix = "#{group.ap_id} failed to schedule #{activity.ap_id} for delivery"
-    expect(@fake_logger.warnings.last).to eq(
-      "[Discourse Activity Pub] #{prefix}: #{message}"
-    )
+    expect(@fake_logger.warnings.last).to eq("[Discourse Activity Pub] #{prefix}: #{message}")
   end
 
   def perform_delivery(object: activity, delay: SiteSetting.activity_pub_delivery_delay_minutes)
@@ -36,7 +36,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
       actor: group,
       object: object,
       recipient_ids: group.followers.map(&:id),
-      delay: delay
+      delay: delay,
     )
   end
 
@@ -70,24 +70,20 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
     end
 
     context "when delivery actor is ready" do
-      before do
-        toggle_activity_pub(category, callbacks: true)
-      end
+      before { toggle_activity_pub(category, callbacks: true) }
 
       context "with publishing disabled" do
-        before do
-          SiteSetting.login_required = true
-        end
-  
+        before { SiteSetting.login_required = true }
+
         it "returns false" do
           expect(perform_delivery).to eq(false)
         end
-  
+
         it "does not enqueue any delivery jobs" do
           perform_delivery
           expect_job(enqueued: false)
         end
-  
+
         it "logs the right warning" do
           perform_delivery
           expect_log("object cant be published")
@@ -95,9 +91,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
       end
 
       context "when activity is not ready" do
-        before do
-          activity.object.model.trash!
-        end
+        before { activity.object.model.trash! }
 
         it "returns false" do
           expect(perform_delivery).to eq(false)
@@ -114,11 +108,8 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
       end
 
       context "when activity is ready" do
-
         context "when delivery actor has no followers" do
-          before do
-            follow.destroy!
-          end
+          before { follow.destroy! }
 
           it "returns false" do
             expect(perform_delivery).to eq(false)
@@ -142,9 +133,9 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
           it "cancels existing scheduled deliveries" do
             job_args = {
               object_id: activity.id,
-              object_type: 'DiscourseActivityPubActivity',
+              object_type: "DiscourseActivityPubActivity",
               from_actor_id: group.id,
-              send_to: person.inbox
+              send_to: person.inbox,
             }
             Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, job_args).once
             perform_delivery
@@ -158,7 +149,9 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
           end
 
           context "when activities are in a collection" do
-            let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
+            let!(:collection) do
+              Fabricate(:discourse_activity_pub_ordered_collection, model: topic)
+            end
 
             before do
               note.collection_id = collection.id
@@ -167,7 +160,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
 
             it "delivers the collection" do
               perform_delivery(object: collection)
-              expect_job(object_id: collection.id, object_type: 'DiscourseActivityPubCollection')
+              expect_job(object_id: collection.id, object_type: "DiscourseActivityPubCollection")
             end
           end
         end

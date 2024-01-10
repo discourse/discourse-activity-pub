@@ -5,7 +5,10 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   include DiscourseActivityPub::DomainVerification
   include DiscourseActivityPub::SignatureVerification
 
-  skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr, :verify_authenticity_token
+  skip_before_action :preload_json,
+                     :redirect_to_login_if_required,
+                     :check_xhr,
+                     :verify_authenticity_token
 
   before_action :rate_limit
   before_action :ensure_site_enabled
@@ -23,7 +26,12 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   def rate_limit
     limit = SiteSetting.activity_pub_rate_limit_get_objects_per_minute
-    RateLimiter.new(nil, "activity-pub-object-get-min-#{request.remote_ip}", limit, 1.minute).performed!
+    RateLimiter.new(
+      nil,
+      "activity-pub-object-get-min-#{request.remote_ip}",
+      limit,
+      1.minute,
+    ).performed!
   end
 
   rescue_from RateLimiter::LimitExceeded do
@@ -35,16 +43,19 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def ensure_request_permitted
-    render_activity_pub_error("not_enabled", 403) unless (
-      DiscourseActivityPub.publishing_enabled || publishing_disabled_request_permitted?
-    )
+    unless (DiscourseActivityPub.publishing_enabled || publishing_disabled_request_permitted?)
+      render_activity_pub_error("not_enabled", 403)
+    end
   end
 
   def validate_headers
-    valid_content_header = case request.method
-                           when "POST" then valid_content_type?(request.headers['Content-Type'])
-                           when "GET" then valid_accept?(request.headers['Accept'])
-                           end
+    valid_content_header =
+      case request.method
+      when "POST"
+        valid_content_type?(request.headers["Content-Type"])
+      when "GET"
+        valid_accept?(request.headers["Accept"])
+      end
     render_activity_pub_error("bad_request", 400) unless valid_content_header
   end
 
@@ -74,7 +85,9 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def ensure_object_exists
-    render_activity_pub_error("not_found", 404) unless @object = DiscourseActivityPubObject.find_by(ap_key: params[:key])
+    unless @object = DiscourseActivityPubObject.find_by(ap_key: params[:key])
+      render_activity_pub_error("not_found", 404)
+    end
   end
 
   def render_activity_pub_error(key, status, opts = {})
@@ -82,8 +95,15 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def render_ordered_collection(stored, collection_for)
-    collection = DiscourseActivityPub::AP::Collection::OrderedCollection.new(stored: stored.send("#{collection_for}_collection"))
-    render json: DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(collection, root: false).as_json
+    collection =
+      DiscourseActivityPub::AP::Collection::OrderedCollection.new(
+        stored: stored.send("#{collection_for}_collection"),
+      )
+    render json:
+             DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(
+               collection,
+               root: false,
+             ).as_json
   end
 
   def set_raw_body

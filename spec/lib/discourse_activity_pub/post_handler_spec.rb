@@ -7,12 +7,14 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     let(:topic) { Fabricate(:topic, category: category) }
     let!(:post) { Fabricate(:post, topic: topic) }
     let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-    let!(:object) { Fabricate(:discourse_activity_pub_object_note, model: nil, reply_to_id: note.ap_id) }
+    let!(:object) do
+      Fabricate(:discourse_activity_pub_object_note, model: nil, reply_to_id: note.ap_id)
+    end
 
     context "when object has a model" do
       before do
         reply = Fabricate(:post)
-        object.update(model_id: reply.id, model_type: 'Post')
+        object.update(model_id: reply.id, model_type: "Post")
       end
 
       it "does nothing" do
@@ -21,15 +23,11 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     end
 
     context "when object is not in reply to another object" do
-      before do
-        object.update(reply_to_id: nil)
-      end
+      before { object.update(reply_to_id: nil) }
 
       context "when given a category id" do
         context "when activity pub full topic is ready" do
-          before do
-            toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
-          end
+          before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
 
           it "creates a topic in the category" do
             post = described_class.create(user, object, category_id: category.id)
@@ -47,24 +45,26 @@ RSpec.describe DiscourseActivityPub::PostHandler do
             end
 
             context "when the context is a collection" do
-              let!(:collection_json) {
+              let!(:collection_json) do
                 {
                   "@context": "https://www.w3.org/ns/activitystreams",
-                  "id": collection_ap_id,
-                  "type": "OrderedCollection",
+                  id: collection_ap_id,
+                  type: "OrderedCollection",
                 }.with_indifferent_access
-              }
+              end
 
               before do
-                stub_request(:get, collection_ap_id)
-                  .with(headers: { 'Accept' => DiscourseActivityPub::JsonLd.content_type_header } )
-                  .to_return(
-                    status: 200,
-                    body: collection_json.to_json,
-                    headers: {
-                      'Content-Type' => DiscourseActivityPub::JsonLd.content_type_header
-                    }
-                  )
+                stub_request(:get, collection_ap_id).with(
+                  headers: {
+                    "Accept" => DiscourseActivityPub::JsonLd.content_type_header,
+                  },
+                ).to_return(
+                  status: 200,
+                  body: collection_json.to_json,
+                  headers: {
+                    "Content-Type" => DiscourseActivityPub::JsonLd.content_type_header,
+                  },
+                )
               end
 
               it "resolves and stores it as the topic collection" do
@@ -103,26 +103,22 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     end
 
     context "when object is in reply to another object" do
-      before do
-        topic.create_activity_pub_collection!
-      end
+      before { topic.create_activity_pub_collection! }
 
       it "skips validations and events" do
         PostCreator
           .expects(:create!)
-          .with do |user, opts|
-            opts[:skip_validations] && opts[:skip_events]
-          end
+          .with { |user, opts| opts[:skip_validations] && opts[:skip_events] }
         described_class.create(user, object)
       end
-  
+
       it "creates a reply for a reply object" do
         reply = described_class.create(user, object)
         expect(reply.raw).to eq(object.content)
         expect(reply.topic_id).to eq(topic.id)
         expect(reply.reply_to_post_number).to eq(post.post_number)
       end
-  
+
       it "updates the reply object correclty" do
         reply = described_class.create(user, object)
         object.reload

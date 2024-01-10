@@ -2,7 +2,6 @@
 module DiscourseActivityPub
   module AP
     class Collection < Object
-
       def id
         stored.ap_id
       end
@@ -12,7 +11,7 @@ module DiscourseActivityPub
       end
 
       def base_type
-        'Collection'
+        "Collection"
       end
 
       def items
@@ -31,7 +30,7 @@ module DiscourseActivityPub
         process_items.each do |item|
           activity = DiscourseActivityPub::AP::Activity.factory(item)
 
-          if activity&.respond_to?(:process)
+          if activity.respond_to?(:process)
             activity.delivered_to << delivered_to if delivered_to
             activity.process
           end
@@ -39,7 +38,7 @@ module DiscourseActivityPub
       end
 
       def can_belong_to
-        %i()
+        %i[]
       end
     end
   end

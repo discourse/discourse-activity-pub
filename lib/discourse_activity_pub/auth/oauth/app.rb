@@ -4,9 +4,7 @@ module DiscourseActivityPub
   module Auth
     class OAuth
       class App
-        attr_reader :domain,
-                    :client_id,
-                    :client_secret
+        attr_reader :domain, :client_id, :client_secret
 
         def initialize(domain, data)
           data.with_indifferent_access

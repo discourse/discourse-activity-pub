@@ -5,11 +5,11 @@ module DiscourseActivityPub
     class Actor
       class Application < Actor
         def type
-          'Application'
+          "Application"
         end
 
         def can_belong_to
-          %i(remote)
+          %i[remote]
         end
 
         def can_perform_activity

@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Delete < Compose
         def type
-          'Delete'
+          "Delete"
         end
       end
     end

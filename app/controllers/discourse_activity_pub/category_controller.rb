@@ -3,7 +3,7 @@
 module DiscourseActivityPub
   class CategoryController < ApplicationController
     PAGE_SIZE = 50
-    ORDER = %w(actor user followed_at)
+    ORDER = %w[actor user followed_at]
 
     before_action :ensure_site_enabled
     before_action :ensure_publishing_enabled, only: [:followers]
@@ -16,9 +16,7 @@ module DiscourseActivityPub
     def follows
       guardian.ensure_can_edit!(@category)
 
-      actors.each do |actor|
-        actor.followed_at = actor.follow_followers&.first.followed_at
-      end
+      actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
 
       render_actors
     end
@@ -26,9 +24,7 @@ module DiscourseActivityPub
     def followers
       guardian.ensure_can_see!(@category)
 
-      actors.each do |actor|
-        actor.followed_at = actor.follow_follows&.first.followed_at
-      end
+      actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
 
       render_actors
     end
@@ -41,22 +37,25 @@ module DiscourseActivityPub
         meta: {
           total: @total,
           load_more_url: load_more_url(@page),
-        }
+        },
       )
     end
 
     def actors
-      @actors ||= begin
-        actors = self.send("#{action_name}_actors")
-          .left_joins(:user)
-          .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
+      @actors ||=
+        begin
+          actors =
+            self
+              .send("#{action_name}_actors")
+              .left_joins(:user)
+              .order("#{order_table}.#{order} #{params[:asc] ? "ASC" : "DESC"} NULLS LAST")
 
-        limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)
-        @page = fetch_int_from_params(:page, default: 0)
-        @total = actors.count
+          limit = fetch_limit_from_params(default: PAGE_SIZE, max: PAGE_SIZE)
+          @page = fetch_int_from_params(:page, default: 0)
+          @total = actors.count
 
-        actors.limit(limit).offset(limit * @page).to_a
-      end
+          actors.limit(limit).offset(limit * @page).to_a
+        end
     end
 
     def follows_actors
@@ -81,19 +80,27 @@ module DiscourseActivityPub
 
     def order_table
       case permitted_order
-      when 'actor' then 'discourse_activity_pub_actors'
-      when 'user' then 'users'
-      when 'followed_at' then 'discourse_activity_pub_follows'
-      else 'discourse_activity_pub_follows'
+      when "actor"
+        "discourse_activity_pub_actors"
+      when "user"
+        "users"
+      when "followed_at"
+        "discourse_activity_pub_follows"
+      else
+        "discourse_activity_pub_follows"
       end
     end
 
     def order
       case permitted_order
-      when 'actor' then 'username'
-      when 'user' then 'username'
-      when 'followed_at' then 'created_at'
-      else 'created_at'
+      when "actor"
+        "username"
+      when "user"
+        "username"
+      when "followed_at"
+        "created_at"
+      else
+        "created_at"
       end
     end
 

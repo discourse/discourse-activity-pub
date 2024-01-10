@@ -5,9 +5,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
-  before do
-    SiteSetting.activity_pub_require_signed_requests = false
-  end
+  before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid collection" do
     it "returns a not found error" do
@@ -25,9 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
       end
     end
 
-    before do
-      collection.model.update(category: staff_category)
-    end
+    before { collection.model.update(category: staff_category) }
 
     it "returns a not available error" do
       get_object(collection)
@@ -37,9 +33,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
   end
 
   describe "#show" do
-    before do
-      toggle_activity_pub(collection.model)
-    end
+    before { toggle_activity_pub(collection.model) }
 
     it "returns collection json" do
       get_object(collection)

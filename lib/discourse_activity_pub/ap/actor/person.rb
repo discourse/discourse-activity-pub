@@ -5,11 +5,11 @@ module DiscourseActivityPub
     class Actor
       class Person < Actor
         def type
-          'Person'
+          "Person"
         end
 
         def can_belong_to
-          %i(remote user)
+          %i[remote user]
         end
 
         def can_perform_activity
@@ -17,12 +17,12 @@ module DiscourseActivityPub
             accept: [:follow],
             reject: [:follow],
             follow: [:group],
-            undo: [:follow, :like],
-            create: [:note, :article],
-            update: [:note, :article],
-            delete: [:note, :article],
-            like: [:note, :article],
-            announce: [:note, :article]
+            undo: %i[follow like],
+            create: %i[note article],
+            update: %i[note article],
+            delete: %i[note article],
+            like: %i[note article],
+            announce: %i[note article],
           }
         end
       end

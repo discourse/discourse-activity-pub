@@ -12,9 +12,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     context "when user has authorized the same actor id" do
       let!(:user) { Fabricate(:user) }
 
-      before do
-        user.activity_pub_save_actor_id("https://external.com", actor.ap_id)
-      end
+      before { user.activity_pub_save_actor_id("https://external.com", actor.ap_id) }
 
       it "associates the user with the actor" do
         described_class.update_or_create_user(actor)
@@ -25,9 +23,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     context "when actor has user" do
       let!(:user) { Fabricate(:user) }
 
-      before do
-        actor.update(model_id: user.id, model_type: 'User')
-      end
+      before { actor.update(model_id: user.id, model_type: "User") }
 
       it "returns the user" do
         user = described_class.update_or_create_user(actor)
@@ -42,7 +38,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     end
 
     context "when actor has icon" do
-      fab!(:external_origin) { 'https://external.com' }
+      fab!(:external_origin) { "https://external.com" }
 
       before do
         actor.icon_url = "#{external_origin}/logo.png"
@@ -53,9 +49,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
       context "when the actor has a user" do
         fab!(:user) { Fabricate(:user) }
 
-        before do
-          actor.update(model_id: user.id, model_type: 'User')
-        end
+        before { actor.update(model_id: user.id, model_type: "User") }
 
         context "when the user has a custom avatar" do
           fab!(:custom_avatar_url) { "/images/avatar.png" }
@@ -147,9 +141,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     context "when user has an actor" do
       let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
 
-      before do
-        actor.update(model_id: user.id, model_type: 'User')
-      end
+      before { actor.update(model_id: user.id, model_type: "User") }
 
       it "returns the actor" do
         actor = described_class.update_or_create_actor(user)

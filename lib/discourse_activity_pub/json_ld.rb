@@ -4,15 +4,17 @@ module DiscourseActivityPub
   module JsonLd
     ACTIVITY_STREAMS_CONTEXT = "https://www.w3.org/ns/activitystreams"
     REQUIRED_CONTEXTS = [ACTIVITY_STREAMS_CONTEXT]
-    REQUIRED_PROPERTIES = %w(id type)
+    REQUIRED_PROPERTIES = %w[id type]
     LD_CONTENT_TYPE = "application/ld+json"
     ACTIVITY_CONTENT_TYPE = "application/activity+json"
     CONTENT_TYPES = [LD_CONTENT_TYPE, ACTIVITY_CONTENT_TYPE]
-    PUBLIC_COLLECTION_IDS = %w(https://www.w3.org/ns/activitystreams#Public as:Public Public)
+    PUBLIC_COLLECTION_IDS = %w[https://www.w3.org/ns/activitystreams#Public as:Public Public]
 
     def validate_json_ld(json)
       parsed_json = parse_json_ld(json)
-      return false unless parsed_json && required_contexts?(parsed_json) && required_properties?(parsed_json)
+      unless parsed_json && required_contexts?(parsed_json) && required_properties?(parsed_json)
+        return false
+      end
       format_jsonld(parsed_json)
     end
 
@@ -30,7 +32,7 @@ module DiscourseActivityPub
     end
 
     def required_contexts?(json)
-      REQUIRED_CONTEXTS & [*json['@context']] == REQUIRED_CONTEXTS
+      REQUIRED_CONTEXTS & [*json["@context"]] == REQUIRED_CONTEXTS
     end
 
     def required_properties?(json)
@@ -63,7 +65,7 @@ module DiscourseActivityPub
 
     def valid_content_type?(value)
       return false unless value.present?
-      type = value.split(';').first.strip
+      type = value.split(";").first.strip
 
       # technically we should require a profile=ACTIVITY_STREAMS_CONTEXT here too
       # see https://www.w3.org/TR/activitypub/#delivery
@@ -71,7 +73,7 @@ module DiscourseActivityPub
     end
 
     def valid_accept?(value)
-      value.split(',').compact.collect(&:strip).all? { |v| valid_content_type?(v) }
+      value.split(",").compact.collect(&:strip).all? { |v| valid_content_type?(v) }
     end
 
     def content_type_header
@@ -85,8 +87,8 @@ module DiscourseActivityPub
     def resolve_icon_url(value)
       return nil if value.nil?
       return value if value.is_a?(String)
-      return value['url'] if value.is_a?(Hash)
-      value.first['url'] if value.is_a?(Array)
+      return value["url"] if value.is_a?(Hash)
+      value.first["url"] if value.is_a?(Array)
     end
 
     def publicly_addressed?(json)
@@ -106,11 +108,11 @@ module DiscourseActivityPub
     end
 
     def address_json(json, args = {})
-      object_keys = %w(object)
-      item_keys = %w(items orderedItems)
+      object_keys = %w[object]
+      item_keys = %w[items orderedItems]
 
-      json['to'] = args[:to]
-      json['cc'] = args[:cc] if args[:cc]
+      json["to"] = args[:to]
+      json["cc"] = args[:cc] if args[:cc]
 
       object_keys.each do |object_key|
         json[object_key] = address_json(json[object_key], args) if json[object_key].present?
@@ -118,9 +120,7 @@ module DiscourseActivityPub
 
       item_keys.each do |item_key|
         if json[item_key].present?
-          json[item_key] = json[item_key].map do |item|
-            address_json(item, args)
-          end
+          json[item_key] = json[item_key].map { |item| address_json(item, args) }
         end
       end
 
@@ -128,9 +128,7 @@ module DiscourseActivityPub
     end
 
     def address_to_actor_id(audience)
-      audience
-        .chomp("#followers")
-        .chomp("/followers")
+      audience.chomp("#followers").chomp("/followers")
     end
 
     module_function :validate_json_ld

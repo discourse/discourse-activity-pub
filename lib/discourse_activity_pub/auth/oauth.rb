@@ -24,12 +24,16 @@ module DiscourseActivityPub
         app = get_app
         return app if app
 
-        response = request(APP_PATH, body: {
-          client_name: DiscourseActivityPub.host,
-          redirect_uris: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
-          scopes: SCOPES,
-          website: DiscourseActivityPub.base_url
-        })
+        response =
+          request(
+            APP_PATH,
+            body: {
+              client_name: DiscourseActivityPub.host,
+              redirect_uris: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
+              scopes: SCOPES,
+              website: DiscourseActivityPub.base_url,
+            },
+          )
         return unless response
 
         save_app(response)
@@ -40,18 +44,17 @@ module DiscourseActivityPub
         app = get_app
         return unless app
 
-        uri = DiscourseActivityPub::URI.parse(
-          "https://#{domain}/oauth/authorize"
-        )
+        uri = DiscourseActivityPub::URI.parse("https://#{domain}/oauth/authorize")
         return unless uri
 
-        uri.query = ::URI.encode_www_form(
-          client_id: app.client_id,
-          response_type: 'code',
-          redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
-          scope: SCOPES,
-          force_login: true
-        )
+        uri.query =
+          ::URI.encode_www_form(
+            client_id: app.client_id,
+            response_type: "code",
+            redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
+            scope: SCOPES,
+            force_login: true,
+          )
         uri.to_s
       end
 
@@ -59,14 +62,18 @@ module DiscourseActivityPub
         app = get_app
         return unless app
 
-        response = request(TOKEN_PATH, body: {
-          grant_type: 'authorization_code',
-          code: code,
-          client_id: app.client_id,
-          client_secret: app.client_secret,
-          redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
-          scope: SCOPES
-        })
+        response =
+          request(
+            TOKEN_PATH,
+            body: {
+              grant_type: "authorization_code",
+              code: code,
+              client_id: app.client_id,
+              client_secret: app.client_secret,
+              redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
+              scope: SCOPES,
+            },
+          )
         return unless response
 
         response.dig(:access_token)
@@ -78,13 +85,7 @@ module DiscourseActivityPub
       end
 
       def get_account(access_token)
-        request(
-          ACCOUNT_PATH,
-          verb: :get,
-          headers: {
-            'Authorization' => "Bearer #{access_token}"
-          }
-        )
+        request(ACCOUNT_PATH, verb: :get, headers: { "Authorization" => "Bearer #{access_token}" })
       end
 
       def self.create_app(domain)
@@ -120,12 +121,8 @@ module DiscourseActivityPub
         opts = {}
         opts[:body] = body.to_json if body
         opts[:headers] = {}
-        opts[:headers]['Content-Type'] = 'application/json' if body
-        if headers
-          headers.each do |k, v|
-            opts[:headers][k] = v
-          end
-        end
+        opts[:headers]["Content-Type"] = "application/json" if body
+        headers.each { |k, v| opts[:headers][k] = v } if headers
 
         begin
           response = Excon.send(verb, url, opts)
@@ -133,16 +130,21 @@ module DiscourseActivityPub
           add_error(e.message)
         end
 
-        body_hash = if response&.body
-                      raw = parse_json_ld(response.body)
-                      raw&.with_indifferent_access
-                    else
-                      nil
-                    end
+        body_hash =
+          if response&.body
+            raw = parse_json_ld(response.body)
+            raw&.with_indifferent_access
+          else
+            nil
+          end
 
         if ![200, 201, 202].include?(response&.status) && body_hash
           # The mastodon docs and code vary on use of "error", "errors" and "error_description".
-          errors = [body_hash[:error], body_hash[:error_description], body_hash[:errors]].flatten.compact
+          errors = [
+            body_hash[:error],
+            body_hash[:error_description],
+            body_hash[:errors],
+          ].flatten.compact
           errors.each { |error| add_error(error) }
         end
 
@@ -152,7 +154,7 @@ module DiscourseActivityPub
       # May support other platforms other than standard Mastodon in the future
       def account_to_actor_id(account)
         # Standard Mastodon actor id.
-        "https://#{domain}/users/#{account['username']}"
+        "https://#{domain}/users/#{account["username"]}"
       end
     end
   end

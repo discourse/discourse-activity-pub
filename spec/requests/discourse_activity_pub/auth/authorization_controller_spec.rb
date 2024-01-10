@@ -3,9 +3,7 @@
 RSpec.describe DiscourseActivityPub::Auth::AuthorizationController do
   let!(:user) { Fabricate(:user) }
 
-  before do
-    sign_in(user)
-  end
+  before { sign_in(user) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AuthController }
 
@@ -22,9 +20,7 @@ RSpec.describe DiscourseActivityPub::Auth::AuthorizationController do
       let!(:actor_id) { "https://external1.com/users/user1" }
 
       context "when the user has authorized the actor" do
-        before do
-          user.activity_pub_save_actor_id(domain, actor_id)
-        end
+        before { user.activity_pub_save_actor_id(domain, actor_id) }
 
         it "removes the actor id" do
           delete "/ap/auth/authorization", params: { actor_id: actor_id }

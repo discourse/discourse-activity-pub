@@ -12,7 +12,7 @@ module DiscourseActivityPub
         end
 
         def can_belong_to
-          %i(topic remote)
+          %i[topic remote]
         end
 
         def process_items

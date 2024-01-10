@@ -111,13 +111,11 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
   end
 
   def self.cook(text, opts = {})
-    html = PrettyText.markdown(
-      text,
-      opts.merge(
-        features_override: MARKDOWN_FEATURES,
-        markdown_it_rules: MARKDOWN_IT_RULES,
+    html =
+      PrettyText.markdown(
+        text,
+        opts.merge(features_override: MARKDOWN_FEATURES, markdown_it_rules: MARKDOWN_IT_RULES),
       )
-    )
     scrubbed_html(html)
   end
 
@@ -140,11 +138,12 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
   end
 
   def self.get_note(html)
-    length = if html.include?("note") && CUSTOM_NOTE_REGEX === html
-               html.length
-             else
-               SiteSetting.activity_pub_note_excerpt_maxlength
-             end
+    length =
+      if html.include?("note") && CUSTOM_NOTE_REGEX === html
+        html.length
+      else
+        SiteSetting.activity_pub_note_excerpt_maxlength
+      end
     parse(html, length)
   end
 

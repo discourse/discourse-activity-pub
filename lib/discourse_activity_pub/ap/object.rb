@@ -10,8 +10,8 @@ module DiscourseActivityPub
       attr_writer :json
       attr_writer :attributed_to
       attr_accessor :stored
-      attr_accessor :delivered_to
-      attr_accessor :cache
+      attr_writer :delivered_to
+      attr_writer :cache
       attr_accessor :parent
 
       def initialize(json: nil, stored: nil, parent: nil)
@@ -29,7 +29,7 @@ module DiscourseActivityPub
       end
 
       def base_type
-        'Object'
+        "Object"
       end
 
       def object?
@@ -49,11 +49,11 @@ module DiscourseActivityPub
       end
 
       def url
-        stored&.respond_to?(:url) && stored.url
+        stored.respond_to?(:url) && stored&.url
       end
 
       def audience
-        stored&.respond_to?(:audience) && stored.audience
+        stored.respond_to?(:audience) && stored&.audience
       end
 
       def to
@@ -61,7 +61,7 @@ module DiscourseActivityPub
         return stored.to if stored.respond_to?(:to)
 
         # See https://www.w3.org/TR/activitypub/#create-activity-outbox
-        return parent.stored.to if parent&.create? && parent&.stored&.respond_to?(:to)
+        parent.stored.to if parent&.create? && parent&.stored.respond_to?(:to)
       end
 
       def cc
@@ -69,41 +69,39 @@ module DiscourseActivityPub
         return stored.cc if stored.respond_to?(:cc)
 
         # See https://www.w3.org/TR/activitypub/#create-activity-outbox
-        return parent.stored.cc if parent&.create? && parent&.stored&.respond_to?(:cc)
+        parent.stored.cc if parent&.create? && parent&.stored.respond_to?(:cc)
       end
 
       def start_time
-        stored&.respond_to?(:created_at) && stored.created_at.iso8601
+        stored.respond_to?(:created_at) && stored.created_at.iso8601
       end
 
       def updated
-        stored&.respond_to?(:updated_at) && stored.updated_at.iso8601
+        stored.respond_to?(:updated_at) && stored.updated_at.iso8601
       end
 
       def published
-        stored&.respond_to?(:published_at) && stored.published_at&.iso8601
+        stored.respond_to?(:published_at) && stored.published_at&.iso8601
       end
 
       def attributed_to
-        stored ?
-          stored.respond_to?(:attributed_to) && stored.attributed_to&.ap :
-          @attributed_to
+        stored ? stored.respond_to?(:attributed_to) && stored.attributed_to&.ap : @attributed_to
       end
 
       def summary
-        stored&.respond_to?(:summary) && stored.summary
+        stored.respond_to?(:summary) && stored&.summary
       end
 
       def name
-        stored&.respond_to?(:name) && stored.name
+        stored.respond_to?(:name) && stored&.name
       end
 
       def context
-        stored&.respond_to?(:context) && stored.context
+        stored.respond_to?(:context) && stored&.context
       end
 
       def target
-        stored&.respond_to?(:target) && stored.target
+        stored.respond_to?(:target) && stored&.target
       end
 
       def delivered_to
@@ -114,14 +112,6 @@ module DiscourseActivityPub
         @cache ||= {}
       end
 
-      def self.type
-        self.new.type
-      end
-
-      def self.base_type
-        self.new.base_type
-      end
-
       def json
         return @json if @json.present?
 
@@ -129,9 +119,7 @@ module DiscourseActivityPub
           serializer = "#{klass}Serializer".classify.constantize
           object = klass.new(stored: stored)
           object.parent = parent if parent.present?
-          @json = serializer.new(object, root: false)
-            .as_json
-            .with_indifferent_access
+          @json = serializer.new(object, root: false).as_json.with_indifferent_access
           @json
         else
           {}
@@ -139,7 +127,8 @@ module DiscourseActivityPub
       end
 
       def process_failed(warning_key)
-        action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
+        action =
+          I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
         if errors.any?
           message = errors.map { |e| e.full_message }.join(",")
         else
@@ -162,7 +151,7 @@ module DiscourseActivityPub
       end
 
       def self.factory(json)
-        return nil unless json&.is_a?(Hash)
+        return nil unless json.is_a?(Hash)
 
         json = json.with_indifferent_access
         klass = AP::Object.get_klass(json[:type])
@@ -196,11 +185,12 @@ module DiscourseActivityPub
         return process_failed(raw_object, "cant_resolve_object") unless object_id.present?
 
         if DiscourseActivityPub::URI.local?(object_id)
-          object = if raw_object.is_a?(Hash)
-            factory(raw_object)
-          else
-            factory({ type: Object.type, id: object_id })
-          end
+          object =
+            if raw_object.is_a?(Hash)
+              factory(raw_object)
+            else
+              factory({ type: Object.type, id: object_id })
+            end
           return object
         end
 
@@ -208,10 +198,10 @@ module DiscourseActivityPub
         return process_failed(raw_object, "cant_resolve_object") unless resolved_object.present?
 
         object = factory(resolved_object)
-        return process_failed(resolved_object['id'], "cant_resolve_object") unless object.present?
+        return process_failed(resolved_object["id"], "cant_resolve_object") unless object.present?
 
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
-          return process_failed(resolved_object['id'], "object_not_supported")
+          return process_failed(resolved_object["id"], "object_not_supported")
         end
 
         if object.json[:attributedTo]

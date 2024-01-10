@@ -10,9 +10,7 @@ RSpec.describe Guardian do
   describe "can_edit?" do
     describe "a Post" do
       context "with activity pub enabled" do
-        before do
-          toggle_activity_pub(category, callbacks: true)
-        end
+        before { toggle_activity_pub(category, callbacks: true) }
 
         context "with a remote Note" do
           fab!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: false) }
@@ -57,23 +55,24 @@ RSpec.describe Guardian do
     describe "a Post" do
       context "with a change owner request" do
         let!(:request) do
-          env = create_request_env(path: "/t/#{topic.id}/change-owner").merge({
-            "REQUEST_METHOD" => "POST",
-            "action_dispatch.request.parameters" => {
-              "post_ids" => [post.id.to_s],
-              "username" => another_user.username,
-              "controller" => "topics",
-              "action" => "change_post_owners",
-              "topic_id" => topic.id.to_s
-            }
-          })
+          env =
+            create_request_env(path: "/t/#{topic.id}/change-owner").merge(
+              {
+                "REQUEST_METHOD" => "POST",
+                "action_dispatch.request.parameters" => {
+                  "post_ids" => [post.id.to_s],
+                  "username" => another_user.username,
+                  "controller" => "topics",
+                  "action" => "change_post_owners",
+                  "topic_id" => topic.id.to_s,
+                },
+              },
+            )
           ActionDispatch::Request.new(env)
         end
 
         context "with activity pub enabled" do
-          before do
-            toggle_activity_pub(category, callbacks: true)
-          end
+          before { toggle_activity_pub(category, callbacks: true) }
 
           it "returns false for all users" do
             expect(Guardian.new(admin, request).can_change_post_owner?).to be_falsey

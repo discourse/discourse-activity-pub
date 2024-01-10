@@ -51,7 +51,6 @@ RSpec.describe SiteController do
 
         include_examples "performance"
       end
-
     end
   end
 end

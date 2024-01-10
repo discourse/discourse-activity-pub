@@ -3,7 +3,6 @@ module DiscourseActivityPub
   module AP
     class Object
       class Note < Object
-
         def type
           "Note"
         end
@@ -17,7 +16,7 @@ module DiscourseActivityPub
         end
 
         def can_belong_to
-          %i(post remote)
+          %i[post remote]
         end
       end
     end

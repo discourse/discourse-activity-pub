@@ -3,7 +3,7 @@
 Fabricator(:discourse_activity_pub_actor) do
   ap_type { "Actor" }
   domain { DiscourseActivityPub.host }
-  username { sequence(:username) { |i| "username#{i}"} }
+  username { sequence(:username) { |i| "username#{i}" } }
 
   before_create do
     self.domain = "remote.com" unless local

@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class Activity
       class Follow < Activity
         def type
-          'Follow'
+          "Follow"
         end
       end
     end

@@ -10,15 +10,12 @@ module DiscourseActivityPub
             self.before_clear_all_activity_pub_objects
           end
 
-          objects = DiscourseActivityPubObject.where(
-            model_id: self.id,
-            model_type: self.class.name
-          )
+          objects = DiscourseActivityPubObject.where(model_id: self.id, model_type: self.class.name)
           objects.each do |object|
             object.activities.each do |activity|
               activity_job_args = {
                 object_id: activity.id,
-                object_type: 'DiscourseActivityPubActivity',
+                object_type: "DiscourseActivityPubActivity",
                 from_actor_id: activity.actor.id,
               }
               activity.actor.followers.each do |follower|
@@ -31,14 +28,12 @@ module DiscourseActivityPub
           objects.destroy_all
         end
 
-        collections = DiscourseActivityPubCollection.where(
-          model_id: self.id,
-          model_type: self.class.name
-        )
+        collections =
+          DiscourseActivityPubCollection.where(model_id: self.id, model_type: self.class.name)
         collections.each do |collection|
           object_job_args = {
             object_id: collection.id,
-            object_type: 'DiscourseActivityPubCollection',
+            object_type: "DiscourseActivityPubCollection",
             from_actor_id: self.activity_pub_actor.id,
           }
           self.activity_pub_actor.followers.each do |follower|

@@ -6,7 +6,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
   let!(:post) { Fabricate(:post, topic: topic, post_number: 1) }
   let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:activity_type) { DiscourseActivityPub::AP::Activity::Like.type }
-  let!(:note) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post, published_at: Time.now) }
+  let!(:note) do
+    Fabricate(:discourse_activity_pub_object_note, local: true, model: post, published_at: Time.now)
+  end
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
   let!(:json) { build_activity_json(object: note.ap.json, type: activity_type, actor: person) }
 
@@ -15,7 +17,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
   describe "#process" do
     before do
       stub_stored_request(note.attributed_to)
-      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
       topic.create_activity_pub_collection!
     end
 
@@ -33,31 +35,27 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       end
 
       context "with verbose logging enabled" do
-        before do
-          SiteSetting.activity_pub_verbose_logging = true
-        end
+        before { SiteSetting.activity_pub_verbose_logging = true }
 
         before do
           @orig_logger = Rails.logger
           Rails.logger = @fake_logger = FakeLogger.new
         end
 
-        after do
-          Rails.logger = @orig_logger
-        end
+        after { Rails.logger = @orig_logger }
 
         it "logs the right warning" do
           perform_process(json, activity_type)
           perform_process(json, activity_type)
           expect(@fake_logger.warnings.first).to eq(
-            build_process_warning("activity_already_processed", json["id"])
+            build_process_warning("activity_already_processed", json["id"]),
           )
         end
       end
     end
   end
 
-  describe '#process_actor_and_object' do
+  describe "#process_actor_and_object" do
     def perform_process(json, activity_type)
       klass = described_class.new
       klass.json = json
@@ -66,9 +64,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
     end
 
     context "with a valid activity" do
-      before do
-        stub_stored_request(note.attributed_to)
-      end
+      before { stub_stored_request(note.attributed_to) }
 
       context "without activity pub enabled" do
         it "returns false" do
@@ -77,41 +73,37 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
 
         it "creates a actor" do
           perform_process(json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: json['actor']['id'])).to eq(true)
+          expect(DiscourseActivityPubActor.exists?(ap_id: json["actor"]["id"])).to eq(true)
         end
 
         it "creates an attributedTo actor" do
           perform_process(json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: json['object']['attributedTo'])).to eq(true)
+          expect(DiscourseActivityPubActor.exists?(ap_id: json["object"]["attributedTo"])).to eq(
+            true,
+          )
         end
 
         context "with verbose logging enabled" do
-          before do
-            SiteSetting.activity_pub_verbose_logging = true
-          end
+          before { SiteSetting.activity_pub_verbose_logging = true }
 
           before do
             @orig_logger = Rails.logger
             Rails.logger = @fake_logger = FakeLogger.new
           end
 
-          after do
-            Rails.logger = @orig_logger
-          end
+          after { Rails.logger = @orig_logger }
 
           it "logs a warning" do
             perform_process(json, activity_type)
             expect(@fake_logger.warnings.last).to match(
-              build_process_warning("object_not_ready", json['id'])
+              build_process_warning("object_not_ready", json["id"]),
             )
           end
         end
       end
 
       context "with activity pub enabled" do
-        before do
-          toggle_activity_pub(actor.model)
-        end
+        before { toggle_activity_pub(actor.model) }
 
         it "returns true" do
           expect(perform_process(json, activity_type)).to eq(true)
@@ -119,27 +111,25 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
 
         it "creates a actor" do
           perform_process(json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: json['actor']['id'])).to eq(true)
+          expect(DiscourseActivityPubActor.exists?(ap_id: json["actor"]["id"])).to eq(true)
         end
 
         it "creates an attributedTo actor" do
           perform_process(json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: json['object']['attributedTo'])).to eq(true)
+          expect(DiscourseActivityPubActor.exists?(ap_id: json["object"]["attributedTo"])).to eq(
+            true,
+          )
         end
 
         context "with verbose logging enabled" do
-          before do
-            SiteSetting.activity_pub_verbose_logging = true
-          end
+          before { SiteSetting.activity_pub_verbose_logging = true }
 
           before do
             @orig_logger = Rails.logger
             Rails.logger = @fake_logger = FakeLogger.new
           end
 
-          after do
-            Rails.logger = @orig_logger
-          end
+          after { Rails.logger = @orig_logger }
 
           it "does not log a warning" do
             perform_process(json, activity_type)
@@ -148,13 +138,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         end
 
         context "with a local object uri" do
-          let!(:json) {
-            build_activity_json(
-              object: note.ap.json['id'],
-              type: activity_type,
-              actor: person
-            )
-          }
+          let!(:json) do
+            build_activity_json(object: note.ap.json["id"], type: activity_type, actor: person)
+          end
 
           it "resolves the local object without a request" do
             expect_no_request
@@ -170,75 +156,61 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           @json = build_activity_json(object: actor, type: activity_type)
           @json["actor"]["type"] = "Service"
         end
-  
+
         it "returns false" do
           expect(perform_process(@json, activity_type)).to eq(false)
         end
-  
+
         it "does not create an actor" do
           perform_process(@json, activity_type)
-          expect(
-            DiscourseActivityPubActor.exists?(
-              ap_id: @json['actor']['id']
-            )
-          ).to eq(false)
+          expect(DiscourseActivityPubActor.exists?(ap_id: @json["actor"]["id"])).to eq(false)
         end
-  
+
         context "with verbose logging enabled" do
-          before do
-            SiteSetting.activity_pub_verbose_logging = true
-          end
-  
+          before { SiteSetting.activity_pub_verbose_logging = true }
+
           before do
             @orig_logger = Rails.logger
             Rails.logger = @fake_logger = FakeLogger.new
           end
-  
-          after do
-            Rails.logger = @orig_logger
-          end
-  
+
+          after { Rails.logger = @orig_logger }
+
           it "logs a warning" do
             perform_process(@json, activity_type)
             expect(@fake_logger.warnings.first).to match(
-              build_process_warning("object_not_supported", @json["actor"]['id'])
+              build_process_warning("object_not_supported", @json["actor"]["id"]),
             )
           end
         end
       end
-  
+
       context "with an invalid object" do
-        before do
-          @json = build_activity_json
-        end
-  
+        before { @json = build_activity_json }
+
         it "returns false" do
           expect(perform_process(@json, activity_type)).to eq(false)
         end
-  
+
         it "creates an actor" do
           perform_process(@json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: @json['actor']['id'])).to eq(true)
+          expect(DiscourseActivityPubActor.exists?(ap_id: @json["actor"]["id"])).to eq(true)
         end
-  
+
         context "with verbose logging enabled" do
-          before do
-            SiteSetting.activity_pub_verbose_logging = true
-          end
-  
+          before { SiteSetting.activity_pub_verbose_logging = true }
+
           before do
             @orig_logger = Rails.logger
             Rails.logger = @fake_logger = FakeLogger.new
           end
-  
-          after do
-            Rails.logger = @orig_logger
-          end
-  
+
+          after { Rails.logger = @orig_logger }
+
           it "logs a warning" do
             perform_process(@json, activity_type)
             expect(@fake_logger.warnings.last).to match(
-              build_process_warning("object_not_ready", @json["id"])
+              build_process_warning("object_not_ready", @json["id"]),
             )
           end
         end

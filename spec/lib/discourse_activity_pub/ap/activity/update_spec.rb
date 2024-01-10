@@ -8,46 +8,40 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Update do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Activity::Compose }
 
-  describe '#process' do
-
+  describe "#process" do
     before do
-      toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
       topic.create_activity_pub_collection!
     end
 
     context "with valid Update json" do
       let!(:object_json) { build_object_json }
-      let!(:activity_json) {
+      let!(:activity_json) do
         build_activity_json(
           object: object_json,
-          type: 'Update',
-          to: [category.activity_pub_actor.ap_id]
+          type: "Update",
+          to: [category.activity_pub_actor.ap_id],
         )
-      }
+      end
 
       context "with an existing note" do
-        let!(:note) {
-          Fabricate(:discourse_activity_pub_object_note,
+        let!(:note) do
+          Fabricate(
+            :discourse_activity_pub_object_note,
             ap_id: object_json[:id],
             local: false,
-            model: post
+            model: post,
           )
-        }
-
-        before do
-          perform_process(activity_json)
         end
+
+        before { perform_process(activity_json) }
 
         it "updates the post raw" do
           expect(post.reload.raw).to eq(object_json[:content])
         end
 
         it "creates an activity" do
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              ap_id: activity_json[:id]
-            )
-          ).to be(true)
+          expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
         end
       end
     end

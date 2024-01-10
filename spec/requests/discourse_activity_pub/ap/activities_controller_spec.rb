@@ -5,9 +5,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
-  before do
-    SiteSetting.activity_pub_require_signed_requests = false
-  end
+  before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid activity" do
     it "returns a not found error" do
@@ -25,9 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
       end
     end
 
-    before do
-      activity.base_object.model.topic.update(category: staff_category)
-    end
+    before { activity.base_object.model.topic.update(category: staff_category) }
 
     it "returns a not available error" do
       get_object(activity)
@@ -38,12 +34,19 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
 
   describe "with an available base model" do
     before do
-      category = activity.ap.composition? ?
-        activity.base_object.model.topic.category :
+      category =
         (
-          activity.object.respond_to?(:model) ?
-          activity.object.model :
-          activity.object&.object.model
+          if activity.ap.composition?
+            activity.base_object.model.topic.category
+          else
+            (
+              if activity.object.respond_to?(:model)
+                activity.object.model
+              else
+                activity.object&.object&.model
+              end
+            )
+          end
         )
       toggle_activity_pub(category)
     end
@@ -55,9 +58,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     end
 
     context "with publishing disabled" do
-      before do
-        SiteSetting.login_required = true
-      end
+      before { SiteSetting.login_required = true }
 
       context "with a composition activity" do
         it "returns a not available error" do

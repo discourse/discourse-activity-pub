@@ -3,9 +3,9 @@
 RSpec.describe DiscourseActivityPub::AP::Object do
   describe "#factory" do
     it "generates an AP object from json" do
-      expect(
-        described_class.factory(build_activity_json)
-      ).to be_a(DiscourseActivityPub::AP::Activity::Follow)
+      expect(described_class.factory(build_activity_json)).to be_a(
+        DiscourseActivityPub::AP::Activity::Follow,
+      )
     end
   end
 
@@ -15,9 +15,9 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
       it "generates json from storage" do
         ap = DiscourseActivityPub::AP::Activity::Follow.new(stored: follow_activity)
-        expect(ap.json['id']).to eq(follow_activity.ap_id)
-        expect(ap.json['actor']['id']).to eq(follow_activity.actor.ap_id)
-        expect(ap.json['object']['id']).to eq(follow_activity.object.ap_id)
+        expect(ap.json["id"]).to eq(follow_activity.ap_id)
+        expect(ap.json["actor"]["id"]).to eq(follow_activity.actor.ap_id)
+        expect(ap.json["object"]["id"]).to eq(follow_activity.object.ap_id)
       end
 
       context "with a create object" do
@@ -27,14 +27,14 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
         it "copies the activity addressing to the object" do
           ap = DiscourseActivityPub::AP::Activity::Create.new(stored: create_activity)
-          expect(ap.json['object']['to']).to eq(create_activity.to)
-          expect(ap.json['object']['cc']).to eq(create_activity.cc)
+          expect(ap.json["object"]["to"]).to eq(create_activity.to)
+          expect(ap.json["object"]["cc"]).to eq(create_activity.cc)
         end
       end
     end
   end
 
-  describe '#resolve_and_store' do
+  describe "#resolve_and_store" do
     let!(:json) { build_object_json.with_indifferent_access }
     let!(:subject) do
       object = described_class.new
@@ -44,8 +44,13 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
     context "with an id that resolves" do
       before do
-        stub_request(:get, json['id'])
-          .to_return(body: json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
+        stub_request(:get, json["id"]).to_return(
+          body: json.to_json,
+          headers: {
+            "Content-Type" => "application/json",
+          },
+          status: 200,
+        )
       end
 
       context "with an object that can belong to remote" do
@@ -57,26 +62,29 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
       context "with an object that cannot belong to remote" do
         before do
-          json["type"] = 'Service'
-          stub_request(:get, json["id"])
-            .to_return(body: json.to_json, headers: { "Content-Type" => "application/json" }, status: 200)
+          json["type"] = "Service"
+          stub_request(:get, json["id"]).to_return(
+            body: json.to_json,
+            headers: {
+              "Content-Type" => "application/json",
+            },
+            status: 200,
+          )
         end
 
         context "with verbose logging enabled" do
-          before do
-            SiteSetting.activity_pub_verbose_logging = true
-          end
+          before { SiteSetting.activity_pub_verbose_logging = true }
 
           it "logs the right warning" do
             orig_logger = Rails.logger
             Rails.logger = fake_logger = FakeLogger.new
-  
-            DiscourseActivityPub::AP::Object.resolve_and_store(json['id'])
-  
+
+            DiscourseActivityPub::AP::Object.resolve_and_store(json["id"])
+
             expect(fake_logger.warnings.first).to eq(
-              "[Discourse Activity Pub] Failed to process #{json['id']}: Object is not supported"
+              "[Discourse Activity Pub] Failed to process #{json["id"]}: Object is not supported",
             )
-  
+
             Rails.logger = orig_logger
           end
         end
@@ -84,24 +92,19 @@ RSpec.describe DiscourseActivityPub::AP::Object do
     end
 
     context "with an id that does not resolve" do
-      before do
-        stub_request(:get, json['id'])
-          .to_return(status: 400)
-      end
+      before { stub_request(:get, json["id"]).to_return(status: 400) }
 
       context "with verbose logging enabled" do
-        before do
-          SiteSetting.activity_pub_verbose_logging = true
-        end
+        before { SiteSetting.activity_pub_verbose_logging = true }
 
         it "logs the right warning" do
           orig_logger = Rails.logger
           Rails.logger = fake_logger = FakeLogger.new
 
-          DiscourseActivityPub::AP::Object.resolve_and_store(json['id'])
+          DiscourseActivityPub::AP::Object.resolve_and_store(json["id"])
 
           expect(fake_logger.warnings.last).to eq(
-            "[Discourse Activity Pub] Failed to process #{json['id']}: Could not resolve object"
+            "[Discourse Activity Pub] Failed to process #{json["id"]}: Could not resolve object",
           )
 
           Rails.logger = orig_logger

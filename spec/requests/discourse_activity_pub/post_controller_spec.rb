@@ -11,9 +11,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
   describe "#schedule" do
     context "without activity pub enabled" do
-      before do
-        SiteSetting.activity_pub_enabled = false
-      end
+      before { SiteSetting.activity_pub_enabled = false }
 
       it "returns a not enabled error" do
         post "/ap/post/schedule/#{post1.id}"
@@ -23,16 +21,12 @@ RSpec.describe DiscourseActivityPub::PostController do
     end
 
     context "with activity pub enabled" do
-      before do
-        SiteSetting.activity_pub_enabled = true
-      end
+      before { SiteSetting.activity_pub_enabled = true }
 
       context "with signed in staff" do
         let!(:user) { Fabricate(:user, moderator: true) }
 
-        before do
-          sign_in(user)
-        end
+        before { sign_in(user) }
 
         context "without a valid post id" do
           it "returns a post not found error" do
@@ -45,7 +39,7 @@ RSpec.describe DiscourseActivityPub::PostController do
         context "with a valid post id" do
           context "with a first_post activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+              toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
             end
 
             context "with the first post" do
@@ -56,7 +50,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
               context "when the post is published" do
                 before do
-                  post1.custom_fields['activity_pub_published_at'] = Time.now
+                  post1.custom_fields["activity_pub_published_at"] = Time.now
                   post1.save_custom_fields(true)
                 end
 
@@ -69,7 +63,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
               context "when the post is scheduled" do
                 before do
-                  post1.custom_fields['activity_pub_scheduled_at'] = Time.now
+                  post1.custom_fields["activity_pub_scheduled_at"] = Time.now
                   post1.save_custom_fields(true)
                 end
 
@@ -120,7 +114,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
           context "with a full_topic activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+              toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
               topic.create_activity_pub_collection!
             end
 
@@ -136,9 +130,7 @@ RSpec.describe DiscourseActivityPub::PostController do
       context "without signed in staff" do
         let!(:user) { Fabricate(:user) }
 
-        before do
-          sign_in(user)
-        end
+        before { sign_in(user) }
 
         it "returns an invalid access error" do
           post "/ap/post/schedule/#{post1.id}"
@@ -150,9 +142,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
   describe "#unschedule" do
     context "without activity pub enabled" do
-      before do
-        SiteSetting.activity_pub_enabled = false
-      end
+      before { SiteSetting.activity_pub_enabled = false }
 
       it "returns a not enabled error" do
         delete "/ap/post/schedule/#{post1.id}"
@@ -162,16 +152,12 @@ RSpec.describe DiscourseActivityPub::PostController do
     end
 
     context "with activity pub enabled" do
-      before do
-        SiteSetting.activity_pub_enabled = true
-      end
+      before { SiteSetting.activity_pub_enabled = true }
 
       context "with signed in staff" do
         let!(:user) { Fabricate(:user, moderator: true) }
 
-        before do
-          sign_in(user)
-        end
+        before { sign_in(user) }
 
         context "without a valid post id" do
           it "returns a post not found error" do
@@ -184,7 +170,7 @@ RSpec.describe DiscourseActivityPub::PostController do
         context "with a valid post id" do
           context "with a first_post activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: 'first_post')
+              toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
             end
 
             context "with the first post" do
@@ -195,7 +181,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
               context "when the post is published" do
                 before do
-                  post1.custom_fields['activity_pub_published_at'] = Time.now
+                  post1.custom_fields["activity_pub_published_at"] = Time.now
                   post1.save_custom_fields(true)
                 end
 
@@ -216,7 +202,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
               context "when the post is scheduled and not published" do
                 before do
-                  post1.custom_fields['activity_pub_scheduled_at'] = Time.now
+                  post1.custom_fields["activity_pub_scheduled_at"] = Time.now
                   post1.save_custom_fields(true)
                 end
 
@@ -259,7 +245,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
           context "with a full_topic activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: 'full_topic')
+              toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
               topic.create_activity_pub_collection!
             end
 
@@ -275,9 +261,7 @@ RSpec.describe DiscourseActivityPub::PostController do
       context "without signed in staff" do
         let!(:user) { Fabricate(:user) }
 
-        before do
-          sign_in(user)
-        end
+        before { sign_in(user) }
 
         it "returns an invalid access error" do
           post "/ap/post/schedule/#{post1.id}"
