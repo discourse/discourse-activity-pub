@@ -820,8 +820,8 @@ after_initialize do
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
             I18n.t(
-              "discourse_activity_pub.activity.create.failed_to_create_user",
-              actor_id: activity.object.stored.attributed_to&.id,
+              "discourse_activity_pub.process.error.failed_to_create_user",
+              actor_id: activity.object.stored.attributed_to&.ap_id,
             )
     end
 
@@ -835,8 +835,7 @@ after_initialize do
     unless post
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
             I18n.t(
-              "discourse_activity_pub.activity.create.failed_to_create_post",
-              user_id: user.id,
+              "discourse_activity_pub.process.error.failed_to_create_post",
               object_id: activity.object.id,
             )
     end
@@ -860,7 +859,7 @@ after_initialize do
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
             I18n.t(
-              "discourse_activity_pub.create.failed_to_create_user",
+              "discourse_activity_pub.process.error.failed_to_create_user",
               actor_id: activity.actor.id,
             )
     end
@@ -922,8 +921,8 @@ after_initialize do
       DiscourseActivityPub::Logger.object_store_error(response, error)
       raise DiscourseActivityPub::AP::Handlers::Error::RespondTo,
             I18n.t(
-              "discourse_activity_pub.process.warning.failed_to_respond_to_follow",
-              follow: activity.json[:id],
+              "discourse_activity_pub.process.error.failed_to_respond_to_follow",
+              activity_id: activity.json[:id],
             )
     end
 
@@ -967,8 +966,8 @@ after_initialize do
       DiscourseActivityPub::Logger.object_store_error(activity, error)
       raise DiscourseActivityPub::AP::Handlers::Error::Store,
             I18n.t(
-              "discourse_activity_pub.process.warning.failed_to_save_activity",
-              activity: activity.json[:id],
+              "discourse_activity_pub.process.error.failed_to_save_activity",
+              activity_id: activity.json[:id],
             )
     end
 
@@ -1031,8 +1030,8 @@ after_initialize do
             DiscourseActivityPub::Logger.object_store_error(object, error)
             raise DiscourseActivityPub::AP::Handlers::Error::Store,
                   I18n.t(
-                    "discourse_activity_pub.process.warning.failed_to_save_object",
-                    object: object.json[:id],
+                    "discourse_activity_pub.process.error.failed_to_save_object",
+                    object_id: object.json[:id],
                   )
           end
         end
@@ -1076,8 +1075,8 @@ after_initialize do
           DiscourseActivityPub::Logger.object_store_error(actor, error)
           raise DiscourseActivityPub::AP::Handlers::Error::Store,
                 I18n.t(
-                  "discourse_activity_pub.process.warning.failed_to_save_actor",
-                  actor: actor.json[:id],
+                  "discourse_activity_pub.process.error.failed_to_save_actor",
+                  actor_id: actor.json[:id],
                 )
         end
       end
@@ -1104,17 +1103,11 @@ after_initialize do
         }
         collection.stored = DiscourseActivityPubCollection.new(params)
       end
-
       if collection.stored.new_record? || collection.stored.changed?
         begin
           collection.stored.save!
         rescue ActiveRecord::RecordInvalid => error
           DiscourseActivityPub::Logger.object_store_error(collection, error)
-          raise DiscourseActivityPub::AP::Handlers::Error::Store,
-                I18n.t(
-                  "discourse_activity_pub.process.warning.failed_to_save_collection",
-                  collection: collection.json[:id],
-                )
         end
       end
     end

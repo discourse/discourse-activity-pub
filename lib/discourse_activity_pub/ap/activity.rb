@@ -34,7 +34,8 @@ module DiscourseActivityPub
             perform_activity
             store_activity
             respond_to_activity
-          rescue DiscourseActivityPub::AP::Handlers::Error
+          rescue DiscourseActivityPub::AP::Handlers::Error => error
+            DiscourseActivityPub::Logger.error(error.message)
             raise ActiveRecord::Rollback
           end
         end

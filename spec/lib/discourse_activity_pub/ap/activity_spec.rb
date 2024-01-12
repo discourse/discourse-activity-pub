@@ -35,20 +35,43 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       end
 
       context "with verbose logging enabled" do
-        before { SiteSetting.activity_pub_verbose_logging = true }
-
-        before do
-          @orig_logger = Rails.logger
-          Rails.logger = @fake_logger = FakeLogger.new
-        end
-
-        after { Rails.logger = @orig_logger }
+        before { setup_logging }
+        after { teardown_logging }
 
         it "logs the right warning" do
           perform_process(json, activity_type)
           perform_process(json, activity_type)
           expect(@fake_logger.warnings.first).to eq(
             build_process_warning("activity_already_processed", json["id"]),
+          )
+        end
+      end
+    end
+
+    context "when fails to create activity" do
+      before do
+        DiscourseActivityPubActivity.expects(:create!).raises(
+          ActiveRecord::RecordInvalid.new(
+            DiscourseActivityPubActivity.new
+          )
+        ).once
+      end
+
+      it "returns true" do
+        expect(perform_process(json, activity_type)).to eq(true)
+      end
+
+      context "with verbose logging enabled" do
+        before { setup_logging }
+        after { teardown_logging }
+
+        it "logs the right error" do
+          perform_process(json, activity_type)
+          expect(@fake_logger.errors.last).to match(
+            I18n.t(
+              "discourse_activity_pub.process.error.failed_to_save_activity",
+              activity_id: json[:id]
+            )
           )
         end
       end
@@ -84,14 +107,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         end
 
         context "with verbose logging enabled" do
-          before { SiteSetting.activity_pub_verbose_logging = true }
-
-          before do
-            @orig_logger = Rails.logger
-            Rails.logger = @fake_logger = FakeLogger.new
-          end
-
-          after { Rails.logger = @orig_logger }
+          before { setup_logging }
+          after { teardown_logging }
 
           it "logs a warning" do
             perform_process(json, activity_type)
@@ -122,14 +139,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         end
 
         context "with verbose logging enabled" do
-          before { SiteSetting.activity_pub_verbose_logging = true }
-
-          before do
-            @orig_logger = Rails.logger
-            Rails.logger = @fake_logger = FakeLogger.new
-          end
-
-          after { Rails.logger = @orig_logger }
+          before { setup_logging }
+          after { teardown_logging }
 
           it "does not log a warning" do
             perform_process(json, activity_type)
@@ -167,14 +178,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         end
 
         context "with verbose logging enabled" do
-          before { SiteSetting.activity_pub_verbose_logging = true }
-
-          before do
-            @orig_logger = Rails.logger
-            Rails.logger = @fake_logger = FakeLogger.new
-          end
-
-          after { Rails.logger = @orig_logger }
+          before { setup_logging }
+          after { teardown_logging }
 
           it "logs a warning" do
             perform_process(@json, activity_type)
@@ -198,14 +203,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         end
 
         context "with verbose logging enabled" do
-          before { SiteSetting.activity_pub_verbose_logging = true }
-
-          before do
-            @orig_logger = Rails.logger
-            Rails.logger = @fake_logger = FakeLogger.new
-          end
-
-          after { Rails.logger = @orig_logger }
+          before { setup_logging }
+          after { teardown_logging }
 
           it "logs a warning" do
             perform_process(@json, activity_type)

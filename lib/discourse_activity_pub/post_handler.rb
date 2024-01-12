@@ -95,8 +95,8 @@ module DiscourseActivityPub
         else
           raise DiscourseActivityPub::AP::Handlers::Error::Store,
                 I18n.t(
-                  "discourse_activity_pub.process.warning.failed_to_save_collection",
-                  collection: DiscourseActivityPub::JsonLd.resolve_id(raw_collection),
+                  "discourse_activity_pub.process.error.failed_to_save_collection",
+                  collection_id: DiscourseActivityPub::JsonLd.resolve_id(raw_collection),
                 )
         end
       else
