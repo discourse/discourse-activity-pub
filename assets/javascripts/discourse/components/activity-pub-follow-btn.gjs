@@ -51,11 +51,11 @@ export default class ActivityPubFollowBtn extends Component {
 
   <template>
     <DButton
-      @class={{this.class}}
       @icon={{this.icon}}
       @action={{this.showModal}}
       @translatedLabel={{this.label}}
       @translatedTitle={{this.title}}
+      class={{this.class}}
     />
   </template>
 }

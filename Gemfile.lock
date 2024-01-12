@@ -5,7 +5,7 @@ GEM
     json (2.7.1)
     language_server-protocol (3.17.0.3)
     parallel (1.24.0)
-    parser (3.3.0.2)
+    parser (3.3.0.3)
       ast (~> 2.4.1)
       racc
     prettier_print (1.2.1)
@@ -43,14 +43,11 @@ GEM
     unicode-display_width (2.5.0)
 
 PLATFORMS
-  arm64-darwin-20
-  arm64-darwin-22
   ruby
-  x86_64-linux
 
 DEPENDENCIES
   rubocop-discourse
   syntax_tree
 
 BUNDLED WITH
-   2.5.3
+   2.5.4

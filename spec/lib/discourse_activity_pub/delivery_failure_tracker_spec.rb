@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe DiscourseActivityPub::DeliveryFailureTracker do
   subject(:tracker) { described_class.new(actor.inbox) }
 

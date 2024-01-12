@@ -33,9 +33,9 @@ export default class ActivityPubHandle extends Component {
           >{{d-icon "external-link-alt"}}</a>
         {{/if}}
         {{#if this.copied}}
-          <DButton @class="btn-hover" @icon="copy" @label="ip_lookup.copied" />
+          <DButton @icon="copy" @label="ip_lookup.copied" class="btn-hover" />
         {{else}}
-          <DButton @action={{this.copy}} @class="no-text" @icon="copy" />
+          <DButton @action={{this.copy}} @icon="copy" class="no-text" />
         {{/if}}
       </div>
     </div>
