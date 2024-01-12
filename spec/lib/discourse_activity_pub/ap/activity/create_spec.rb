@@ -81,17 +81,12 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       end
 
       before do
-        SiteSetting.activity_pub_verbose_logging = true
         original_object.model.trash!
-        @orig_logger = Rails.logger
-        Rails.logger = @fake_logger = FakeLogger.new
+        setup_logging
         perform_process(reply_json)
       end
 
-      after do
-        Rails.logger = @orig_logger
-        SiteSetting.activity_pub_verbose_logging = false
-      end
+      after { teardown_logging }
 
       it "does not create a post" do
         expect(Post.exists?(raw: reply_json[:object][:content])).to be(false)
@@ -177,6 +172,44 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
           include_examples "creates a new topic"
         end
+
+        context "when user creation fails" do
+          before do
+            setup_logging
+            DiscourseActivityPub::UserHandler.stubs(:update_or_create_user).returns(nil)
+            perform_process(new_post_json, delivered_to)
+          end
+
+          after { teardown_logging }
+
+          it "logs the right error" do
+            expect(@fake_logger.errors.last).to match(
+              I18n.t(
+                "discourse_activity_pub.process.error.failed_to_create_user",
+                actor_id: person.ap_id,
+              ),
+            )
+          end
+        end
+
+        context "when post creation fails" do
+          before do
+            setup_logging
+            DiscourseActivityPub::PostHandler.stubs(:create).returns(nil)
+            perform_process(new_post_json, delivered_to)
+          end
+
+          after { teardown_logging }
+
+          it "logs the right error" do
+            expect(@fake_logger.errors.last).to match(
+              I18n.t(
+                "discourse_activity_pub.process.error.failed_to_create_post",
+                object_id: object_json[:id],
+              ),
+            )
+          end
+        end
       end
 
       context "when the target is following the parent actor" do
@@ -207,16 +240,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
       context "when the target is not following the create actor" do
         before do
-          SiteSetting.activity_pub_verbose_logging = true
-          @orig_logger = Rails.logger
-          Rails.logger = @fake_logger = FakeLogger.new
+          setup_logging
           perform_process(new_post_json, delivered_to)
         end
 
-        after do
-          Rails.logger = @orig_logger
-          SiteSetting.activity_pub_verbose_logging = false
-        end
+        after { teardown_logging }
 
         it "does not create a post" do
           expect(Post.exists?(raw: new_post_json[:object][:content])).to be(false)

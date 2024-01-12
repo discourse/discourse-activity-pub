@@ -24,7 +24,7 @@ module DiscourseActivityPub
           object_type,
           handler_type,
           parent: parent,
-          raise_errors: false,
+          raise_errors: raise_errors,
         )
       end
 
@@ -51,13 +51,10 @@ module DiscourseActivityPub
           type, handler = handler_keys(object_type, handler_type)
           return [] unless type && handler
           klass = get_klass(object_type.to_s)
+          _handlers = [*sorted_handlers.dig(*[type, handler])]
           base_type = klass.base_type.downcase.to_sym
-          [
-            *(
-              [*sorted_handlers.dig(*[type, handler])] +
-                [*sorted_handlers.dig(*[base_type, handler])]
-            ),
-          ].map { |h| h[:proc] }.compact
+          _handlers += [*sorted_handlers.dig(*[base_type, handler])] if type != base_type
+          _handlers.map { |h| h[:proc] }.compact
         end
 
         def add_handler(object_type, handler_type, priority = 0, &block)

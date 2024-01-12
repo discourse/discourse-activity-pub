@@ -35,7 +35,7 @@ module DiscourseActivityPub
         protected
 
         def reject_message_from_key(key)
-          I18n.t("discourse_activity_pub.activity.reject.#{key}")
+          I18n.t("discourse_activity_pub.process.warning.#{key}")
         end
       end
     end

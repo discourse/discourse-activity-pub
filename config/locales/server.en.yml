@@ -85,20 +85,18 @@ en:
         announce_not_publicly_addressed: "Announcement is not publicly addressed."
         only_category_actors_accept_new_topics: "Only category actors accept new topics."
         only_followed_actors_create_new_topics: "Only followed actors can create new topics."
-        failed_to_respond_to_follow: "Failed to respond to follow: %{follow}"
-        failed_to_save_activity: "Failed to save activity: %{activity}"
-        failed_to_save_object: "Failed to save object: %{object}"
-        failed_to_save_actor: "Failed to save actor: %{actor}"
-        failed_to_save_collection: "Failed to save collection: %{collection}"
+        actor_already_following: "Actor is already following that object"
+      error:
+        failed_to_create_user: "Failed to create user for %{actor_id}"
+        failed_to_create_post: "Failed to create post for %{object_id}"
+        failed_to_respond_to_follow: "Failed to respond to follow: %{activity_id}"
+        failed_to_save_activity: "Failed to save activity: %{activity_id}"
+        failed_to_save_object: "Failed to save object: %{object_id}"
+        failed_to_save_actor: "Failed to save actor: %{actor_id}"
+        failed_to_save_collection: "Failed to save collection: %{collection_id}"
       info:
         received_json: "Received JSON delivered to %{delivered_to}"
         processing_json: "Processing JSON delivered to %{delivered_to}"
-    activity:
-      create:
-        failed_to_create_user: "Failed to create user for %{actor_id}"
-        failed_to_create_post: "%{user_id} failed to create post for %{object_id}"
-      reject:
-        actor_already_following: "Actor is already following that object"
     webfinger:
       error:
         not_enabled: "Webfinger is not enabled"

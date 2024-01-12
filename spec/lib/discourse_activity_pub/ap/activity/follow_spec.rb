@@ -109,6 +109,30 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
             include_examples "processes a new follow"
           end
+
+          context "when follow creation fails" do
+            let!(:json) { build_activity_json(object: category.activity_pub_actor.ap_id) }
+
+            before do
+              setup_logging
+              DiscourseActivityPubFollow
+                .expects(:create!)
+                .raises(ActiveRecord::RecordInvalid.new(DiscourseActivityPubFollow.new))
+                .once
+              perform_process(json)
+            end
+
+            after { teardown_logging }
+
+            it "logs the right error" do
+              expect(@fake_logger.errors.last).to match(
+                I18n.t(
+                  "discourse_activity_pub.process.error.failed_to_respond_to_follow",
+                  activity_id: json[:id],
+                ),
+              )
+            end
+          end
         end
 
         context "when already following" do

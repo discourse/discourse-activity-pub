@@ -74,4 +74,37 @@ RSpec.describe DiscourseActivityPub::AP::Collection do
       perform_process(collection_json)
     end
   end
+
+  describe "#resolve_and_store" do
+    let!(:collection_json) { build_collection_json(type: "OrderedCollection") }
+
+    it "stores the collection" do
+      described_class.resolve_and_store(collection_json)
+      expect(DiscourseActivityPubCollection.exists?(ap_id: collection_json[:id])).to eq(true)
+    end
+
+    context "when store fails" do
+      let!(:ar_error) { "Failed to save collection" }
+
+      before do
+        collection_stub = DiscourseActivityPubCollection.new
+        collection_stub.errors.add(:base, ar_error)
+        DiscourseActivityPubCollection
+          .any_instance
+          .expects(:save!)
+          .raises(ActiveRecord::RecordInvalid.new(collection_stub))
+          .once
+      end
+
+      context "with verbose logging enabled" do
+        before { setup_logging }
+        after { teardown_logging }
+
+        it "logs the right error" do
+          described_class.resolve_and_store(collection_json)
+          expect(@fake_logger.errors.first).to match(ar_error)
+        end
+      end
+    end
+  end
 end

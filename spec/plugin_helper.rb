@@ -186,11 +186,11 @@ def build_activity_json(
   _json.with_indifferent_access
 end
 
-def build_collection_json(items: [], to: nil, cc: nil, audience: nil)
+def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audience: nil)
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "https://external.com/collection/#{SecureRandom.hex(8)}",
-    type: "Collection",
+    type: type,
     items: items,
   }
   _json[:to] = to if to
@@ -269,4 +269,15 @@ def expect_post(returns: true)
     DiscourseActivityPub::DeliveryFailureTracker.any_instance.expects(:track_failure).once
     DiscourseActivityPubActivity.any_instance.expects(:after_deliver).with(false).once
   end
+end
+
+def setup_logging
+  SiteSetting.activity_pub_verbose_logging = true
+  @orig_logger = Rails.logger
+  Rails.logger = @fake_logger = FakeLogger.new
+end
+
+def teardown_logging
+  Rails.logger = @orig_logger
+  SiteSetting.activity_pub_verbose_logging = false
 end
