@@ -50,11 +50,10 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
 
     context "when fails to create activity" do
       before do
-        DiscourseActivityPubActivity.expects(:create!).raises(
-          ActiveRecord::RecordInvalid.new(
-            DiscourseActivityPubActivity.new
-          )
-        ).once
+        DiscourseActivityPubActivity
+          .expects(:create!)
+          .raises(ActiveRecord::RecordInvalid.new(DiscourseActivityPubActivity.new))
+          .once
       end
 
       it "returns true" do
@@ -70,8 +69,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           expect(@fake_logger.errors.last).to match(
             I18n.t(
               "discourse_activity_pub.process.error.failed_to_save_activity",
-              activity_id: json[:id]
-            )
+              activity_id: json[:id],
+            ),
           )
         end
       end

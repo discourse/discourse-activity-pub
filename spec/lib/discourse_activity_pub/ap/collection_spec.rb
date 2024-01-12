@@ -88,10 +88,12 @@ RSpec.describe DiscourseActivityPub::AP::Collection do
 
       before do
         collection_stub = DiscourseActivityPubCollection.new
-        collection_stub.errors.add(:base, ar_error)     
-        DiscourseActivityPubCollection.any_instance.expects(:save!).raises(
-          ActiveRecord::RecordInvalid.new(collection_stub)
-        ).once
+        collection_stub.errors.add(:base, ar_error)
+        DiscourseActivityPubCollection
+          .any_instance
+          .expects(:save!)
+          .raises(ActiveRecord::RecordInvalid.new(collection_stub))
+          .once
       end
 
       context "with verbose logging enabled" do

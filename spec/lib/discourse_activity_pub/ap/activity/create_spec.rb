@@ -86,9 +86,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         perform_process(reply_json)
       end
 
-      after do
-        teardown_logging
-      end
+      after { teardown_logging }
 
       it "does not create a post" do
         expect(Post.exists?(raw: reply_json[:object][:content])).to be(false)
@@ -181,17 +179,15 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             DiscourseActivityPub::UserHandler.stubs(:update_or_create_user).returns(nil)
             perform_process(new_post_json, delivered_to)
           end
-  
-          after do
-            teardown_logging
-          end
-  
+
+          after { teardown_logging }
+
           it "logs the right error" do
             expect(@fake_logger.errors.last).to match(
               I18n.t(
                 "discourse_activity_pub.process.error.failed_to_create_user",
                 actor_id: person.ap_id,
-              )
+              ),
             )
           end
         end
@@ -203,16 +199,14 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             perform_process(new_post_json, delivered_to)
           end
 
-          after do
-            teardown_logging
-          end
+          after { teardown_logging }
 
           it "logs the right error" do
             expect(@fake_logger.errors.last).to match(
               I18n.t(
                 "discourse_activity_pub.process.error.failed_to_create_post",
                 object_id: object_json[:id],
-              )
+              ),
             )
           end
         end
@@ -250,9 +244,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           perform_process(new_post_json, delivered_to)
         end
 
-        after do
-          teardown_logging
-        end
+        after { teardown_logging }
 
         it "does not create a post" do
           expect(Post.exists?(raw: new_post_json[:object][:content])).to be(false)

@@ -115,24 +115,21 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
 
             before do
               setup_logging
-              DiscourseActivityPubFollow.expects(:create!).raises(
-                ActiveRecord::RecordInvalid.new(
-                  DiscourseActivityPubFollow.new
-                )
-              ).once
+              DiscourseActivityPubFollow
+                .expects(:create!)
+                .raises(ActiveRecord::RecordInvalid.new(DiscourseActivityPubFollow.new))
+                .once
               perform_process(json)
             end
 
-            after do
-              teardown_logging
-            end
+            after { teardown_logging }
 
             it "logs the right error" do
               expect(@fake_logger.errors.last).to match(
                 I18n.t(
                   "discourse_activity_pub.process.error.failed_to_respond_to_follow",
                   activity_id: json[:id],
-                )
+                ),
               )
             end
           end
