@@ -5,15 +5,9 @@ import DButton from "discourse/components/d-button";
 import I18n from "discourse-i18n";
 
 export default class ActivityPubActorFollowBtn extends Component {
-  @tracked followed = false;
+  @tracked followed = !!this.args.followActor.followed_at;
   @tracked following = false;
   @tracked followRequested = false;
-
-  constructor() {
-    super(...arguments);
-
-    this.followed = !!this.args.followActor.followed_at;
-  }
 
   @action
   follow() {
@@ -66,12 +60,12 @@ export default class ActivityPubActorFollowBtn extends Component {
 
   <template>
     <DButton
-      @class="activity-pub-follow-actor-btn"
       @action={{this.follow}}
       @icon={{this.icon}}
       @translatedLabel={{this.label}}
       @translatedTitle={{this.title}}
       @disabled={{this.following}}
+      class="activity-pub-follow-actor-btn"
     />
   </template>
 }

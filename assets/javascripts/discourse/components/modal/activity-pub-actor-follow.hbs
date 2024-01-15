@@ -14,12 +14,12 @@
             {{on "keyup" this.onKeyup}}
           />
           <DButton
-            @id="activity_pub_actor_follow_find_button"
             @icon="search"
             @action={{action "find"}}
             @label="discourse_activity_pub.actor_follow.find.btn_label"
             @title="discourse_activity_pub.actor_follow.find.btn_title"
             @disabled={{this.validating}}
+            id="activity_pub_actor_follow_find_button"
           />
         </div>
         <div class={{footerClass}}>

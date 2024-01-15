@@ -1,7 +1,7 @@
 <LoadMore
-  @class="activity-pub-follows-container"
   @selector=".directory-table .directory-table__cell"
   @action={{action "loadMore"}}
+  class="activity-pub-follows-container"
 >
   {{#if this.model.hasActors}}
     <ResponsiveTable @className="activity-pub-follow-table follows">

@@ -2,18 +2,18 @@
   <label>{{i18n "discourse_activity_pub.follow.domain.label"}}</label>
   <div class="activity-pub-follow-domain-controls inline-form">
     <Input
-      id="activity_pub_follow_domain_input"
+      {{on "keyup" this.onKeyup}}
       @value={{this.domain}}
       placeholder={{i18n "discourse_activity_pub.follow.domain.placeholder"}}
-      {{on "keyup" this.onKeyup}}
+      id="activity_pub_follow_domain_input"
     />
     <DButton
-      @id="activity_pub_follow_domain_button"
       @icon="external-link-alt"
       @action={{action "follow"}}
       @label="discourse_activity_pub.follow.domain.btn_label"
       @title="discourse_activity_pub.follow.domain.btn_title"
       @disabled={{this.verifying}}
+      id="activity_pub_follow_domain_button"
     />
   </div>
   <div class={{footerClass}}>
