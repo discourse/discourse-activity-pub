@@ -213,10 +213,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
           it "logs errors from the post creator" do
             message = "Something went wrong"
-            post_stub = Post.new
-            post_stub.errors.add(:base, message)
 
-            PostCreator.stubs(:create!).raises(ActiveRecord::RecordInvalid.new(post_stub)).once
+            # See explicit raise in discourse/discourse/lib/post_creator.rb#create!
+            PostCreator.stubs(:create!).raises(ActiveRecord::RecordNotSaved.new(message)).once
 
             perform_process(new_post_json, delivered_to)
 
@@ -224,7 +223,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
               I18n.t(
                 "discourse_activity_pub.post.error.failed_to_create",
                 object_id: object_json[:id],
-                message: "Validation failed: #{message}",
+                message: message,
               ),
             )
           end

@@ -48,6 +48,7 @@ module DiscourseActivityPub
         rescue PG::UniqueViolation,
                ActiveRecord::RecordNotUnique,
                ActiveRecord::RecordInvalid,
+               ActiveRecord::RecordNotSaved,
                DiscourseActivityPub::AP::Handlers => e
           DiscourseActivityPub::Logger.error(
             I18n.t(
