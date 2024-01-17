@@ -174,15 +174,30 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
 
         context "when user creation fails" do
-          before do
-            setup_logging
-            DiscourseActivityPub::UserHandler.stubs(:update_or_create_user).returns(nil)
-            perform_process(new_post_json, delivered_to)
-          end
-
+          before { setup_logging }
           after { teardown_logging }
 
-          it "logs the right error" do
+          it "logs errors from the user handler" do
+            message = "Something went wrong"
+            user_stub = Post.new
+            user_stub.errors.add(:base, message)
+
+            User.stubs(:create!).raises(ActiveRecord::RecordInvalid.new(user_stub)).once
+
+            perform_process(new_post_json, delivered_to)
+
+            expect(@fake_logger.errors.first).to match(
+              I18n.t(
+                "discourse_activity_pub.user.error.failed_to_create",
+                actor_id: person.ap_id,
+                message: "Validation failed: #{message}",
+              ),
+            )
+          end
+
+          it "logs a process error" do
+            DiscourseActivityPub::UserHandler.stubs(:update_or_create_user).returns(nil)
+            perform_process(new_post_json, delivered_to)
             expect(@fake_logger.errors.last).to match(
               I18n.t(
                 "discourse_activity_pub.process.error.failed_to_create_user",
@@ -193,15 +208,30 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
 
         context "when post creation fails" do
-          before do
-            setup_logging
-            DiscourseActivityPub::PostHandler.stubs(:create).returns(nil)
-            perform_process(new_post_json, delivered_to)
-          end
-
+          before { setup_logging }
           after { teardown_logging }
 
-          it "logs the right error" do
+          it "logs errors from the post creator" do
+            message = "Something went wrong"
+            post_stub = Post.new
+            post_stub.errors.add(:base, message)
+
+            PostCreator.stubs(:create!).raises(ActiveRecord::RecordInvalid.new(post_stub)).once
+
+            perform_process(new_post_json, delivered_to)
+
+            expect(@fake_logger.errors.first).to match(
+              I18n.t(
+                "discourse_activity_pub.post.error.failed_to_create",
+                object_id: object_json[:id],
+                message: "Validation failed: #{message}",
+              ),
+            )
+          end
+
+          it "logs a process error" do
+            DiscourseActivityPub::PostHandler.stubs(:create).returns(nil)
+            perform_process(new_post_json, delivered_to)
             expect(@fake_logger.errors.last).to match(
               I18n.t(
                 "discourse_activity_pub.process.error.failed_to_create_post",

@@ -38,10 +38,10 @@ module DiscourseActivityPub
         rescue PG::UniqueViolation,
                ActiveRecord::RecordNotUnique,
                ActiveRecord::RecordInvalid => error
-          DiscourseActivityPub::Logger.warn(
+          DiscourseActivityPub::Logger.error(
             I18n.t(
               "discourse_activity_pub.user.error.failed_to_create",
-              actor: actor.id,
+              actor_id: actor.ap_id,
               message: error.message,
             ),
           )
