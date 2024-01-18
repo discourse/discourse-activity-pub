@@ -325,9 +325,7 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_full_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:post, :activity_pub_domain) { self.activity_pub_object&.domain }
-  add_to_class(:post, :activity_pub_full_topic) do
-    activity_pub_topic&.activity_pub_full_topic && activity_pub_topic.activity_pub_object.present?
-  end
+  add_to_class(:post, :activity_pub_full_topic) { activity_pub_topic&.activity_pub_full_topic }
   add_to_class(:post, :activity_pub_first_post) { !activity_pub_full_topic }
   add_to_class(:post, :activity_pub_enabled) do
     return false unless DiscourseActivityPub.enabled

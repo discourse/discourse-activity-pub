@@ -115,7 +115,6 @@ RSpec.describe DiscourseActivityPub::PostController do
           context "with a full_topic activity pub category" do
             before do
               toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
-              topic.create_activity_pub_collection!
             end
 
             it "returns a first post not enabled error" do
