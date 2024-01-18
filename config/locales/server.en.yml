@@ -114,10 +114,13 @@ en:
         cant_unschedule_post: "Can't unschedule post"
         first_post_not_enabled: "First Post is not enabled"
         not_first_post: "Post is not the first post"
-        failed_to_create: "%{user} failed to create post for %{object}: %{message}"
+        failed_to_create: "Failed to create post for %{object_id}: %{message}"
     user:
       error:
-        failed_to_create: "Failed to create user for %{actor}: %{message}"
+        failed_to_create: "Failed to create user for %{actor_id}: %{message}"
+      warning:
+        cant_create_user_for_actor_type: "Cannot create a user for %{actor_type} %{actor_id}"
+        cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
     object:
       note:
         link_to_forum: Discuss this on our forum.

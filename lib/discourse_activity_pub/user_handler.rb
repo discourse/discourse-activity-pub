@@ -7,12 +7,33 @@ module DiscourseActivityPub
     end
 
     def validate_actor
-      # We only associated users with stored Persons
-      actor&.ap&.person?
+      if !actor&.ap&.person?
+        DiscourseActivityPub::Logger.warn(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_user_for_actor_type",
+            actor_id: actor.ap_id,
+            actor_type: actor.ap_type,
+          ),
+        )
+        false
+      else
+        true
+      end
     end
 
     def validate_user
-      true
+      if !user.is_a?(User)
+        DiscourseActivityPub::Logger.warn(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_actor_for_model_type",
+            model_id: user.id,
+            model_type: user.class.name,
+          ),
+        )
+        false
+      else
+        true
+      end
     end
 
     def user
@@ -38,10 +59,10 @@ module DiscourseActivityPub
         rescue PG::UniqueViolation,
                ActiveRecord::RecordNotUnique,
                ActiveRecord::RecordInvalid => error
-          DiscourseActivityPub::Logger.warn(
+          DiscourseActivityPub::Logger.error(
             I18n.t(
               "discourse_activity_pub.user.error.failed_to_create",
-              actor: actor.id,
+              actor_id: actor.ap_id,
               message: error.message,
             ),
           )

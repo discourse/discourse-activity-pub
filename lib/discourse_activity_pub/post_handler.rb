@@ -48,12 +48,12 @@ module DiscourseActivityPub
         rescue PG::UniqueViolation,
                ActiveRecord::RecordNotUnique,
                ActiveRecord::RecordInvalid,
+               ActiveRecord::RecordNotSaved,
                DiscourseActivityPub::AP::Handlers => e
-          DiscourseActivityPub::Logger.warn(
+          DiscourseActivityPub::Logger.error(
             I18n.t(
               "discourse_activity_pub.post.error.failed_to_create",
-              user: user.username,
-              object: object.id,
+              object_id: object.ap_id,
               message: e.message,
             ),
           )

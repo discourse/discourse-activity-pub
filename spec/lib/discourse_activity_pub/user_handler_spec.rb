@@ -9,6 +9,29 @@ RSpec.describe DiscourseActivityPub::UserHandler do
       expect(actor.reload.model_id).to eq(user.id)
     end
 
+    context "when the actor is not a valid type" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: nil) }
+
+      before { setup_logging }
+      after { teardown_logging }
+
+      it "does not create a user" do
+        result = described_class.update_or_create_user(actor)
+        expect(result).to eq(nil)
+      end
+
+      it "logs the right warning" do
+        described_class.update_or_create_user(actor)
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_user_for_actor_type",
+            actor_id: actor.ap_id,
+            actor_type: actor.ap_type,
+          ),
+        )
+      end
+    end
+
     context "when user has authorized the same actor id" do
       let!(:user) { Fabricate(:user) }
 
@@ -136,6 +159,29 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     it "creates an actor for a user" do
       actor = described_class.update_or_create_actor(user)
       expect(actor.reload.model_id).to eq(user.id)
+    end
+
+    context "when the user is not a user" do
+      let!(:category) { Fabricate(:category) }
+
+      before { setup_logging }
+      after { teardown_logging }
+
+      it "does not create an actor" do
+        result = described_class.update_or_create_actor(category)
+        expect(result).to eq(nil)
+      end
+
+      it "logs the right warning" do
+        described_class.update_or_create_actor(category)
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_actor_for_model_type",
+            model_id: category.id,
+            model_type: category.class.name,
+          ),
+        )
+      end
     end
 
     context "when user has an actor" do
