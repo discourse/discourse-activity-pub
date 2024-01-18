@@ -138,11 +138,12 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Unscheduled ActivityPub topic as staff",
+  "Discourse Activity Pub | Unscheduled ActivityPub topic as staff with First Post enabled",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
       activity_pub_scheduled_at: null,
+      activity_pub_first_post: true,
     });
 
     test("Post admin menu", async function (assert) {
@@ -153,6 +154,28 @@ acceptance(
       assert.ok(
         exists(".fk-d-menu .activity-pub-schedule"),
         "The schedule button was rendered"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Unscheduled ActivityPub topic as staff with Full Topic enabled",
+  function (needs) {
+    needs.user({ moderator: true, admin: false });
+    setupServer(needs, {
+      activity_pub_scheduled_at: null,
+      activity_pub_first_post: false,
+    });
+
+    test("Post admin menu", async function (assert) {
+      await visit("/t/280");
+      await click(".show-more-actions");
+      await click(".show-post-admin-menu");
+
+      assert.ok(
+        !exists(".fk-d-menu .activity-pub-schedule"),
+        "The schedule button was not rendered"
       );
     });
   }
