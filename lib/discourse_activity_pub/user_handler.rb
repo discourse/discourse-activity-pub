@@ -8,11 +8,11 @@ module DiscourseActivityPub
 
     def validate_actor
       if !actor&.ap&.person?
-        # We only associated users with stored Persons
         DiscourseActivityPub::Logger.warn(
           I18n.t(
-            "discourse_activity_pub.user.warning.cant_create_user_for_actor",
+            "discourse_activity_pub.user.warning.cant_create_user_for_actor_type",
             actor_id: actor.ap_id,
+            actor_type: actor.ap_type,
           ),
         )
         false
@@ -22,7 +22,18 @@ module DiscourseActivityPub
     end
 
     def validate_user
-      true
+      if !user.is_a?(User)
+        DiscourseActivityPub::Logger.warn(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_actor_for_model_type",
+            model_id: user.id,
+            model_type: user.class.name,
+          ),
+        )
+        false
+      else
+        true
+      end
     end
 
     def user

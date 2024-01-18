@@ -86,7 +86,6 @@ en:
         only_category_actors_accept_new_topics: "Only category actors accept new topics."
         only_followed_actors_create_new_topics: "Only followed actors can create new topics."
         actor_already_following: "Actor is already following that object"
-        cant_create_user_for_actor: "Cannot create a user for %{actor_id}"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"
@@ -119,6 +118,9 @@ en:
     user:
       error:
         failed_to_create: "Failed to create user for %{actor_id}: %{message}"
+      warning:
+        cant_create_user_for_actor_type: "Cannot create a user for %{actor_type} %{actor_id}"
+        cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
     object:
       note:
         link_to_forum: Discuss this on our forum.
