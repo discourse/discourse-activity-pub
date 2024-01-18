@@ -9,6 +9,29 @@ RSpec.describe DiscourseActivityPub::UserHandler do
       expect(actor.reload.model_id).to eq(user.id)
     end
 
+    context "when the actor is not a valid type" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: nil) }
+
+      before { setup_logging }
+      after { teardown_logging }
+
+      it "does not create a user" do
+        user = described_class.update_or_create_user(actor)
+        expect(user).to eq(nil)
+        expect(actor.reload.model_id).to eq(nil)
+      end
+
+      it "logs the right warning" do
+        described_class.update_or_create_user(actor)
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_user_for_actor",
+            actor_id: actor.ap_id,
+          ),
+        )
+      end
+    end
+
     context "when user has authorized the same actor id" do
       let!(:user) { Fabricate(:user) }
 

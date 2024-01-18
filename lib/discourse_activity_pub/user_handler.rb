@@ -7,8 +7,18 @@ module DiscourseActivityPub
     end
 
     def validate_actor
-      # We only associated users with stored Persons
-      actor&.ap&.person?
+      if !actor&.ap&.person?
+        # We only associated users with stored Persons
+        DiscourseActivityPub::Logger.warn(
+          I18n.t(
+            "discourse_activity_pub.user.warning.cant_create_user_for_actor",
+            actor_id: actor.ap_id,
+          ),
+        )
+        false
+      else
+        true
+      end
     end
 
     def validate_user
