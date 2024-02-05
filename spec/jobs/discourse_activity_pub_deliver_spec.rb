@@ -230,7 +230,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
             execute_job(
               object_id: activity.id,
               from_actor_id: group.id,
-              retry_count: described_class::MAX_RETRY_COUNT
+              retry_count: described_class::MAX_RETRY_COUNT,
             )
             expect(@fake_logger.warnings.first).to match(ar_error)
           end

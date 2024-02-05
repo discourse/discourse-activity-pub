@@ -122,11 +122,12 @@ module Jobs
     end
 
     def log_failure(message: nil, json: delivery_json)
-      message = I18n.t(
-        "discourse_activity_pub.deliver.warning.failed_to_deliver",
-        from_actor: from_actor.ap_id,
-        send_to: @args[:send_to],
-      ) unless message
+      message =
+        I18n.t(
+          "discourse_activity_pub.deliver.warning.failed_to_deliver",
+          from_actor: from_actor.ap_id,
+          send_to: @args[:send_to],
+        ) unless message
       DiscourseActivityPub::Logger.warn(message, json: json)
     end
 
