@@ -104,7 +104,8 @@ module Jobs
             rescue PG::UniqueViolation,
                    ActiveRecord::RecordNotUnique,
                    ActiveRecord::RecordInvalid => e
-              log_failure(e.message)
+              log_failure(message: e.message, json: nil)
+              false
             end
           else
             object
@@ -120,15 +121,14 @@ module Jobs
         end
     end
 
-    def log_failure
-      DiscourseActivityPub::Logger.warn(
+    def log_failure(message: nil, json: delivery_json)
+      message =
         I18n.t(
           "discourse_activity_pub.deliver.warning.failed_to_deliver",
           from_actor: from_actor.ap_id,
           send_to: @args[:send_to],
-        ),
-        json: delivery_json,
-      )
+        ) unless message
+      DiscourseActivityPub::Logger.warn(message, json: json)
     end
 
     def log_success

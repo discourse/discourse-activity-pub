@@ -210,6 +210,32 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           execute_job(object_id: activity.id, from_actor_id: group.id)
         end
 
+        context "when creating an announcement fails" do
+          let!(:ar_error) { "Failed to create an announcement" }
+
+          before do
+            setup_logging
+            activity.errors.add(:base, ar_error)
+            DiscourseActivityPubActivity
+              .any_instance
+              .expects(:announce!)
+              .with(group.id)
+              .raises(ActiveRecord::RecordInvalid.new(activity))
+              .once
+          end
+
+          after { teardown_logging }
+
+          it "logs the ActivityRecord error" do
+            execute_job(
+              object_id: activity.id,
+              from_actor_id: group.id,
+              retry_count: described_class::MAX_RETRY_COUNT,
+            )
+            expect(@fake_logger.warnings.first).to match(ar_error)
+          end
+        end
+
         context "when activities are in a collection" do
           let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
 
