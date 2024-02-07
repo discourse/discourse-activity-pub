@@ -11,8 +11,9 @@ export default DiscourseRoute.extend({
   },
 
   model() {
+    const category = this.modelFor("activityPub.category");
     return Category.reloadCategoryWithPermissions(
-      { slug: this.modelFor("activityPub.category").slug },
+      { slug: Category.slugFor(category) },
       this.store,
       this.site
     );
