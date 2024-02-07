@@ -352,6 +352,54 @@ acceptance(
 );
 
 acceptance(
+  "Discourse Activity Pub | Discovery activitypub subcategory follows route with edit permission",
+  function (needs) {
+    needs.user();
+    needs.site({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+    });
+    needs.pretender((server, helper) => {
+      server.get("/c/feature/spec/find_by_slug.json", () => {
+        return helper.response(200, {
+          category: {
+            id: 26,
+            name: "spec",
+            slug: "spec",
+            can_edit: true,
+            activity_pub_ready: true,
+            activity_pub_actor: {
+              name: "Angus",
+              handle: "angus@mastodon.pavilion.tech",
+            },
+          },
+        });
+      });
+      const path = "/ap/category/26/follows.json";
+      server.get(path, () => helper.response({}));
+    });
+
+    test("with activity pub ready", async function (assert) {
+      const category = Category.findById(26);
+      category.setProperties({
+        activity_pub_ready: true,
+        activity_pub_actor: {
+          name: "Angus",
+          handle: "angus@mastodon.pavilion.tech",
+        },
+      });
+
+      await visit("/ap/category/26/follows");
+
+      assert.ok(
+        exists(".activity-pub-follows-container"),
+        "the activitypub follows route is visible"
+      );
+    });
+  }
+);
+
+acceptance(
   "Discourse Activity Pub | Discovery activitypub category follows route with edit permission with followers",
   function (needs) {
     needs.user();
