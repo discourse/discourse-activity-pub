@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 RSpec.describe Guardian do
-  fab!(:user) { Fabricate(:user) }
-  fab!(:another_user) { Fabricate(:user) }
-  fab!(:admin) { Fabricate(:admin) }
+  fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
+  fab!(:another_user) { Fabricate(:user, refresh_auto_groups: true) }
+  fab!(:admin) { Fabricate(:admin, refresh_auto_groups: true) }
   fab!(:category) { Fabricate(:category) }
   fab!(:topic) { Fabricate(:topic, user: user, category: category) }
   fab!(:post) { Fabricate(:post, topic: topic, user: user) }

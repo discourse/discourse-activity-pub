@@ -295,7 +295,7 @@ acceptance(
       );
       assert.equal(
         query(".activity-pub-follow-table-followed-at").innerText,
-        "Feb 8, '13",
+        "Feb 8, 2013",
         "follower followed at is visible"
       );
       assert.ok(
@@ -467,7 +467,7 @@ acceptance(
       );
       assert.equal(
         query(".activity-pub-follow-table-followed-at").innerText,
-        "Feb 8, '13",
+        "Feb 8, 2013",
         "follower followed at is visible"
       );
 
