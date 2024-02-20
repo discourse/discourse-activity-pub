@@ -150,6 +150,10 @@ en:
       info:
         successfully_delivered: "%{from_actor} successfully delivered to %{send_to}"
     import:
+      warning:
+        import_did_not_start: "%{actor_id} failed to import the outbox of %{target_actor_id}"
+        actors_not_ready: "Actors are not ready"
+        not_following_target: "%{actor_id} is not following %{target_actor_id}"
       info:
         import_started: "%{actor_id} started to import activities from %{target_actor_id}"
   site_settings:
