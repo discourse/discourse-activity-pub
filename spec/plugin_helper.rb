@@ -190,9 +190,10 @@ def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audie
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "https://external.com/collection/#{SecureRandom.hex(8)}",
-    type: type,
-    items: items,
+    type: type
   }
+  _json[:items] = items if type == "Collection"
+  _json[:orderedItems] = items if type == "OrderedCollection"
   _json[:to] = to if to
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
@@ -202,7 +203,11 @@ end
 def build_process_warning(key, object_id)
   action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: object_id)
   message = I18n.t("discourse_activity_pub.process.warning.#{key}")
-  "[Discourse Activity Pub] #{action}: #{message}"
+  prefix_log("#{action}: #{message}")
+end
+
+def prefix_log(message)
+  "[Discourse Activity Pub] #{message}"
 end
 
 def perform_process(json, delivered_to = nil)

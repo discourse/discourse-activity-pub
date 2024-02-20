@@ -26,6 +26,7 @@ after_initialize do
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
     ../lib/discourse_activity_pub/follow_handler.rb
+    ../lib/discourse_activity_pub/outbox_importer.rb
     ../lib/discourse_activity_pub/auth.rb
     ../lib/discourse_activity_pub/auth/oauth.rb
     ../lib/discourse_activity_pub/auth/oauth/app.rb
