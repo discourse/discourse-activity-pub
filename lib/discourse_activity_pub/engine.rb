@@ -39,4 +39,25 @@ module DiscourseActivityPub
   def self.icon_url
     SiteIconManager.large_icon_url
   end
+
+  def self.info(ap_id)
+    result = DB.query(<<~SQL, ap_id: ap_id)
+      SELECT id, 'Activity' as type, ap_type, COALESCE(local, FALSE) as local
+      FROM discourse_activity_pub_activities
+      WHERE ap_id = :ap_id
+      UNION
+      SELECT id, 'Actor' as type, ap_type, COALESCE(local, FALSE) as local
+      FROM discourse_activity_pub_actors
+      WHERE ap_id = :ap_id
+      UNION
+      SELECT id, 'Collection' as type, ap_type, COALESCE(local, FALSE) as local
+      FROM discourse_activity_pub_collections
+      WHERE ap_id = :ap_id
+      UNION
+      SELECT id, 'Object' as type, ap_type, COALESCE(local, FALSE) as local
+      FROM discourse_activity_pub_objects
+      WHERE ap_id = :ap_id
+    SQL
+    result.present? ? result.first : nil
+  end
 end
