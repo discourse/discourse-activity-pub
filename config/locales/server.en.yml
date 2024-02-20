@@ -149,6 +149,9 @@ en:
         failed_to_deliver: "%{from_actor} failed to deliver to %{send_to}"
       info:
         successfully_delivered: "%{from_actor} successfully delivered to %{send_to}"
+    import:
+      info:
+        import_started: "%{actor_id} started to import activities from %{target_actor_id}"
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
