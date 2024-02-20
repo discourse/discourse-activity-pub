@@ -280,6 +280,10 @@ after_initialize do
   add_to_class(:topic, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && category&.activity_pub_ready?
   end
+  add_to_class(:topic, :activity_pub_ready?) do
+    activity_pub_enabled &&
+      (activity_pub_first_post || (activity_pub_full_topic && activity_pub_object))
+  end
   add_to_class(:topic, :activity_pub_full_url) do
     "#{DiscourseActivityPub.base_url}#{self.relative_url}"
   end
@@ -329,7 +333,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_first_post) { !activity_pub_full_topic }
   add_to_class(:post, :activity_pub_enabled) do
     return false unless DiscourseActivityPub.enabled
-    return false unless activity_pub_topic&.activity_pub_enabled
+    return false unless activity_pub_topic&.activity_pub_ready?
 
     is_first_post? || activity_pub_full_topic
   end
