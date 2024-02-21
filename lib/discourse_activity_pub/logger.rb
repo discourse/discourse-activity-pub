@@ -19,7 +19,7 @@ module DiscourseActivityPub
 
       Rails.logger.send(type, formatted_message(message, **rails_args))
       AP.logger.send(type, formatted_message(message, json: json)) if Rails.env.development?
-      puts formatted_message(message) if log_type?(to_stdout)
+      puts formatted_message(message) if print_to_stdout?
       true
     end
 
@@ -32,9 +32,17 @@ module DiscourseActivityPub
       result
     end
 
-    def log_type?(type_setting)
-      return false unless type_setting
-      self.class.log_types.index(type) >= self.class.log_types.index(type_setting)
+    def print_to_stdout?
+      case to_stdout
+      when :error
+        type == :error
+      when :info
+        %i[error info].include?(type)
+      when :warn
+        %i[error info warn].include?(type)
+      else
+        false
+      end
     end
 
     def self.log_types
