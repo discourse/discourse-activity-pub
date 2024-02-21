@@ -4,30 +4,23 @@ def print_info(info)
   return unless info
 
   columns = "%-5s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s\n"
-  line = "------------------------------------------------------------------------------------------------\n"
+  line =
+    "------------------------------------------------------------------------------------------------\n"
   puts "\n"
   puts "ActivityPub Info"
   puts line
-  printf columns,
-         "id",
-         "type",
-         "subtype",
-         "local",
-         "object",
-         "object id",
-         "model",
-         "model id"
+  printf columns, "id", "type", "subtype", "local", "object", "object id", "model", "model id"
   info.each do |object|
     puts line
     printf columns,
-          object.id,
-          object.type,
-          object.ap_type,
-          object.local,
-          object.object_type,
-          object.object_id,
-          object.model_type,
-          object.model_id
+           object.id,
+           object.type,
+           object.ap_type,
+           object.local,
+           object.object_type,
+           object.object_id,
+           object.model_type,
+           object.model_id
   end
   puts line
   puts "\n"
@@ -53,7 +46,8 @@ task "activity_pub:info", %i[ap_ids] => :environment do |_, args|
 end
 
 desc "Imports activities from an actor's outbox"
-task "activity_pub:import_outbox", %i[actor_id_or_handle target_actor_id_or_handle log_type] => :environment do |_, args|
+task "activity_pub:import_outbox",
+     %i[actor_id_or_handle target_actor_id_or_handle log_type] => :environment do |_, args|
   actor_id_or_handle = args[:actor_id_or_handle]
   target_actor_id_or_handle = args[:target_actor_id_or_handle]
   log_type = args[:log_type]
@@ -70,7 +64,8 @@ task "activity_pub:import_outbox", %i[actor_id_or_handle target_actor_id_or_hand
     exit 1
   end
 
-  target_actor = DiscourseActivityPubActor.find_by_id_or_handle(target_actor_id_or_handle, local: false)
+  target_actor =
+    DiscourseActivityPubActor.find_by_id_or_handle(target_actor_id_or_handle, local: false)
 
   if !target_actor
     puts "Could not find target actor"
@@ -85,7 +80,11 @@ task "activity_pub:import_outbox", %i[actor_id_or_handle target_actor_id_or_hand
   end
 
   DiscourseActivityPub::Logger.to_stdout = log_type
-  result = DiscourseActivityPub::OutboxImporter.perform(actor_id: actor.id, target_actor_id: target_actor.id)
+  result =
+    DiscourseActivityPub::OutboxImporter.perform(
+      actor_id: actor.id,
+      target_actor_id: target_actor.id,
+    )
 
   if result[:success].present?
     info = DiscourseActivityPub.info(result[:success])
