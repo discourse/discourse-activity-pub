@@ -206,10 +206,11 @@ def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audie
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "https://external.com/collection/#{SecureRandom.hex(8)}",
-    type: type
+    type: type,
   }
   _json[:items] = items if type == "Collection"
   _json[:orderedItems] = items if type == "OrderedCollection"
+  _json[:totalItems] = items.size
   _json[:to] = to if to
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience

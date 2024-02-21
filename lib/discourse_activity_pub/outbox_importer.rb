@@ -15,16 +15,18 @@ module DiscourseActivityPub
       return log_import_failed("not_following_target") if !actor.following?(target_actor)
 
       response = DiscourseActivityPub::Request.get_json_ld(uri: target_actor.outbox)
-      return log_import_failed("failed_to_retrieve_outbox") unless response
+      return log_import_failed("outbox_response_invalid") unless response
 
       collection = DiscourseActivityPub::AP::Object.factory(response)
       unless collection&.type == DiscourseActivityPub::AP::Collection::OrderedCollection.type
         return log_import_failed("outbox_response_invalid")
       end
 
-      log_import_started
       collection.delivered_to << actor.ap_id
-      collection.process
+      log_import_started(collection.total_items)
+      result = collection.process
+      log_import_finished(result)
+      result
     end
 
     def self.perform(actor_id: nil, target_actor_id: nil)
@@ -34,25 +36,40 @@ module DiscourseActivityPub
     protected
 
     def log_import_failed(key)
-      message = I18n.t(
-        "discourse_activity_pub.import.warning.import_did_not_start",
-        actor_id: actor.ap_id,
-        target_actor_id: target_actor.ap_id
-      )
-      message += ": " + I18n.t(
-        "discourse_activity_pub.import.warning.#{key}",
-        actor_id: actor.ap_id,
-        target_actor_id: target_actor.ap_id
-      )
+      message =
+        I18n.t(
+          "discourse_activity_pub.import.warning.import_did_not_start",
+          actor: actor.handle,
+          target_actor: target_actor.handle,
+        )
+      message +=
+        ": " +
+          I18n.t(
+            "discourse_activity_pub.import.warning.#{key}",
+            actor: actor.handle,
+            target_actor: target_actor.handle,
+          )
       DiscourseActivityPub::Logger.warn(message)
     end
 
-    def log_import_started
+    def log_import_started(activity_count)
       DiscourseActivityPub::Logger.info(
         I18n.t(
           "discourse_activity_pub.import.info.import_started",
-          actor_id: actor.ap_id,
-          target_actor_id: target_actor.ap_id
+          actor: actor.handle,
+          target_actor: target_actor.handle,
+          activity_count: activity_count,
+        ),
+      )
+    end
+
+    def log_import_finished(result)
+      DiscourseActivityPub::Logger.info(
+        I18n.t(
+          "discourse_activity_pub.import.info.import_finished",
+          actor: actor.handle,
+          target_actor: target_actor.handle,
+          success_count: result[:success].size,
         ),
       )
     end

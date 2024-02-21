@@ -19,7 +19,8 @@ module DiscourseActivityPub
       end
 
       def total_items
-        items.size
+        return items.size if stored
+        json["totalItems"] if json
       end
 
       def process_items
@@ -27,14 +28,29 @@ module DiscourseActivityPub
       end
 
       def process
+        return if !process_items
+
+        success = []
+        failure = []
+
         process_items.each do |item|
           activity = DiscourseActivityPub::AP::Activity.factory(item)
 
           if activity.respond_to?(:process)
             activity.delivered_to << delivered_to if delivered_to
-            activity.process
+
+            result = activity.process
+            if result
+              success << result.stored.ap_id
+            else
+              failure << activity.json[:id]
+            end
+          else
+            failure << I18n.t("discourse_activity_pub.process.warning.invalid_collection_item")
           end
         end
+
+        { success: success, failure: failure }
       end
 
       def can_belong_to

@@ -87,6 +87,7 @@ en:
         only_category_actors_accept_new_topics: "Only category actors accept new topics."
         only_followed_actors_create_new_topics: "Only followed actors can create new topics."
         actor_already_following: "Actor is already following that object"
+        invalid_collection_item: "Invalid item"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"
@@ -151,11 +152,13 @@ en:
         successfully_delivered: "%{from_actor} successfully delivered to %{send_to}"
     import:
       warning:
-        import_did_not_start: "%{actor_id} failed to import the outbox of %{target_actor_id}"
+        import_did_not_start: "%{actor} failed to import the outbox of %{target_actor}"
         actors_not_ready: "Actors are not ready"
-        not_following_target: "%{actor_id} is not following %{target_actor_id}"
+        not_following_target: "%{actor} is not following %{target_actor}"
+        outbox_response_invalid: "outbox of %{target_actor} returned an invalid response"
       info:
-        import_started: "%{actor_id} started to import activities from %{target_actor_id}"
+        import_started: "%{actor} started to import %{activity_count} activities from %{target_actor}"
+        import_finished: "%{actor} imported %{success_count} new activities from %{target_actor}"
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
