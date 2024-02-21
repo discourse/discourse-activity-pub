@@ -16,7 +16,16 @@ module DiscourseActivityPub
         end
 
         def process_items
-          json["orderedItems"]
+          @process_items ||=
+            begin
+              return json["orderedItems"] if json["orderedItems"]
+
+              if json["first"].present?
+                page_href = json["first"].is_a?(String) ? json["first"] : json.dig("first", "href")
+                page = request_object(page_href)
+                page["orderedItems"]
+              end
+            end
         end
       end
     end

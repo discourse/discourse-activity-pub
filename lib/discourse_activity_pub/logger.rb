@@ -16,10 +16,10 @@ module DiscourseActivityPub
       return unless SiteSetting.activity_pub_verbose_logging
       rails_args = {}
       rails_args[:json] = json if SiteSetting.activity_pub_object_logging && !Rails.env.development?
-      
+
       Rails.logger.send(type, formatted_message(message, **rails_args))
       AP.logger.send(type, formatted_message(message, json: json)) if Rails.env.development?
-      puts formatted_message(message) if to_stdout
+      puts formatted_message(message) if log_type?(to_stdout)
       true
     end
 
@@ -30,6 +30,15 @@ module DiscourseActivityPub
         result += "\n#{json.to_yaml}" if json.present?
       end
       result
+    end
+
+    def log_type?(type_setting)
+      return false unless type_setting
+      self.class.log_types.index(type) >= self.class.log_types.index(type_setting)
+    end
+
+    def self.log_types
+      %i[error warn info]
     end
 
     def self.error(message, json: nil)
