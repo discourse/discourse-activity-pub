@@ -3,42 +3,77 @@
 def print_info(info)
   return unless info
 
-  columns = "%-5s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s\n"
+  columns = "%-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s\n"
   line =
-    "------------------------------------------------------------------------------------------------\n"
+    "------------------------------------------------------------------------------------------------------------------------\n"
   puts "\n"
   puts "ActivityPub Info"
   puts line
-  printf columns, "id", "type", "subtype", "local", "object", "object id", "model", "model id"
+  printf columns,
+         "stored",
+         "id",
+         "type",
+         "subtype",
+         "local",
+         "object",
+         "object id",
+         "model",
+         "model id"
   info.each do |object|
     puts line
     printf columns,
-           object.id,
-           object.type,
-           object.ap_type,
-           object.local,
-           object.object_type,
-           object.object_id,
-           object.model_type,
-           object.model_id
+           object[:stored],
+           object[:id],
+           object[:type],
+           object[:ap_type],
+           object[:local],
+           object[:object_type],
+           object[:object_id],
+           object[:model_type],
+           object[:model_id]
   end
   puts line
   puts "\n"
 end
 
 desc "Print information about a stored ActivityPub object"
-task "activity_pub:info", %i[ap_ids] => :environment do |_, args|
-  ap_ids = args[:ap_ids]
+task "activity_pub:info", %i[ap_id] => :environment do |_, args|
+  ap_id = args[:ap_id]
 
-  if !ap_ids
-    puts "ERROR: Expecting activity_pub:info[ap_id|ap_id]"
+  if !ap_id
+    puts "ERROR: Expecting activity_pub:info[ap_id]"
     exit 1
   end
 
-  info = DiscourseActivityPub.info(ap_ids.split("|"))
+  info = DiscourseActivityPub.info([ap_id])
 
-  if !info
-    puts "Could not find #{ap_ids}"
+  if info.present?
+    info =
+      info.map do |object|
+        object = object.to_h
+        object[:stored] = true
+        object
+      end
+  end
+  resolved_object = DiscourseActivityPub::AP::Object.resolve(ap_id)
+
+  if resolved_object.present?
+    object = {
+      stored: false,
+      id: nil,
+      type: resolved_object.base_type,
+      ap_type: resolved_object.type,
+      local: false,
+      object_type: resolved_object.json.dig(:object, :type),
+      object_id: nil,
+      model_type: nil,
+      model_id: nil,
+    }
+    info = [object]
+  end
+
+  if !info.present?
+    puts "Could not find #{ap_id}"
     exit 1
   end
 
