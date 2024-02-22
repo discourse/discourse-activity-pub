@@ -54,22 +54,23 @@ task "activity_pub:info", %i[ap_id] => :environment do |_, args|
         object[:stored] = true
         object
       end
-  end
-  resolved_object = DiscourseActivityPub::AP::Object.resolve(ap_id)
+  else
+    resolved_object = DiscourseActivityPub::AP::Object.resolve(ap_id)
 
-  if resolved_object.present?
-    object = {
-      stored: false,
-      id: nil,
-      type: resolved_object.base_type,
-      ap_type: resolved_object.type,
-      local: false,
-      object_type: resolved_object.json.dig(:object, :type),
-      object_id: nil,
-      model_type: nil,
-      model_id: nil,
-    }
-    info = [object]
+    if resolved_object.present?
+      object = {
+        stored: false,
+        id: nil,
+        type: resolved_object.base_type,
+        ap_type: resolved_object.type,
+        local: false,
+        object_type: resolved_object.json.dig(:object, :type),
+        object_id: nil,
+        model_type: nil,
+        model_id: nil,
+      }
+      info = [object]
+    end
   end
 
   if !info.present?
