@@ -289,4 +289,5 @@ end
 # Indexes
 #
 #  index_discourse_activity_pub_actors_on_ap_id  (ap_id)
+#  unique_activity_pub_actor_models              (model_type,model_id) UNIQUE
 #
