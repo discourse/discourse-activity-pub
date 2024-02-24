@@ -37,15 +37,16 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
         let!(:post1) { Fabricate(:post, topic: topic1) }
         let!(:post2) { Fabricate(:post, topic: topic1, reply_to_post_number: 1) }
         let!(:post3) { Fabricate(:post, topic: topic2) }
+        let!(:post4) { Fabricate(:post, topic: topic2) }
 
         it "returns the right result" do
           result = described_class.perform(actor_id: actor.id)
           expect(result.collections.count).to eq(2)
-          expect(result.actors.count).to eq(3)
-          expect(result.objects.count).to eq(3)
-          expect(result.activities.count).to eq(3)
-          expect(result.announcements.count).to eq(3)
-          expect(result.ap_ids.count).to eq(14)
+          expect(result.actors.count).to eq(4)
+          expect(result.objects.count).to eq(4)
+          expect(result.activities.count).to eq(4)
+          expect(result.announcements.count).to eq(4)
+          expect(result.ap_ids.count).to eq(18)
         end
 
         it "creates the right collections" do
@@ -61,9 +62,11 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           expect(post1.user.activity_pub_actor.name).to eq(post1.user.name)
           expect(post2.user.activity_pub_actor.name).to eq(post2.user.name)
           expect(post3.user.activity_pub_actor.name).to eq(post3.user.name)
+          expect(post4.user.activity_pub_actor.name).to eq(post4.user.name)
           expect(post1.user.activity_pub_actor.username).to eq(post1.user.username)
           expect(post2.user.activity_pub_actor.username).to eq(post2.user.username)
           expect(post3.user.activity_pub_actor.username).to eq(post3.user.username)
+          expect(post4.user.activity_pub_actor.username).to eq(post4.user.username)
         end
 
         it "creates the right post objects" do
@@ -71,25 +74,33 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           expect(post1.activity_pub_object.content).to eq(post1.raw)
           expect(post2.activity_pub_object.content).to eq(post2.raw)
           expect(post3.activity_pub_object.content).to eq(post3.raw)
+          expect(post4.activity_pub_object.content).to eq(post4.raw)
           expect(post2.activity_pub_object.reply_to_id).to eq(post1.activity_pub_object.ap_id)
+          expect(post4.activity_pub_object.reply_to_id).to eq(post3.activity_pub_object.ap_id)
           expect(post1.activity_pub_object.collection_id).to eq(post1.topic.activity_pub_object.id)
           expect(post2.activity_pub_object.collection_id).to eq(post2.topic.activity_pub_object.id)
           expect(post3.activity_pub_object.collection_id).to eq(post3.topic.activity_pub_object.id)
+          expect(post4.activity_pub_object.collection_id).to eq(post4.topic.activity_pub_object.id)
           expect(post1.activity_pub_object.attributed_to_id).to eq(post1.user.activity_pub_actor.ap_id)
           expect(post2.activity_pub_object.attributed_to_id).to eq(post2.user.activity_pub_actor.ap_id)
           expect(post3.activity_pub_object.attributed_to_id).to eq(post3.user.activity_pub_actor.ap_id)
+          expect(post4.activity_pub_object.attributed_to_id).to eq(post4.user.activity_pub_actor.ap_id)
           expect(post1.activity_pub_object.published_at).to eq(Time.now.utc.iso8601)
           expect(post2.activity_pub_object.published_at).to eq(Time.now.utc.iso8601)
           expect(post3.activity_pub_object.published_at).to eq(Time.now.utc.iso8601)
+          expect(post4.activity_pub_object.published_at).to eq(Time.now.utc.iso8601)
           expect(post1.activity_pub_content).to eq(post1.raw)
           expect(post2.activity_pub_content).to eq(post2.raw)
           expect(post3.activity_pub_content).to eq(post3.raw)
+          expect(post4.activity_pub_content).to eq(post3.raw)
           expect(post1.activity_pub_visibility).to eq('public')
           expect(post2.activity_pub_visibility).to eq('public')
           expect(post3.activity_pub_visibility).to eq('public')
+          expect(post4.activity_pub_visibility).to eq('public')
           expect(post1.custom_fields["activity_pub_published_at"]).to eq(Time.now.utc.iso8601)
           expect(post2.custom_fields["activity_pub_published_at"]).to eq(Time.now.utc.iso8601)
           expect(post3.custom_fields["activity_pub_published_at"]).to eq(Time.now.utc.iso8601)
+          expect(post4.custom_fields["activity_pub_published_at"]).to eq(Time.now.utc.iso8601)
         end
 
         it "creates the right activities" do
@@ -97,18 +108,23 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           expect(post1.activity_pub_object.activities.first.ap_type).to eq("Create")
           expect(post2.activity_pub_object.activities.first.ap_type).to eq("Create")
           expect(post3.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post4.activity_pub_object.activities.first.ap_type).to eq("Create")
           expect(post1.activity_pub_object.activities.first.actor.id).to eq(post1.user.activity_pub_actor.id)
           expect(post2.activity_pub_object.activities.first.actor.id).to eq(post2.user.activity_pub_actor.id)
           expect(post3.activity_pub_object.activities.first.actor.id).to eq(post3.user.activity_pub_actor.id)
+          expect(post4.activity_pub_object.activities.first.actor.id).to eq(post4.user.activity_pub_actor.id)
           expect(post1.activity_pub_object.activities.first.object.id).to eq(post1.activity_pub_object.id)
           expect(post2.activity_pub_object.activities.first.object.id).to eq(post2.activity_pub_object.id)
           expect(post3.activity_pub_object.activities.first.object.id).to eq(post3.activity_pub_object.id)
+          expect(post4.activity_pub_object.activities.first.object.id).to eq(post4.activity_pub_object.id)
           expect(post1.activity_pub_object.activities.first.visibility).to eq(2)
           expect(post2.activity_pub_object.activities.first.visibility).to eq(2)
           expect(post3.activity_pub_object.activities.first.visibility).to eq(2)
+          expect(post4.activity_pub_object.activities.first.visibility).to eq(2)
           expect(post1.activity_pub_object.activities.first.published_at).to eq(Time.now.utc.iso8601)
           expect(post2.activity_pub_object.activities.first.published_at).to eq(Time.now.utc.iso8601)
           expect(post3.activity_pub_object.activities.first.published_at).to eq(Time.now.utc.iso8601)
+          expect(post4.activity_pub_object.activities.first.published_at).to eq(Time.now.utc.iso8601)
         end
 
         it "creates the right announcements" do
@@ -116,9 +132,11 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           expect(post1.activity_pub_object.activities.first.announcement.actor_id).to eq(category.activity_pub_actor.id)
           expect(post2.activity_pub_object.activities.first.announcement.actor_id).to eq(category.activity_pub_actor.id)
           expect(post3.activity_pub_object.activities.first.announcement.actor_id).to eq(category.activity_pub_actor.id)
+          expect(post4.activity_pub_object.activities.first.announcement.actor_id).to eq(category.activity_pub_actor.id)
           expect(post1.activity_pub_object.activities.first.announcement.published_at).to eq(Time.now.utc.iso8601)
           expect(post2.activity_pub_object.activities.first.announcement.published_at).to eq(Time.now.utc.iso8601)
           expect(post3.activity_pub_object.activities.first.announcement.published_at).to eq(Time.now.utc.iso8601)
+          expect(post4.activity_pub_object.activities.first.announcement.published_at).to eq(Time.now.utc.iso8601)
         end
 
         context "with verbose logging enabled" do
@@ -140,7 +158,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
                 I18n.t(
                   "discourse_activity_pub.publish.info.publish_finished",
                   actor: actor.handle,
-                  activities_count: 3,
+                  activities_count: 4,
                 ),
               ),
             )
