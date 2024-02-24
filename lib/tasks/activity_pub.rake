@@ -3,9 +3,9 @@
 def print_info(info)
   return unless info
 
-  columns = "%-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s\n"
+  columns = "%-10s | %-10s | %-15s | %-20s | %-10s | %-10s | %-10s | %-10s | %-10s\n"
   line =
-    "------------------------------------------------------------------------------------------------------------------------\n"
+    "-------------------------------------------------------------------------------------------------------------------------------------\n"
   puts "\n"
   puts "ActivityPub Info"
   puts line
@@ -36,6 +36,25 @@ def print_info(info)
   puts "\n"
 end
 
+def setup_logger(args)
+  log_type = :info
+
+  if args[:log_type]
+    DiscourseActivityPub::Logger.log_types.include?(args[:log_type].to_sym)
+    log_type = args[:log_type].to_sym
+  end
+
+  DiscourseActivityPub::Logger.to_stdout = log_type
+end
+
+def format_stored_info(info)
+  info.map do |object|
+    object = object.to_h
+    object[:stored] = true
+    object
+  end
+end
+
 desc "Print information about a stored ActivityPub object"
 task "activity_pub:info", %i[ap_id] => :environment do |_, args|
   ap_id = args[:ap_id]
@@ -48,12 +67,7 @@ task "activity_pub:info", %i[ap_id] => :environment do |_, args|
   info = DiscourseActivityPub.info([ap_id])
 
   if info.present?
-    info =
-      info.map do |object|
-        object = object.to_h
-        object[:stored] = true
-        object
-      end
+    info = format_stored_info(info)
   else
     resolved_object = DiscourseActivityPub::AP::Object.resolve(ap_id)
 
@@ -108,14 +122,8 @@ task "activity_pub:import_outbox",
     exit 1
   end
 
-  log_type = :info
+  setup_logger(args)
 
-  if args[:log_type]
-    DiscourseActivityPub::Logger.log_types.include?(args[:log_type].to_sym)
-    log_type = args[:log_type].to_sym
-  end
-
-  DiscourseActivityPub::Logger.to_stdout = log_type
   result =
     DiscourseActivityPub::OutboxImporter.perform(
       actor_id: actor.id,
@@ -125,5 +133,32 @@ task "activity_pub:import_outbox",
   if result[:success].present?
     info = DiscourseActivityPub.info(result[:success])
     print_info(info)
+  end
+end
+
+desc "Publishes unpublished activities of an actor"
+task "activity_pub:bulk_publish", %i[actor_id_or_handle log_type] => :environment do |_, args|
+  actor_id_or_handle = args[:actor_id_or_handle]
+  log_type = args[:log_type]
+
+  if !actor_id_or_handle
+    puts "ERROR: Expecting activity_pub:import_outbox[actor_id_or_handle,log_type]"
+    exit 1
+  end
+
+  actor = DiscourseActivityPubActor.find_by_id_or_handle(actor_id_or_handle)
+
+  if !actor
+    puts "Could not find actor"
+    exit 1
+  end
+
+  setup_logger(args)
+
+  result = DiscourseActivityPub::Bulk::Publish.perform(actor_id: actor.id)
+
+  if result.finished
+    info = DiscourseActivityPub.info(result.ap_ids)
+    print_info(format_stored_info(info)) if info
   end
 end

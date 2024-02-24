@@ -159,6 +159,14 @@ en:
       info:
         import_started: "%{actor} started to import %{activity_count} activities from %{target_actor}"
         import_finished: "%{actor} imported %{success_count} new activities from %{target_actor}"
+    publish:
+      warning:
+        publish_did_not_start: "Failed to bulk publish the activities of %{actor}"
+        actor_not_ready: "Actor is not ready"
+        actor_model_not_supported: "Actor model is not supported"
+      info:
+        publish_started: "Started to publish activities of %{actor}"
+        publish_finished: "Published %{activities_count} activities of %{actor}"
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."

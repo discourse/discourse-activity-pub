@@ -479,21 +479,20 @@ after_initialize do
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
   end
+  add_to_class(:post, :activity_pub_visibility_on_create) do
+    if is_first_post?
+      activity_pub_topic&.category&.activity_pub_default_visibility
+    else
+      activity_pub_topic.first_post.activity_pub_visibility
+    end
+  end
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
     DiscourseActivityPub::UserHandler.update_or_create_actor(self.user) if activity_pub_full_topic
 
     content = DiscourseActivityPub::ContentParser.get_content(self)
-    visibility =
-      (
-        if is_first_post?
-          activity_pub_topic&.category&.activity_pub_default_visibility
-        else
-          activity_pub_topic.first_post.activity_pub_visibility
-        end
-      )
-
+    visibility = activity_pub_visibility_on_create
     custom_fields["activity_pub_content"] = content
     custom_fields["activity_pub_visibility"] = visibility
     save_custom_fields(true)
