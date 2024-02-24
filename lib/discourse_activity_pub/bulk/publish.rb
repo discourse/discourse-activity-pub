@@ -80,7 +80,16 @@ module DiscourseActivityPub
 
         if posts.any?
           create_objects(posts)
-          create_activities(posts)
+        end
+
+        objects = DiscourseActivityPubObject
+          .joins("JOIN posts ON discourse_activity_pub_objects.model_type = 'Post' AND discourse_activity_pub_objects.model_id = posts.id")
+          .joins("JOIN topics ON topics.id = posts.topic_id")
+          .where("topics.category_id = ?", actor.model.id)
+          .where.not("topics.id = ?", actor.model.topic_id.to_i)
+
+        if objects.any?
+          create_activities(objects)
         end
 
         activities = DiscourseActivityPubActivity
@@ -147,6 +156,7 @@ module DiscourseActivityPub
 
         posts.each do |post|
           next unless post.activity_pub_actor
+          next if post.activity_pub_object&.published_at
 
           object = base_attrs(
             object: post.activity_pub_object,
@@ -162,9 +172,10 @@ module DiscourseActivityPub
             attributed_to_id: nil
           )
 
-          if post.reply_to_post_number
+          if !post.activity_pub_is_first_post?
             object[:reply_to_id] =
               post_number_id_map.dig(post.topic_id, post.reply_to_post_number) ||
+              post_number_id_map.dig(post.topic_id, 1) ||
               post.activity_pub_reply_to_object&.ap_id
           end
 
@@ -203,18 +214,27 @@ module DiscourseActivityPub
         )
       end
 
-      def create_activities(posts)
-        activities = Post.where(id: posts.map(&:id)).map do |post|
-          base_attrs(
-            object: post.activity_pub_object.activities.first,
+      def create_activities(objects)        
+        activities = []
+
+        objects.each do |object|
+          activity = object.activities.present? ?
+            object.activities.where(
+              ap_type: AP::Activity::Create.type
+            ).first : nil
+
+          next if activity&.published_at
+
+          activities << base_attrs(
+            object: activity,
             base_type: AP::Activity.type,
             type: AP::Activity::Create.type
           ).merge(
-            actor_id: post.user.activity_pub_actor.id,
-            object_id: post.activity_pub_object.id,
-            object_type: post.activity_pub_object.class.name,
+            actor_id: object.model.user.activity_pub_actor.id,
+            object_id: object.id,
+            object_type: object.class.name,
             visibility: DiscourseActivityPubActivity.visibilities[
-              post.activity_pub_visibility.to_sym
+              object.model.activity_pub_visibility.to_sym
             ]
           )
         end

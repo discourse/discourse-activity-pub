@@ -132,7 +132,7 @@ task "activity_pub:import_outbox",
 
   if result[:success].present?
     info = DiscourseActivityPub.info(result[:success])
-    print_info(info)
+    print_info(format_stored_info(info))
   end
 end
 
