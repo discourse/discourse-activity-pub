@@ -45,6 +45,7 @@ module DiscourseActivityPub
             .where.not("topics.id = ?", actor.model.topic_id.to_i)
             .joins("LEFT JOIN discourse_activity_pub_collections c ON c.model_type = 'Topic' AND topics.id = c.model_id")
             .where("c.id IS NULL OR c.published_at IS NULL")
+            .distinct
 
           if topics.any?
             create_collections(topics)
@@ -57,6 +58,7 @@ module DiscourseActivityPub
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
           .joins("LEFT JOIN discourse_activity_pub_actors a ON a.model_type = 'User' AND users.id = a.model_id")
           .where("a.id IS NULL")
+          .distinct
 
         if actor.model.activity_pub_first_post
           users = users.where("posts.post_number = 1")
@@ -72,6 +74,7 @@ module DiscourseActivityPub
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
           .joins("LEFT JOIN discourse_activity_pub_objects o ON o.model_type = 'Post' AND posts.id = o.model_id")
           .where("o.id IS NULL OR o.published_at IS NULL")
+          .distinct
           .order("posts.topic_id, posts.post_number")
 
         if actor.model.activity_pub_first_post
@@ -87,6 +90,7 @@ module DiscourseActivityPub
           .joins("JOIN topics ON topics.id = posts.topic_id")
           .where("topics.category_id = ?", actor.model.id)
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          .distinct
 
         if objects.any?
           create_activities(objects)
@@ -98,6 +102,7 @@ module DiscourseActivityPub
           .joins("JOIN topics ON topics.id = posts.topic_id")
           .where("topics.category_id = ?", actor.model.id)
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          .distinct
 
         if actor.model.activity_pub_first_post
           activities = activities.where("posts.post_number = 1")
