@@ -8,10 +8,12 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
   before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid activity" do
+    before { setup_logging }
+    after { teardown_logging }
+
     it "returns a not found error" do
       get_object(activity, url: "/ap/activity/56")
-      expect(response.status).to eq(404)
-      expect(response.parsed_body).to eq(activity_request_error("not_found"))
+      expect_request_error(response, "not_found", 404)
     end
   end
 
@@ -23,12 +25,15 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
       end
     end
 
-    before { activity.base_object.model.topic.update(category: staff_category) }
+    before do
+      activity.base_object.model.topic.update(category: staff_category)
+      setup_logging
+    end
+    after { teardown_logging }
 
     it "returns a not available error" do
       get_object(activity)
-      expect(response.status).to eq(401)
-      expect(response.parsed_body).to eq(activity_request_error("not_available"))
+      expect_request_error(response, "not_available", 401)
     end
   end
 
@@ -61,10 +66,12 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
       before { SiteSetting.login_required = true }
 
       context "with a composition activity" do
+        before { setup_logging }
+        after { teardown_logging }
+
         it "returns a not available error" do
           get_object(activity)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body).to eq(activity_request_error("not_available"))
+          expect_request_error(response, "not_available", 401)
         end
       end
 

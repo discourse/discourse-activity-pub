@@ -91,7 +91,9 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def render_activity_pub_error(key, status, opts = {})
-    render_json_error(I18n.t("discourse_activity_pub.request.error.#{key}", opts), status: status)
+    message = I18n.t("discourse_activity_pub.request.error.#{key}", opts)
+    log_request_error(message, status)
+    render_json_error(message, status: status)
   end
 
   def render_ordered_collection(stored, collection_for)
@@ -108,5 +110,17 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   def set_raw_body
     @raw_body = request.body.read
+  end
+
+  def log_request_error(message, status)
+    DiscourseActivityPub::Logger.warn(
+      I18n.t(
+        "discourse_activity_pub.request.error.request_from_failed",
+        method: request.method,
+        uri: request.url,
+        status: status,
+        message: message
+      )
+    )
   end
 end

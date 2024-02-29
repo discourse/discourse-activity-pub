@@ -10,10 +10,12 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
   before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid actor" do
+    before { setup_logging }
+    after { teardown_logging }
+
     it "returns a not found error" do
       get_object(group, url: "/ap/actor/56")
-      expect(response.status).to eq(404)
-      expect(response.parsed_body).to eq(activity_request_error("not_found"))
+      expect_request_error(response, "not_found", 404)
     end
   end
 
@@ -21,20 +23,23 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
     before do
       group.model.set_permissions(admins: :full)
       group.model.save!
+      setup_logging
     end
+    after { teardown_logging }
 
     it "returns a not available error" do
       get_object(group)
-      expect(response.status).to eq(401)
-      expect(response.parsed_body).to eq(activity_request_error("not_available"))
+      expect_request_error(response, "not_available", 401)
     end
   end
 
   context "without activity pub ready on actor model" do
+    before { setup_logging }
+    after { teardown_logging }
+
     it "returns a not available error" do
       get_object(group)
-      expect(response.status).to eq(403)
-      expect(response.parsed_body).to eq(activity_request_error("not_available"))
+      expect_request_error(response, "not_available", 403)
     end
   end
 
@@ -61,10 +66,12 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
       end
 
       context "with a person actor" do
+        before { setup_logging }
+        after { teardown_logging }
+
         it "returns a not available error" do
           get_object(person)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body).to eq(activity_request_error("not_available"))
+          expect_request_error(response, "not_available", 401)
         end
       end
     end

@@ -8,10 +8,12 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
   before { SiteSetting.activity_pub_require_signed_requests = false }
 
   context "without a valid collection" do
+    before { setup_logging }
+    after { teardown_logging }
+
     it "returns a not found error" do
       get_object(collection, url: "/ap/collection/56")
-      expect(response.status).to eq(404)
-      expect(response.parsed_body).to eq(activity_request_error("not_found"))
+      expect_request_error(response, "not_found", 404)
     end
   end
 
@@ -23,12 +25,15 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
       end
     end
 
-    before { collection.model.update(category: staff_category) }
+    before do
+      collection.model.update(category: staff_category)
+      setup_logging
+    end
+    after { teardown_logging }
 
     it "returns a not available error" do
       get_object(collection)
-      expect(response.status).to eq(401)
-      expect(response.parsed_body).to eq(activity_request_error("not_available"))
+      expect_request_error(response, "not_available", 401)
     end
   end
 

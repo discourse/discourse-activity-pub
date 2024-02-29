@@ -60,8 +60,8 @@ module DiscourseActivityPub
     rescue Excon::Error => e
       DiscourseActivityPub::Logger.warn(
         I18n.t(
-          "discourse_activity_pub.request.error.request_failed",
-          verb: verb.upcase,
+          "discourse_activity_pub.request.error.request_to_failed",
+          method: verb.upcase,
           uri: uri.to_s,
           message: e.message,
         ),

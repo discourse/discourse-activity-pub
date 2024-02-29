@@ -44,8 +44,19 @@ def get_followers(object, url: nil, headers: {})
       headers: { "Accept" => DiscourseActivityPub::JsonLd.content_type_header }.merge(headers)
 end
 
-def activity_request_error(key)
-  { "errors" => [I18n.t("discourse_activity_pub.request.error.#{key}")] }
+def expect_request_error(response, key, status, opts = {})
+  expect(response.status).to eq(status)
+  message = I18n.t("discourse_activity_pub.request.error.#{key}", opts)
+  log =
+    I18n.t(
+      "discourse_activity_pub.request.error.request_from_failed",
+      method: response.request.method,
+      uri: response.request.url,
+      status: status,
+      message: message,
+    )
+  expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
+  expect(response.parsed_body).to eq({ "errors" => [message] })
 end
 
 def default_headers
