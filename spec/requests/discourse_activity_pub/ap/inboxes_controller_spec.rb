@@ -38,12 +38,14 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       before { SiteSetting.activity_pub_require_signed_requests = false }
 
       context "with invalid activity json" do
+        before { setup_logging }
+        after { teardown_logging }
+
         it "returns a json not valid error" do
           body = post_body
           body["@context"] = "https://www.w3.org/2018/credentials/v1"
           post_to_inbox(group, body: body)
-          expect(response.status).to eq(422)
-          expect(response.parsed_body).to eq(activity_request_error("json_not_valid"))
+          expect_request_error(response, "json_not_valid", 422)
         end
       end
 
@@ -72,12 +74,12 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       before { SiteSetting.activity_pub_require_signed_requests = true }
 
       context "without a signature" do
+        before { setup_logging }
+        after { teardown_logging }
+
         it "returns the right unauthorized error" do
           post_to_inbox(group, body: post_body)
-          expect(response.status).to eq(401)
-          expect(response.parsed_body["errors"]).to eq(
-            [I18n.t("discourse_activity_pub.request.error.not_signed")],
-          )
+          expect_request_error(response, "not_signed", 401)
         end
       end
 
@@ -85,24 +87,24 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
         context "with missing signature params" do
           let(:headers) { build_post_headers(key_id: "") }
 
+          before { setup_logging }
+          after { teardown_logging }
+
           it "returns the right unauthorized error" do
             post_to_inbox(group, body: post_body, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq(
-              [I18n.t("discourse_activity_pub.request.error.missing_signature_params")],
-            )
+            expect_request_error(response, "missing_signature_params", 401)
           end
         end
 
         context "with an unsupported algorithm" do
           let(:headers) { build_post_headers(params: { algorithm: "hmac-sha256" }) }
 
+          before { setup_logging }
+          after { teardown_logging }
+
           it "returns the right unauthorized error" do
             post_to_inbox(group, body: post_body, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq(
-              [I18n.t("discourse_activity_pub.request.error.unsupported_signature_algorithm")],
-            )
+            expect_request_error(response, "unsupported_signature_algorithm", 401)
           end
         end
 
@@ -126,16 +128,16 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
               )
             end
 
+            before { setup_logging }
+            after { teardown_logging }
+
             it "returns the right unauthorized error" do
               post_to_inbox(group, body: post_body, headers: headers)
-              expect(response.status).to eq(401)
-              expect(response.parsed_body["errors"]).to eq(
-                [
-                  I18n.t(
-                    "discourse_activity_pub.request.error.invalid_date_header",
-                    reason: "not RFC 2616 compliant date: \"not a date\"",
-                  ),
-                ],
+              expect_request_error(
+                response,
+                "invalid_date_header",
+                401,
+                reason: "not RFC 2616 compliant date: \"not a date\"",
               )
             end
           end
@@ -152,12 +154,12 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
               )
             end
 
+            before { setup_logging }
+            after { teardown_logging }
+
             it "returns the right unauthorized error" do
               post_to_inbox(group, body: post_body, headers: headers)
-              expect(response.status).to eq(401)
-              expect(response.parsed_body["errors"]).to eq(
-                [I18n.t("discourse_activity_pub.request.error.stale_request")],
-              )
+              expect_request_error(response, "stale_request", 401)
             end
           end
         end
@@ -165,12 +167,12 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
         context "with a missing Signature pseudo-param" do
           let(:headers) { build_post_headers(params: { "headers" => "(request-target) host" }) }
 
+          before { setup_logging }
+          after { teardown_logging }
+
           it "returns the right unauthorized error" do
             post_to_inbox(group, body: post_body, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq(
-              [I18n.t("discourse_activity_pub.request.error.date_must_be_signed")],
-            )
+            expect_request_error(response, "date_must_be_signed", 401)
           end
         end
 
@@ -180,20 +182,15 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           before do
             person.public_key = "not a real key"
             person.save!
+            setup_logging
           end
+
+          after { teardown_logging }
 
           it "attempts to refresh actor and returns the right error" do
             DiscourseActivityPubActor.any_instance.expects(:refresh_remote!).once.returns(nil)
             post_to_inbox(group, body: post_body, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq(
-              [
-                I18n.t(
-                  "discourse_activity_pub.request.error.signature_verification_failed",
-                  id: person.ap_id,
-                ),
-              ],
-            )
+            expect_request_error(response, "signature_verification_failed", 401, id: person.ap_id)
           end
 
           it "succeeds if actor is refreshed with a valid public key" do
@@ -220,15 +217,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
             stub_request(:get, person.ap_id).to_return(body: nil, status: 400)
 
             post_to_inbox(group, body: post_body, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq(
-              [
-                I18n.t(
-                  "discourse_activity_pub.request.error.signature_verification_failed",
-                  id: person.ap_id,
-                ),
-              ],
-            )
+            expect_request_error(response, "signature_verification_failed", 401, id: person.ap_id)
           end
         end
 
@@ -270,16 +259,17 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
             build_post_headers(headers: { "Digest" => "SHA-256=#{invalid_digest}" })
           end
 
+          before { setup_logging }
+          after { teardown_logging }
+
           it "returns the right unauthorized error" do
             post_to_inbox(group, body: post_body, headers: headers)
-            expect(response.status).to eq(401)
-            expect(response.parsed_body["errors"]).to eq(
-              [
-                I18n.t(
-                  "discourse_activity_pub.request.error.invalid_digest",
-                  { computed: digest, digest: invalid_digest },
-                ),
-              ],
+            expect_request_error(
+              response,
+              "invalid_digest",
+              401,
+              computed: digest,
+              digest: invalid_digest,
             )
           end
         end
