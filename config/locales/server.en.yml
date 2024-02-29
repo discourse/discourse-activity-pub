@@ -207,7 +207,31 @@ en:
         actor_model_not_supported: "Actor model is not supported"
       info:
         publish_started: "Started to publish activities of %{actor}."
-        publish_finished: "Published %{activities_count} activities of %{actor}."
+        publish_finished: "Published activities of %{actor}."
+        created_actors:
+          one: "Created 1 actor."
+          other: "Created %{count} actors."  
+        updated_actors:
+          one: "Updated 1 actor."
+          other: "Updated %{count} actors."
+        created_objects:
+          one: "Created 1 object."
+          other: "Created %{count} objects."  
+        updated_objects:
+          one: "Updated 1 object."
+          other: "Updated %{count} objects." 
+        created_collections:
+          one: "Created 1 collection."
+          other: "Created %{count} collections."  
+        updated_collections:
+          one: "Updated 1 collection."
+          other: "Updated %{count} collections."
+        created_activities:
+          one: "Created 1 activity."
+          other: "Created %{count} activities."  
+        updated_activities:
+          one: "Updated 1 activity."
+          other: "Updated %{count} activities." 
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
