@@ -119,8 +119,8 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
         method: request.method,
         uri: request.url,
         status: status,
-        message: message
-      )
+        message: message,
+      ),
     )
   end
 end
