@@ -22,7 +22,7 @@ module DiscourseActivityPub
 
         log_publish_started
 
-        @published_at = Time.now.utc.iso8601
+        @published_at = Time.now.utc.iso8601(3)
         @result = PublishResult.new
 
         self.send("publish_#{model_type}")
@@ -68,32 +68,39 @@ module DiscourseActivityPub
           create_actors(users)
         end
 
-        posts = Post
+        object_posts = Post
           .joins(:topic)
           .where("topics.category_id = ?", actor.model.id)
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
           .joins("LEFT JOIN discourse_activity_pub_objects o ON o.model_type = 'Post' AND posts.id = o.model_id")
           .where("o.id IS NULL OR o.published_at IS NULL")
           .distinct
-          .order("posts.topic_id, posts.post_number")
 
         if actor.model.activity_pub_first_post
-          posts = posts.where("posts.post_number = 1")
+          object_posts = object_posts.where("posts.post_number = 1")
         end
 
-        if posts.any?
-          create_objects(posts)
+        object_posts = object_posts.order("posts.topic_id, posts.post_number")
+
+        if object_posts.any?
+          create_objects(object_posts)
         end
 
-        objects = DiscourseActivityPubObject
-          .joins("JOIN posts ON discourse_activity_pub_objects.model_type = 'Post' AND discourse_activity_pub_objects.model_id = posts.id")
-          .joins("JOIN topics ON topics.id = posts.topic_id")
+        activity_posts = Post
+          .joins(:topic)
           .where("topics.category_id = ?", actor.model.id)
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          .includes(:activity_pub_object)
           .distinct
 
-        if objects.any?
-          create_activities(objects)
+        if actor.model.activity_pub_first_post
+          activity_posts = activity_posts.where("posts.post_number = 1")
+        end
+
+        activity_posts = activity_posts.order("posts.topic_id, posts.post_number")
+
+        if activity_posts.any?
+          create_activities(activity_posts)
         end
 
         activities = DiscourseActivityPubActivity
@@ -163,6 +170,8 @@ module DiscourseActivityPub
           next unless post.activity_pub_actor
           next if post.activity_pub_object&.published_at
 
+          increment_published_at
+
           object = base_attrs(
             object: post.activity_pub_object,
             base_type: AP::Object.type,
@@ -219,16 +228,19 @@ module DiscourseActivityPub
         )
       end
 
-      def create_activities(objects)        
+      def create_activities(posts)        
         activities = []
 
-        objects.each do |object|
+        posts.each do |post|
+          object = post.activity_pub_object
           activity = object.activities.present? ?
             object.activities.where(
               ap_type: AP::Activity::Create.type
             ).first : nil
 
           next if activity&.published_at
+
+          increment_published_at
 
           activities << base_attrs(
             object: activity,
@@ -285,9 +297,14 @@ module DiscourseActivityPub
           attrs[:ap_key] = generate_key
           attrs[:ap_id] = json_ld_id(base_type, attrs[:ap_key])
           attrs[:ap_type] = type
+          attrs[:created_at] = published_at
         end
         attrs[:published_at] = published_at unless base_type == AP::Actor.type
         attrs
+      end
+
+      def increment_published_at
+        @published_at = (@published_at.to_time + 1/1000.0).iso8601(3)
       end
 
       def log_publish_failed(key)

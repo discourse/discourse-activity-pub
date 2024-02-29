@@ -33,7 +33,7 @@ module DiscourseActivityPub
         success = []
         failure = []
 
-        process_items.each do |item|
+        process_items.reverse.each do |item|
           activity = DiscourseActivityPub::AP::Activity.factory(item)
 
           if activity.respond_to?(:process)

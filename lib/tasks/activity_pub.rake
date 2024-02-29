@@ -95,15 +95,15 @@ task "activity_pub:info", %i[ap_id] => :environment do |_, args|
   print_info(info)
 end
 
-desc "Imports activities from an actor's outbox"
-task "activity_pub:import_outbox",
+desc "Imports activities of a remote actor"
+task "activity_pub:import",
      %i[actor_id_or_handle target_actor_id_or_handle log_type] => :environment do |_, args|
   actor_id_or_handle = args[:actor_id_or_handle]
   target_actor_id_or_handle = args[:target_actor_id_or_handle]
   log_type = args[:log_type]
 
   if !actor_id_or_handle || !target_actor_id_or_handle
-    puts "ERROR: Expecting activity_pub:import_outbox[actor_id_or_handle,target_actor_id_or_handle,log_type]"
+    puts "ERROR: Expecting activity_pub:import[actor_id_or_handle,target_actor_id_or_handle,log_type]"
     exit 1
   end
 
@@ -125,24 +125,24 @@ task "activity_pub:import_outbox",
   setup_logger(args)
 
   result =
-    DiscourseActivityPub::OutboxImporter.perform(
+    DiscourseActivityPub::Bulk::Import.perform(
       actor_id: actor.id,
       target_actor_id: target_actor.id,
     )
 
-  if result[:success].present?
-    info = DiscourseActivityPub.info(result[:success])
+  if result.finished.present?
+    info = DiscourseActivityPub.info(result.activities_by_ap_id.keys)
     print_info(format_stored_info(info))
   end
 end
 
 desc "Publishes unpublished activities of an actor"
-task "activity_pub:bulk_publish", %i[actor_id_or_handle log_type] => :environment do |_, args|
+task "activity_pub:publish", %i[actor_id_or_handle log_type] => :environment do |_, args|
   actor_id_or_handle = args[:actor_id_or_handle]
   log_type = args[:log_type]
 
   if !actor_id_or_handle
-    puts "ERROR: Expecting activity_pub:import_outbox[actor_id_or_handle,log_type]"
+    puts "ERROR: Expecting activity_pub:publish[actor_id_or_handle,log_type]"
     exit 1
   end
 
