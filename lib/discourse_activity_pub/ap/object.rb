@@ -9,6 +9,7 @@ module DiscourseActivityPub
 
       attr_writer :json
       attr_writer :attributed_to
+      attr_writer :context
       attr_accessor :stored
       attr_writer :delivered_to
       attr_writer :cache
