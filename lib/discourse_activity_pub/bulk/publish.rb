@@ -29,6 +29,8 @@ module DiscourseActivityPub
 
         log_publish_finished
 
+        result.finished = true
+
         result
       end
 
@@ -40,18 +42,29 @@ module DiscourseActivityPub
 
       def publish_category
         if actor.model.activity_pub_full_topic
-          topics = Topic
-            .where("topics.category_id = ?", actor.model.id)
-            .where.not("topics.id = ?", actor.model.topic_id.to_i)
-            .joins("LEFT JOIN discourse_activity_pub_collections c ON c.model_type = 'Topic' AND topics.id = c.model_id")
-            .where("c.id IS NULL OR c.published_at IS NULL")
-            .distinct
-
-          if topics.any?
-            create_collections(topics)
-          end
+          create_collections_from_topics
         end
+        create_actors_from_users
+        create_objects_from_posts
+        create_activities_from_posts
+        announce_activities
+      end
 
+      def create_collections_from_topics
+        topics = Topic
+          .where("topics.category_id = ?", actor.model.id)
+          .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          .joins("LEFT JOIN discourse_activity_pub_collections c ON c.model_type = 'Topic' AND topics.id = c.model_id")
+          .where("c.id IS NULL OR c.published_at IS NULL")
+          .distinct
+
+        if topics.any?
+          collections = build_collections(topics)
+          create_collections(collections)
+        end
+      end
+
+      def create_actors_from_users
         users = User.real
           .joins(posts: :topic)
           .where("topics.category_id = ?", actor.model.id)
@@ -65,10 +78,13 @@ module DiscourseActivityPub
         end
 
         if users.any?
-          create_actors(users)
+          actors = build_actors(users)
+          create_actors(actors)
         end
+      end
 
-        object_posts = Post
+      def create_objects_from_posts
+        posts = Post
           .joins(:topic)
           .where("topics.category_id = ?", actor.model.id)
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
@@ -77,16 +93,20 @@ module DiscourseActivityPub
           .distinct
 
         if actor.model.activity_pub_first_post
-          object_posts = object_posts.where("posts.post_number = 1")
+          posts = posts.where("posts.post_number = 1")
         end
 
-        object_posts = object_posts.order("posts.topic_id, posts.post_number")
+        posts = posts.order("posts.topic_id, posts.post_number")
 
-        if object_posts.any?
-          create_objects(object_posts)
+        if posts.any?
+          objects, post_custom_fields = build_objects_and_post_custom_fields(posts)
+          PostCustomField.upsert_all(post_custom_fields) if post_custom_fields.any?
+          create_objects(objects)
         end
+      end
 
-        activity_posts = Post
+      def create_activities_from_posts
+        posts = Post
           .joins(:topic)
           .where("topics.category_id = ?", actor.model.id)
           .where.not("topics.id = ?", actor.model.topic_id.to_i)
@@ -94,15 +114,18 @@ module DiscourseActivityPub
           .distinct
 
         if actor.model.activity_pub_first_post
-          activity_posts = activity_posts.where("posts.post_number = 1")
+          posts = posts.where("posts.post_number = 1")
         end
 
-        activity_posts = activity_posts.order("posts.topic_id, posts.post_number")
+        posts = posts.order("posts.topic_id, posts.post_number")
 
-        if activity_posts.any?
-          create_activities(activity_posts)
+        if posts.any?
+          activities = build_activities(posts)
+          create_activities(activities)
         end
+      end
 
+      def announce_activities
         activities = DiscourseActivityPubActivity
           .joins("JOIN discourse_activity_pub_objects o ON discourse_activity_pub_activities.object_id = o.id AND discourse_activity_pub_activities.object_type = 'DiscourseActivityPubObject'")
           .joins("JOIN posts ON o.model_type = 'Post' AND o.model_id = posts.id")
@@ -115,13 +138,14 @@ module DiscourseActivityPub
           activities = activities.where("posts.post_number = 1")
         end
 
-        announce_activities(activities)
-
-        result.finished = true
+        if activities.any?
+          announcements = build_announcements(activities)
+          create_announcements(announcements)
+        end
       end
 
-      def create_collections(topics)
-        collections = topics.map do |topic|
+      def build_collections(topics)
+        topics.map do |topic|
           base_attrs(
             object: topic.activity_pub_object,
             base_type: AP::Collection.type,
@@ -132,16 +156,10 @@ module DiscourseActivityPub
             model_type: 'Topic'
           )
         end
-
-        result.collections = DiscourseActivityPubCollection.upsert_all(
-          collections,
-          unique_by: %i[model_type model_id],
-          returning: %i[ap_id]
-        )
       end
 
-      def create_actors(users)
-        actors = users.map do |user|
+      def build_actors(users)
+        users.map do |user|
           base_attrs(
             object: user.activity_pub_actor,
             base_type: AP::Actor.type,
@@ -153,15 +171,9 @@ module DiscourseActivityPub
             model_type: 'User'
           )
         end
-
-        result.actors = DiscourseActivityPubActor.upsert_all(
-          actors,
-          unique_by: %i[model_type model_id],
-          returning: %i[ap_id]
-        )
       end
 
-      def create_objects(posts)
+      def build_objects_and_post_custom_fields(posts)
         objects = []
         post_custom_fields = []
         post_number_id_map = {}
@@ -220,26 +232,22 @@ module DiscourseActivityPub
           post_number_id_map[post.topic_id][post.post_number] = object[:ap_id]
         end
 
-        PostCustomField.upsert_all(post_custom_fields)
-        result.objects = DiscourseActivityPubObject.upsert_all(
-          objects,
-          unique_by: %i[model_type model_id],
-          returning: %i[ap_id]
-        )
+        [objects, post_custom_fields]
       end
 
-      def create_activities(posts)        
+      def build_activities(posts)        
         activities = []
 
         posts.each do |post|
           object = post.activity_pub_object
+          next unless object
+
           activity = object.activities.present? ?
             object.activities.where(
               ap_type: AP::Activity::Create.type
             ).first : nil
 
           next if activity&.published_at
-
           increment_published_at
 
           activities << base_attrs(
@@ -256,15 +264,11 @@ module DiscourseActivityPub
           )
         end
 
-        result.activities = DiscourseActivityPubActivity.upsert_all(
-          activities,
-          unique_by: %i[ap_id],
-          returning: %i[ap_id]
-        )
+        activities
       end
 
-      def announce_activities(activities)
-        announcements = activities
+      def build_announcements(activities)
+        activities
           .where.not(ap_type: DiscourseActivityPub::AP::Activity::Announce.type)
           .where.missing(:announcement)
           .map do |activity|
@@ -278,11 +282,54 @@ module DiscourseActivityPub
               visibility: DiscourseActivityPubActivity.visibilities[:public]
             )
           end
+      end
 
-        result.announcements = DiscourseActivityPubActivity.upsert_all(
+      def create_collections(collections)
+        stored = DiscourseActivityPubCollection.upsert_all(
+          collections,
+          unique_by: %i[model_type model_id],
+          returning: Arel.sql("ap_id, (xmax = '0') as inserted")
+        )
+        log_stored(stored, "collections")
+        result.collections = stored.map { |r| r["ap_id"] }
+      end
+
+      def create_actors(actors)
+        stored = DiscourseActivityPubActor.upsert_all(
+          actors,
+          unique_by: %i[model_type model_id],
+          returning: Arel.sql("ap_id, (xmax = '0') as inserted")
+        )
+        log_stored(stored, "actors")
+        result.actors = stored.map { |r| r["ap_id"] }
+      end
+
+      def create_objects(objects)
+        stored = result.objects = DiscourseActivityPubObject.upsert_all(
+          objects,
+          unique_by: %i[model_type model_id],
+          returning: Arel.sql("ap_id, (xmax = '0') as inserted")
+        )
+        log_stored(stored, "objects")
+        result.objects = stored.map { |r| r["ap_id"] }
+      end
+
+      def create_activities(activities)
+        stored = DiscourseActivityPubActivity.upsert_all(
+          activities,
+          unique_by: %i[ap_id],
+          returning: Arel.sql("ap_id, (xmax = '0') as inserted")
+        )
+        log_stored(stored, "activities")
+        result.activities = stored.map { |r| r["ap_id"] }
+      end
+
+      def create_announcements(announcements)
+        stored = DiscourseActivityPubActivity.upsert_all(
           announcements,
           returning: %i[ap_id]
         )
+        result.announcements = stored.map { |r| r["ap_id"] }
       end
 
       def base_attrs(object: nil, base_type: nil, type: nil)
@@ -335,9 +382,30 @@ module DiscourseActivityPub
         DiscourseActivityPub::Logger.info(
           I18n.t(
             "discourse_activity_pub.publish.info.publish_finished",
-            actor: actor.handle,
-            activities_count: result.activities.count,
+            actor: actor.handle
           ),
+        )
+      end
+
+      def log_stored(stored, type)
+        created = 0
+        updated = 0
+        stored.each do |row|
+          if row["inserted"]
+            created += 1
+          else
+            updated += 1
+          end
+        end
+        log("created", type, created) if created > 0
+        log("updated", type, updated) if updated > 0
+      end
+
+      def log(action, type, count)
+        DiscourseActivityPub::Logger.info(
+          I18n.t("discourse_activity_pub.publish.info.#{action}_#{type}",
+            count: count
+          )
         )
       end
     end

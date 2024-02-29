@@ -166,23 +166,20 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
           it "logs the right info" do
             described_class.perform(actor_id: actor.id)
-            expect(@fake_logger.info.first).to eq(
-              prefix_log(
-                I18n.t(
-                  "discourse_activity_pub.publish.info.publish_started",
-                  actor: actor.handle
-                ),
+            [
+              I18n.t("discourse_activity_pub.publish.info.publish_started",
+                actor: actor.handle
               ),
-            )
-            expect(@fake_logger.info.second).to eq(
-              prefix_log(
-                I18n.t(
-                  "discourse_activity_pub.publish.info.publish_finished",
-                  actor: actor.handle,
-                  activities_count: 4,
-                ),
-              ),
-            )
+              I18n.t("discourse_activity_pub.publish.info.created_actors", count: 4),
+              I18n.t("discourse_activity_pub.publish.info.created_objects", count: 4),
+              I18n.t("discourse_activity_pub.publish.info.created_collections", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.created_activities", count: 4),
+              I18n.t("discourse_activity_pub.publish.info.publish_finished",
+                actor: actor.handle,
+              )
+            ].each do |info|
+              expect(@fake_logger.info).to include(prefix_log(info))
+            end
           end
         end
       end
@@ -271,23 +268,20 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
           it "logs the right info" do
             described_class.perform(actor_id: actor.id)
-            expect(@fake_logger.info.first).to eq(
-              prefix_log(
-                I18n.t(
-                  "discourse_activity_pub.publish.info.publish_started",
-                  actor: actor.handle
-                ),
+            [
+              I18n.t("discourse_activity_pub.publish.info.publish_started",
+                actor: actor.handle
               ),
-            )
-            expect(@fake_logger.info.second).to eq(
-              prefix_log(
-                I18n.t(
-                  "discourse_activity_pub.publish.info.publish_finished",
-                  actor: actor.handle,
-                  activities_count: 2,
-                ),
-              ),
-            )
+              I18n.t("discourse_activity_pub.publish.info.created_actors", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.created_objects", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.created_collections", count: 1),
+              I18n.t("discourse_activity_pub.publish.info.created_activities", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.publish_finished",
+                actor: actor.handle,
+              )
+            ].each do |info|
+              expect(@fake_logger.info).to include(prefix_log(info))
+            end
           end
         end
 
@@ -422,23 +416,19 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
           it "logs the right info" do
             described_class.perform(actor_id: actor.id)
-            expect(@fake_logger.info.first).to eq(
-              prefix_log(
-                I18n.t(
-                  "discourse_activity_pub.publish.info.publish_started",
-                  actor: actor.handle
-                ),
+            [
+              I18n.t("discourse_activity_pub.publish.info.publish_started",
+                actor: actor.handle
               ),
-            )
-            expect(@fake_logger.info.second).to eq(
-              prefix_log(
-                I18n.t(
-                  "discourse_activity_pub.publish.info.publish_finished",
-                  actor: actor.handle,
-                  activities_count: 2,
-                ),
-              ),
-            )
+              I18n.t("discourse_activity_pub.publish.info.created_actors", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.created_objects", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.created_activities", count: 2),
+              I18n.t("discourse_activity_pub.publish.info.publish_finished",
+                actor: actor.handle,
+              )
+            ].each do |info|
+              expect(@fake_logger.info).to include(prefix_log(info))
+            end
           end
         end
       end

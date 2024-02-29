@@ -19,11 +19,11 @@ module DiscourseActivityPub
 
       def ap_ids
         [
-          collections.map {|x| x["ap_id"] },
-          actors.map {|x| x["ap_id"] },
-          objects.map {|x| x["ap_id"] },
-          activities.map {|x| x["ap_id"] },
-          announcements.map {|x| x["ap_id"] },
+          collections,
+          actors,
+          objects,
+          activities,
+          announcements,
         ].reduce([], :concat).compact
       end
     end
