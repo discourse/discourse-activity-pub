@@ -126,10 +126,7 @@ task "activity_pub:process",
 
   setup_logger(args)
 
-  DiscourseActivityPub::Bulk::Process.perform(
-    actor_id: actor.id,
-    target_actor_id: target_actor.id,
-  )
+  DiscourseActivityPub::Bulk::Process.perform(actor_id: actor.id, target_actor_id: target_actor.id)
 end
 
 desc "Publishes unpublished activities of an actor"
