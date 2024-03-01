@@ -2,12 +2,13 @@
 
 module DiscourseActivityPub
   module Bulk
-    class Import
+    class Process
       include JsonLd
 
       attr_reader :actor,
                   :target_actor,
-                  :imported_collection,
+                  :collection_to_process,
+                  :remote_collections_by_ap_id,
                   :created_topics_count,
                   :created_replies_count,
                   :result
@@ -15,29 +16,30 @@ module DiscourseActivityPub
       def initialize(actor_id: nil, target_actor_id: nil)
         @actor = DiscourseActivityPubActor.find_by(id: actor_id)
         @target_actor = DiscourseActivityPubActor.find_by(id: target_actor_id)
-        @result = ImportResult.new
+        @result = ProcessResult.new
       end
 
       def perform
-        return log_import_failed("actors_not_ready") if !actor&.ready? || !target_actor&.ready?
-        return log_import_failed("not_following_target") if !actor.following?(target_actor)
+        return log_process_failed("actors_not_ready") if !actor&.ready? || !target_actor&.ready?
+        return log_process_failed("not_following_target") if !actor.following?(target_actor)
 
         response = DiscourseActivityPub::Request.get_json_ld(uri: target_actor.outbox)
-        return log_import_failed("outbox_response_invalid") unless response
+        return log_process_failed("outbox_response_invalid") unless response
 
-        @imported_collection = DiscourseActivityPub::AP::Object.factory(response)
-        unless imported_collection&.type == DiscourseActivityPub::AP::Collection::OrderedCollection.type
-          return log_import_failed("outbox_response_invalid")
+        @collection_to_process = DiscourseActivityPub::AP::Object.factory(response)
+        unless collection_to_process&.type ==
+                 DiscourseActivityPub::AP::Collection::OrderedCollection.type
+          return log_process_failed("outbox_response_invalid")
         end
 
         process_collection
 
-        log_import("started")
+        log_process("started")
 
         process_users
         process_posts
 
-        log_import("finished")
+        log_process("finished")
 
         result.finished = true
         result
@@ -56,7 +58,7 @@ module DiscourseActivityPub
         update_activities = []
         delete_activities = []
 
-        imported_collection.process_items.each do |item, result|
+        collection_to_process.process_items.each do |item, result|
           item = item["object"] if item["type"] == AP::Activity::Announce.type
 
           activity = DiscourseActivityPub::AP::Activity.factory(item)
@@ -67,27 +69,31 @@ module DiscourseActivityPub
           delete_activities << activity if activity.delete?
         end
 
-        deleted_object_ids = delete_activities.map do |activity|
-          resolve_id(activity.json["object"])
-        end
-        updated_object_map = update_activities.each_with_object({}) do |activitiy, result|
-          result[resolve_id(activity.json["object"])] = activity.json["object"]
-        end
+        deleted_object_ids =
+          delete_activities.map { |activity| resolve_id(activity.json["object"]) }
+        updated_object_map =
+          update_activities.each_with_object({}) do |activity, result|
+            result[resolve_id(activity.json["object"])] = activity.json["object"]
+          end
 
         # Remove deleted
-        create_activities = create_activities.each_with_object([]) do |activity, result|
-          result << activity unless deleted_object_ids.include?(resolve_id(activity.json["object"]))
-        end
+        create_activities =
+          create_activities.each_with_object([]) do |activity, result|
+            unless deleted_object_ids.include?(resolve_id(activity.json["object"]))
+              result << activity
+            end
+          end
 
         # Apply updates
-        create_activities = create_activities.map do |activity|
-          update_activity = updated_object_map[resolve_id(activity.json["object"])]
-          activity["object"] = update_activity["object"] if update_activity
-          activity
-        end
+        create_activities =
+          create_activities.map do |activity|
+            updated_object = updated_object_map[resolve_id(activity.json["object"])]
+            activity.json["object"] = updated_object if updated_object
+            activity
+          end
 
         # Resolve objects
-        collection_by_ap_id = {}
+        @remote_collections_by_ap_id = {}
         create_activities.each do |activity|
           actor_json = resolve_object(activity.json["actor"])
           next unless actor_json
@@ -98,33 +104,30 @@ module DiscourseActivityPub
           activity.actor = DiscourseActivityPub::AP::Actor.factory(actor_json)
           next unless activity.actor
 
-          next unless [
-            AP::Actor::Person.type,
-            AP::Actor::Group.type
-          ].include?(activity.actor.type)
+          next unless [AP::Actor::Person.type, AP::Actor::Group.type].include?(activity.actor.type)
 
           activity.object = DiscourseActivityPub::AP::Object.factory(object_json)
           next unless activity.object
           next if actor.model.activity_pub_first_post && activity.object.json[:inReplyTo]
 
           if activity.object.json[:attributedTo].present?
-            activity.object.attributed_to = if activity.actor.json[:id] == activity.object.json[:attributedTo]
-              activity.actor
-            else
-              resolve_object(activity.object.json[:attributedTo])
-            end
+            activity.object.attributed_to =
+              if activity.actor.json[:id] == activity.object.json[:attributedTo]
+                activity.actor
+              else
+                resolve_object(activity.object.json[:attributedTo])
+              end
           end
 
-          next unless [
-            AP::Object::Note.type,
-            AP::Object::Article.type
-          ].include?(activity.object.type)
+          unless [AP::Object::Note.type, AP::Object::Article.type].include?(activity.object.type)
+            next
+          end
 
           if actor.model.activity_pub_full_topic
             context_or_target_id = activity.object.json[:context] || activity.object.json[:target]
 
             if context_or_target_id
-              collection = collection_by_ap_id[context_or_target_id]
+              collection = remote_collections_by_ap_id[context_or_target_id]
 
               if collection
                 activity.object.context = collection
@@ -136,7 +139,7 @@ module DiscourseActivityPub
 
                   if collection.collection?
                     activity.object.context = collection
-                    collection_by_ap_id[collection.json[:id]] = collection
+                    remote_collections_by_ap_id[collection.json[:id]] = collection
                   end
                 end
               end
@@ -183,9 +186,7 @@ module DiscourseActivityPub
       end
 
       def build_activities
-        result.activities.map do |activity|
-          build_activity_attrs(activity)
-        end
+        result.activities.map { |activity| build_activity_attrs(activity) }
       end
 
       def build_actors
@@ -196,9 +197,7 @@ module DiscourseActivityPub
           actors_by_ap_id[activity.object.attributed_to.json[:id]] = activity.object.attributed_to
         end
 
-        actors_by_ap_id.values.map do |actor|
-          build_actor_attrs(actor)
-        end
+        actors_by_ap_id.values.map { |actor| build_actor_attrs(actor) }
       end
 
       def build_post_and_reply_objects
@@ -226,10 +225,7 @@ module DiscourseActivityPub
 
         result.actors_by_ap_id.each do |actor_ap_id, actor|
           creating = !actor.model
-          user = DiscourseActivityPub::UserHandler.update_or_create_user(
-            actor,
-            import_mode: true
-          )
+          user = DiscourseActivityPub::UserHandler.update_or_create_user(actor, import_mode: true)
 
           if user
             if creating
@@ -253,7 +249,7 @@ module DiscourseActivityPub
             ap_id: actor.ap_id,
             ap_type: actor.ap_type,
             model_type: "User",
-            model_id: user.id
+            model_id: user.id,
           }
         end
 
@@ -317,18 +313,15 @@ module DiscourseActivityPub
 
         if !post
           create_post_opts = create_post_opts_by_ap_id[object.stored.ap_id] || {}
-          post_actor_ap_id = object.attributed_to ?
-            object.attributed_to.stored.ap_id :
-            actor.stored.ap_id
+          post_actor_ap_id =
+            object.attributed_to ? object.attributed_to.stored.ap_id : actor.stored.ap_id
 
-          post = DiscourseActivityPub::PostHandler.create(
-            result.users_by_actor_ap_id[post_actor_ap_id],
-            object.stored,
-            **create_post_opts.merge(
-              category_id: actor.model.id,
-              import_mode: true
+          post =
+            DiscourseActivityPub::PostHandler.create(
+              result.users_by_actor_ap_id[post_actor_ap_id],
+              object.stored,
+              **create_post_opts.merge(category_id: actor.model.id, import_mode: true),
             )
-          )
 
           if post.present?
             if create_post_opts[:topic_id]
@@ -354,17 +347,18 @@ module DiscourseActivityPub
       end
 
       def update_post_object_attrs_from_stored(post_object_attrs)
-        stored = DiscourseActivityPubObject
-          .joins("INNER JOIN discourse_activity_pub_collections c ON discourse_activity_pub_objects.collection_id = c.id")
-          .where(ap_id: post_object_attrs.map {|o| o[:ap_id] })
-          .pluck("discourse_activity_pub_objects.ap_id, c.ap_id, c.id")
+        stored =
+          DiscourseActivityPubObject
+            .joins(
+              "INNER JOIN discourse_activity_pub_collections c ON discourse_activity_pub_objects.collection_id = c.id",
+            )
+            .where(ap_id: post_object_attrs.map { |o| o[:ap_id] })
+            .pluck("discourse_activity_pub_objects.ap_id, c.ap_id, c.id")
 
-        object_context_by_ap_id = stored.each_with_object({}) do |row, result|
-          result[row[0]] = {
-            collection_ap_id: row[1],
-            collection_id: row[2]
-          }
-        end
+        object_context_by_ap_id =
+          stored.each_with_object({}) do |row, result|
+            result[row[0]] = { collection_ap_id: row[1], collection_id: row[2] }
+          end
 
         post_object_attrs.each do |post_object|
           context_attrs = object_context_by_ap_id[post_object[:ap_id]]
@@ -379,26 +373,27 @@ module DiscourseActivityPub
       end
 
       def update_reply_object_attrs_from_stored(reply_object_attrs)
-        reply_to_ap_ids = reply_object_attrs.map {|o| o[:reply_to_id] }
-        in_reply_to = DiscourseActivityPubObject.where(
-          ap_id: reply_to_ap_ids
-        ).pluck(:ap_id, :context, :collection_id)
+        reply_to_ap_ids = reply_object_attrs.map { |o| o[:reply_to_id] }
+        in_reply_to =
+          DiscourseActivityPubObject.where(ap_id: reply_to_ap_ids).pluck(
+            :ap_id,
+            :context,
+            :collection_id,
+          )
 
-        in_reply_to_context_by_ap_id = in_reply_to.each_with_object({}) do |row, result|
-          result[row[0]] = {
-            context: row[1],
-            collection_id: row[2]
-          }
-        end
+        in_reply_to_context_by_ap_id =
+          in_reply_to.each_with_object({}) do |row, result|
+            result[row[0]] = { context: row[1], collection_id: row[2] }
+          end
 
         reply_object_attrs.each_with_object([]) do |reply_object, reply_objects|
           context_attrs = in_reply_to_context_by_ap_id[reply_object[:reply_to_id]]
           reply_to_post = result.posts_by_object_ap_id[reply_object[:reply_to_id]]
 
           if reply_to_post && context_attrs
-            reply_object[:create_post_opts] =  {
+            reply_object[:create_post_opts] = {
               topic_id: reply_to_post.topic_id,
-              reply_to_post_number: reply_to_post.post_number
+              reply_to_post_number: reply_to_post.post_number,
             }
             reply_object[:context] = context_attrs[:context]
             reply_object[:collection_id] = context_attrs[:collection_id]
@@ -420,7 +415,8 @@ module DiscourseActivityPub
           if activity.object.attributed_to.present?
             attributed_to_ap_id = resolve_id(activity.object.attributed_to.json[:id])
 
-            if result.actors_by_ap_id[attributed_to_ap_id] && result.users_by_actor_ap_id[attributed_to_ap_id]
+            if result.actors_by_ap_id[attributed_to_ap_id] &&
+                 result.users_by_actor_ap_id[attributed_to_ap_id]
               activity.object.attributed_to.stored = result.actors_by_ap_id[attributed_to_ap_id]
             else
               result.activities_by_ap_id.delete(activity_ap_id)
@@ -429,11 +425,16 @@ module DiscourseActivityPub
         end
       end
 
-      def update_activites_from_stored_collections  
+      def update_activites_from_stored_collections
         result.activities_by_ap_id.each do |activity_ap_id, activity|
-          collection_ap_id = activity.object.context ?
-            activity.object.context.json[:id] :
-            activity.object.json[:context]
+          collection_ap_id =
+            (
+              if activity.object.context
+                activity.object.context.json[:id]
+              else
+                activity.object.json[:context]
+              end
+            )
 
           if collection_ap_id
             collection = result.collections_by_ap_id[collection_ap_id]
@@ -459,7 +460,7 @@ module DiscourseActivityPub
               ap_id: object_ap_id,
               ap_type: object.ap_type,
               model_type: "Post",
-              model_id: post.id
+              model_id: post.id,
             }
           else
             destroy_object_ap_ids << object_ap_id
@@ -483,9 +484,10 @@ module DiscourseActivityPub
             end
           end
 
-          result.objects_by_ap_id = result.objects_by_ap_id.select do |object_ap_id, object|
-            destroy_object_ap_ids.exclude?(object_ap_id)
-          end
+          result.objects_by_ap_id =
+            result.objects_by_ap_id.select do |object_ap_id, object|
+              destroy_object_ap_ids.exclude?(object_ap_id)
+            end
         end
 
         if actor.model.activity_pub_full_topic
@@ -500,13 +502,13 @@ module DiscourseActivityPub
                 ap_id: collection_ap_id,
                 ap_type: collection.ap_type,
                 model_type: "Topic",
-                model_id: topic.id
+                model_id: topic.id,
               }
             else
               destroy_collection_ids << collection_ap_id
             end
           end
- 
+
           if update_collections.any?
             DiscourseActivityPubCollection.upsert_all(
               update_collections,
@@ -529,9 +531,10 @@ module DiscourseActivityPub
           actor_id: activity.actor.stored.id,
           object_id: activity.object.stored.id,
           object_type: activity.object.stored.class.name,
-          visibility: DiscourseActivityPubActivity.visibilities[
-            DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json) ? :public : :private
-          ],
+          visibility:
+            DiscourseActivityPubActivity.visibilities[
+              DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json) ? :public : :private
+            ],
           published_at: activity.json[:published],
         }
       end
@@ -546,7 +549,8 @@ module DiscourseActivityPub
           inbox: actor.json[:inbox],
           outbox: actor.json[:outbox],
           name: actor.json[:name],
-          icon_url: resolve_icon_url(actor.json[:icon])
+          icon_url: resolve_icon_url(actor.json[:icon]),
+          public_key: nil,
         }
 
         if actor.json["publicKey"].is_a?(Hash) && actor.json["publicKey"]["publicKeyPem"]
@@ -562,7 +566,7 @@ module DiscourseActivityPub
           ap_id: object.json[:id],
           ap_type: object.json[:type],
           content: object.json[:content],
-          published_at:object.json[:published],
+          published_at: object.json[:published],
           domain: domain_from_id(object.json[:id]),
           name: object.json[:name],
           audience: object.json[:audience],
@@ -570,14 +574,14 @@ module DiscourseActivityPub
           target: object.json[:target],
           reply_to_id: object.json[:inReplyTo],
           url: object.json[:url],
-          attributed_to_id: object.attributed_to&.id
+          attributed_to_id: object.attributed_to&.id,
         }
       end
 
       def build_collection_attrs(object_attrs)
         if object_attrs[:collection_id]
           {
-            local: false,
+            local: nil,
             ap_id: object_attrs[:context],
             ap_key: nil,
             ap_type: AP::Collection::OrderedCollection.type,
@@ -585,12 +589,22 @@ module DiscourseActivityPub
             audience: nil,
             published_at: nil,
           }
+        elsif collection = remote_collections_by_ap_id[object_attrs[:context]]
+          {
+            local: false,
+            ap_key: nil,
+            ap_id: collection.json[:id],
+            ap_type: AP::Collection::OrderedCollection.type,
+            name: collection.json[:name],
+            audience: collection.json[:audience],
+            published_at: collection.json[:published],
+          }
         else
           ap_key = generate_key
           ap_id = json_ld_id(AP::Collection.type, ap_key)
           object_attrs[:context] = ap_id
           {
-            local: false,
+            local: true,
             ap_key: ap_key,
             ap_id: ap_id,
             ap_type: AP::Collection::OrderedCollection.type,
@@ -604,14 +618,15 @@ module DiscourseActivityPub
       def store_actors(actor_attrs)
         return {} unless actor_attrs.present?
 
-        stored = DiscourseActivityPubActor.upsert_all(
-          actor_attrs,
-          unique_by: %i[ap_id],
-          update_only: %i[domain username inbox outbox name icon_url public_key],
-          returning: Arel.sql("*, (xmax = '0') as inserted")
-        )
+        stored =
+          DiscourseActivityPubActor.upsert_all(
+            actor_attrs,
+            unique_by: %i[ap_id],
+            update_only: %i[domain username inbox outbox name icon_url public_key],
+            returning: Arel.sql("*, (xmax = '0') as inserted"),
+          )
 
-        log_stored(stored, 'actors')
+        log_stored(stored, "actors")
 
         stored.each_with_object({}) do |attrs, result|
           actor = DiscourseActivityPubActor.new(attrs.except("inserted"))
@@ -622,14 +637,25 @@ module DiscourseActivityPub
       def store_objects(object_attrs)
         return {} unless object_attrs.present?
 
-        stored = DiscourseActivityPubObject.upsert_all(
-          object_attrs,
-          unique_by: %i[ap_id],
-          update_only: %i[content domain name audience context target reply_to_id url attributed_to_id],
-          returning: Arel.sql("*, (xmax = '0') as inserted")
-        )
+        stored =
+          DiscourseActivityPubObject.upsert_all(
+            object_attrs,
+            unique_by: %i[ap_id],
+            update_only: %i[
+              content
+              domain
+              name
+              audience
+              context
+              target
+              reply_to_id
+              url
+              attributed_to_id
+            ],
+            returning: Arel.sql("*, (xmax = '0') as inserted"),
+          )
 
-        log_stored(stored, 'objects')
+        log_stored(stored, "objects")
 
         stored.each_with_object({}) do |attrs, result|
           object = DiscourseActivityPubObject.new(attrs.except("inserted"))
@@ -640,14 +666,15 @@ module DiscourseActivityPub
       def store_activities(activity_attrs)
         return {} unless activity_attrs.present?
 
-        stored = DiscourseActivityPubActivity.upsert_all(
-          activity_attrs,
-          unique_by: %i[ap_id],
-          update_only: %i[visibility],
-          returning: Arel.sql("*, (xmax = '0') as inserted")
-        )
+        stored =
+          DiscourseActivityPubActivity.upsert_all(
+            activity_attrs,
+            unique_by: %i[ap_id],
+            update_only: %i[visibility],
+            returning: Arel.sql("*, (xmax = '0') as inserted"),
+          )
 
-        log_stored(stored, 'activities')
+        log_stored(stored, "activities")
 
         stored.each_with_object({}) do |attrs, result|
           object = DiscourseActivityPubActivity.new(attrs.except("inserted"))
@@ -658,14 +685,15 @@ module DiscourseActivityPub
       def store_collections(collection_attrs)
         return {} unless collection_attrs.present?
 
-        stored = DiscourseActivityPubCollection.upsert_all(
-          collection_attrs,
-          unique_by: %i[ap_id],
-          update_only: %i[name],
-          returning: Arel.sql("*, (xmax = '0') as inserted")
-        )
+        stored =
+          DiscourseActivityPubCollection.upsert_all(
+            collection_attrs,
+            unique_by: %i[ap_id],
+            update_only: %i[name],
+            returning: Arel.sql("*, (xmax = '0') as inserted"),
+          )
 
-        log_stored(stored, 'collections')
+        log_stored(stored, "collections")
 
         stored.each_with_object({}) do |attrs, result|
           collection = DiscourseActivityPubCollection.new(attrs.except("inserted"))
@@ -673,27 +701,27 @@ module DiscourseActivityPub
         end
       end
 
-      def log_import_failed(key)
+      def log_process_failed(key)
         message =
           I18n.t(
-            "discourse_activity_pub.import.warning.import_did_not_start",
+            "discourse_activity_pub.bulk.process.warning.did_not_start",
             actor: actor.handle,
             target_actor: target_actor.handle,
           )
         message +=
           ": " +
             I18n.t(
-              "discourse_activity_pub.import.warning.#{key}",
+              "discourse_activity_pub.bulk.process.warning.#{key}",
               actor: actor.handle,
               target_actor: target_actor.handle,
             )
         DiscourseActivityPub::Logger.warn(message)
       end
 
-      def log_import(key)
+      def log_process(key)
         DiscourseActivityPub::Logger.info(
           I18n.t(
-            "discourse_activity_pub.import.info.import_#{key}",
+            "discourse_activity_pub.bulk.process.info.#{key}",
             actor: actor.handle,
             target_actor: target_actor.handle,
           ),
@@ -716,9 +744,7 @@ module DiscourseActivityPub
 
       def log(action, type, count)
         DiscourseActivityPub::Logger.info(
-          I18n.t("discourse_activity_pub.import.info.#{action}_#{type}",
-            count: count
-          )
+          I18n.t("discourse_activity_pub.bulk.process.info.#{action}_#{type}", count: count),
         )
       end
     end

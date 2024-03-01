@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DiscourseActivityPub::Bulk::Import do
+RSpec.describe DiscourseActivityPub::Bulk::Process do
   let!(:category) { Fabricate(:category) }
   let!(:target_user) { Fabricate(:user) }
   let!(:target_actor) do
@@ -10,6 +10,17 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
   let!(:object1_json) { build_object_json(name: "My cool title", attributed_to: target_actor) }
   let!(:object2_json) do
     build_object_json(in_reply_to: object1_json[:id], attributed_to: person2_json[:id])
+  end
+  let!(:topic_collection_json) do
+    collection =
+      build_collection_json(
+        type: "OrderedCollection",
+        items: [object1_json, object2_json],
+        name: object1_json[:name],
+      )
+    object1_json[:context] = collection[:id]
+    object2_json[:context] = collection[:id]
+    collection
   end
   let!(:create_1_json) do
     build_activity_json(actor: target_actor, object: object1_json, type: "Create")
@@ -37,14 +48,14 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
     def build_warning_log(key)
       message =
         I18n.t(
-          "discourse_activity_pub.import.warning.import_did_not_start",
+          "discourse_activity_pub.bulk.process.warning.did_not_start",
           actor: actor.handle,
           target_actor: target_actor.handle,
         )
       message +=
         ": " +
           I18n.t(
-            "discourse_activity_pub.import.warning.#{key}",
+            "discourse_activity_pub.bulk.process.warning.#{key}",
             actor: actor.handle,
             target_actor: target_actor.handle,
           )
@@ -132,6 +143,11 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
               .with(uri: person2_json[:id])
               .returns(person2_json)
               .once
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: topic_collection_json[:id])
+              .returns(topic_collection_json)
+              .once
           end
 
           it "finishes" do
@@ -141,7 +157,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
 
           it "does not create announcements" do
             perform
-            expect(DiscourseActivityPubActivity.exists?(ap_type: 'Announce')).to eq(false)
+            expect(DiscourseActivityPubActivity.exists?(ap_type: "Announce")).to eq(false)
           end
 
           it "creates the right actors" do
@@ -159,7 +175,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
 
           it "creates the right collection" do
             result = perform
-            expect(result.collections_by_ap_id.keys).not_to eq([ordered_collection_json[:id]])
+            expect(result.collections_by_ap_id.keys).to eq([topic_collection_json[:id]])
             collection = DiscourseActivityPubCollection.find_by(name: object1_json[:name])
             expect(collection.objects.size).to eq(2)
           end
@@ -197,32 +213,38 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
             it "logs the right info" do
               perform
               [
-                I18n.t("discourse_activity_pub.import.info.import_started",
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.started",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
                 ),
-                I18n.t("discourse_activity_pub.import.info.created_actors", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_objects", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_collections", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_users", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_users", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_topics", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_replies", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_activities", count: 2),
-                I18n.t("discourse_activity_pub.import.info.import_finished",
+                I18n.t("discourse_activity_pub.bulk.process.info.created_actors", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_objects", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_collections", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_topics", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_replies", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_activities", count: 2),
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.finished",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
-                )
-              ].each do |info|
-                expect(@fake_logger.info).to include(prefix_log(info))
-              end
+                ),
+              ].each { |info| expect(@fake_logger.info).to include(prefix_log(info)) }
             end
           end
         end
 
         context "when target actor returns an outbox collection with new and existing activities" do
           let!(:topic) { Fabricate(:topic, category: category) }
-          let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
+          let!(:collection) do
+            Fabricate(
+              :discourse_activity_pub_ordered_collection,
+              ap_id: topic_collection_json[:id],
+              model: topic,
+            )
+          end
           let!(:post) { Fabricate(:post, topic: topic, user: target_user) }
           let!(:note) do
             Fabricate(
@@ -251,6 +273,11 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
               .with(uri: person2_json[:id])
               .returns(person2_json)
               .once
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: topic_collection_json[:id])
+              .returns(topic_collection_json)
+              .once
           end
 
           it "finishes" do
@@ -260,7 +287,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
 
           it "does not create announcements" do
             perform
-            expect(DiscourseActivityPubActivity.exists?(ap_type: 'Announce')).to eq(false)
+            expect(DiscourseActivityPubActivity.exists?(ap_type: "Announce")).to eq(false)
           end
 
           it "creates the right number of actors" do
@@ -272,7 +299,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
           end
 
           it "creates the right number of collections" do
-            expect { perform }.to change { DiscourseActivityPubCollection.count }.by(0)
+            expect { perform }.not_to change { DiscourseActivityPubCollection.count }
           end
 
           it "creates the right number of objects" do
@@ -280,7 +307,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
           end
 
           it "creates the right number of topics" do
-            expect { perform }.to change { Topic.count }.by(0)
+            expect { perform }.not_to change { Topic.count }
           end
 
           it "creates the right nubmer of posts" do
@@ -294,27 +321,27 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
             it "logs the right info" do
               perform
               [
-                I18n.t("discourse_activity_pub.import.info.import_started",
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.started",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
                 ),
-                I18n.t("discourse_activity_pub.import.info.created_actors", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_actors", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_objects", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_objects", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_collections", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_users", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_users", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_replies", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_activities", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_activities", count: 1),
-                I18n.t("discourse_activity_pub.import.info.import_finished",
+                I18n.t("discourse_activity_pub.bulk.process.info.created_actors", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_actors", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_objects", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_objects", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_collections", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_replies", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_activities", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_activities", count: 1),
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.finished",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
-                )
-              ].each do |info|
-                expect(@fake_logger.info).to include(prefix_log(info))
-              end
+                ),
+              ].each { |info| expect(@fake_logger.info).to include(prefix_log(info)) }
             end
           end
         end
@@ -349,7 +376,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
 
           it "does not create announcements" do
             perform
-            expect(DiscourseActivityPubActivity.exists?(ap_type: 'Announce')).to eq(false)
+            expect(DiscourseActivityPubActivity.exists?(ap_type: "Announce")).to eq(false)
           end
 
           it "creates the right actors" do
@@ -400,22 +427,22 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
             it "logs the right info" do
               perform
               [
-                I18n.t("discourse_activity_pub.import.info.import_started",
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.started",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
                 ),
-                I18n.t("discourse_activity_pub.import.info.updated_actors", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_objects", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_users", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_topics", count: 1),
-                I18n.t("discourse_activity_pub.import.info.created_activities", count: 1),
-                I18n.t("discourse_activity_pub.import.info.import_finished",
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_actors", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_objects", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_topics", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_activities", count: 1),
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.finished",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
-                )
-              ].each do |info|
-                expect(@fake_logger.info).to include(prefix_log(info))
-              end
+                ),
+              ].each { |info| expect(@fake_logger.info).to include(prefix_log(info)) }
             end
           end
         end
@@ -460,31 +487,31 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
 
           it "does not create announcements" do
             perform
-            expect(DiscourseActivityPubActivity.exists?(ap_type: 'Announce')).to eq(false)
+            expect(DiscourseActivityPubActivity.exists?(ap_type: "Announce")).to eq(false)
           end
 
           it "creates the right number of actors" do
-            expect { perform }.to change { DiscourseActivityPubActor.count }.by(0)
+            expect { perform }.not_to change { DiscourseActivityPubActor.count }
           end
 
           it "creates the right number of activities" do
-            expect { perform }.to change { DiscourseActivityPubActivity.count }.by(0)
+            expect { perform }.not_to change { DiscourseActivityPubActivity.count }
           end
 
           it "creates the right number of collections" do
-            expect { perform }.to change { DiscourseActivityPubCollection.count }.by(0)
+            expect { perform }.not_to change { DiscourseActivityPubCollection.count }
           end
 
           it "creates the right number of objects" do
-            expect { perform }.to change { DiscourseActivityPubObject.count }.by(0)
+            expect { perform }.not_to change { DiscourseActivityPubObject.count }
           end
 
           it "creates the right number of topics" do
-            expect { perform }.to change { Topic.count }.by(0)
+            expect { perform }.not_to change { Topic.count }
           end
 
           it "creates the right nubmer of posts" do
-            expect { perform }.to change { Post.count }.by(0)
+            expect { perform }.not_to change { Post.count }
           end
 
           context "with verbose logging enabled" do
@@ -494,21 +521,21 @@ RSpec.describe DiscourseActivityPub::Bulk::Import do
             it "logs the right info" do
               perform
               [
-                I18n.t("discourse_activity_pub.import.info.import_started",
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.started",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
                 ),
-                I18n.t("discourse_activity_pub.import.info.updated_actors", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_objects", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_users", count: 1),
-                I18n.t("discourse_activity_pub.import.info.updated_activities", count: 1),
-                I18n.t("discourse_activity_pub.import.info.import_finished",
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_actors", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_objects", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.updated_activities", count: 1),
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.finished",
                   actor: actor.handle,
                   target_actor: target_actor.handle,
-                )
-              ].each do |info|
-                expect(@fake_logger.info).to include(prefix_log(info))
-              end
+                ),
+              ].each { |info| expect(@fake_logger.info).to include(prefix_log(info)) }
             end
           end
         end

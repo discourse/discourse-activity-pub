@@ -23,10 +23,11 @@ module DiscourseActivityPub
         raw: object.content,
         skip_events: true,
         skip_validations: true,
-        custom_fields: {},
+        custom_fields: {
+        },
         import_mode: import_mode,
         topic_id: topic_id,
-        reply_to_post_number: reply_to_post_number
+        reply_to_post_number: reply_to_post_number,
       }
 
       if new_topic
@@ -79,12 +80,19 @@ module DiscourseActivityPub
       post
     end
 
-    def self.create(user, object, category_id: nil, topic_id: nil, reply_to_post_number: nil, import_mode: false)
+    def self.create(
+      user,
+      object,
+      category_id: nil,
+      topic_id: nil,
+      reply_to_post_number: nil,
+      import_mode: false
+    )
       new(user, object).create(
         category_id: category_id,
         import_mode: import_mode,
         topic_id: topic_id,
-        reply_to_post_number: reply_to_post_number
+        reply_to_post_number: reply_to_post_number,
       )
     end
 

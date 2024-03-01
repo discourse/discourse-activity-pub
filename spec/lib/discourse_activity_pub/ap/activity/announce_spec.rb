@@ -99,16 +99,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
       end
 
       context "when not addressed publicly" do
-        before do
-          SiteSetting.activity_pub_verbose_logging = true
-          @orig_logger = Rails.logger
-          Rails.logger = @fake_logger = FakeLogger.new
-        end
-
-        after do
-          Rails.logger = @orig_logger
-          SiteSetting.activity_pub_verbose_logging = false
-        end
+        before { setup_logging }
+        after { teardown_logging }
 
         it "does not create the announce activity" do
           perform_process(announce_json)
