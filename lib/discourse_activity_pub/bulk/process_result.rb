@@ -1,13 +1,14 @@
+# frozen_string_literal: true
 module DiscourseActivityPub
   module Bulk
-    class ImportResult
+    class ProcessResult
       attr_accessor :activities_by_ap_id,
                     :actors_by_ap_id,
                     :objects_by_ap_id,
                     :collections_by_ap_id,
                     :users_by_actor_ap_id,
                     :posts_by_object_ap_id,
-                    :topics_by_collection_ap_id,                    
+                    :topics_by_collection_ap_id,
                     :finished
 
       def initialize

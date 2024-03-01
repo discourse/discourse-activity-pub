@@ -26,8 +26,8 @@ after_initialize do
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
     ../lib/discourse_activity_pub/follow_handler.rb
-    ../lib/discourse_activity_pub/bulk/import_result.rb
-    ../lib/discourse_activity_pub/bulk/import.rb
+    ../lib/discourse_activity_pub/bulk/process_result.rb
+    ../lib/discourse_activity_pub/bulk/process.rb
     ../lib/discourse_activity_pub/bulk/publish_result.rb
     ../lib/discourse_activity_pub/bulk/publish.rb
     ../lib/discourse_activity_pub/auth.rb

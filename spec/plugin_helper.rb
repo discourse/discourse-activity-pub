@@ -123,7 +123,8 @@ def build_object_json(
   to: nil,
   cc: nil,
   audience: nil,
-  attributed_to: nil
+  attributed_to: nil,
+  context: nil
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -145,6 +146,7 @@ def build_object_json(
   else
     attributed_to
   end
+  _json[:context] = context if context
   _json
 end
 
@@ -186,7 +188,7 @@ def build_activity_json(
   _json.with_indifferent_access
 end
 
-def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audience: nil)
+def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audience: nil, name: nil)
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "https://external.com/collection/#{SecureRandom.hex(8)}",
@@ -198,6 +200,7 @@ def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audie
   _json[:to] = to if to
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
+  _json[:name] = name if name
   _json.with_indifferent_access
 end
 

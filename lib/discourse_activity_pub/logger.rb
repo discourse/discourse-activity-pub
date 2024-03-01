@@ -13,13 +13,15 @@ module DiscourseActivityPub
     end
 
     def log(message, json: nil)
+      puts formatted_message(message) if print_to_stdout?
+
       return unless SiteSetting.activity_pub_verbose_logging
       rails_args = {}
       rails_args[:json] = json if SiteSetting.activity_pub_object_logging && !Rails.env.development?
 
       Rails.logger.send(type, formatted_message(message, **rails_args))
       AP.logger.send(type, formatted_message(message, json: json)) if Rails.env.development?
-      puts formatted_message(message) if print_to_stdout?
+
       true
     end
 
