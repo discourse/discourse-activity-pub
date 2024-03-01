@@ -17,8 +17,12 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
     def build_warning_log(key)
       message =
-        I18n.t("discourse_activity_pub.bulk.publish.warning.publish_did_not_start", actor: actor.handle)
-      message += ": " + I18n.t("discourse_activity_pub.bulk.publish.warning.#{key}", actor: actor.handle)
+        I18n.t(
+          "discourse_activity_pub.bulk.publish.warning.publish_did_not_start",
+          actor: actor.handle,
+        )
+      message +=
+        ": " + I18n.t("discourse_activity_pub.bulk.publish.warning.#{key}", actor: actor.handle)
       prefix_log(message)
     end
 
