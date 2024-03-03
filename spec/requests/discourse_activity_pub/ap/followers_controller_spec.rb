@@ -23,10 +23,10 @@ RSpec.describe DiscourseActivityPub::AP::FollowersController do
     it "returns an ordered collection of the actors followers" do
       get_followers(actor)
       expect(response.status).to eq(200)
-      expect(response.parsed_body["totalItems"]).to eq(3)
-      expect(response.parsed_body["orderedItems"][0]["id"]).to eq(follower3.ap_id)
-      expect(response.parsed_body["orderedItems"][1]["id"]).to eq(follower1.ap_id)
-      expect(response.parsed_body["orderedItems"][2]["id"]).to eq(follower2.ap_id)
+      expect(parsed_body["totalItems"]).to eq(3)
+      expect(parsed_body["orderedItems"][0]["id"]).to eq(follower3.ap_id)
+      expect(parsed_body["orderedItems"][1]["id"]).to eq(follower1.ap_id)
+      expect(parsed_body["orderedItems"][2]["id"]).to eq(follower2.ap_id)
     end
   end
 end
