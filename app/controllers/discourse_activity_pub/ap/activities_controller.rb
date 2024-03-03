@@ -6,7 +6,7 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
   before_action :ensure_can_access_activity_object_model
 
   def show
-    render json: @activity.ap.json
+    render_activity_json(@activity.ap.json)
   end
 
   protected

@@ -5,7 +5,7 @@ class DiscourseActivityPub::AP::CollectionsController < DiscourseActivityPub::AP
   before_action :ensure_can_access_collection
 
   def show
-    render json: @collection.ap.json
+    render_activity_json(@collection.ap.json)
   end
 
   protected

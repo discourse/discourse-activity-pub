@@ -19,7 +19,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :set_raw_body
 
   def show
-    render json: @object.ap.json
+    render_activity_json(@object.ap.json)
   end
 
   protected
@@ -90,6 +90,10 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
     end
   end
 
+  def render_activity_json(json)
+    render json: json, content_type: DiscourseActivityPub::JsonLd::ACTIVITY_CONTENT_TYPE
+  end
+
   def render_activity_pub_error(key, status, opts = {})
     message = I18n.t("discourse_activity_pub.request.error.#{key}", opts)
     log_request_error(message, status)
@@ -101,11 +105,12 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
       DiscourseActivityPub::AP::Collection::OrderedCollection.new(
         stored: stored.send("#{collection_for}_collection"),
       )
-    render json:
-             DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(
-               collection,
-               root: false,
-             ).as_json
+    render_activity_json(
+      DiscourseActivityPub::AP::Collection::OrderedCollectionSerializer.new(
+        collection,
+        root: false,
+      ).as_json,
+    )
   end
 
   def set_raw_body

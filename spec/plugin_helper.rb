@@ -292,3 +292,7 @@ def teardown_logging
   Rails.logger = @orig_logger
   SiteSetting.activity_pub_verbose_logging = false
 end
+
+def parsed_body
+  JSON.parse(response.body)
+end
