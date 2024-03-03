@@ -5,6 +5,8 @@ module DiscourseActivityPub
     class Process
       include JsonLd
 
+      DEFAULT_MAX_ITEMS = 1000
+
       attr_reader :actor,
                   :target_actor,
                   :collection_to_process,
@@ -58,7 +60,10 @@ module DiscourseActivityPub
         update_activities = []
         delete_activities = []
 
-        collection_to_process.process_items.each do |item, result|
+        collection_to_process.resolve_items_to_process
+        return unless collection_to_process.items_to_process.present?
+
+        collection_to_process.items_to_process.each do |item, result|
           item = item["object"] if item["type"] == AP::Activity::Announce.type
 
           activity = DiscourseActivityPub::AP::Activity.factory(item)
@@ -186,7 +191,11 @@ module DiscourseActivityPub
       end
 
       def build_activities
-        result.activities.map { |activity| build_activity_attrs(activity) }
+        result
+          .activities
+          .each_with_object([]) do |activity, activities|
+            activities << build_activity_attrs(activity) if activity.object.stored
+          end
       end
 
       def build_actors

@@ -188,7 +188,16 @@ def build_activity_json(
   _json.with_indifferent_access
 end
 
-def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audience: nil, name: nil)
+def build_collection_json(
+  type: "Collection",
+  items: [],
+  to: nil,
+  cc: nil,
+  audience: nil,
+  name: nil,
+  first_page: nil,
+  last_page: nil
+)
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "https://external.com/collection/#{SecureRandom.hex(8)}",
@@ -201,6 +210,31 @@ def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audie
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
   _json[:name] = name if name
+  _json[:first] = "#{_json[:id]}?page=#{first_page}" if first_page
+  _json[:last] = "#{_json[:id]}?page=#{last_page}" if last_page
+  _json.with_indifferent_access
+end
+
+def build_collection_page_json(
+  type: "CollectionPage",
+  summary: nil,
+  items: [],
+  part_of: nil,
+  page: nil,
+  next_page: nil,
+  prev_page: nil
+)
+  return {} unless items.present? && part_of.present?
+  _json = {
+    "@context": "https://www.w3.org/ns/activitystreams",
+    id: "#{part_of}?page=#{page}",
+    type: type,
+  }
+  _json[:items] = items if type == "CollectionPage"
+  _json[:orderedItems] = items if type == "OrderedCollectionPage"
+  _json[:summary] = summary if summary
+  _json[:next] = "#{part_of}?page=#{next_page}" if next_page
+  _json[:prev] = "#{part_of}?page=#{prev_page}" if prev_page
   _json.with_indifferent_access
 end
 

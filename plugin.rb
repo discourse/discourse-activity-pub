@@ -60,6 +60,8 @@ after_initialize do
     ../lib/discourse_activity_pub/ap/object/note.rb
     ../lib/discourse_activity_pub/ap/object/article.rb
     ../lib/discourse_activity_pub/ap/collection.rb
+    ../lib/discourse_activity_pub/ap/collection/collection_page.rb
+    ../lib/discourse_activity_pub/ap/collection/ordered_collection_page.rb
     ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb
     ../app/models/concerns/discourse_activity_pub/ap/identifier_validations.rb
     ../app/models/concerns/discourse_activity_pub/ap/object_validations.rb
