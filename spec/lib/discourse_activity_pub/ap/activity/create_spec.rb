@@ -5,7 +5,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
   let(:topic) { Fabricate(:topic, category: category) }
   let!(:post) { Fabricate(:post, topic: topic) }
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-  let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Activity::Compose }
 
@@ -21,7 +21,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       let(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
       let(:reply_json) do
         build_activity_json(
-          actor: person,
+          actor: actor,
           object:
             build_object_json(
               in_reply_to: original_object.ap_id,
@@ -52,7 +52,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           DiscourseActivityPubActivity.where(
             ap_id: reply_json[:id],
             ap_type: "Create",
-            actor_id: person.id,
+            actor_id: actor.id,
           ).size,
         ).to be(1)
       end
@@ -73,7 +73,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       let!(:original_object) { Fabricate(:discourse_activity_pub_object_note) }
       let(:reply_json) do
         build_activity_json(
-          actor: person,
+          actor: actor,
           object: build_object_json(in_reply_to: original_object.ap_id),
           type: "Create",
           to: [category.activity_pub_actor.ap_id],
@@ -97,7 +97,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           DiscourseActivityPubActivity.exists?(
             ap_id: reply_json[:id],
             ap_type: "Create",
-            actor_id: person.id,
+            actor_id: actor.id,
           ),
         ).to be(false)
       end
@@ -109,56 +109,56 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       end
     end
 
+    shared_examples "creates a new topic" do
+      it "creates a new topic" do
+        perform_process(new_post_json, delivered_to)
+        post = Post.find_by(raw: object_json[:content])
+        expect(post.present?).to be(true)
+        expect(post.topic.present?).to be(true)
+        expect(post.topic.title).to eq(object_json[:name])
+        expect(post.post_number).to be(1)
+      end
+
+      it "creates a note" do
+        perform_process(new_post_json, delivered_to)
+        post = Post.find_by(raw: object_json[:content])
+        expect(
+          DiscourseActivityPubObject.exists?(
+            ap_type: "Note",
+            model_id: post.id,
+            model_type: "Post",
+            attributed_to_id: actor.ap_id,
+          ),
+        ).to eq(true)
+      end
+
+      it "creates an activity" do
+        perform_process(new_post_json, delivered_to)
+        expect(
+          DiscourseActivityPubActivity.exists?(
+            ap_id: new_post_json[:id],
+            ap_type: "Create",
+            actor_id: actor.id,
+          ),
+        ).to be(true)
+      end
+    end
+
     context "with a Note not inReplyTo another Note" do
       let!(:delivered_to) { category.activity_pub_actor.ap_id }
-      let!(:object_json) { build_object_json(name: "My cool topic title", attributed_to: person) }
+      let!(:object_json) { build_object_json(name: "My cool topic title", attributed_to: actor) }
       let!(:new_post_json) do
-        build_activity_json(actor: person, object: object_json, type: "Create")
+        build_activity_json(actor: actor, object: object_json, type: "Create")
       end
 
-      before { stub_stored_request(person) }
-
-      shared_examples "creates a new topic" do
-        it "creates a new topic" do
-          perform_process(new_post_json, delivered_to)
-          post = Post.find_by(raw: object_json[:content])
-          expect(post.present?).to be(true)
-          expect(post.topic.present?).to be(true)
-          expect(post.topic.title).to eq(object_json[:name])
-          expect(post.post_number).to be(1)
-        end
-
-        it "creates a note" do
-          perform_process(new_post_json, delivered_to)
-          post = Post.find_by(raw: object_json[:content])
-          expect(
-            DiscourseActivityPubObject.exists?(
-              ap_type: "Note",
-              model_id: post.id,
-              model_type: "Post",
-              attributed_to_id: person.ap_id,
-            ),
-          ).to eq(true)
-        end
-
-        it "creates an activity" do
-          perform_process(new_post_json, delivered_to)
-          expect(
-            DiscourseActivityPubActivity.exists?(
-              ap_id: new_post_json[:id],
-              ap_type: "Create",
-              actor_id: person.id,
-            ),
-          ).to be(true)
-        end
-      end
+      before { stub_stored_request(actor) }
 
       context "when the target is following the create actor" do
         before do
           Fabricate(
             :discourse_activity_pub_follow,
             follower: category.activity_pub_actor,
-            followed: person,
+            followed: actor,
           )
         end
 
@@ -189,7 +189,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             expect(@fake_logger.errors.first).to match(
               I18n.t(
                 "discourse_activity_pub.user.error.failed_to_create",
-                actor_id: person.ap_id,
+                actor_id: actor.ap_id,
                 message: "Validation failed: #{message}",
               ),
             )
@@ -201,7 +201,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             expect(@fake_logger.errors.last).to match(
               I18n.t(
                 "discourse_activity_pub.process.error.failed_to_create_user",
-                actor_id: person.ap_id,
+                actor_id: actor.ap_id,
               ),
             )
           end
@@ -281,7 +281,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
         it "does not create a note" do
           expect(
-            DiscourseActivityPubObject.exists?(ap_type: "Note", attributed_to_id: person.ap_id),
+            DiscourseActivityPubObject.exists?(ap_type: "Note", attributed_to_id: actor.ap_id),
           ).to eq(true)
         end
 
@@ -290,7 +290,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             DiscourseActivityPubActivity.exists?(
               ap_id: new_post_json[:id],
               ap_type: "Create",
-              actor_id: person.id,
+              actor_id: actor.id,
             ),
           ).to be(false)
         end
@@ -299,6 +299,46 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           expect(@fake_logger.warnings.last).to match(
             I18n.t("discourse_activity_pub.process.warning.only_followed_actors_create_new_topics"),
           )
+        end
+      end
+    end
+
+    context "with a Group actor" do
+      let!(:actor) do
+        Fabricate(
+          :discourse_activity_pub_actor_group,
+          name: "External Category",
+          username: "external-cat",
+          local: false,
+          model: nil,
+        )
+      end
+      let!(:delivered_to) { category.activity_pub_actor.ap_id }
+      let!(:object_json) { build_object_json(name: "My cool topic title", attributed_to: actor) }
+      let!(:new_post_json) do
+        build_activity_json(actor: actor, object: object_json, type: "Create")
+      end
+
+      before { stub_stored_request(actor) }
+
+      context "when the target is following the create actor" do
+        before do
+          Fabricate(
+            :discourse_activity_pub_follow,
+            follower: category.activity_pub_actor,
+            followed: actor,
+          )
+        end
+
+        include_examples "creates a new topic"
+
+        context "when the category has first_post enabled" do
+          before do
+            category.custom_fields["activity_pub_publication_type"] = "first_post"
+            category.save_custom_fields(true)
+          end
+
+          include_examples "creates a new topic"
         end
       end
     end

@@ -105,15 +105,20 @@ def build_headers(
   _headers
 end
 
-def build_actor_json(public_key = nil)
+def build_actor_json(
+  type: "Person",
+  name: "Angus McLeod",
+  preferredUsername: "angus",
+  public_key: nil
+)
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: "https://external.com/u/angus",
-    name: "Angus McLeod",
-    preferredUsername: "angus",
-    type: "Person",
-    inbox: "https://external.com/u/angus/inbox",
-    outbox: "https://external.com/u/angus/outbox",
+    id: "https://external.com/u/#{preferredUsername}",
+    name: name,
+    preferredUsername: preferredUsername,
+    type: type,
+    inbox: "https://external.com/u/#{preferredUsername}/inbox",
+    outbox: "https://external.com/u/#{preferredUsername}/outbox",
   }
   _json[:publicKey] = {
     id: "#{_json[:id]}#main-key",
