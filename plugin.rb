@@ -19,6 +19,7 @@ after_initialize do
     ../lib/discourse_activity_pub/request.rb
     ../lib/discourse_activity_pub/webfinger.rb
     ../lib/discourse_activity_pub/username_validator.rb
+    ../lib/discourse_activity_pub/username_suggester.rb
     ../lib/discourse_activity_pub/content_parser.rb
     ../lib/discourse_activity_pub/signature_parser.rb
     ../lib/discourse_activity_pub/delivery_failure_tracker.rb

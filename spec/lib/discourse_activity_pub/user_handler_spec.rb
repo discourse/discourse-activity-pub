@@ -200,5 +200,18 @@ RSpec.describe DiscourseActivityPub::UserHandler do
         expect(DiscourseActivityPubActor.all.size).to eq(actor_count)
       end
     end
+
+    context "when user has a username that would be invalid as an ActivityPub username" do
+      before do
+        SiteSetting.unicode_usernames = true
+        user.username = "óengus"
+        user.save!
+      end
+
+      it "creates an actor with a valid ActivityPub username" do
+        actor = described_class.update_or_create_actor(user)
+        expect(actor.username).to eq("oengus")
+      end
+    end
   end
 end

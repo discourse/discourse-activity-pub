@@ -208,7 +208,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     sql += " AND local IS TRUE" if local
     args = { username: username }
     args[:model_id] = model_id if model_id
-    self.where(sql, args).exists?
+    !self.where(sql, args).exists?
   end
 
   # Equivalent of mastodon/mastodon/app/models/concerns/account_finder_concern.rb#representative

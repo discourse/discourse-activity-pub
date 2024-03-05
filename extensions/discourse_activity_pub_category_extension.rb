@@ -27,7 +27,7 @@ module DiscourseActivityPubCategoryExtension
         DiscourseActivityPub::UsernameValidator.perform_validation(self, "activity_pub_username")
 
         if self.errors.blank? &&
-             DiscourseActivityPubActor.username_unique?(
+             !DiscourseActivityPubActor.username_unique?(
                @custom_fields["activity_pub_username"],
                model_id: self.id,
              )
