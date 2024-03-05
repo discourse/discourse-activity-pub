@@ -90,7 +90,13 @@ module DiscourseActivityPub
     end
 
     def update_actor
-      actor.username = user.username
+      username = user.username
+
+      if !UsernameValidator.new(username).valid_format?
+        username = UsernameSuggester.suggest(username)
+      end
+
+      actor.username = username
       actor.name = user.name if user.name
     end
 
