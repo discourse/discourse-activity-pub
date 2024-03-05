@@ -7,7 +7,7 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   before_action :ensure_actor_ready
 
   def show
-    render json: @actor.ap.json
+    render_activity_json(@actor.ap.json)
   end
 
   protected

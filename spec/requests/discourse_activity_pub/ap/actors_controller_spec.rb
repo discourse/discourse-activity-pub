@@ -53,7 +53,7 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
         it "returns actor json" do
           get_object(group)
           expect(response.status).to eq(200)
-          expect(response.parsed_body).to eq(group.ap.json)
+          expect(parsed_body).to eq(group.ap.json)
         end
       end
 
@@ -61,7 +61,7 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
         it "returns actor json" do
           get_object(application)
           expect(response.status).to eq(200)
-          expect(response.parsed_body).to eq(application.ap.json)
+          expect(parsed_body).to eq(application.ap.json)
         end
       end
 
@@ -79,7 +79,7 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
     it "returns actor json" do
       get_object(group)
       expect(response.status).to eq(200)
-      expect(response.parsed_body).to eq(group.ap.json)
+      expect(parsed_body).to eq(group.ap.json)
     end
   end
 end

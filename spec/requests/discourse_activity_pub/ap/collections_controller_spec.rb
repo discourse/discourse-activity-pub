@@ -43,7 +43,7 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
     it "returns collection json" do
       get_object(collection)
       expect(response.status).to eq(200)
-      expect(response.parsed_body).to eq(collection.ap.json)
+      expect(parsed_body).to eq(collection.ap.json)
     end
   end
 end

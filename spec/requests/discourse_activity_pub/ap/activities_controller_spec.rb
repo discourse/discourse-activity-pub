@@ -59,7 +59,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     it "returns activity json" do
       get_object(activity)
       expect(response.status).to eq(200)
-      expect(response.parsed_body).to eq(activity.ap.json)
+      expect(parsed_body).to eq(activity.ap.json)
     end
 
     context "with publishing disabled" do
@@ -81,7 +81,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
         it "returns activity json" do
           get_object(activity)
           expect(response.status).to eq(200)
-          expect(response.parsed_body).to eq(activity.ap.json)
+          expect(parsed_body).to eq(activity.ap.json)
         end
       end
 
@@ -91,7 +91,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
         it "returns activity json" do
           get_object(activity)
           expect(response.status).to eq(200)
-          expect(response.parsed_body).to eq(activity.ap.json)
+          expect(parsed_body).to eq(activity.ap.json)
         end
       end
 
@@ -101,7 +101,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
         it "returns activity json" do
           get_object(activity)
           expect(response.status).to eq(200)
-          expect(response.parsed_body).to eq(activity.ap.json)
+          expect(parsed_body).to eq(activity.ap.json)
         end
       end
     end

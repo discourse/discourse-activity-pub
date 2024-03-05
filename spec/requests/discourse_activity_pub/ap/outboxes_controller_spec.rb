@@ -22,10 +22,10 @@ RSpec.describe DiscourseActivityPub::AP::OutboxesController do
     it "returns an ordered collection of the actors activities" do
       get_from_outbox(actor)
       expect(response.status).to eq(200)
-      expect(response.parsed_body["totalItems"]).to eq(3)
-      expect(response.parsed_body["orderedItems"][0]["id"]).to eq(activity3.ap_id)
-      expect(response.parsed_body["orderedItems"][1]["id"]).to eq(activity1.ap_id)
-      expect(response.parsed_body["orderedItems"][2]["id"]).to eq(activity2.ap_id)
+      expect(parsed_body["totalItems"]).to eq(3)
+      expect(parsed_body["orderedItems"][0]["id"]).to eq(activity3.ap_id)
+      expect(parsed_body["orderedItems"][1]["id"]).to eq(activity1.ap_id)
+      expect(parsed_body["orderedItems"][2]["id"]).to eq(activity2.ap_id)
     end
   end
 end

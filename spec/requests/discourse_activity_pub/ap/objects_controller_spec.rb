@@ -127,7 +127,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
     it "returns a object json" do
       get_object(object)
       expect(response.status).to eq(200)
-      expect(response.parsed_body).to eq(object.ap.json)
+      expect(parsed_body).to eq(object.ap.json)
     end
   end
 end
