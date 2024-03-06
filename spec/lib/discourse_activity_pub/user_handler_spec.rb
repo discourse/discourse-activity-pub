@@ -10,7 +10,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     end
 
     context "when the actor is not a valid type" do
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: nil) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_application, model: nil) }
 
       before { setup_logging }
       after { teardown_logging }

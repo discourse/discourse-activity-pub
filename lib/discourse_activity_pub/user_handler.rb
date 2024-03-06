@@ -7,7 +7,7 @@ module DiscourseActivityPub
     end
 
     def validate_actor
-      if !actor&.ap&.person?
+      if !actor&.ap&.can_belong_to&.include?(:user)
         DiscourseActivityPub::Logger.warn(
           I18n.t(
             "discourse_activity_pub.user.warning.cant_create_user_for_actor_type",

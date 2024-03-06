@@ -231,7 +231,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
         end
 
         context "with a new actor" do
-          let!(:new_person) { build_actor_json(keypair.public_key.to_pem) }
+          let!(:new_person) { build_actor_json(public_key: keypair.public_key.to_pem) }
           let!(:headers) do
             build_post_headers(key_id: new_person[:publicKey][:id], keypair: keypair)
           end
