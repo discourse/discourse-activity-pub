@@ -4,7 +4,7 @@ RSpec.describe TopicsController do
   ADDITIONAL_QUERY_LIMIT = 6
 
   describe "#show" do
-    fab!(:category) { Fabricate(:category) }
+    fab!(:category)
     fab!(:topic) { Fabricate(:topic, category: category) }
     fab!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
     fab!(:posts) do

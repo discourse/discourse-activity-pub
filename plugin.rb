@@ -12,112 +12,133 @@ register_svg_icon "fingerprint"
 register_svg_icon "user-check"
 
 after_initialize do
-  %w[
-    ../lib/discourse_activity_pub/engine.rb
-    ../lib/discourse_activity_pub/json_ld.rb
-    ../lib/discourse_activity_pub/uri.rb
-    ../lib/discourse_activity_pub/request.rb
-    ../lib/discourse_activity_pub/webfinger.rb
-    ../lib/discourse_activity_pub/username_validator.rb
-    ../lib/discourse_activity_pub/username_suggester.rb
-    ../lib/discourse_activity_pub/content_parser.rb
-    ../lib/discourse_activity_pub/signature_parser.rb
-    ../lib/discourse_activity_pub/delivery_failure_tracker.rb
-    ../lib/discourse_activity_pub/user_handler.rb
-    ../lib/discourse_activity_pub/post_handler.rb
-    ../lib/discourse_activity_pub/delivery_handler.rb
-    ../lib/discourse_activity_pub/follow_handler.rb
-    ../lib/discourse_activity_pub/auth.rb
-    ../lib/discourse_activity_pub/auth/oauth.rb
-    ../lib/discourse_activity_pub/auth/oauth/app.rb
-    ../lib/discourse_activity_pub/auth/authorization.rb
-    ../lib/discourse_activity_pub/webfinger/handle.rb
-    ../lib/discourse_activity_pub/activity_forwarder.rb
-    ../lib/discourse_activity_pub/logger.rb
-    ../lib/discourse_activity_pub/ap.rb
-    ../lib/discourse_activity_pub/ap/handlers.rb
-    ../lib/discourse_activity_pub/ap/object.rb
-    ../lib/discourse_activity_pub/ap/actor.rb
-    ../lib/discourse_activity_pub/ap/actor/group.rb
-    ../lib/discourse_activity_pub/ap/actor/person.rb
-    ../lib/discourse_activity_pub/ap/actor/application.rb
-    ../lib/discourse_activity_pub/ap/actor/service.rb
-    ../lib/discourse_activity_pub/ap/activity.rb
-    ../lib/discourse_activity_pub/ap/activity/follow.rb
-    ../lib/discourse_activity_pub/ap/activity/response.rb
-    ../lib/discourse_activity_pub/ap/activity/accept.rb
-    ../lib/discourse_activity_pub/ap/activity/announce.rb
-    ../lib/discourse_activity_pub/ap/activity/reject.rb
-    ../lib/discourse_activity_pub/ap/activity/compose.rb
-    ../lib/discourse_activity_pub/ap/activity/create.rb
-    ../lib/discourse_activity_pub/ap/activity/delete.rb
-    ../lib/discourse_activity_pub/ap/activity/update.rb
-    ../lib/discourse_activity_pub/ap/activity/undo.rb
-    ../lib/discourse_activity_pub/ap/activity/like.rb
-    ../lib/discourse_activity_pub/ap/object/note.rb
-    ../lib/discourse_activity_pub/ap/object/article.rb
-    ../lib/discourse_activity_pub/ap/collection.rb
-    ../lib/discourse_activity_pub/ap/collection/ordered_collection.rb
-    ../app/models/concerns/discourse_activity_pub/ap/identifier_validations.rb
-    ../app/models/concerns/discourse_activity_pub/ap/object_validations.rb
-    ../app/models/concerns/discourse_activity_pub/ap/model_validations.rb
-    ../app/models/concerns/discourse_activity_pub/ap/model_callbacks.rb
-    ../app/models/concerns/discourse_activity_pub/ap/model_helpers.rb
-    ../app/models/concerns/discourse_activity_pub/webfinger_actor_attributes.rb
-    ../app/models/discourse_activity_pub_actor.rb
-    ../app/models/discourse_activity_pub_activity.rb
-    ../app/models/discourse_activity_pub_follow.rb
-    ../app/models/discourse_activity_pub_object.rb
-    ../app/models/discourse_activity_pub_collection.rb
-    ../app/jobs/discourse_activity_pub_process.rb
-    ../app/jobs/discourse_activity_pub_deliver.rb
-    ../app/controllers/concerns/discourse_activity_pub/domain_verification.rb
-    ../app/controllers/concerns/discourse_activity_pub/signature_verification.rb
-    ../app/controllers/discourse_activity_pub/ap/objects_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/actors_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/inboxes_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/outboxes_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/followers_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/activities_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/collections_controller.rb
-    ../app/controllers/discourse_activity_pub/ap/shared_inboxes_controller.rb
-    ../app/controllers/discourse_activity_pub/webfinger_controller.rb
-    ../app/controllers/discourse_activity_pub/webfinger/handle_controller.rb
-    ../app/controllers/discourse_activity_pub/auth_controller.rb
-    ../app/controllers/discourse_activity_pub/auth/oauth_controller.rb
-    ../app/controllers/discourse_activity_pub/auth/authorization_controller.rb
-    ../app/controllers/discourse_activity_pub/post_controller.rb
-    ../app/controllers/discourse_activity_pub/category_controller.rb
-    ../app/controllers/discourse_activity_pub/actor_controller.rb
-    ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/accept_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/reject_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/follow_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/compose_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/create_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/delete_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/update_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/announce_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/like_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/activity/undo_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/actor_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/actor/application_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/actor/group_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/actor/person_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/object/note_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/object/article_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/collection_serializer.rb
-    ../app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer.rb
-    ../app/serializers/discourse_activity_pub/webfinger_serializer.rb
-    ../app/serializers/discourse_activity_pub/basic_actor_serializer.rb
-    ../app/serializers/discourse_activity_pub/actor_serializer.rb
-    ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
-    ../config/routes.rb
-    ../extensions/discourse_activity_pub_category_extension.rb
-    ../extensions/discourse_activity_pub_guardian_extension.rb
-  ].each { |path| load File.expand_path(path, __FILE__) }
+  module ::DiscourseActivityPub
+    PLUGIN_NAME = "discourse-activity-pub"
+
+    def self.ensure_post(activity)
+      post = activity.object.stored.model
+
+      unless post
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+              I18n.t("discourse_activity_pub.process.warning.cant_find_post")
+      end
+
+      if post.trashed?
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+              I18n.t("discourse_activity_pub.process.warning.post_is_deleted")
+      end
+
+      unless post.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+              I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
+      end
+    end
+  end
+
+  require_relative "lib/discourse_activity_pub/engine"
+  require_relative "lib/discourse_activity_pub/json_ld"
+  require_relative "lib/discourse_activity_pub/uri"
+  require_relative "lib/discourse_activity_pub/request"
+  require_relative "lib/discourse_activity_pub/webfinger"
+  require_relative "lib/discourse_activity_pub/username_validator"
+  require_relative "lib/discourse_activity_pub/username_suggester"
+  require_relative "lib/discourse_activity_pub/content_parser"
+  require_relative "lib/discourse_activity_pub/signature_parser"
+  require_relative "lib/discourse_activity_pub/delivery_failure_tracker"
+  require_relative "lib/discourse_activity_pub/user_handler"
+  require_relative "lib/discourse_activity_pub/post_handler"
+  require_relative "lib/discourse_activity_pub/delivery_handler"
+  require_relative "lib/discourse_activity_pub/follow_handler"
+  require_relative "lib/discourse_activity_pub/auth"
+  require_relative "lib/discourse_activity_pub/auth/oauth"
+  require_relative "lib/discourse_activity_pub/auth/oauth/app"
+  require_relative "lib/discourse_activity_pub/auth/authorization"
+  require_relative "lib/discourse_activity_pub/webfinger/handle"
+  require_relative "lib/discourse_activity_pub/activity_forwarder"
+  require_relative "lib/discourse_activity_pub/logger"
+  require_relative "lib/discourse_activity_pub/ap"
+  require_relative "lib/discourse_activity_pub/ap/handlers"
+  require_relative "lib/discourse_activity_pub/ap/object"
+  require_relative "lib/discourse_activity_pub/ap/actor"
+  require_relative "lib/discourse_activity_pub/ap/actor/group"
+  require_relative "lib/discourse_activity_pub/ap/actor/person"
+  require_relative "lib/discourse_activity_pub/ap/actor/application"
+  require_relative "lib/discourse_activity_pub/ap/actor/service"
+  require_relative "lib/discourse_activity_pub/ap/activity"
+  require_relative "lib/discourse_activity_pub/ap/activity/follow"
+  require_relative "lib/discourse_activity_pub/ap/activity/response"
+  require_relative "lib/discourse_activity_pub/ap/activity/accept"
+  require_relative "lib/discourse_activity_pub/ap/activity/announce"
+  require_relative "lib/discourse_activity_pub/ap/activity/reject"
+  require_relative "lib/discourse_activity_pub/ap/activity/compose"
+  require_relative "lib/discourse_activity_pub/ap/activity/create"
+  require_relative "lib/discourse_activity_pub/ap/activity/delete"
+  require_relative "lib/discourse_activity_pub/ap/activity/update"
+  require_relative "lib/discourse_activity_pub/ap/activity/undo"
+  require_relative "lib/discourse_activity_pub/ap/activity/like"
+  require_relative "lib/discourse_activity_pub/ap/object/note"
+  require_relative "lib/discourse_activity_pub/ap/object/article"
+  require_relative "lib/discourse_activity_pub/ap/collection"
+  require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/identifier_validations"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/object_validations"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/model_validations"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/model_callbacks"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/model_helpers"
+  require_relative "app/models/concerns/discourse_activity_pub/webfinger_actor_attributes"
+  require_relative "app/models/discourse_activity_pub_actor"
+  require_relative "app/models/discourse_activity_pub_activity"
+  require_relative "app/models/discourse_activity_pub_follow"
+  require_relative "app/models/discourse_activity_pub_object"
+  require_relative "app/models/discourse_activity_pub_collection"
+  require_relative "app/jobs/discourse_activity_pub_process"
+  require_relative "app/jobs/discourse_activity_pub_deliver"
+  require_relative "app/controllers/concerns/discourse_activity_pub/domain_verification"
+  require_relative "app/controllers/concerns/discourse_activity_pub/signature_verification"
+  require_relative "app/controllers/discourse_activity_pub/ap/objects_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/actors_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/inboxes_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/outboxes_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/followers_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/activities_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/collections_controller"
+  require_relative "app/controllers/discourse_activity_pub/ap/shared_inboxes_controller"
+  require_relative "app/controllers/discourse_activity_pub/webfinger_controller"
+  require_relative "app/controllers/discourse_activity_pub/webfinger/handle_controller"
+  require_relative "app/controllers/discourse_activity_pub/auth_controller"
+  require_relative "app/controllers/discourse_activity_pub/auth/oauth_controller"
+  require_relative "app/controllers/discourse_activity_pub/auth/authorization_controller"
+  require_relative "app/controllers/discourse_activity_pub/post_controller"
+  require_relative "app/controllers/discourse_activity_pub/category_controller"
+  require_relative "app/controllers/discourse_activity_pub/actor_controller"
+  require_relative "app/serializers/discourse_activity_pub/ap/object_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/response_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/accept_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/reject_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/follow_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/compose_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/create_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/delete_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/update_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/announce_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/like_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/activity/undo_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/actor/application_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/actor/group_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/actor/person_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/object/note_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/object/article_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/collection_serializer"
+  require_relative "app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer"
+  require_relative "app/serializers/discourse_activity_pub/webfinger_serializer"
+  require_relative "app/serializers/discourse_activity_pub/basic_actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/auth/authorization_serializer"
+  require_relative "config/routes"
+  require_relative "extensions/discourse_activity_pub_category_extension"
+  require_relative "extensions/discourse_activity_pub_guardian_extension"
 
   # DiscourseActivityPub.enabled is the single source of truth for whether
   # ActivityPub is enabled on the site level
@@ -774,35 +795,16 @@ after_initialize do
     end
   end
 
-  def ensure_post(activity)
-    post = activity.object.stored.model
-
-    unless post
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
-            I18n.t("discourse_activity_pub.process.warning.cant_find_post")
-    end
-
-    if post.trashed?
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
-            I18n.t("discourse_activity_pub.process.warning.post_is_deleted")
-    end
-
-    unless post.activity_pub_full_topic
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
-            I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
-    end
-  end
-
   DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
-    ensure_post(activity)
+    DiscourseActivityPub.ensure_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:update, :validate) do |activity|
-    ensure_post(activity)
+    DiscourseActivityPub.ensure_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:like, :validate) do |activity|
-    ensure_post(activity)
+    DiscourseActivityPub.ensure_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:announce, :validate) do |activity|

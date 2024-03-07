@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::ObjectsController < ApplicationController
+  requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
   include DiscourseActivityPub::JsonLd
   include DiscourseActivityPub::DomainVerification
   include DiscourseActivityPub::SignatureVerification
