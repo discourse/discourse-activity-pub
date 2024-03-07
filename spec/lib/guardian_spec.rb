@@ -3,7 +3,7 @@ RSpec.describe Guardian do
   fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
   fab!(:another_user) { Fabricate(:user, refresh_auto_groups: true) }
   fab!(:admin) { Fabricate(:admin, refresh_auto_groups: true) }
-  fab!(:category) { Fabricate(:category) }
+  fab!(:category)
   fab!(:topic) { Fabricate(:topic, user: user, category: category) }
   fab!(:post) { Fabricate(:post, topic: topic, user: user) }
 

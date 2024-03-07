@@ -1,2 +1,6 @@
 inherit_gem:
   rubocop-discourse: stree-compat.yml
+
+Discourse/Plugins/CallRequiresPlugin:
+  Exclude:
+    - app/controllers/concerns/**/*

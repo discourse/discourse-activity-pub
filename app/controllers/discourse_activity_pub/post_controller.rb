@@ -2,6 +2,8 @@
 
 module DiscourseActivityPub
   class PostController < ApplicationController
+    requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
     before_action :ensure_site_enabled
     before_action :ensure_staff
     before_action :find_post
