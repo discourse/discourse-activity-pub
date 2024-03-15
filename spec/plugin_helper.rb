@@ -9,12 +9,21 @@ def toggle_activity_pub(
   username: nil,
   publication_type: nil
 )
+  category.reload
+
+  username = username || category.slug
+
   category.custom_fields["activity_pub_enabled"] = !disable
-  category.custom_fields["activity_pub_username"] = username || category.slug
+  category.custom_fields["activity_pub_username"] = username
   category.custom_fields["activity_pub_publication_type"] = publication_type if publication_type
 
   if callbacks
     category.save!
+    if !category.activity_pub_actor
+      actor_opts = { username: username }
+      actor_opts[:publication_type] = publication_type if publication_type
+      DiscourseActivityPub::ActorHandler.update_or_create_actor(category, actor_opts)
+    end
     category.reload
   else
     category.save_custom_fields(true)

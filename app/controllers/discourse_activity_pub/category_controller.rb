@@ -33,7 +33,7 @@ module DiscourseActivityPub
 
     def render_actors
       render_json_dump(
-        actors: serialize_data(actors, ActorSerializer, root: false),
+        actors: serialize_data(actors, ActorSerializer, root: false, include_model: true),
         meta: {
           total: @total,
           load_more_url: load_more_url(@page),

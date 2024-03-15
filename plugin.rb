@@ -23,7 +23,7 @@ after_initialize do
     ../lib/discourse_activity_pub/content_parser.rb
     ../lib/discourse_activity_pub/signature_parser.rb
     ../lib/discourse_activity_pub/delivery_failure_tracker.rb
-    ../lib/discourse_activity_pub/user_handler.rb
+    ../lib/discourse_activity_pub/actor_handler.rb
     ../lib/discourse_activity_pub/post_handler.rb
     ../lib/discourse_activity_pub/delivery_handler.rb
     ../lib/discourse_activity_pub/follow_handler.rb
@@ -89,6 +89,8 @@ after_initialize do
     ../app/controllers/discourse_activity_pub/post_controller.rb
     ../app/controllers/discourse_activity_pub/category_controller.rb
     ../app/controllers/discourse_activity_pub/actor_controller.rb
+    ../app/controllers/discourse_activity_pub/admin/admin_controller.rb
+    ../app/controllers/discourse_activity_pub/admin/actor_controller.rb
     ../app/serializers/discourse_activity_pub/ap/object_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity_serializer.rb
     ../app/serializers/discourse_activity_pub/ap/activity/response_serializer.rb
@@ -114,8 +116,8 @@ after_initialize do
     ../app/serializers/discourse_activity_pub/basic_actor_serializer.rb
     ../app/serializers/discourse_activity_pub/actor_serializer.rb
     ../app/serializers/discourse_activity_pub/auth/authorization_serializer.rb
+    ../app/serializers/discourse_activity_pub/admin/actor_serializer.rb
     ../config/routes.rb
-    ../extensions/discourse_activity_pub_category_extension.rb
     ../extensions/discourse_activity_pub_guardian_extension.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
 
@@ -139,19 +141,19 @@ after_initialize do
                     through: :activity_pub_actor,
                     source: :follows,
                     class_name: "DiscourseActivityPubActor"
-  Category.prepend DiscourseActivityPubCategoryExtension
 
   register_category_custom_field_type("activity_pub_enabled", :boolean)
-  register_category_custom_field_type("activity_pub_username", :string)
-  register_category_custom_field_type("activity_pub_name", :string)
-  register_category_custom_field_type("activity_pub_default_visibility", :string)
-  register_category_custom_field_type("activity_pub_post_object_type", :string)
-  register_category_custom_field_type("activity_pub_publication_type", :string)
+  DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
+    register_category_custom_field_type("activity_pub_#{field}", :string)
+  end
 
   add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:category, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
   add_to_class(:category, :activity_pub_enabled) do
-    DiscourseActivityPub.enabled && !self.read_restricted && !!custom_fields["activity_pub_enabled"]
+    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_enabled"] && activity_pub_allowed?
+  end
+  add_to_class(:category, :activity_pub_allowed?) do
+    !self.read_restricted
   end
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted?
@@ -197,11 +199,6 @@ after_initialize do
   end
   add_to_class(:category, :activity_pub_follower_count) { activity_pub_followers.count }
 
-  add_model_callback(:category, :after_save) do
-    DiscourseActivityPubActor.ensure_for(self)
-    self.activity_pub_publish_state if self.saved_change_to_read_restricted?
-  end
-
   on(:site_setting_changed) do |name, old_val, new_val|
     if %i[activity_pub_enabled login_required].include?(name)
       Category
@@ -231,6 +228,11 @@ after_initialize do
     DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
   end
   add_to_serializer(
+    :site_category,
+    :activity_pub_actor_exists,
+    include_condition: -> { object.respond_to?(:activity_pub_actor) },
+  ) { object.activity_pub_actor.present? }
+  add_to_serializer(
     :category,
     :activity_pub_actor,
     include_condition: -> do
@@ -253,25 +255,19 @@ after_initialize do
     query.includes(:activity_pub_actor)
   end
 
-  serialized_category_custom_fields = %w[
-    activity_pub_username
-    activity_pub_name
-    activity_pub_default_visibility
-    activity_pub_publication_type
-    activity_pub_post_object_type
-  ]
-  serialized_category_custom_fields.each do |field|
+  DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
+    custom_field = "activity_pub_#{field}"
     add_to_serializer(
       :basic_category,
-      field.to_sym,
+      custom_field.to_sym,
       include_condition: -> { object.activity_pub_enabled },
-    ) { object.send(field) }
+    ) { object.send(custom_field) }
 
     if respond_to?(:register_preloaded_category_custom_fields)
-      register_preloaded_category_custom_fields(field)
+      register_preloaded_category_custom_fields(custom_field)
     else
       # TODO: Drop the if-statement and this if-branch in Discourse v3.2
-      Site.preloaded_category_custom_fields << field
+      Site.preloaded_category_custom_fields << custom_field
     end
   end
 
@@ -455,7 +451,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
-    DiscourseActivityPub::UserHandler.update_or_create_actor(self.user) if activity_pub_full_topic
+    DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user) if activity_pub_full_topic
 
     content = DiscourseActivityPub::ContentParser.get_content(self)
     visibility =
@@ -573,6 +569,7 @@ after_initialize do
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
 
   add_to_class(:user, :activity_pub_ready?) { true }
+  add_to_class(:user, :activity_pub_allowed?) { self.human? }
   add_to_class(:user, :activity_pub_url) { full_url }
   add_to_class(:user, :activity_pub_icon_url) { avatar_template_url.gsub("{size}", "96") }
   add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
@@ -619,8 +616,9 @@ after_initialize do
       )
     end
   end
-
   add_to_class(:user, :activity_pub_shared_inbox) { DiscourseActivityPub.users_shared_inbox }
+  add_to_class(:user, :activity_pub_username) { username }
+  add_to_class(:user, :activity_pub_name) { name }
 
   add_to_serializer(
     :user,
@@ -692,7 +690,7 @@ after_initialize do
 
     if post_action.activity_pub_enabled && post_action.activity_pub_full_topic &&
          reason != :activity_pub
-      DiscourseActivityPub::UserHandler.update_or_create_actor(post_action.user)
+      DiscourseActivityPub::ActorHandler.update_or_create_actor(post_action.user)
       post_action.perform_activity_pub_activity(:like)
     end
   end
@@ -818,7 +816,7 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :perform) do |activity|
     user =
-      DiscourseActivityPub::UserHandler.update_or_create_user(activity.object.stored.attributed_to)
+      DiscourseActivityPub::ActorHandler.update_or_create_user(activity.object.stored.attributed_to)
 
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
@@ -857,7 +855,7 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:like, :perform) do |activity|
-    user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
+    user = DiscourseActivityPub::ActorHandler.update_or_create_user(activity.actor.stored)
 
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
@@ -882,7 +880,7 @@ after_initialize do
         followed_id: activity.object.object.stored.id,
       ).destroy_all
     when DiscourseActivityPub::AP::Activity::Like.type
-      user = DiscourseActivityPub::UserHandler.update_or_create_user(activity.actor.stored)
+      user = DiscourseActivityPub::ActorHandler.update_or_create_user(activity.actor.stored)
       post = activity.object.object.stored.model
       PostActionDestroyer.destroy(user, post, :like, reason: :activity_pub) if user && post
     else
@@ -1132,5 +1130,19 @@ after_initialize do
         :constraints => {
           username: RouteFormat.username,
         }
+
+    scope module: 'discourse_activity_pub', constraints: AdminConstraint.new do
+      get 'admin/ap' => 'admin/admin#index'
+      get 'admin/ap/actor' => 'admin/actor#index'
+      post 'admin/ap/actor' => 'admin/actor#create', :constraints => {
+        format: :json,
+      }
+      get 'admin/ap/actor/:actor_id' => 'admin/actor#show'
+      put 'admin/ap/actor/:actor_id' => 'admin/actor#update', :constraints => {
+        format: :json,
+      }
+      post 'admin/ap/actor/:actor_id/enable' => 'admin/actor#enable'
+      post 'admin/ap/actor/:actor_id/disable' => 'admin/actor#disable'
+    end
   end
 end

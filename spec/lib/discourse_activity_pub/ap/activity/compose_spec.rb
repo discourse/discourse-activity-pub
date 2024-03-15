@@ -11,11 +11,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
   describe "#process" do
     let!(:object_json) { build_object_json }
     let!(:activity_json) do
-      build_activity_json(
-        object: object_json,
-        type: "Update",
-        to: [category.activity_pub_actor.ap_id],
-      )
+      build_activity_json(object: object_json, type: "Update", to: [group.ap_id])
     end
     let!(:note) do
       Fabricate(
@@ -81,17 +77,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
     context "with full topic disabled" do
       before do
-        SiteSetting.activity_pub_verbose_logging = true
-        @orig_logger = Rails.logger
-        Rails.logger = @fake_logger = FakeLogger.new
+        setup_logging
         toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
         process_json(activity_json)
       end
-
-      after do
-        Rails.logger = @orig_logger
-        SiteSetting.activity_pub_verbose_logging = false
-      end
+      after { teardown_logging }
 
       it "doesn't work" do
         expect(post.reload.raw).not_to eq(object_json[:content])

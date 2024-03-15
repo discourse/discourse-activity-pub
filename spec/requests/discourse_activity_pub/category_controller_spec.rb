@@ -81,7 +81,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
         it "orders by user" do
           get "/ap/category/#{actor.model.id}/followers.json?order=user"
           expect(response.status).to eq(200)
-          expect(response.parsed_body["actors"].map { |f| f.dig("user", "username") }).to eq(
+          expect(response.parsed_body["actors"].map { |f| f.dig("model", "username") }).to eq(
             ["xavier_local", "bob_local", nil],
           )
         end
