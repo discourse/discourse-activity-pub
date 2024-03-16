@@ -29,6 +29,10 @@ export default class adminActivityPubActorShow extends Controller {
     return this.showForm;
   }
 
+  get containerClass() {
+    return `activity-pub-actor-${this.actor.isNew ? "add" : "edit"}`;
+  }
+
   get titleLabel() {
     let key = this.actor.isNew ? "add" : "edit";
     return I18n.t(`admin.discourse_activity_pub.actor.${key}.label`);

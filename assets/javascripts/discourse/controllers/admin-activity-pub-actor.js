@@ -6,7 +6,7 @@ import { inject as service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import I18n from "I18n";
-import ActivityPubActor from "../models/activity-pub-actor";
+import ActivityPubActor, { newActor } from "../models/activity-pub-actor";
 
 export default class adminActivityPubActor extends Controller {
   @service router;
@@ -55,11 +55,9 @@ export default class adminActivityPubActor extends Controller {
 
   @action
   addActor() {
-    this.router
-      .transitionTo("adminActivityPubActorShow", { id: "new" })
-      .then(() => {
-        this.adminActivityPubActorShow.set("showForm", false);
-      });
+    this.router.transitionTo("adminActivityPubActorShow", newActor).then(() => {
+      this.adminActivityPubActorShow.set("showForm", false);
+    });
   }
 
   @action

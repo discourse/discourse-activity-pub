@@ -1,22 +1,20 @@
 import { ajax } from "discourse/lib/ajax";
 import DiscourseRoute from "discourse/routes/discourse";
-import ActivityPubActor from "../models/activity-pub-actor";
+import ActivityPubActor, { newActor } from "../models/activity-pub-actor";
 
 export default DiscourseRoute.extend({
   model(params) {
-    if (params.actor_id && params.actor_id !== "new") {
+    if (params.actor_id && params.actor_id !== newActor.id) {
       return ajax(`/admin/ap/actor/${params.actor_id}`);
     } else {
-      return {
-        id: "new",
-      };
+      return newActor;
     }
   },
 
   setupController(controller, model) {
     let props = {
       actor: ActivityPubActor.create(model),
-      showForm: model.id !== "new",
+      showForm: model.id !== newActor.id,
     };
     controller.setProperties(props);
   },

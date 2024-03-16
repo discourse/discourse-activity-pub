@@ -11,8 +11,13 @@ export default DiscourseRoute.extend({
   },
 
   model(params) {
-    const queryParams = new URLSearchParams(params);
-    return ajax(`/admin/ap/actor?${queryParams.toString()}`);
+    let searchParams = new URLSearchParams();
+    Object.keys(this.queryParams).forEach((param) => {
+      if (params[param]) {
+        searchParams.set(param, params[param]);
+      }
+    });
+    return ajax(`/admin/ap/actor?${searchParams.toString()}`);
   },
 
   setupController(controller, model) {
