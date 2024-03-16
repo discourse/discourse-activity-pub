@@ -2,6 +2,8 @@
 
 module DiscourseActivityPub
   class ActorController < ApplicationController
+    requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
     before_action :ensure_admin
     before_action :ensure_site_enabled
     before_action :find_actor

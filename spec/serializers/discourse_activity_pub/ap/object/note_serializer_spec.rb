@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
-  fab!(:category) { Fabricate(:category) }
+  fab!(:category)
   fab!(:topic) { Fabricate(:topic, category: category) }
   fab!(:post) { Fabricate(:post, topic: topic, raw: "Post content") }
   fab!(:post_actor) do

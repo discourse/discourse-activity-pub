@@ -5,6 +5,8 @@ module DiscourseActivityPub
     PAGE_SIZE = 50
     ORDER = %w[actor user followed_at]
 
+    requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
     before_action :ensure_site_enabled
     before_action :ensure_publishing_enabled, only: [:followers]
     before_action :find_category

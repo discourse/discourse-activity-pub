@@ -7,7 +7,7 @@ RSpec.describe PostsController do
       before { sign_in(user) }
 
       context "with a ready ActivityPub category" do
-        fab!(:category) { Fabricate(:category) }
+        fab!(:category)
 
         before { toggle_activity_pub(category, callbacks: true) }
 

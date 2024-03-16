@@ -2,6 +2,8 @@
 
 module DiscourseActivityPub
   class WebfingerController < ApplicationController
+    requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
     skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr
 
     before_action :ensure_site_enabled
