@@ -25,7 +25,9 @@
           @asc={{this.asc}}
           @class="activity-pub-actor-table-model"
         />
-        <div class="activity-pub-actor-table-actions directory-table__column-header">
+        <div
+          class="activity-pub-actor-table-actions directory-table__column-header"
+        >
           <div class="header-contents">
             {{i18n "admin.discourse_activity_pub.actor.table.actions"}}
           </div>
@@ -42,7 +44,7 @@
             </div>
             <div class="directory-table__cell activity-pub-actor-table-actions">
               <DButton
-                @action={{action 'editActor' actor}}
+                @action={{action "editActor" actor}}
                 @label="admin.discourse_activity_pub.actor.edit.label"
                 @title="admin.discourse_activity_pub.actor.edit.title"
                 @icon="pencil-alt"
