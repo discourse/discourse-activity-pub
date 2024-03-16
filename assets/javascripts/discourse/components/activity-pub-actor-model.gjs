@@ -1,11 +1,13 @@
 import Component from "@glimmer/component";
-import { eq } from "truth-helpers";
+import { equal } from "@ember/object/computed";
 import categoryLink from "discourse/helpers/category-link";
 
 export default class ActivityPubActorModel extends Component {
+  @equal("args.actor.model_type", "category") isCategory;
+
   <template>
     <div class="activity-pub-actor-model">
-      {{#if (eq @actor.model_type "category")}}
+      {{#if this.isCategory}}
         {{categoryLink @actor.model}}
       {{/if}}
     </div>

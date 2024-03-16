@@ -26,8 +26,9 @@ export default class ActivityPubSiteSettingNotice extends Component {
 
   get description() {
     return I18n.t(
-      `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.description`, {
-        model_type: this.args.modelType
+      `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.description`,
+      {
+        model_type: this.args.modelType,
       }
     );
   }

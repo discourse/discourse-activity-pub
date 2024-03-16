@@ -2,13 +2,7 @@
 
 module DiscourseActivityPub
   class ActorSerializer < BasicActorSerializer
-    attributes :username,
-               :local,
-               :domain,
-               :url,
-               :icon_url,
-               :followed_at,
-               :model
+    attributes :username, :local, :domain, :url, :icon_url, :followed_at, :model
 
     def model
       case object.model_type

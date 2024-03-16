@@ -150,9 +150,7 @@ after_initialize do
   add_to_class(:category, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && !!custom_fields["activity_pub_enabled"] && activity_pub_allowed?
   end
-  add_to_class(:category, :activity_pub_allowed?) do
-    !self.read_restricted
-  end
+  add_to_class(:category, :activity_pub_allowed?) { !self.read_restricted }
   add_to_class(:category, :activity_pub_ready?) do
     activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted?
   end
@@ -1110,18 +1108,14 @@ after_initialize do
           username: RouteFormat.username,
         }
 
-    scope module: 'discourse_activity_pub', constraints: AdminConstraint.new do
-      get 'admin/ap' => 'admin/admin#index'
-      get 'admin/ap/actor' => 'admin/actor#index'
-      post 'admin/ap/actor' => 'admin/actor#create', :constraints => {
-        format: :json,
-      }
-      get 'admin/ap/actor/:actor_id' => 'admin/actor#show'
-      put 'admin/ap/actor/:actor_id' => 'admin/actor#update', :constraints => {
-        format: :json,
-      }
-      post 'admin/ap/actor/:actor_id/enable' => 'admin/actor#enable'
-      post 'admin/ap/actor/:actor_id/disable' => 'admin/actor#disable'
+    scope module: "discourse_activity_pub", constraints: AdminConstraint.new do
+      get "admin/ap" => "admin/admin#index"
+      get "admin/ap/actor" => "admin/actor#index"
+      post "admin/ap/actor" => "admin/actor#create", :constraints => { format: :json }
+      get "admin/ap/actor/:actor_id" => "admin/actor#show"
+      put "admin/ap/actor/:actor_id" => "admin/actor#update", :constraints => { format: :json }
+      post "admin/ap/actor/:actor_id/enable" => "admin/actor#enable"
+      post "admin/ap/actor/:actor_id/disable" => "admin/actor#disable"
     end
   end
 end
