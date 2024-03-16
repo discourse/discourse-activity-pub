@@ -22,7 +22,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/content_parser"
   require_relative "lib/discourse_activity_pub/signature_parser"
   require_relative "lib/discourse_activity_pub/delivery_failure_tracker"
-  require_relative "lib/discourse_activity_pub/user_handler"
+  require_relative "lib/discourse_activity_pub/actor_handler"
   require_relative "lib/discourse_activity_pub/post_handler"
   require_relative "lib/discourse_activity_pub/delivery_handler"
   require_relative "lib/discourse_activity_pub/follow_handler"
@@ -115,6 +115,7 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/basic_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/auth/authorization_serializer"
+  require_relative "app/serializers/discourse_activity_pub/admin/actor_serializer"
   require_relative "config/routes"
   require_relative "extensions/discourse_activity_pub_guardian_extension"
 
