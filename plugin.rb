@@ -770,15 +770,15 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
-    DiscourseActivityPub.ensure_post(activity)
+    DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:update, :validate) do |activity|
-    DiscourseActivityPub.ensure_post(activity)
+    DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:like, :validate) do |activity|
-    DiscourseActivityPub.ensure_post(activity)
+    DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:announce, :validate) do |activity|
