@@ -3,8 +3,15 @@ import { equal } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
+export const newActor = {
+  id: "new",
+  default_visibility: "public",
+  post_object_type: "Note",
+  publication_type: "first_post",
+};
+
 const ActivityPubActor = EmberObject.extend({
-  isNew: equal("id", "new"),
+  isNew: equal("id", newActor.id),
 
   disable() {
     if (this.isNew) {

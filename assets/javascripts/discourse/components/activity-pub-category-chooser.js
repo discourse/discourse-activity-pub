@@ -1,6 +1,8 @@
 import CategoryChooser from "select-kit/components/category-chooser";
 
 export default CategoryChooser.extend({
+  classNames: ["activity-pub-category-chooser"],
+
   selectKitOptions: {
     allowUncategorized: false,
   },
