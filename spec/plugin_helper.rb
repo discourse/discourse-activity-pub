@@ -55,11 +55,12 @@ end
 
 def expect_request_error(response, key, status, opts = {})
   expect(response.status).to eq(status)
-  path = if key == 'not_enabled'
-    "discourse_activity_pub"
-  else
-    "discourse_activity_pub.request.error"
-  end
+  path =
+    if key == "not_enabled"
+      "discourse_activity_pub"
+    else
+      "discourse_activity_pub.request.error"
+    end
   message = I18n.t("#{path}.#{key}", opts)
   log =
     I18n.t(
@@ -75,9 +76,7 @@ end
 
 def expect_not_enabled(response)
   expect(response.status).to eq(403)
-  expect(response.parsed_body).to eq(
-    { "errors" => [I18n.t("discourse_activity_pub.not_enabled")] }
-  )
+  expect(response.parsed_body).to eq({ "errors" => [I18n.t("discourse_activity_pub.not_enabled")] })
 end
 
 def default_headers

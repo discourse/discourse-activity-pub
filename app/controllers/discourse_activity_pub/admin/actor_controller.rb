@@ -100,14 +100,14 @@ module DiscourseActivityPub
 
         if handler.success?
           render json:
-                    success_json.merge(
-                      actor:
-                        DiscourseActivityPub::Admin::ActorSerializer.new(
-                          actor,
-                          include_model: true,
-                          root: false,
-                        ).as_json,
-                    )
+                   success_json.merge(
+                     actor:
+                       DiscourseActivityPub::Admin::ActorSerializer.new(
+                         actor,
+                         include_model: true,
+                         root: false,
+                       ).as_json,
+                   )
         else
           render json: failed_json.merge(errors: handler.errors.map(&:message)), status: 400
         end
@@ -116,7 +116,7 @@ module DiscourseActivityPub
       def validate_actor_params
         return render_error("username_required", 400) if actor_params[:username].blank?
         if actor_params[:publication_type] == "full_topic" &&
-              actor_params[:default_visibility] == "private"
+             actor_params[:default_visibility] == "private"
           render_error("full_topic_must_be_public", 400)
         end
       end
@@ -148,7 +148,7 @@ module DiscourseActivityPub
 
       def render_error(key, status)
         render json: failed_json.merge(errors: I18n.t("discourse_activity_pub.actor.error.#{key}")),
-                status: status
+               status: status
       end
 
       def actor_params
