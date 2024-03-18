@@ -10,7 +10,7 @@ export default {
         url: "https://test.local/u/angus_ap",
         followed_at: "2013-02-08T12:00:00.000Z",
         icon_url: "/images/avatar.png",
-        user: {
+        model: {
           username: "angus_local",
         },
       },
@@ -23,7 +23,7 @@ export default {
         url: "https://test.remote/u/bob_ap",
         followed_at: "2014-02-08T12:00:00.000Z",
         icon_url: "/images/avatar.png",
-        user: {
+        model: {
           username: "bob_local",
         },
       },

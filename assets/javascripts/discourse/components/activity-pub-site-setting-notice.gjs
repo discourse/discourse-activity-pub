@@ -14,19 +14,22 @@ export default class ActivityPubSiteSettingNotice extends Component {
 
   get label() {
     return I18n.t(
-      `category.discourse_activity_pub.site_setting.${this.args.setting}.label`
+      `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.label`
     );
   }
 
   get title() {
     return I18n.t(
-      `category.discourse_activity_pub.site_setting.${this.args.setting}.title`
+      `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.title`
     );
   }
 
   get description() {
     return I18n.t(
-      `category.discourse_activity_pub.site_setting.${this.args.setting}.description`
+      `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.description`,
+      {
+        model_type: this.args.modelType,
+      }
     );
   }
 
@@ -38,10 +41,9 @@ export default class ActivityPubSiteSettingNotice extends Component {
 
   <template>
     <div class={{this.containerClass}} title={{this.title}}>
-      <a class="activity-pub-site-setting-label" href={{this.url}}>
-        {{icon "cog"}}
-        {{this.label}}
-      </a>
+      <div class="activity-pub-site-setting-label">
+        <a href={{this.url}}>{{icon "cog"}}{{this.label}}</a>
+      </div>
       <span>{{this.description}}</span>
     </div>
   </template>

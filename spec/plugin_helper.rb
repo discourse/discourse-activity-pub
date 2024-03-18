@@ -9,12 +9,21 @@ def toggle_activity_pub(
   username: nil,
   publication_type: nil
 )
+  category.reload
+
+  username = username || category.slug
+
   category.custom_fields["activity_pub_enabled"] = !disable
-  category.custom_fields["activity_pub_username"] = username || category.slug
+  category.custom_fields["activity_pub_username"] = username
   category.custom_fields["activity_pub_publication_type"] = publication_type if publication_type
 
   if callbacks
     category.save!
+    if !category.activity_pub_actor
+      actor_opts = { username: username }
+      actor_opts[:publication_type] = publication_type if publication_type
+      DiscourseActivityPub::ActorHandler.update_or_create_actor(category, actor_opts)
+    end
     category.reload
   else
     category.save_custom_fields(true)
@@ -46,7 +55,13 @@ end
 
 def expect_request_error(response, key, status, opts = {})
   expect(response.status).to eq(status)
-  message = I18n.t("discourse_activity_pub.request.error.#{key}", opts)
+  path =
+    if key == "not_enabled"
+      "discourse_activity_pub"
+    else
+      "discourse_activity_pub.request.error"
+    end
+  message = I18n.t("#{path}.#{key}", opts)
   log =
     I18n.t(
       "discourse_activity_pub.request.error.request_from_failed",
@@ -57,6 +72,11 @@ def expect_request_error(response, key, status, opts = {})
     )
   expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
   expect(response.parsed_body).to eq({ "errors" => [message] })
+end
+
+def expect_not_enabled(response)
+  expect(response.status).to eq(403)
+  expect(response.parsed_body).to eq({ "errors" => [I18n.t("discourse_activity_pub.not_enabled")] })
 end
 
 def default_headers

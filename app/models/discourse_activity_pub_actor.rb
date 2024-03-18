@@ -6,10 +6,28 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   APPLICATION_ACTOR_ID = -1
   APPLICATION_ACTOR_USERNAME = "discourse.internal"
+  CUSTOM_FIELDS = %i[username name default_visibility publication_type post_object_type]
+  ADMIN_MODELS = %w[Category]
 
   belongs_to :model, polymorphic: true, optional: true
+  belongs_to :category,
+             -> do
+               includes(:activity_pub_actor).where(
+                 discourse_activity_pub_actors: {
+                   model_type: "Category",
+                 },
+               )
+             end,
+             foreign_key: "model_id",
+             optional: true
   belongs_to :user,
-             -> { where(discourse_activity_pub_actors: { model_type: "User" }) },
+             -> do
+               includes(:activity_pub_actor).where(
+                 discourse_activity_pub_actors: {
+                   model_type: "User",
+                 },
+               )
+             end,
              foreign_key: "model_id",
              optional: true
 
@@ -149,17 +167,22 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
-  def self.ensure_for(model)
-    if model.activity_pub_enabled
-      actor =
-        model.activity_pub_actor ||
-          model.build_activity_pub_actor(username: model.activity_pub_username, local: true)
-      actor.name = model.activity_pub_name
+  def enable!
+    model.custom_fields["activity_pub_enabled"] = true
+    save_model_changes
+  end
 
-      if actor.new_record? || actor.changed?
-        actor.save!
-        model.activity_pub_publish_state
-      end
+  def disable!
+    model.custom_fields["activity_pub_enabled"] = false
+    save_model_changes
+  end
+
+  def save_model_changes
+    if model.save_custom_fields(true)
+      model.activity_pub_publish_state
+      true
+    else
+      false
     end
   end
 

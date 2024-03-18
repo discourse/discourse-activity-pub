@@ -116,43 +116,6 @@ RSpec.describe DiscourseActivityPubActor do
     end
   end
 
-  describe "#ensure_for" do
-    let(:category) { Fabricate(:category) }
-
-    context "without activty pub enabled on the object" do
-      it "does not create an actor" do
-        described_class.ensure_for(category)
-        expect(category.activity_pub_actor.present?).to eq(false)
-      end
-    end
-
-    context "with activity pub enabled on the object" do
-      before { toggle_activity_pub(category) }
-
-      it "ensures a valid actor exists" do
-        described_class.ensure_for(category.reload)
-        expect(category.activity_pub_actor.present?).to eq(true)
-        expect(category.activity_pub_actor.ap_type).to eq("Group")
-      end
-
-      it "publishes activity pub state" do
-        message =
-          MessageBus
-            .track_publish("/activity-pub") { described_class.ensure_for(category.reload) }
-            .first
-        expect(message.data).to eq(
-          { model: { id: category.id, type: "category", ready: true, enabled: true } },
-        )
-      end
-
-      it "does not duplicate actors" do
-        described_class.ensure_for(category.reload)
-        described_class.ensure_for(category)
-        expect(DiscourseActivityPubActor.where(model_id: category.id).size).to eq(1)
-      end
-    end
-  end
-
   describe "#find_by_handle" do
     context "with a stored local actor" do
       let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, local: true) }

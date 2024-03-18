@@ -89,7 +89,7 @@ module DiscourseActivityPub
         end
 
         unless acting_user.activity_pub_actor.present?
-          DiscourseActivityPub::UserHandler.update_or_create_actor(acting_user)
+          DiscourseActivityPub::ActorHandler.update_or_create_actor(acting_user)
         end
 
         acting_user.activity_pub_actor

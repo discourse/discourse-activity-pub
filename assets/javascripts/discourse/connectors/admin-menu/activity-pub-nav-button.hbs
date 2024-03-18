@@ -1,0 +1,5 @@
+{{#if currentUser.admin}}
+  <DNavigationItem @route="adminActivityPub" @ariaCurrentContext="parentNav">
+    <span>{{i18n "admin.discourse_activity_pub.label"}}</span>
+  </DNavigationItem>
+{{/if}}

@@ -6,13 +6,21 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
   let!(:post) { Fabricate(:post, topic: topic, post_number: 1) }
   let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:activity_type) { DiscourseActivityPub::AP::Activity::Like.type }
-  let!(:note) do
-    Fabricate(:discourse_activity_pub_object_note, local: true, model: post, published_at: Time.now)
-  end
   let!(:person) { Fabricate(:discourse_activity_pub_actor_person) }
+  let!(:note) do
+    Fabricate(
+      :discourse_activity_pub_object_note,
+      local: true,
+      model: post,
+      published_at: Time.now,
+      attributed_to_id: person.ap_id,
+    )
+  end
   let!(:json) { build_activity_json(object: note.ap.json, type: activity_type, actor: person) }
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::Object }
+
+  before { note.reload }
 
   describe "#process" do
     before do
@@ -98,13 +106,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           expect(DiscourseActivityPubActor.exists?(ap_id: json["actor"]["id"])).to eq(true)
         end
 
-        it "creates an attributedTo actor" do
-          perform_process(json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: json["object"]["attributedTo"])).to eq(
-            true,
-          )
-        end
-
         context "with verbose logging enabled" do
           before { setup_logging }
           after { teardown_logging }
@@ -119,7 +120,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       end
 
       context "with activity pub enabled" do
-        before { toggle_activity_pub(actor.model) }
+        before { toggle_activity_pub(actor.model, callbacks: true) }
 
         it "returns true" do
           expect(perform_process(json, activity_type)).to eq(true)
@@ -128,13 +129,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         it "creates a actor" do
           perform_process(json, activity_type)
           expect(DiscourseActivityPubActor.exists?(ap_id: json["actor"]["id"])).to eq(true)
-        end
-
-        it "creates an attributedTo actor" do
-          perform_process(json, activity_type)
-          expect(DiscourseActivityPubActor.exists?(ap_id: json["object"]["attributedTo"])).to eq(
-            true,
-          )
         end
 
         context "with verbose logging enabled" do

@@ -106,7 +106,7 @@ RSpec.describe Post do
         before { toggle_activity_pub(category, callbacks: true, publication_type: "first_post") }
 
         it "does not attempt to create a post user actor" do
-          DiscourseActivityPub::UserHandler.expects(:update_or_create_actor).never
+          DiscourseActivityPub::ActorHandler.expects(:update_or_create_actor).never
           post.activity_pub_publish!
         end
 
@@ -138,7 +138,7 @@ RSpec.describe Post do
         end
 
         it "attemps to create a post user actor" do
-          DiscourseActivityPub::UserHandler.expects(:update_or_create_actor).once
+          DiscourseActivityPub::ActorHandler.expects(:update_or_create_actor).once
           post.activity_pub_publish!
         end
 
@@ -787,8 +787,8 @@ RSpec.describe Post do
     context "with full_topic enabled on the category" do
       before do
         toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
-        DiscourseActivityPub::UserHandler.update_or_create_actor(post.user)
-        DiscourseActivityPub::UserHandler.update_or_create_actor(reply.user)
+        DiscourseActivityPub::ActorHandler.update_or_create_actor(post.user)
+        DiscourseActivityPub::ActorHandler.update_or_create_actor(reply.user)
       end
 
       context "without a topic collection" do

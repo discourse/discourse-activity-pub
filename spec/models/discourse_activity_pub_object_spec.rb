@@ -85,7 +85,10 @@ RSpec.describe DiscourseActivityPubObject do
       end
       let!(:public_collection_id) { DiscourseActivityPub::JsonLd.public_collection_id }
 
-      before { collection.context = :announcement }
+      before do
+        collection.reload
+        collection.context = :announcement
+      end
 
       it "sets the collection audience" do
         expect(collection.audience).to eq(group.ap_id)

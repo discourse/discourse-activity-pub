@@ -38,13 +38,13 @@
               <ActivityPubActor @actor={{actor}} />
             </div>
             <div class="directory-table__cell activity-pub-follow-table-user">
-              {{#if actor.user}}
+              {{#if actor.model}}
                 <a
                   class="avatar"
-                  href={{concat "/u/" actor.user.username}}
-                  data-user-card={{actor.user.username}}
+                  href={{concat "/u/" actor.model.username}}
+                  data-user-card={{actor.model.username}}
                 >
-                  {{avatar actor.user imageSize="small"}}
+                  {{avatar actor.model imageSize="small"}}
                 </a>
               {{/if}}
             </div>

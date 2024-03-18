@@ -196,7 +196,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           end
 
           it "logs a process error" do
-            DiscourseActivityPub::UserHandler.stubs(:update_or_create_user).returns(nil)
+            DiscourseActivityPub::ActorHandler.stubs(:update_or_create_user).returns(nil)
             perform_process(new_post_json, delivered_to)
             expect(@fake_logger.errors.last).to match(
               I18n.t(

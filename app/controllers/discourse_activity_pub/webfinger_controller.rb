@@ -4,6 +4,8 @@ module DiscourseActivityPub
   class WebfingerController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
+    include DiscourseActivityPub::EnabledVerfication
+
     skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr
 
     before_action :ensure_site_enabled
@@ -29,10 +31,6 @@ module DiscourseActivityPub
 
       @resource = Webfinger.new(scheme).find(uri)
       render_webfinger_error("resource_not_found", 400) unless @resource.present?
-    end
-
-    def ensure_site_enabled
-      render_webfinger_error("not_enabled", 403) unless DiscourseActivityPub.enabled
     end
 
     def render_webfinger_error(key, status)
