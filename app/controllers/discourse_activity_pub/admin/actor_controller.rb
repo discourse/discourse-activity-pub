@@ -121,7 +121,7 @@ module DiscourseActivityPub
           return render_error("username_required", 400)
         end
         if actor_params[:publication_type] == "full_topic" &&
-             actor_params[:default_visibility] == "private"
+              actor_params[:default_visibility] == "private"
           render_error("full_topic_must_be_public", 400)
         end
       end
