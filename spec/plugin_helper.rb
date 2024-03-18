@@ -55,7 +55,12 @@ end
 
 def expect_request_error(response, key, status, opts = {})
   expect(response.status).to eq(status)
-  message = I18n.t("discourse_activity_pub.request.error.#{key}", opts)
+  path = if key == 'not_enabled'
+    "discourse_activity_pub"
+  else
+    "discourse_activity_pub.request.error"
+  end
+  message = I18n.t("#{path}.#{key}", opts)
   log =
     I18n.t(
       "discourse_activity_pub.request.error.request_from_failed",
@@ -66,6 +71,13 @@ def expect_request_error(response, key, status, opts = {})
     )
   expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
   expect(response.parsed_body).to eq({ "errors" => [message] })
+end
+
+def expect_not_enabled(response)
+  expect(response.status).to eq(403)
+  expect(response.parsed_body).to eq(
+    { "errors" => [I18n.t("discourse_activity_pub.not_enabled")] }
+  )
 end
 
 def default_headers

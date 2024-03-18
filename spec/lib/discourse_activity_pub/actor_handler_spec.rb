@@ -70,7 +70,7 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
       end
 
       context "when the actor has a user" do
-        fab!(:user) { Fabricate(:user) }
+        fab!(:user)
 
         before { actor.update(model_id: user.id, model_type: "User") }
 

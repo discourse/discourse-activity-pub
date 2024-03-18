@@ -11,17 +11,16 @@ RSpec.describe DiscourseActivityPub::Admin::AdminController do
       context "as an admin" do
         before { sign_in(admin) }
 
-        context "when the activity pub plugin is disabled" do
+        context "when activity pub is disabled" do
           before { SiteSetting.activity_pub_enabled = false }
 
-          it "denies access with a 404 response" do
+          it "returns a not enabled error" do
             get "/admin/ap.json"
-            expect(response.status).to eq(404)
-            expect(response.parsed_body["errors"]).to include(I18n.t("not_found"))
+            expect_not_enabled(response)
           end
         end
 
-        context "when the activity pub plugin is enabled" do
+        context "when activity pub is enabled" do
           before { SiteSetting.activity_pub_enabled = true }
 
           it "permits access with a 202 response" do

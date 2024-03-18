@@ -4,6 +4,8 @@ module DiscourseActivityPub
   class PostController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
+    include DiscourseActivityPub::EnabledVerfication
+
     before_action :ensure_site_enabled
     before_action :ensure_staff
     before_action :find_post
@@ -49,10 +51,6 @@ module DiscourseActivityPub
     def find_post
       @post = Post.find_by(id: params[:post_id])
       render_post_error("post_not_found", 400) unless @post.present?
-    end
-
-    def ensure_site_enabled
-      render_post_error("not_enabled", 403) unless DiscourseActivityPub.enabled
     end
 
     def render_post_error(key, status)

@@ -30,10 +30,10 @@ en:
         edit_after_publication: Edit of an ActivityPub note after publication is not currently supported.
 
   discourse_activity_pub:
+    not_enabled: "ActivityPub is not enabled"
     request:
       error:
         json_not_valid: "Invalid JSON-LD"
-        not_enabled: "AcitivtyPub is not enabled"
         not_found: "No object found"
         not_available: "ActivityPub is not available for that model"
         bad_request: "Bad request"
@@ -96,16 +96,13 @@ en:
         processing_json: "Processing JSON delivered to %{delivered_to}"
     webfinger:
       error:
-        not_enabled: "Webfinger is not enabled"
         resource_not_supported: "Resource not supported"
         resource_not_found: "Resource not found"
     category:
       error:
-        not_enabled: "ActivityPub is not enabled"
         category_not_found: "Category not found"
     post:
       error:
-        not_enabled: "ActivityPub is not enabled"
         post_not_found: "Post not found"
         cant_schedule_post: "Can't schedule post"
         cant_unschedule_post: "Can't unschedule post"
@@ -125,7 +122,6 @@ en:
       outbox:
         summary: "%{actor}'s activities"
       error:
-        not_enabled: "ActivityPub is not enabled"
         actor_not_found: "Actor not found"
         invalid_model: "Invalid model"
         model_not_found: "Model not found"
@@ -142,10 +138,8 @@ en:
         no_change_when_set: An ActivityPub username can't be changed once set.
         invalid_username: "ActivityPub usernames can only contain ASCII characters."
         username_taken: "That username is already taken on this server."
-
     auth:
       error:
-        not_enabled: "ActivityPub Auth is not enabled"
         invalid_oauth_domain: "Invalid ActivityPub OAuth domain"
         oauth_session_expired: "ActivityPub OAuth session expired"
         failed_to_authorize: "ActivityPub OAuth failed to authorize"
