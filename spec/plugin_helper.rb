@@ -44,8 +44,19 @@ def get_followers(object, url: nil, headers: {})
       headers: { "Accept" => DiscourseActivityPub::JsonLd.content_type_header }.merge(headers)
 end
 
-def activity_request_error(key)
-  { "errors" => [I18n.t("discourse_activity_pub.request.error.#{key}")] }
+def expect_request_error(response, key, status, opts = {})
+  expect(response.status).to eq(status)
+  message = I18n.t("discourse_activity_pub.request.error.#{key}", opts)
+  log =
+    I18n.t(
+      "discourse_activity_pub.request.error.request_from_failed",
+      method: response.request.method,
+      uri: response.request.url,
+      status: status,
+      message: message,
+    )
+  expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
+  expect(response.parsed_body).to eq({ "errors" => [message] })
 end
 
 def default_headers
@@ -94,15 +105,20 @@ def build_headers(
   _headers
 end
 
-def build_actor_json(public_key = nil)
+def build_actor_json(
+  type: "Person",
+  name: "Angus McLeod",
+  preferredUsername: "angus",
+  public_key: nil
+)
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: "https://external.com/u/angus",
-    name: "Angus McLeod",
-    preferredUsername: "angus",
-    type: "Person",
-    inbox: "https://external.com/u/angus/inbox",
-    outbox: "https://external.com/u/angus/outbox",
+    id: "https://external.com/u/#{preferredUsername}",
+    name: name,
+    preferredUsername: preferredUsername,
+    type: type,
+    inbox: "https://external.com/u/#{preferredUsername}/inbox",
+    outbox: "https://external.com/u/#{preferredUsername}/outbox",
   }
   _json[:publicKey] = {
     id: "#{_json[:id]}#main-key",

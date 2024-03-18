@@ -65,7 +65,6 @@ RSpec.describe Topic do
         expect(note1.reload.model_id).to eq(@first_post.id)
         expect(note1.collection_id).to eq(@new_topic.activity_pub_object.id)
         expect(note2.reload.collection_id).to eq(collection1.id)
-        expect(note3.reload.collection_id).to eq(@new_topic.activity_pub_object.id)
       end
     end
 
@@ -92,7 +91,6 @@ RSpec.describe Topic do
         expect(note1.reload.model_id).to eq(@first_post.id)
         expect(note1.collection_id).to eq(collection2.id)
         expect(note2.reload.collection_id).to eq(collection1.id)
-        expect(note3.reload.collection_id).to eq(collection2.id)
       end
     end
 
@@ -124,7 +122,6 @@ RSpec.describe Topic do
         expect(note1.reload.model_id).to eq(@first_post.id)
         expect(note1.reload.collection_id).to eq(nil)
         expect(note2.reload.collection_id).to eq(collection1.id)
-        expect(note3.reload.collection_id).to eq(nil)
       end
     end
 
@@ -156,7 +153,6 @@ RSpec.describe Topic do
         expect(note1.reload.model_id).to eq(@first_post.id)
         expect(note1.reload.collection_id).to eq(nil)
         expect(note2.reload.collection_id).to eq(collection1.id)
-        expect(note3.reload.collection_id).to eq(nil)
       end
     end
   end

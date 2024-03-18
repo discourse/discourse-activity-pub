@@ -10,7 +10,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
     end
 
     context "when the actor is not a valid type" do
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: nil) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_application, model: nil) }
 
       before { setup_logging }
       after { teardown_logging }
@@ -70,7 +70,7 @@ RSpec.describe DiscourseActivityPub::UserHandler do
       end
 
       context "when the actor has a user" do
-        fab!(:user) { Fabricate(:user) }
+        fab!(:user)
 
         before { actor.update(model_id: user.id, model_type: "User") }
 
@@ -198,6 +198,19 @@ RSpec.describe DiscourseActivityPub::UserHandler do
         actor_count = DiscourseActivityPubActor.all.size
         described_class.update_or_create_actor(user)
         expect(DiscourseActivityPubActor.all.size).to eq(actor_count)
+      end
+    end
+
+    context "when user has a username that would be invalid as an ActivityPub username" do
+      before do
+        SiteSetting.unicode_usernames = true
+        user.username = "óengus"
+        user.save!
+      end
+
+      it "creates an actor with a valid ActivityPub username" do
+        actor = described_class.update_or_create_actor(user)
+        expect(actor.username).to eq("oengus")
       end
     end
   end
