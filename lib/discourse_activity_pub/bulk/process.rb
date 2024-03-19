@@ -119,8 +119,8 @@ module DiscourseActivityPub
             activity.object.attributed_to =
               if activity.actor.json[:id] == activity.object.json[:attributedTo]
                 activity.actor
-              else
-                resolve_object(activity.object.json[:attributedTo])
+              elsif attributed_to_json = resolve_object(activity.object.json[:attributedTo])
+                DiscourseActivityPub::AP::Actor.factory(attributed_to_json)
               end
           end
 
@@ -203,7 +203,10 @@ module DiscourseActivityPub
 
         result.activities.each do |activity|
           actors_by_ap_id[activity.actor.json[:id]] = activity.actor
-          actors_by_ap_id[activity.object.attributed_to.json[:id]] = activity.object.attributed_to
+
+          if activity.object.attributed_to
+            actors_by_ap_id[activity.object.attributed_to.json[:id]] = activity.object.attributed_to
+          end
         end
 
         actors_by_ap_id.values.map { |actor| build_actor_attrs(actor) }
@@ -322,8 +325,7 @@ module DiscourseActivityPub
 
         if !post
           create_post_opts = create_post_opts_by_ap_id[object.stored.ap_id] || {}
-          post_actor_ap_id =
-            object.attributed_to ? object.attributed_to.stored.ap_id : actor.stored.ap_id
+          post_actor_ap_id = object.attributed_to ? object.attributed_to.stored.ap_id : actor.ap_id
 
           post =
             DiscourseActivityPub::PostHandler.create(

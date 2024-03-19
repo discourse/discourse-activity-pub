@@ -478,6 +478,124 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
             end
           end
         end
+
+        context "when target actor returns activities of a group actor" do
+          let!(:group1_json) do
+            build_actor_json(
+              type: "Group",
+              name: "First Post Only Category",
+              preferredUsername: "first-post-only",
+            )
+          end
+          let!(:object3_json) do
+            build_object_json(name: "My cool title", attributed_to: group1_json[:id])
+          end
+          let!(:object4_json) do
+            build_object_json(name: "My other title", attributed_to: group1_json[:id])
+          end
+          let!(:create_3_json) do
+            build_activity_json(actor: group1_json[:id], object: object3_json, type: "Create")
+          end
+          let!(:create_4_json) do
+            build_activity_json(actor: group1_json[:id], object: object4_json, type: "Create")
+          end
+          let!(:announce_3_json) do
+            build_activity_json(actor: group1_json[:id], object: create_3_json, type: "Announce")
+          end
+          let!(:announce_4_json) do
+            build_activity_json(actor: group1_json[:id], object: create_4_json, type: "Announce")
+          end
+          let!(:ordered_collection_json) do
+            build_collection_json(
+              type: "OrderedCollection",
+              items: [announce_3_json, announce_4_json],
+            )
+          end
+
+          before do
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: target_actor.outbox)
+              .returns(ordered_collection_json)
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: group1_json[:id])
+              .returns(group1_json)
+              .twice
+          end
+
+          it "finishes" do
+            result = perform
+            expect(result.finished).to eq(true)
+          end
+
+          it "does not create announcements" do
+            perform
+            expect(DiscourseActivityPubActivity.exists?(ap_type: "Announce")).to eq(false)
+          end
+
+          it "creates the right actors" do
+            result = perform
+            expect(result.actors_by_ap_id.keys).to eq([group1_json[:id]])
+            expect(DiscourseActivityPubActor.exists?(ap_id: group1_json[:id])).to eq(true)
+          end
+
+          it "creates the right activities" do
+            result = perform
+            activity_ap_ids = [create_3_json[:id], create_4_json[:id]]
+            expect(result.activities_by_ap_id.keys).to eq(activity_ap_ids)
+            expect(DiscourseActivityPubActivity.exists?(ap_id: activity_ap_ids)).to eq(true)
+          end
+
+          it "creates the right objects" do
+            result = perform
+            object_ap_ids = [object3_json[:id], object4_json[:id]]
+            expect(result.objects_by_ap_id.keys).to eq(object_ap_ids)
+          end
+
+          it "creates the right topics" do
+            result = perform
+            expect(category.topics.first.title).to eq(object3_json[:name])
+            expect(category.topics.first.activity_pub_object.name).to eq(object3_json[:name])
+            expect(category.topics.second.title).to eq(object4_json[:name])
+            expect(category.topics.second.activity_pub_object.name).to eq(object4_json[:name])
+          end
+
+          it "creates the right posts" do
+            perform
+            post1 = category.topics.first.posts.first
+            expect(post1.raw).to eq(object3_json[:content])
+            post2 = category.topics.second.posts.first
+            expect(post2.raw).to eq(object4_json[:content])
+          end
+
+          context "with verbose logging enabled" do
+            before { setup_logging }
+            after { teardown_logging }
+
+            it "logs the right info" do
+              perform
+              [
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.started",
+                  actor: actor.handle,
+                  target_actor: target_actor.handle,
+                ),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_actors", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_objects", count: 2),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_collections", count: 2),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_users", count: 1),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_topics", count: 2),
+                I18n.t("discourse_activity_pub.bulk.process.info.created_activities", count: 2),
+                I18n.t(
+                  "discourse_activity_pub.bulk.process.info.finished",
+                  actor: actor.handle,
+                  target_actor: target_actor.handle,
+                ),
+              ].each { |info| expect(@fake_logger.info).to include(prefix_log(info)) }
+            end
+          end
+        end
       end
     end
 

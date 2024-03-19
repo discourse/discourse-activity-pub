@@ -239,8 +239,9 @@ module DiscourseActivityPub
         activities = []
 
         posts.each do |post|
+          actor = post.user.activity_pub_actor
           object = post.activity_pub_object
-          next unless object
+          next unless actor && object
 
           activity =
             (
@@ -259,7 +260,7 @@ module DiscourseActivityPub
             base_type: AP::Activity.type,
             type: AP::Activity::Create.type,
           ).merge(
-            actor_id: object.model.user.activity_pub_actor.id,
+            actor_id: actor.id,
             object_id: object.id,
             object_type: object.class.name,
             visibility:
