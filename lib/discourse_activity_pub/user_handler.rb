@@ -44,7 +44,7 @@ module DiscourseActivityPub
       @actor ||= user&.activity_pub_actor
     end
 
-    def find_or_create_user(opts = {})
+    def find_or_create_user
       @user = self.class.find_user_by_authorized_actor_id(actor.ap_id)
 
       unless user
@@ -70,9 +70,7 @@ module DiscourseActivityPub
         end
       end
 
-      if user.activity_pub_actor.blank? && !opts[:import_mode]
-        actor.update(model_id: user.id, model_type: "User")
-      end
+      actor.update(model_id: user.id, model_type: "User") unless user.activity_pub_actor.present?
     end
 
     def update_user
@@ -102,11 +100,11 @@ module DiscourseActivityPub
       actor.name = user.name if user.name
     end
 
-    def update_or_create_user(opts = {})
+    def update_or_create_user
       return nil unless validate_actor
 
       ActiveRecord::Base.transaction do
-        find_or_create_user(opts) unless user
+        find_or_create_user unless user
         update_user
       end
 
@@ -125,9 +123,9 @@ module DiscourseActivityPub
       actor
     end
 
-    def self.update_or_create_user(actor, opts = {})
+    def self.update_or_create_user(actor)
       return nil unless actor
-      new(actor: actor).update_or_create_user(opts)
+      new(actor: actor).update_or_create_user
     end
 
     def self.update_or_create_actor(user)

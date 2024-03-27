@@ -46,7 +46,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
       context "with an activity and object from different hosts" do
         before do
-          setup_logging
+          SiteSetting.activity_pub_verbose_logging = true
+          @orig_logger = Rails.logger
+          Rails.logger = @fake_logger = FakeLogger.new
 
           @mismatched_json = activity_json.dup
           @mismatched_json[
@@ -56,7 +58,10 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
           process_json(@mismatched_json)
         end
 
-        after { teardown_logging }
+        after do
+          Rails.logger = @orig_logger
+          SiteSetting.activity_pub_verbose_logging = false
+        end
 
         it "does not perform the activity" do
           expect(post.reload.raw).not_to eq(object_json[:content])
@@ -76,11 +81,17 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
     context "with full topic disabled" do
       before do
-        setup_logging
+        SiteSetting.activity_pub_verbose_logging = true
+        @orig_logger = Rails.logger
+        Rails.logger = @fake_logger = FakeLogger.new
         toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
         process_json(activity_json)
       end
-      after { teardown_logging }
+
+      after do
+        Rails.logger = @orig_logger
+        SiteSetting.activity_pub_verbose_logging = false
+      end
 
       it "doesn't work" do
         expect(post.reload.raw).not_to eq(object_json[:content])

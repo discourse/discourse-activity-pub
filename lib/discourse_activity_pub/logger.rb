@@ -6,22 +6,17 @@ module DiscourseActivityPub
 
     PREFIX = "[Discourse Activity Pub]"
     attr_reader :type
-    cattr_accessor :to_stdout
 
     def initialize(type)
       @type = type
     end
 
     def log(message, json: nil)
-      puts formatted_message(message) if print_to_stdout?
-
       return unless SiteSetting.activity_pub_verbose_logging
       rails_args = {}
       rails_args[:json] = json if SiteSetting.activity_pub_object_logging && !Rails.env.development?
-
       Rails.logger.send(type, formatted_message(message, **rails_args))
       AP.logger.send(type, formatted_message(message, json: json)) if Rails.env.development?
-
       true
     end
 
@@ -32,23 +27,6 @@ module DiscourseActivityPub
         result += "\n#{json.to_yaml}" if json.present?
       end
       result
-    end
-
-    def print_to_stdout?
-      case to_stdout
-      when :error
-        type == :error
-      when :info
-        %i[error info].include?(type)
-      when :warn
-        %i[error info warn].include?(type)
-      else
-        false
-      end
-    end
-
-    def self.log_types
-      %i[error warn info]
     end
 
     def self.error(message, json: nil)
