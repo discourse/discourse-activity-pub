@@ -164,10 +164,8 @@ end
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  name         :string
-#  audience     :string
 #
 # Indexes
 #
 #  index_discourse_activity_pub_collections_on_ap_id  (ap_id)
-#  unique_activity_pub_collection_models              (model_type,model_id) UNIQUE
 #

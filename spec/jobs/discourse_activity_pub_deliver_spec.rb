@@ -237,7 +237,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         end
 
         context "when activities are in a collection" do
-          let!(:collection) { topic.activity_pub_object }
+          let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection, model: topic) }
 
           before do
             note.collection_id = collection.id

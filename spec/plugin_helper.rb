@@ -139,8 +139,7 @@ def build_object_json(
   to: nil,
   cc: nil,
   audience: nil,
-  attributed_to: nil,
-  context: nil
+  attributed_to: nil
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -162,7 +161,6 @@ def build_object_json(
   else
     attributed_to
   end
-  _json[:context] = context if context
   _json
 end
 
@@ -204,64 +202,23 @@ def build_activity_json(
   _json.with_indifferent_access
 end
 
-def build_collection_json(
-  type: "Collection",
-  items: [],
-  to: nil,
-  cc: nil,
-  audience: nil,
-  name: nil,
-  first_page: nil,
-  last_page: nil
-)
+def build_collection_json(type: "Collection", items: [], to: nil, cc: nil, audience: nil)
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "https://external.com/collection/#{SecureRandom.hex(8)}",
     type: type,
+    items: items,
   }
-  _json[:items] = items if type == "Collection"
-  _json[:orderedItems] = items if type == "OrderedCollection"
-  _json[:totalItems] = items.size
   _json[:to] = to if to
   _json[:cc] = cc if cc
   _json[:audience] = audience if audience
-  _json[:name] = name if name
-  _json[:first] = "#{_json[:id]}?page=#{first_page}" if first_page
-  _json[:last] = "#{_json[:id]}?page=#{last_page}" if last_page
-  _json.with_indifferent_access
-end
-
-def build_collection_page_json(
-  type: "CollectionPage",
-  summary: nil,
-  items: [],
-  part_of: nil,
-  page: nil,
-  next_page: nil,
-  prev_page: nil
-)
-  return {} unless items.present? && part_of.present?
-  _json = {
-    "@context": "https://www.w3.org/ns/activitystreams",
-    id: "#{part_of}?page=#{page}",
-    type: type,
-  }
-  _json[:items] = items if type == "CollectionPage"
-  _json[:orderedItems] = items if type == "OrderedCollectionPage"
-  _json[:summary] = summary if summary
-  _json[:next] = "#{part_of}?page=#{next_page}" if next_page
-  _json[:prev] = "#{part_of}?page=#{prev_page}" if prev_page
   _json.with_indifferent_access
 end
 
 def build_process_warning(key, object_id)
   action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: object_id)
   message = I18n.t("discourse_activity_pub.process.warning.#{key}")
-  prefix_log("#{action}: #{message}")
-end
-
-def prefix_log(message)
-  "[Discourse Activity Pub] #{message}"
+  "[Discourse Activity Pub] #{action}: #{message}"
 end
 
 def perform_process(json, delivered_to = nil)

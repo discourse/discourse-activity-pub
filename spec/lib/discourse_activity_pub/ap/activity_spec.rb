@@ -30,7 +30,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
 
     context "with a duplicate activity" do
       it "returns false" do
-        perform_process(json, activity_type)
+        expect(perform_process(json, activity_type)).to eq(true)
         expect(perform_process(json, activity_type)).to eq(false)
       end
 
@@ -56,8 +56,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           .once
       end
 
-      it "returns false" do
-        expect(perform_process(json, activity_type)).to eq(false)
+      it "returns true" do
+        expect(perform_process(json, activity_type)).to eq(true)
       end
 
       context "with verbose logging enabled" do

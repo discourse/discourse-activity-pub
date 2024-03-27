@@ -73,17 +73,19 @@ RSpec.describe DiscourseActivityPub::AP::Object do
         end
 
         context "with verbose logging enabled" do
-          before do
-            SiteSetting.activity_pub_verbose_logging = true
-            setup_logging
-          end
-          after { teardown_logging }
+          before { SiteSetting.activity_pub_verbose_logging = true }
 
           it "logs the right warning" do
+            orig_logger = Rails.logger
+            Rails.logger = fake_logger = FakeLogger.new
+
             DiscourseActivityPub::AP::Object.resolve_and_store(json["id"])
-            expect(@fake_logger.warnings.first).to eq(
+
+            expect(fake_logger.warnings.first).to eq(
               "[Discourse Activity Pub] Failed to process #{json["id"]}: Object is not supported",
             )
+
+            Rails.logger = orig_logger
           end
         end
       end
@@ -93,17 +95,19 @@ RSpec.describe DiscourseActivityPub::AP::Object do
       before { stub_request(:get, json["id"]).to_return(status: 400) }
 
       context "with verbose logging enabled" do
-        before do
-          SiteSetting.activity_pub_verbose_logging = true
-          setup_logging
-        end
-        after { teardown_logging }
+        before { SiteSetting.activity_pub_verbose_logging = true }
 
         it "logs the right warning" do
+          orig_logger = Rails.logger
+          Rails.logger = fake_logger = FakeLogger.new
+
           DiscourseActivityPub::AP::Object.resolve_and_store(json["id"])
-          expect(@fake_logger.warnings.last).to eq(
+
+          expect(fake_logger.warnings.last).to eq(
             "[Discourse Activity Pub] Failed to process #{json["id"]}: Could not resolve object",
           )
+
+          Rails.logger = orig_logger
         end
       end
     end
