@@ -42,14 +42,13 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
 
   before do
     SiteSetting.activity_pub_verbose_logging = true
-    @orig_logger = Rails.logger
-    Rails.logger = @fake_logger = FakeLogger.new
+    setup_logging
     freeze_time
   end
 
   after do
     SiteSetting.activity_pub_verbose_logging = false
-    Rails.logger = @orig_logger
+    teardown_logging
   end
 
   describe "#perform" do

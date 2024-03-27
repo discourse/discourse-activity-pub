@@ -8,7 +8,7 @@ module DiscourseActivityPub
       @object = object
     end
 
-    def create(category_id: nil)
+    def create(category_id: nil, topic_id: nil, reply_to_post_number: nil, import_mode: false)
       if !user || !object || object.model_id || (!object.in_reply_to_post && !category_id)
         return nil
       end
@@ -18,15 +18,23 @@ module DiscourseActivityPub
         return nil unless can_create_topic?(category)
       end
 
-      new_topic = !object.in_reply_to_post && category
-      params = { raw: object.content, skip_events: true, skip_validations: true, custom_fields: {} }
+      new_topic = !object.in_reply_to_post && !topic_id && category
+      params = {
+        raw: object.content,
+        skip_events: true,
+        skip_validations: true,
+        custom_fields: {
+        },
+        import_mode: import_mode,
+        topic_id: topic_id,
+        reply_to_post_number: reply_to_post_number,
+      }
 
       if new_topic
         params[:title] = object.name ||
           DiscourseActivityPub::ContentParser.get_title(object.content)
         params[:category] = category.id
-      else
-        reply_to = object.in_reply_to_post
+      elsif reply_to = object.in_reply_to_post
         params[:topic_id] = reply_to.topic.id
         params[:reply_to_post_number] = reply_to.post_number
       end
@@ -44,7 +52,7 @@ module DiscourseActivityPub
       ActiveRecord::Base.transaction do
         begin
           post = PostCreator.create!(user, params)
-          create_collection(post) if new_topic
+          create_collection(post) if new_topic && !import_mode
         rescue PG::UniqueViolation,
                ActiveRecord::RecordNotUnique,
                ActiveRecord::RecordInvalid,
@@ -60,7 +68,7 @@ module DiscourseActivityPub
           raise ActiveRecord::Rollback
         end
 
-        if post
+        if post && !import_mode
           object.update(
             model_type: "Post",
             model_id: post.id,
@@ -72,8 +80,20 @@ module DiscourseActivityPub
       post
     end
 
-    def self.create(user, object, category_id: nil)
-      new(user, object).create(category_id: category_id)
+    def self.create(
+      user,
+      object,
+      category_id: nil,
+      topic_id: nil,
+      reply_to_post_number: nil,
+      import_mode: false
+    )
+      new(user, object).create(
+        category_id: category_id,
+        import_mode: import_mode,
+        topic_id: topic_id,
+        reply_to_post_number: reply_to_post_number,
+      )
     end
 
     protected

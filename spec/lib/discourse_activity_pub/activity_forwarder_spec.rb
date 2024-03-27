@@ -154,7 +154,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
 
         context "when the activity is not addressed to the topic actor" do
           before do
-            follower2.model_id = post3.user_id
+            follower2.model_id = Fabricate(:user).id
             follower2.model_type = "User"
             follower2.save!
 
