@@ -120,7 +120,11 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
 
   def self.scrubbed_html(html)
     doc = Nokogiri::HTML5.fragment(html)
-    scrubber = Loofah::Scrubber.new { |node| node.remove if node.name == "script" }
+    scrubber =
+      Loofah::Scrubber.new do |node|
+        node.remove if node.name == "script"
+        node.content = node.content.gsub(%r{(\[note\]|\[/note\])}, "") if node.text?
+      end
     loofah_fragment = Loofah.html5_fragment(doc.to_html)
     loofah_fragment.scrub!(scrubber).to_html
   end
