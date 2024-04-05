@@ -1,5 +1,6 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { AUTO_GROUPS } from "discourse/lib/constants";
 import Site from "discourse/models/site";
 import topicFixtures from "discourse/tests/fixtures/topic";
 import {
@@ -34,9 +35,13 @@ const setupServer = (needs, attrs = {}) => {
 };
 
 acceptance(
-  "Discourse Activity Pub | ActivityPub topic as user",
+  "Discourse Activity Pub | ActivityPub topic as user with post status not visible",
   function (needs) {
-    needs.user({ moderator: false, admin: false });
+    needs.user({
+      moderator: false,
+      admin: false,
+      groups: [AUTO_GROUPS.trust_level_0, AUTO_GROUPS.trust_level_1],
+    });
     setupServer(needs, {
       activity_pub_published_at: publishedAt,
     });
@@ -55,7 +60,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | ActivityPub topic as staff",
+  "Discourse Activity Pub | ActivityPub topic as user in a group with post status visible",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
