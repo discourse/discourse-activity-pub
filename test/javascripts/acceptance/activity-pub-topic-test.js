@@ -47,6 +47,7 @@ acceptance(
     });
 
     test("ActivityPub indicator element", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "1";
       Site.current().set("activity_pub_enabled", true);
 
       await visit("/t/280");
@@ -70,6 +71,7 @@ acceptance(
     });
 
     test("When the plugin is disabled", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "2";
       Site.current().setProperties({
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: false,
@@ -84,6 +86,7 @@ acceptance(
     });
 
     test("ActivityPub indicator element", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "2";
       Site.current().setProperties({
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
