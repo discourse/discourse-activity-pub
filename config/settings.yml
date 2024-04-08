@@ -24,6 +24,12 @@ discourse_activity_pub:
     default: 5
     min: 1
     client: true
+  activity_pub_post_status_visibility_groups:
+    default: "0" # everyone
+    type: group_list
+    allow_any: false
+    refresh: true
+    client: true
   activity_pub_verbose_logging:
     default: false
   activity_pub_object_logging:

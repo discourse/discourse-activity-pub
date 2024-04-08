@@ -1,5 +1,6 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { AUTO_GROUPS } from "discourse/lib/constants";
 import Site from "discourse/models/site";
 import topicFixtures from "discourse/tests/fixtures/topic";
 import {
@@ -34,14 +35,19 @@ const setupServer = (needs, attrs = {}) => {
 };
 
 acceptance(
-  "Discourse Activity Pub | ActivityPub topic as user",
+  "Discourse Activity Pub | ActivityPub topic as user with post status not visible",
   function (needs) {
-    needs.user({ moderator: false, admin: false });
+    needs.user({
+      moderator: false,
+      admin: false,
+      groups: [AUTO_GROUPS.trust_level_0, AUTO_GROUPS.trust_level_1],
+    });
     setupServer(needs, {
       activity_pub_published_at: publishedAt,
     });
 
     test("ActivityPub indicator element", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "1";
       Site.current().set("activity_pub_enabled", true);
 
       await visit("/t/280");
@@ -55,7 +61,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | ActivityPub topic as staff",
+  "Discourse Activity Pub | ActivityPub topic as user in a group with post status visible",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
@@ -65,6 +71,7 @@ acceptance(
     });
 
     test("When the plugin is disabled", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "2";
       Site.current().setProperties({
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: false,
@@ -79,6 +86,7 @@ acceptance(
     });
 
     test("ActivityPub indicator element", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "2";
       Site.current().setProperties({
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
