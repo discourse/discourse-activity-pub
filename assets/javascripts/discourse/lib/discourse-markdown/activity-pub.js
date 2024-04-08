@@ -6,9 +6,12 @@ export function setup(helper) {
   });
 
   helper.registerPlugin((md) => {
-    const ruler = md.inline.bbcode.ruler;
+    md.inline.bbcode.ruler.push("note", {
+      tag: "note",
+      wrap: "div.note",
+    });
 
-    ruler.push("note", {
+    md.block.bbcode.ruler.push("note", {
       tag: "note",
       wrap: "div.note",
     });

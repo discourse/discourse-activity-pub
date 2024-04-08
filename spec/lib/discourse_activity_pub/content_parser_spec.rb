@@ -24,6 +24,39 @@ RSpec.describe DiscourseActivityPub::ContentParser do
       expect(described_class.get_content(post)).to eq(expected_excerpt)
     end
 
+    it "respects [note] tags" do
+      content = "[note]This plugin is being developed[/note] by #pavilion for #Discourse"
+      post = Fabricate(:post, raw: content)
+      expect(described_class.get_content(post)).to eq("This plugin is being developed")
+    end
+
+    it "handles line breaks" do
+      content = <<~STRING
+        [note]
+        First line
+
+        Second line
+        [/note]
+
+        Third line
+      STRING
+      post = Fabricate(:post, raw: content)
+      expect(described_class.get_content(post)).to eq("First line\nSecond line")
+    end
+
+    it "handles invalid line breaks" do
+      # See https://meta.discourse.org/t/discourse-commonmark-migration-plans-confetti-ball-balloon/64234/6?u=angus
+      content = <<~STRING
+        [note]First line
+
+        Second line[/note]
+
+        Third line
+      STRING
+      post = Fabricate(:post, raw: content)
+      expect(described_class.get_content(post)).to eq("First line\nSecond line\nThird line")
+    end
+
     it "does not convert local hashtags" do
       Fabricate(:category, name: "pavilion")
       Fabricate(:tag, name: "Discourse")
