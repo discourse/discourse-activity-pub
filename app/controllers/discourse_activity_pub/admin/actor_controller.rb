@@ -52,7 +52,6 @@ module DiscourseActivityPub
           actors,
           DiscourseActivityPub::ActorSerializer,
           root: "actors",
-          include_model: true,
           meta: {
             total: total,
             load_more_url: load_more_url.to_s,
