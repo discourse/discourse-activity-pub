@@ -6,31 +6,29 @@ RSpec.describe Category do
   it { is_expected.to have_one(:activity_pub_actor).dependent(:destroy) }
 
   describe "#activity_pub_ready?" do
-    context "with category activity pub enabled" do
+    context "without an activity pub actor" do
+      it "returns false" do
+        expect(category.activity_pub_ready?).to eq(false)
+      end
+    end
+
+    context "with an activity pub actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
+
       before { toggle_activity_pub(category) }
 
-      context "without an activity pub actor" do
-        it "returns false" do
-          expect(category.activity_pub_ready?).to eq(false)
-        end
+      it "returns true" do
+        expect(category.reload.activity_pub_ready?).to eq(true)
       end
 
-      context "with an activity pub actor" do
-        let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-
-        it "returns true" do
-          expect(category.reload.activity_pub_ready?).to eq(true)
+      context "with category read restricted" do
+        before do
+          category.set_permissions(staff: :full)
+          category.save!
         end
 
-        context "with category read restricted" do
-          before do
-            category.set_permissions(staff: :full)
-            category.save!
-          end
-
-          it "returns false" do
-            expect(category.reload.activity_pub_ready?).to eq(false)
-          end
+        it "returns false" do
+          expect(category.reload.activity_pub_ready?).to eq(false)
         end
       end
     end

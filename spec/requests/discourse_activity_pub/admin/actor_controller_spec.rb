@@ -155,12 +155,8 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["username"]).to eq("new_actor")
           expect(response.parsed_body["actor"]["model"]["id"]).to eq(category.id)
-          expect(response.parsed_body["actor"]["model"]["activity_pub_default_visibility"]).to eq(
-            "public",
-          )
-          expect(response.parsed_body["actor"]["model"]["activity_pub_publication_type"]).to eq(
-            "full_topic",
-          )
+          expect(response.parsed_body["actor"]["default_visibility"]).to eq("public")
+          expect(response.parsed_body["actor"]["publication_type"]).to eq("full_topic")
         end
       end
     end
@@ -178,11 +174,8 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
     end
 
     context "with a valid actor" do
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-
-      before do
-        actor.model.custom_fields["activity_pub_enabled"] = true
-        actor.model.save_custom_fields(true)
+      let!(:actor) do
+        Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true)
       end
 
       context "without a username" do
@@ -250,12 +243,8 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["username"]).to eq(actor.username)
           expect(response.parsed_body["actor"]["model"]["id"]).to eq(category.id)
-          expect(response.parsed_body["actor"]["model"]["activity_pub_default_visibility"]).to eq(
-            "public",
-          )
-          expect(response.parsed_body["actor"]["model"]["activity_pub_publication_type"]).to eq(
-            "full_topic",
-          )
+          expect(response.parsed_body["actor"]["default_visibility"]).to eq("public")
+          expect(response.parsed_body["actor"]["publication_type"]).to eq("full_topic")
         end
       end
     end

@@ -715,8 +715,8 @@ RSpec.describe Post do
 
       context "when Article is set as the post object type" do
         before do
-          category.custom_fields["activity_pub_post_object_type"] = "Article"
-          category.save_custom_fields(true)
+          category.activity_pub_actor.post_object_type = "Article"
+          category.activity_pub_actor.save!
         end
 
         context "with create" do

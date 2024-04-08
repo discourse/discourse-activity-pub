@@ -38,8 +38,6 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
   end
 
   describe "#show" do
-    before { toggle_activity_pub(collection.model) }
-
     it "returns collection json" do
       get_object(collection)
       expect(response.status).to eq(200)

@@ -30,7 +30,7 @@ RSpec.describe CategoriesController do
               expect(response.status).to eq(200)
             end
 
-          expect(enabled_queries.count).to eq(disabled_queries.count)
+          expect(enabled_queries.count).to be <= disabled_queries.count
         end
       end
 

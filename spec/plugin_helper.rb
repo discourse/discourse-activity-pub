@@ -11,23 +11,19 @@ def toggle_activity_pub(
 )
   category.reload
 
+  if !category.activity_pub_actor
+    attrs = { ap_type: DiscourseActivityPub::AP::Actor::Group.type, local: true, enabled: true }
+    category.build_activity_pub_actor(attrs)
+  end
+
   username = username || category.slug
 
-  category.custom_fields["activity_pub_enabled"] = !disable
-  category.custom_fields["activity_pub_username"] = username
-  category.custom_fields["activity_pub_publication_type"] = publication_type if publication_type
+  category.activity_pub_actor.username = username
+  category.activity_pub_actor.publication_type = publication_type if publication_type
+  category.activity_pub_actor.enabled = !disable
+  category.activity_pub_actor.save!
 
-  if callbacks
-    category.save!
-    if !category.activity_pub_actor
-      actor_opts = { username: username }
-      actor_opts[:publication_type] = publication_type if publication_type
-      DiscourseActivityPub::ActorHandler.update_or_create_actor(category, actor_opts)
-    end
-    category.reload
-  else
-    category.save_custom_fields(true)
-  end
+  category.reload
 end
 
 def get_object(object, url: nil, headers: {})

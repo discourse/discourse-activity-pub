@@ -32,12 +32,8 @@ module DiscourseActivityPub
         when "Category"
           DiscourseActivityPub::AP::Actor::Group.type
         end
-      attrs = { ap_type: ap_type, local: true }
+      attrs = { ap_type: ap_type, local: true, enabled: true }
       @actor = model.build_activity_pub_actor(attrs)
-    end
-
-    def build_model
-      model.custom_fields["activity_pub_enabled"] = true
     end
 
     def update_or_create_user
@@ -59,21 +55,15 @@ module DiscourseActivityPub
       return invalid_opts unless valid_actor_opts?
 
       ActiveRecord::Base.transaction do
-        if !actor
-          build_actor
-          build_model
-        end
+        build_actor if !actor
 
         if can_admin_actor?
           update_actor_from_opts
-          update_model_from_opts
         else
           update_actor_from_model
         end
 
         actor.save! if actor.new_record? || actor.changed?
-
-        model.save_custom_fields(true) if can_admin_actor?
       end
 
       model.activity_pub_publish_state if can_admin_actor?
@@ -175,7 +165,6 @@ module DiscourseActivityPub
 
     def update_actor_from_model
       username = model.activity_pub_username
-
       username = UsernameSuggester.suggest(username) if !valid_actor_username?(username)
 
       actor.username = username
@@ -184,14 +173,8 @@ module DiscourseActivityPub
 
     def update_actor_from_opts
       return unless opts.present?
-      actor.name = opts[:name] if opts[:name].present?
-      actor.username = opts[:username] if opts[:username].present?
-    end
-
-    def update_model_from_opts
-      return unless opts.present?
-      DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
-        model.custom_fields["activity_pub_#{field}"] = opts[field]
+      DiscourseActivityPubActor::SERIALIZED_FIELDS.each do |attribute|
+        actor.send("#{attribute}=", opts[attribute]) if opts[attribute].present?
       end
     end
 

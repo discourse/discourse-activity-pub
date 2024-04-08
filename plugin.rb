@@ -150,22 +150,17 @@ after_initialize do
                     source: :follows,
                     class_name: "DiscourseActivityPubActor"
 
-  register_category_custom_field_type("activity_pub_enabled", :boolean)
-  DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
-    register_category_custom_field_type("activity_pub_#{field}", :string)
-  end
-
   add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:category, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
   add_to_class(:category, :activity_pub_enabled) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_enabled"] && activity_pub_allowed?
+    DiscourseActivityPub.enabled && !!activity_pub_actor&.enabled
   end
   add_to_class(:category, :activity_pub_allowed?) { !self.read_restricted }
   add_to_class(:category, :activity_pub_ready?) do
-    activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted?
+    activity_pub_enabled && activity_pub_allowed?
   end
-  add_to_class(:category, :activity_pub_username) { custom_fields["activity_pub_username"] }
-  add_to_class(:category, :activity_pub_name) { custom_fields["activity_pub_name"] }
+  add_to_class(:category, :activity_pub_username) { activity_pub_actor.username }
+  add_to_class(:category, :activity_pub_name) { activity_pub_actor.name }
   add_to_class(:category, :activity_pub_publish_state) do
     message = {
       model: {
@@ -181,18 +176,18 @@ after_initialize do
     if activity_pub_full_topic
       "public"
     else
-      custom_fields["activity_pub_default_visibility"] ||
+      activity_pub_actor.default_visibility ||
         DiscourseActivityPubActivity.default_visibility
     end
   end
   add_to_class(:category, :activity_pub_post_object_type) do
-    custom_fields["activity_pub_post_object_type"]
+    activity_pub_actor&.post_object_type
   end
   add_to_class(:category, :activity_pub_default_object_type) do
     DiscourseActivityPub::AP::Actor::Group.type
   end
   add_to_class(:category, :activity_pub_publication_type) do
-    custom_fields["activity_pub_publication_type"] || "first_post"
+    activity_pub_actor&.publication_type || "first_post"
   end
   add_to_class(:category, :activity_pub_first_post) do
     activity_pub_publication_type === "first_post"
@@ -207,18 +202,22 @@ after_initialize do
 
   on(:site_setting_changed) do |name, old_val, new_val|
     if %i[activity_pub_enabled login_required].include?(name)
-      Category
-        .joins(
-          "LEFT JOIN category_custom_fields ON categories.id = category_custom_fields.category_id",
-        )
-        .where(
-          "category_custom_fields.name = 'activity_pub_enabled' AND category_custom_fields.value IS NOT NULL",
-        )
-        .each(&:activity_pub_publish_state)
+      DiscourseActivityPubActor
+        .where(model_type: DiscourseActivityPubActor::ADMIN_MODELS, enabled: true)
+        .each do |actor|
+          actor.model.activity_pub_publish_state
+        end
     end
   end
 
-  add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
+  DiscourseActivityPubActor::SERIALIZED_FIELDS.each do |field|
+    add_to_serializer(
+      :basic_category,
+      "activity_pub_#{field}".to_sym,
+      include_condition: -> { object.activity_pub_enabled },
+    ) { object.activity_pub_actor.send(field) }
+  end
+
   add_to_serializer(
     :site_category,
     :activity_pub_ready,
@@ -248,33 +247,9 @@ after_initialize do
     DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
   end
 
-  if respond_to?(:register_preloaded_category_custom_fields)
-    register_preloaded_category_custom_fields("activity_pub_enabled")
-    register_preloaded_category_custom_fields("activity_pub_ready")
-  else
-    # TODO: Drop the if-statement and this if-branch in Discourse v3.2
-    Site.preloaded_category_custom_fields << "activity_pub_enabled"
-    Site.preloaded_category_custom_fields << "activity_pub_ready"
-  end
-
+  CategoryList.register_included_association(:activity_pub_actor)
   register_modifier(:site_all_categories_cache_query) do |query|
     query.includes(:activity_pub_actor)
-  end
-
-  DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
-    custom_field = "activity_pub_#{field}"
-    add_to_serializer(
-      :basic_category,
-      custom_field.to_sym,
-      include_condition: -> { object.activity_pub_enabled },
-    ) { object.send(custom_field) }
-
-    if respond_to?(:register_preloaded_category_custom_fields)
-      register_preloaded_category_custom_fields(custom_field)
-    else
-      # TODO: Drop the if-statement and this if-branch in Discourse v3.2
-      Site.preloaded_category_custom_fields << custom_field
-    end
   end
 
   Topic.has_one :activity_pub_object, class_name: "DiscourseActivityPubCollection", as: :model

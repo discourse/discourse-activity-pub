@@ -6,7 +6,7 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   APPLICATION_ACTOR_ID = -1
   APPLICATION_ACTOR_USERNAME = "discourse.internal"
-  CUSTOM_FIELDS = %i[username name default_visibility publication_type post_object_type]
+  SERIALIZED_FIELDS = %i[enabled username name default_visibility publication_type post_object_type]
   ADMIN_MODELS = %w[Category]
 
   belongs_to :model, polymorphic: true, optional: true
@@ -168,17 +168,17 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def enable!
-    model.custom_fields["activity_pub_enabled"] = true
+    self.enabled = true
     save_model_changes
   end
 
   def disable!
-    model.custom_fields["activity_pub_enabled"] = false
+    self.enabled = false
     save_model_changes
   end
 
   def save_model_changes
-    if model.save_custom_fields(true)
+    if save!
       model.activity_pub_publish_state
       true
     else
