@@ -66,7 +66,7 @@ en:
           publishing_disabled: ActivityPub publishing is disabled by the login required site setting. Incoming activities and outgoing follows are enabled.
           plugin_disabled: The ActivityPub plugin is disabled
           category_read_restricted: ActivityPub does not work with private categories
-          model_disabled: AcivityPub is disabled for this %{model_type}
+          model_disabled: ActivityPub is disabled for this %{model_type}
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
           model_active:

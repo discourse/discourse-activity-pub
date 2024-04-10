@@ -11,6 +11,8 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import I18n from "I18n";
+import { default as SiteActors } from "../fixtures/site-actors-fixtures";
+import { cloneJSON } from "discourse-common/lib/object";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
@@ -18,17 +20,13 @@ function setSite(context, attrs = {}) {
   Site.current().setProperties({
     activity_pub_enabled: attrs.activity_pub_enabled,
     activity_pub_publishing_enabled: attrs.activity_pub_publishing_enabled,
+    activity_pub_actors: attrs.activity_pub_actors
   });
 }
 
-function setCategory(context, attrs = {}) {
+function setCategory(context) {
   const categories = context.site.categoriesList;
-  const category = categories.firstObject;
-
-  Object.keys(attrs).forEach((key) => {
-    category.set(key, attrs[key]);
-  });
-
+  const category = categories.find(c => c.id === 2);
   context.set("category", category);
 }
 
@@ -50,11 +48,9 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
+        activity_pub_actors: cloneJSON(SiteActors)
       });
-      setCategory(this, {
-        activity_pub_enabled: true,
-        activity_pub_ready: true,
-      });
+      setCategory(this);
 
       await render(template);
 
@@ -76,6 +72,7 @@ module(
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
+        activity_pub_actors: cloneJSON(SiteActors)
       });
       setCategory(this);
 
@@ -96,11 +93,20 @@ module(
     });
 
     test("with activity pub disabled on category", async function (assert) {
+      const categoryActors = cloneJSON(SiteActors.category);
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
+        activity_pub_actors: {
+          category: categoryActors.map((actor) => {
+            if (actor.model_id === 2) {
+              actor.enabled = false;
+            }
+            return actor;
+          })
+        }
       });
-      setCategory(this, { activity_pub_enabled: false });
+      setCategory(this);
 
       await render(template);
 
@@ -121,14 +127,21 @@ module(
     });
 
     test("with activity pub not ready on category", async function (assert) {
+      const categoryActors = cloneJSON(SiteActors.category);
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
+        activity_pub_actors: {
+          category: categoryActors.map((actor) => {
+            if (actor.model_id === 2) {
+              actor.enabled = true;
+              actor.ready = false;
+            }
+            return actor;
+          })
+        }
       });
-      setCategory(this, {
-        activity_pub_enabled: true,
-        activity_pub_ready: false,
-      });
+      setCategory(this);
 
       await render(template);
 
@@ -152,11 +165,9 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
+        activity_pub_actors: cloneJSON(SiteActors)
       });
-      setCategory(this, {
-        activity_pub_enabled: true,
-        activity_pub_ready: true,
-      });
+      setCategory(this);
 
       await render(template);
 
@@ -181,11 +192,9 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
+        activity_pub_actors: cloneJSON(SiteActors)
       });
-      setCategory(this, {
-        activity_pub_enabled: true,
-        activity_pub_ready: true,
-      });
+      setCategory(this);
 
       await render(template);
       await publishToMessageBus("/activity-pub", {
@@ -219,12 +228,9 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
+        activity_pub_actors: cloneJSON(SiteActors)
       });
-      setCategory(this, {
-        activity_pub_enabled: true,
-        activity_pub_ready: true,
-        activity_pub_default_visibility: "public",
-      });
+      setCategory(this);
       setComposer(this, {
         categoryId: this.category.id,
       });

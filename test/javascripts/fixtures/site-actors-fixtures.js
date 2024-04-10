@@ -7,7 +7,12 @@ export default {
       username: "cat_1",
       model_type: "Category",
       model_id: 1,
-      can_admin: false
+      can_admin: false,
+      default_visibility: 'public',
+      publication_type: 'first_post',
+      post_object_type: 'Note',
+      enabled: true,
+      ready: true
     },
     {
       id: 2,
@@ -16,7 +21,12 @@ export default {
       username: "cat_2",
       model_type: "Category",
       model_id: 2,
-      can_admin: true
+      can_admin: true,
+      default_visibility: 'public',
+      publication_type: 'first_post',
+      post_object_type: 'Note',
+      enabled: true,
+      ready: true
     },
     {
       id: 3,
@@ -25,7 +35,12 @@ export default {
       username: "sub_cat_1",
       model_type: "Category",
       model_id: 3,
-      can_admin: true
+      can_admin: true,
+      default_visibility: 'public',
+      publication_type: 'first_post',
+      post_object_type: 'Note',
+      enabled: true,
+      ready: true
     },
   ],
 };

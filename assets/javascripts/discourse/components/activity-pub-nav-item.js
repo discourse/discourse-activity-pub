@@ -3,7 +3,10 @@ import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
 import getURL from "discourse-common/lib/get-url";
 import { bind } from "discourse-common/utils/decorators";
-import { actorClientPath, actorModels } from "../models/activity-pub-actor";
+import ActivityPubActor, {
+  actorClientPath,
+  actorModels,
+} from "../models/activity-pub-actor";
 
 export default class ActivityPubNavItem extends Component {
   @service router;
@@ -26,12 +29,10 @@ export default class ActivityPubNavItem extends Component {
 
   @bind
   didChangeModel() {
-    const actors = this.site.activity_pub_actors[this.args.modelType];
-    if (!actors) {
-      return;
-    }
-
-    const actor = actors.find((a) => a.model_id === this.args.model.id);
+    const actor = ActivityPubActor.findByModel(
+      this.args.model.id,
+      this.args.modelType
+    );
     if (actor && this.canAccess(actor)) {
       this.actor = actor;
       this.visible = true;

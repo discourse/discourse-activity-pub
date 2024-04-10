@@ -5,6 +5,7 @@ import { dasherize } from "@ember/string";
 import icon from "discourse-common/helpers/d-icon";
 import { bind } from "discourse-common/utils/decorators";
 import I18n from "I18n";
+import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class ActivityPubStatus extends Component {
   @service siteSettings;
@@ -25,13 +26,16 @@ export default class ActivityPubStatus extends Component {
       : this.args.model;
 
     if (this.category) {
-      this.ready = this.category.activity_pub_ready;
-      this.enabled = this.category.activity_pub_enabled;
-      this.messageBus.subscribe("/activity-pub", this.handleMessage);
+      const actor = ActivityPubActor.findByModel(this.category.id, "category");
 
-      if (this.forComposer && !this.args.model.activity_pub_visibility) {
-        this.args.model.activity_pub_visibility =
-          this.category.activity_pub_default_visibility;
+      if (actor) {
+        this.ready = actor.ready;
+        this.enabled = actor.enabled;
+        this.messageBus.subscribe("/activity-pub", this.handleMessage);
+
+        if (this.forComposer && !this.args.model.activity_pub_visibility) {
+          this.args.model.activity_pub_visibility = actor.default_visibility;
+        }
       }
     }
   }

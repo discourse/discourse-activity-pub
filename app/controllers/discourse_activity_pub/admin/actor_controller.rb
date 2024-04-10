@@ -49,8 +49,9 @@ module DiscourseActivityPub
 
         render_serialized(
           actors,
-          DiscourseActivityPub::Admin::ActorSerializer,
+          DiscourseActivityPub::ActorSerializer,
           root: "actors",
+          include_model: true,
           meta: {
             total: total,
             load_more_url: load_more_url.to_s,
@@ -59,7 +60,7 @@ module DiscourseActivityPub
       end
 
       def show
-        render_serialized(@actor, DiscourseActivityPub::Admin::ActorSerializer, root: false)
+        render_serialized(@actor, DiscourseActivityPub::ActorSerializer, root: false, include_model: true)
       end
 
       def create
@@ -96,7 +97,11 @@ module DiscourseActivityPub
           render json:
                    success_json.merge(
                      actor:
-                       DiscourseActivityPub::Admin::ActorSerializer.new(actor, root: false).as_json,
+                       DiscourseActivityPub::ActorSerializer.new(
+                        actor,
+                        root: false,
+                        include_model: true
+                      ).as_json,
                    )
         else
           render json: failed_json.merge(errors: handler.errors.map(&:message)), status: 400

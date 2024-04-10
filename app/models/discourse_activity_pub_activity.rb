@@ -158,7 +158,7 @@ end
 #
 # Indexes
 #
-#  index_discourse_activity_pub_activities_on_ap_id  (ap_id)
+#  index_discourse_activity_pub_activities_on_ap_id  (ap_id) UNIQUE
 #
 # Foreign Keys
 #

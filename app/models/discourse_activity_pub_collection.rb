@@ -168,6 +168,6 @@ end
 #
 # Indexes
 #
-#  index_discourse_activity_pub_collections_on_ap_id  (ap_id)
+#  index_discourse_activity_pub_collections_on_ap_id  (ap_id) UNIQUE
 #  unique_activity_pub_collection_models              (model_type,model_id) UNIQUE
 #

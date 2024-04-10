@@ -2,7 +2,7 @@
 
 module DiscourseActivityPub
   class ActorSerializer < BasicActorSerializer
-    attributes :username, :local, :domain, :url, :icon_url, :followed_at, :model, :enabled
+    attributes :local, :domain, :url, :icon_url, :followed_at, :model
 
     def model
       case object.model_type
@@ -13,14 +13,6 @@ module DiscourseActivityPub
       when "Tag"
         TagSerializer.new(object.model, root: false).as_json
       end
-    end
-
-    def enabled
-      object.model.activity_pub_enabled
-    end
-
-    def include_enabled?
-      object.model.present?
     end
 
     def include_model?

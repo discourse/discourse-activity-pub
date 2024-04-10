@@ -1,4 +1,5 @@
 import CategoryChooser from "select-kit/components/category-chooser";
+import ActivityPubActor from "../models/activity-pub-actor";
 
 export default CategoryChooser.extend({
   classNames: ["activity-pub-category-chooser"],
@@ -12,10 +13,11 @@ export default CategoryChooser.extend({
       if (category.read_restricted) {
         return false;
       }
+      const actor = ActivityPubActor.findByModel(category.id, "category");
       if (this.selectKit.options.hasActor) {
-        return category.activity_pub_actor_exists;
+        return !!actor;
       } else {
-        return !category.activity_pub_actor_exists;
+        return !actor;
       }
     });
   },

@@ -216,14 +216,12 @@ after_initialize do
   add_to_serializer(:site, :activity_pub_actors) do
     DiscourseActivityPubActor
       .active
-      .each_with_object({}) do |actor, actors|
-        if actor.model.activity_pub_ready?
-          actors[actor.model_type.downcase] ||= []
-          actors[actor.model_type.downcase] << DiscourseActivityPub::BasicActorSerializer.new(
-            actor,
-            root: false,
-          ).as_json
-        end
+      .each_with_object({}) do |actor, actors| 
+        actors[actor.model_type.downcase] ||= []
+        actors[actor.model_type.downcase] << DiscourseActivityPub::BasicActorSerializer.new(
+          actor,
+          root: false,
+        ).as_json
       end
       .as_json
   end
