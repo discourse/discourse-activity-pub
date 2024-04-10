@@ -153,24 +153,29 @@ end
 #
 # Table name: discourse_activity_pub_objects
 #
-#  id            :bigint           not null, primary key
-#  ap_id         :string           not null
-#  ap_key        :string
-#  ap_type       :string           not null
-#  local         :boolean
-#  model_id      :integer
-#  model_type    :string
-#  content       :string
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  reply_to_id   :string
-#  collection_id :integer
-#  published_at  :datetime
-#  url           :string
-#  domain        :string
-#  name          :string
+#  id               :bigint           not null, primary key
+#  ap_id            :string           not null
+#  ap_key           :string
+#  ap_type          :string           not null
+#  local            :boolean
+#  model_id         :integer
+#  model_type       :string
+#  content          :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  reply_to_id      :string
+#  collection_id    :integer
+#  published_at     :datetime
+#  url              :string
+#  domain           :string
+#  name             :string
+#  audience         :string
+#  context          :string
+#  target           :string
+#  attributed_to_id :string
 #
 # Indexes
 #
 #  index_discourse_activity_pub_objects_on_ap_id  (ap_id)
+#  unique_activity_pub_object_models              (model_type,model_id) UNIQUE
 #

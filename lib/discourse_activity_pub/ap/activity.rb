@@ -3,6 +3,8 @@
 module DiscourseActivityPub
   module AP
     class Activity < Object
+      attr_writer :actor, :object
+
       def base_type
         "Activity"
       end
@@ -23,12 +25,16 @@ module DiscourseActivityPub
       def process
         return false unless process_actor_and_object
         return false unless perform_validate_activity
+        return false unless perform_transactions
 
-        perform_transactions
         forward_activity
+
+        self
       end
 
       def perform_transactions
+        performed = true
+
         ActiveRecord::Base.transaction do
           begin
             perform_activity
@@ -36,9 +42,12 @@ module DiscourseActivityPub
             respond_to_activity
           rescue DiscourseActivityPub::AP::Handlers::Error => error
             DiscourseActivityPub::Logger.error(error.message)
+            performed = false
             raise ActiveRecord::Rollback
           end
         end
+
+        performed
       end
 
       def perform_validate_activity
