@@ -1,27 +1,35 @@
 import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
-import Category from "discourse/models/category";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default DiscourseRoute.extend({
   router: service(),
+  site: service(),
 
   model(params) {
-    const categoryId = parseInt(params.category_id, 10);
-    return Category.findById(categoryId);
+    return ActivityPubActor.find(params.actor_id);
   },
 
   setupController(controller, model) {
-    controller.setProperties({ model });
+    const actor = model;
+    const props = {
+      actor,
+    };
+    if (actor.model_type === "category") {
+      props.category = this.site.categories.find(
+        (c) => c.id === actor.model_id
+      );
+    }
+    controller.setProperties(props);
   },
 
   @action
   follow(actor, followActor) {
     return ActivityPubActor.follow(actor.id, followActor.id).then((result) => {
-      this.controllerFor(
-        this.router.currentRouteName
-      ).model.actors.unshiftObject(followActor);
+      this.controllerFor(this.router.currentRouteName).actors.unshiftObject(
+        followActor
+      );
       return result;
     });
   },
@@ -30,9 +38,9 @@ export default DiscourseRoute.extend({
   unfollow(actor, followedActor) {
     return ActivityPubActor.unfollow(actor.id, followedActor.id).then(
       (result) => {
-        this.controllerFor(
-          this.router.currentRouteName
-        ).model.actors.removeObject(followedActor);
+        this.controllerFor(this.router.currentRouteName).actors.removeObject(
+          followedActor
+        );
         return result;
       }
     );

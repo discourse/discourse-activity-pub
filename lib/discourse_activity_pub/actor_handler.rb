@@ -179,7 +179,7 @@ module DiscourseActivityPub
     end
 
     def can_admin_actor?
-      DiscourseActivityPubActor::ADMIN_MODELS.include?(model_type) && opts.present?
+      DiscourseActivityPubActor::ACTIVE_MODELS.include?(model_type) && opts.present?
     end
 
     def valid_actor_username?(username)

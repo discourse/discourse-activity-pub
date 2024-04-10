@@ -1,6 +1,7 @@
 import { click, currentURL, triggerEvent, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import Category from "discourse/models/category";
+import Site from "discourse/models/site";
 import {
   acceptance,
   exists,
@@ -9,9 +10,12 @@ import {
 import I18n from "I18n";
 import { default as CategoryFollowers } from "../fixtures/category-followers-fixtures";
 import { default as CategoryFollows } from "../fixtures/category-follows-fixtures";
+import { default as SiteActors } from "../fixtures/site-actors-fixtures";
+import { default as Actors } from "../fixtures/actors-fixtures";
 
-const followersPath = "/ap/category/2/followers";
-const followsPath = "/ap/category/2/follows";
+const actorPath = `/ap/local/actor/2`;
+const followsPath = `${actorPath}/follows`;
+const followersPath = `${actorPath}/followers`;
 
 acceptance(
   "Discourse Activity Pub | Discovery without site enabled",
@@ -20,6 +24,7 @@ acceptance(
     needs.site({
       activity_pub_enabled: false,
       activity_pub_publishing_enabled: false,
+      activity_pub_actors: SiteActors
     });
 
     test("with a non-category route", async function (assert) {
@@ -65,12 +70,13 @@ acceptance(
       activity_pub_publishing_enabled: true,
     });
     needs.pretender((server, helper) => {
-      server.get(`${followersPath}.json`, () =>
-        helper.response({ followers: [] })
-      );
+      server.get(actorPath, () => helper.response(Actors[actorPath]));
+      server.get(`${followersPath}.json`, () => helper.response(CategoryFollowers[followersPath]));
     });
 
     test("with a non-category route", async function (assert) {
+      Site.current().set("activity_pub_actors", SiteActors);
+
       await visit("/latest");
 
       assert.ok(
@@ -79,8 +85,10 @@ acceptance(
       );
     });
 
-    test("with a category route without activity pub ready", async function (assert) {
+    test("with a category without an activity pub actor", async function (assert) {
       const category = Category.findById(2);
+
+      Site.current().set("activity_pub_actors", []);
 
       await visit(category.url);
 
@@ -90,43 +98,36 @@ acceptance(
       );
     });
 
-    test("with a category route with activity pub ready", async function (assert) {
+    test("with a category with an activity pub actor", async function (assert) {
       const category = Category.findById(2);
-      category.setProperties({
-        activity_pub_ready: true,
-        activity_pub_default_visibility: "public",
-        activity_pub_publication_type: "full_topic",
-        activity_pub_actor: {
-          name: "Angus",
-          handle: "angus@mastodon.pavilion.tech",
-        },
-      });
+
+      Site.current().set("activity_pub_actors", SiteActors);
 
       await visit(category.url);
 
       assert.ok(
-        exists(".activity-pub-category-route-nav.visible"),
+        exists(".activity-pub-route-nav.visible"),
         "the activitypub nav button is visible"
       );
 
-      await click(".activity-pub-category-route-nav");
+      await click(".activity-pub-route-nav");
 
       assert.ok(
-        exists(".activity-pub-category-banner"),
+        exists(".activity-pub-banner"),
         "the activitypub category banner is visible"
       );
       assert.strictEqual(
-        query(".activity-pub-category-banner-text").innerText,
+        query(".activity-pub-banner-text").innerText,
         I18n.t("discourse_activity_pub.banner.text", {
-          category_name: category.name,
+          model_name: "Cat 2",
         }),
-        "shows the right category banner text"
+        "shows the right banner text"
       );
 
       await triggerEvent(".fk-d-tooltip__trigger", "mousemove");
       assert.equal(
         query(".fk-d-tooltip").innerText,
-        I18n.t("discourse_activity_pub.banner.public_full_topic"),
+        I18n.t("discourse_activity_pub.banner.public_first_post"),
         "shows the right category banner tip"
       );
     });
@@ -140,88 +141,62 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: false,
+      activity_pub_actors: SiteActors
     });
     needs.pretender((server, helper) => {
-      server.get(`/c/feature/find_by_slug.json`, () => {
-        return helper.response(200, {
-          category: {
-            id: 2,
-            name: "feature",
-            slug: "feature",
-            can_edit: true,
-            activity_pub_ready: true,
-            activity_pub_actor: {
-              name: "Angus",
-              handle: "angus@mastodon.pavilion.tech",
-            },
-          },
-        });
-      });
-      const path = `${followsPath}.json`;
-      server.get(path, () => helper.response(CategoryFollows[path]));
+      server.get(actorPath, () => helper.response(Actors[actorPath]));
+      server.get(`${followsPath}.json`, () => helper.response({ follows: [] }));
     });
 
     test("with a category route with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.setProperties({
-        activity_pub_ready: true,
-        activity_pub_actor: {
-          name: "Angus",
-          handle: "angus@mastodon.pavilion.tech",
-        },
-      });
 
       await visit(category.url);
-      await click(".activity-pub-category-route-nav");
+      await click(".activity-pub-route-nav");
 
       assert.ok(
-        !exists(".activity-pub-category-banner"),
-        "the activitypub category banner is not visible"
+        !exists(".activity-pub-banner"),
+        "the activitypub banner is not visible"
       );
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub category followers route with publishing disabled",
+  "Discourse Activity Pub | Discovery activitypub followers route with publishing disabled",
   function (needs) {
     needs.user();
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: false,
+      activity_pub_actors: SiteActors
+    });
+    needs.pretender((server, helper) => {
+      server.get("/ap/local/actor/1", () => helper.response(Actors["/ap/local/actor/1"]));
     });
 
     test("returns 404", async function (assert) {
-      await visit(followersPath);
+      await visit("/ap/local/actor/1/followers");
       assert.strictEqual(currentURL(), "/404");
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub category followers route without followers",
+  "Discourse Activity Pub | Discovery activitypub followers route without followers",
   function (needs) {
     needs.user();
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
+      activity_pub_actors: SiteActors
     });
     needs.pretender((server, helper) => {
-      server.get(`${followersPath}.json`, () =>
-        helper.response({ followers: [] })
-      );
+      server.get(actorPath, () => helper.response(Actors[actorPath]));
+      server.get(`${followersPath}.json`, () => helper.response({ followers: [] }));
     });
 
     test("with activity pub ready", async function (assert) {
-      const category = Category.findById(2);
-      category.setProperties({
-        activity_pub_ready: true,
-        activity_pub_actor: {
-          name: "Angus",
-          handle: "angus@mastodon.pavilion.tech",
-        },
-      });
-
       await visit(followersPath);
 
       assert.ok(
@@ -238,27 +213,21 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub category followers route with followers",
+  "Discourse Activity Pub | Discovery activitypub followers route with followers",
   function (needs) {
     needs.user();
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
+      activity_pub_actors: SiteActors
     });
     needs.pretender((server, helper) => {
-      const path = `${followersPath}.json`;
-      server.get(path, () => helper.response(CategoryFollowers[path]));
+      server.get(actorPath, () => helper.response(Actors[actorPath]));
+      server.get(`${followersPath}.json`, () => helper.response(CategoryFollowers[followersPath]));
     });
 
     test("with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.setProperties({
-        activity_pub_ready: true,
-        activity_pub_actor: {
-          name: "Angus",
-          handle: "angus@mastodon.pavilion.tech",
-        },
-      });
 
       await visit(followersPath);
 
@@ -310,7 +279,7 @@ acceptance(
       assert.equal(
         query("#discourse-modal-title").innerText,
         I18n.t("discourse_activity_pub.follow.title", {
-          actor: category.activity_pub_actor.name,
+          actor: "Cat 2",
         }),
         "activitypub modal has the right title"
       );
@@ -319,33 +288,20 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub category follows route with no edit permission",
+  "Discourse Activity Pub | Discovery activitypub follows route with no create follow permission",
   function (needs) {
     needs.user();
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
+      activity_pub_actors: SiteActors
     });
     needs.pretender((server, helper) => {
-      server.get(`/c/feature/find_by_slug.json`, () => {
-        return helper.response(200, {
-          category: {
-            id: 2,
-            name: "feature",
-            slug: "feature",
-            can_edit: false,
-            activity_pub_ready: true,
-            activity_pub_actor: {
-              name: "Angus",
-              handle: "angus@mastodon.pavilion.tech",
-            },
-          },
-        });
-      });
+      server.get("/ap/local/actor/1", () => helper.response(Actors["/ap/local/actor/1"]));
     });
 
     test("returns 404", async function (assert) {
-      await visit(followsPath);
+      await visit("/ap/local/actor/1/follows");
       assert.strictEqual(currentURL(), "/404");
     });
   }
@@ -358,38 +314,15 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
+      activity_pub_actors: SiteActors
     });
     needs.pretender((server, helper) => {
-      server.get("/c/feature/spec/find_by_slug.json", () => {
-        return helper.response(200, {
-          category: {
-            id: 26,
-            name: "spec",
-            slug: "spec",
-            can_edit: true,
-            activity_pub_ready: true,
-            activity_pub_actor: {
-              name: "Angus",
-              handle: "angus@mastodon.pavilion.tech",
-            },
-          },
-        });
-      });
-      const path = "/ap/category/26/follows.json";
-      server.get(path, () => helper.response({}));
+      server.get("/ap/local/actor/3", () => helper.response(Actors["/ap/local/actor/3"]));
+      server.get(`/ap/local/actor/3/follows.json`, () => helper.response({ follows: [] }));
     });
 
     test("with activity pub ready", async function (assert) {
-      const category = Category.findById(26);
-      category.setProperties({
-        activity_pub_ready: true,
-        activity_pub_actor: {
-          name: "Angus",
-          handle: "angus@mastodon.pavilion.tech",
-        },
-      });
-
-      await visit("/ap/category/26/follows");
+      await visit("/ap/local/actor/3/follows");
 
       assert.ok(
         exists(".activity-pub-follows-container"),
@@ -406,31 +339,15 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
+      activity_pub_actors: SiteActors
     });
     needs.pretender((server, helper) => {
-      server.get(`/c/feature/find_by_slug.json`, () => {
-        return helper.response(200, {
-          category: {
-            id: 2,
-            name: "feature",
-            slug: "feature",
-            can_edit: true,
-          },
-        });
-      });
-      const path = `${followsPath}.json`;
-      server.get(path, () => helper.response(CategoryFollows[path]));
+      server.get(actorPath, () => helper.response(Actors[actorPath]));
+      server.get(`${followsPath}.json`, () => helper.response(CategoryFollows[followsPath]));
     });
 
     test("with activity pub ready", async function (assert) {
       const category = Category.findById(2);
-      category.setProperties({
-        activity_pub_ready: true,
-        activity_pub_actor: {
-          name: "Angus",
-          handle: "angus@mastodon.pavilion.tech",
-        },
-      });
 
       await visit(followsPath);
 
@@ -483,7 +400,7 @@ acceptance(
       assert.equal(
         query("#discourse-modal-title").innerText,
         I18n.t("discourse_activity_pub.actor_follow.title", {
-          actor: category.activity_pub_actor.name,
+          actor: "Cat 2",
         }),
         "activitypub actor follow modal has the right title"
       );
@@ -500,7 +417,7 @@ acceptance(
       assert.equal(
         query("#discourse-modal-title").innerText,
         I18n.t("discourse_activity_pub.actor_unfollow.modal_title", {
-          actor: category.activity_pub_actor.name,
+          actor: "Cat 2",
         }),
         "activitypub actor unfollow modal has the right title"
       );

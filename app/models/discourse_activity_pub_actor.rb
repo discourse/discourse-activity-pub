@@ -7,7 +7,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   APPLICATION_ACTOR_ID = -1
   APPLICATION_ACTOR_USERNAME = "discourse.internal"
   SERIALIZED_FIELDS = %i[enabled username name default_visibility publication_type post_object_type]
-  ADMIN_MODELS = %w[Category]
+  ACTIVE_MODELS = %w[Category Tag]
+
+  scope :active, -> { where(model_type: ACTIVE_MODELS, enabled: true) }
 
   belongs_to :model, polymorphic: true, optional: true
   belongs_to :category,
@@ -15,6 +17,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
                includes(:activity_pub_actor).where(
                  discourse_activity_pub_actors: {
                    model_type: "Category",
+                 },
+               )
+             end,
+             foreign_key: "model_id",
+             optional: true
+  belongs_to :tag,
+             -> do
+               includes(:activity_pub_actor).where(
+                 discourse_activity_pub_actors: {
+                   model_type: "Tag",
                  },
                )
              end,

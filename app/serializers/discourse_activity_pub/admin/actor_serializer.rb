@@ -2,23 +2,10 @@
 
 module DiscourseActivityPub
   class Admin::ActorSerializer < ActorSerializer
-    attributes :model_type,
-               :model_id,
-               :enabled,
-               :default_visibility,
-               :publication_type,
-               :post_object_type
+    attributes :default_visibility, :publication_type, :post_object_type
 
     def include_model?
       true
-    end
-
-    def model_type
-      object.model_type.downcase
-    end
-
-    def enabled
-      object.model.activity_pub_enabled
     end
 
     def default_visibility

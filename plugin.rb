@@ -98,7 +98,6 @@ after_initialize do
   require_relative "app/controllers/discourse_activity_pub/admin/admin_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/actor_controller"
   require_relative "app/controllers/discourse_activity_pub/post_controller"
-  require_relative "app/controllers/discourse_activity_pub/category_controller"
   require_relative "app/controllers/discourse_activity_pub/actor_controller"
   require_relative "app/serializers/discourse_activity_pub/ap/object_serializer"
   require_relative "app/serializers/discourse_activity_pub/ap/activity_serializer"
@@ -137,119 +136,96 @@ after_initialize do
   end
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
-  Category.has_one :activity_pub_actor,
-                   class_name: "DiscourseActivityPubActor",
-                   as: :model,
-                   dependent: :destroy
-  Category.has_many :activity_pub_followers,
-                    through: :activity_pub_actor,
-                    source: :followers,
-                    class_name: "DiscourseActivityPubActor"
-  Category.has_many :activity_pub_follows,
-                    through: :activity_pub_actor,
-                    source: :follows,
-                    class_name: "DiscourseActivityPubActor"
+  DiscourseActivityPubActor::ACTIVE_MODELS.each do |model_type|
+    model_type.constantize.has_one :activity_pub_actor,
+                                   class_name: "DiscourseActivityPubActor",
+                                   as: :model,
+                                   dependent: :destroy
+    model_type.constantize.has_many :activity_pub_followers,
+                                    through: :activity_pub_actor,
+                                    source: :followers,
+                                    class_name: "DiscourseActivityPubActor"
+    model_type.constantize.has_many :activity_pub_follows,
+                                    through: :activity_pub_actor,
+                                    source: :follows,
+                                    class_name: "DiscourseActivityPubActor"
 
-  add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
-  add_to_class(:category, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
-  add_to_class(:category, :activity_pub_enabled) do
-    DiscourseActivityPub.enabled && !!activity_pub_actor&.enabled
-  end
-  add_to_class(:category, :activity_pub_allowed?) { !self.read_restricted }
-  add_to_class(:category, :activity_pub_ready?) do
-    activity_pub_enabled && activity_pub_allowed?
-  end
-  add_to_class(:category, :activity_pub_username) { activity_pub_actor.username }
-  add_to_class(:category, :activity_pub_name) { activity_pub_actor.name }
-  add_to_class(:category, :activity_pub_publish_state) do
-    message = {
-      model: {
-        id: self.id,
-        type: "category",
-        ready: activity_pub_ready?,
-        enabled: activity_pub_enabled,
-      },
-    }
-    MessageBus.publish("/activity-pub", message)
-  end
-  add_to_class(:category, :activity_pub_default_visibility) do
-    if activity_pub_full_topic
-      "public"
-    else
-      activity_pub_actor.default_visibility ||
-        DiscourseActivityPubActivity.default_visibility
+    class_name = model_type.downcase.to_sym
+
+    add_to_class(class_name, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
+    add_to_class(class_name, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
+    add_to_class(class_name, :activity_pub_enabled) do
+      DiscourseActivityPub.enabled && !!activity_pub_actor&.enabled
     end
+    add_to_class(class_name, :activity_pub_allowed?) do
+      case model_type
+      when "Category"
+        !self.read_restricted
+      when "Tag"
+        true
+      end
+    end
+    add_to_class(class_name, :activity_pub_ready?) { activity_pub_enabled && activity_pub_allowed? }
+    add_to_class(class_name, :activity_pub_username) { activity_pub_actor.username }
+    add_to_class(class_name, :activity_pub_name) { activity_pub_actor.name }
+    add_to_class(class_name, :activity_pub_publish_state) do
+      message = {
+        model: {
+          id: self.id,
+          type: class_name.to_s,
+          ready: activity_pub_ready?,
+          enabled: activity_pub_enabled,
+        },
+      }
+      MessageBus.publish("/activity-pub", message)
+    end
+    add_to_class(class_name, :activity_pub_default_visibility) do
+      if activity_pub_full_topic
+        "public"
+      else
+        activity_pub_actor.default_visibility || DiscourseActivityPubActivity.default_visibility
+      end
+    end
+    add_to_class(class_name, :activity_pub_post_object_type) do
+      activity_pub_actor&.post_object_type
+    end
+    add_to_class(class_name, :activity_pub_default_object_type) do
+      DiscourseActivityPub::AP::Actor::Group.type
+    end
+    add_to_class(class_name, :activity_pub_publication_type) do
+      activity_pub_actor&.publication_type || "first_post"
+    end
+    add_to_class(class_name, :activity_pub_first_post) do
+      activity_pub_publication_type === "first_post"
+    end
+    add_to_class(class_name, :activity_pub_full_topic) do
+      activity_pub_publication_type === "full_topic"
+    end
+    add_to_class(class_name, :activity_pub_default_object_type) do
+      DiscourseActivityPub::AP::Actor::Group.type
+    end
+    add_to_class(class_name, :activity_pub_follower_count) { activity_pub_followers.count }
   end
-  add_to_class(:category, :activity_pub_post_object_type) do
-    activity_pub_actor&.post_object_type
-  end
-  add_to_class(:category, :activity_pub_default_object_type) do
-    DiscourseActivityPub::AP::Actor::Group.type
-  end
-  add_to_class(:category, :activity_pub_publication_type) do
-    activity_pub_actor&.publication_type || "first_post"
-  end
-  add_to_class(:category, :activity_pub_first_post) do
-    activity_pub_publication_type === "first_post"
-  end
-  add_to_class(:category, :activity_pub_full_topic) do
-    activity_pub_publication_type === "full_topic"
-  end
-  add_to_class(:category, :activity_pub_default_object_type) do
-    DiscourseActivityPub::AP::Actor::Group.type
-  end
-  add_to_class(:category, :activity_pub_follower_count) { activity_pub_followers.count }
 
   on(:site_setting_changed) do |name, old_val, new_val|
     if %i[activity_pub_enabled login_required].include?(name)
-      DiscourseActivityPubActor
-        .where(model_type: DiscourseActivityPubActor::ADMIN_MODELS, enabled: true)
-        .each do |actor|
-          actor.model.activity_pub_publish_state
-        end
+      DiscourseActivityPubActor.active.each { |actor| actor.model.activity_pub_publish_state }
     end
   end
 
-  DiscourseActivityPubActor::SERIALIZED_FIELDS.each do |field|
-    add_to_serializer(
-      :basic_category,
-      "activity_pub_#{field}".to_sym,
-      include_condition: -> { object.activity_pub_enabled },
-    ) { object.activity_pub_actor.send(field) }
-  end
-
-  add_to_serializer(
-    :site_category,
-    :activity_pub_ready,
-    include_condition: -> { object.activity_pub_enabled },
-  ) { object.activity_pub_ready? }
-  add_to_serializer(
-    :site_category,
-    :activity_pub_actor,
-    include_condition: -> do
-      object.activity_pub_enabled && object.respond_to?(:activity_pub_actor)
-    end,
-  ) do
-    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
-  end
-  add_to_serializer(
-    :site_category,
-    :activity_pub_actor_exists,
-    include_condition: -> { object.respond_to?(:activity_pub_actor) },
-  ) { object.activity_pub_actor.present? }
-  add_to_serializer(
-    :category,
-    :activity_pub_actor,
-    include_condition: -> do
-      object.activity_pub_enabled && object.respond_to?(:activity_pub_actor)
-    end,
-  ) do
-    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
-  end
-
-  CategoryList.register_included_association(:activity_pub_actor)
-  register_modifier(:site_all_categories_cache_query) do |query|
-    query.includes(:activity_pub_actor)
+  add_to_serializer(:site, :activity_pub_actors) do
+    DiscourseActivityPubActor
+      .active
+      .each_with_object({}) do |actor, actors|
+        if actor.model.activity_pub_ready?
+          actors[actor.model_type.downcase] ||= []
+          actors[actor.model_type.downcase] << DiscourseActivityPub::BasicActorSerializer.new(
+            actor,
+            root: false,
+          ).as_json
+        end
+      end
+      .as_json
   end
 
   Topic.has_one :activity_pub_object, class_name: "DiscourseActivityPubCollection", as: :model
@@ -557,6 +533,7 @@ after_initialize do
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
 
+  add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_class(:user, :activity_pub_ready?) { true }
   add_to_class(:user, :activity_pub_allowed?) { self.human? }
   add_to_class(:user, :activity_pub_url) { full_url }

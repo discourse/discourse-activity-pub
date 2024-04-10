@@ -1,7 +1,7 @@
 import Controller from "@ember/controller";
 import { inject as service } from "@ember/service";
 
-export default class ActivityPubCategory extends Controller {
+export default class ActivityPubActor extends Controller {
   @service composer;
   @service site;
 }

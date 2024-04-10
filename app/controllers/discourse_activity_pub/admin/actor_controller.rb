@@ -13,7 +13,7 @@ module DiscourseActivityPub
         params.require(:model_type)
 
         model_type = params[:model_type].to_s.classify
-        if DiscourseActivityPubActor::ADMIN_MODELS.exclude?(model_type)
+        if DiscourseActivityPubActor::ACTIVE_MODELS.exclude?(model_type)
           return render_error("invalid_model", 400)
         end
 
@@ -115,7 +115,7 @@ module DiscourseActivityPub
         @actor =
           DiscourseActivityPubActor.find_by(
             id: params[:actor_id],
-            model_type: DiscourseActivityPubActor::ADMIN_MODELS,
+            model_type: DiscourseActivityPubActor::ACTIVE_MODELS,
           )
         return render_error("actor_not_found", 404) unless @actor.present?
         @model = @actor.model

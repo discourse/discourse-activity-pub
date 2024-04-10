@@ -75,13 +75,13 @@ en:
           active: Active
           not_active: Not Active
           publishing_disabled: Publishing Disabled
-      category_nav:
+      discovery:
         label: Federation
-        description: Federation for %{category_name}
+        description: Federation for %{model_name}
         followers: Followers
         follows: Follows
       banner:
-        text: Follow %{category_name} on any service that supports federation
+        text: Follow %{model_name} on any service that supports federation
         responsive_text: Federated
         public_full_topic: Each post of each topic will be published publicly via ActivityPub.
         public_first_post: The first post of each topic will be published publicly via ActivityPub.

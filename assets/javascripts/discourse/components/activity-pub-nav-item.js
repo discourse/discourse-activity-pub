@@ -3,13 +3,16 @@ import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
 import getURL from "discourse-common/lib/get-url";
 import { bind } from "discourse-common/utils/decorators";
+import { actorClientPath, actorModels } from "../models/activity-pub-actor";
 
 export default class ActivityPubNavItem extends Component {
   @service router;
   @service messageBus;
   @service site;
+  @service currentUser;
 
   @tracked visible;
+  @tracked actor;
 
   @bind
   subscribe() {
@@ -22,26 +25,36 @@ export default class ActivityPubNavItem extends Component {
   }
 
   @bind
-  didChangeCategory() {
-    const category = this.args.category;
-    this.visible =
-      category?.activity_pub_ready &&
-      (this.site.activity_pub_publishing_enabled || category.can_edit);
+  didChangeModel() {
+    const actors = this.site.activity_pub_actors[this.args.modelType];
+    if (!actors) {
+      return;
+    }
+
+    const actor = actors.find((a) => a.model_id === this.args.model.id);
+    if (actor && this.canAccess(actor)) {
+      this.actor = actor;
+      this.visible = true;
+    }
+  }
+
+  canAccess(actor) {
+    return this.site.activity_pub_publishing_enabled || actor.can_admin;
   }
 
   @bind
   handleActivityPubMessage(data) {
     if (
-      data.model.type === "category" &&
-      this.args.category &&
-      data.model.id.toString() === this.args.category.id.toString()
+      actorModels.includes(data.model.type) &&
+      this.args.model &&
+      data.model.id.toString() === this.args.model.id.toString()
     ) {
       this.visible = data.model.ready;
     }
   }
 
   get classes() {
-    let result = "activity-pub-category-route-nav";
+    let result = "activity-pub-route-nav";
     if (this.visible) {
       result += " visible";
     }
@@ -52,13 +65,16 @@ export default class ActivityPubNavItem extends Component {
   }
 
   get href() {
+    if (!this.actor) {
+      return;
+    }
     const path = this.site.activity_pub_publishing_enabled
       ? "followers"
       : "follows";
-    return getURL(`/ap/category/${this.args.category?.id}/${path}`);
+    return getURL(`${actorClientPath}/${this.actor.id}/${path}`);
   }
 
   get active() {
-    return this.router.currentRouteName.includes("activityPub.category");
+    return this.router.currentRouteName.includes(`activityPub.actor`);
   }
 }

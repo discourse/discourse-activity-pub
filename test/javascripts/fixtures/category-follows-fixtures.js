@@ -1,5 +1,5 @@
 export default {
-  "/ap/category/2/follows.json": {
+  "/ap/local/actor/2/follows": {
     actors: [
       {
         handle: "@angus_ap@test.local",
@@ -30,7 +30,7 @@ export default {
     ],
     meta: {
       total: 2,
-      load_more_url: "/ap/category/2/follows.json?page=1",
+      load_more_url: "/ap/local/actor/2/follows.json?page=1",
     },
   },
 };

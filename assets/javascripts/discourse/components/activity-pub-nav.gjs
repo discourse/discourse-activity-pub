@@ -8,7 +8,7 @@ export default class ActivityPubCategoryNav extends Component {
   @service site;
 
   get showFollows() {
-    return this.args.category.can_edit;
+    return this.args.actor.can_admin;
   }
 
   get showFollowers() {
@@ -16,7 +16,7 @@ export default class ActivityPubCategoryNav extends Component {
   }
 
   get onFollowsRoute() {
-    return this.router.currentRouteName === "activityPub.category.follows";
+    return this.router.currentRouteName === "activityPub.actor.follows";
   }
 
   get showCreateFollow() {
@@ -28,20 +28,20 @@ export default class ActivityPubCategoryNav extends Component {
       <ul class="nav nav-pills">
         {{#if this.showFollowers}}
           <NavItem
-            @route="activityPub.category.followers"
-            @label="discourse_activity_pub.category_nav.followers"
+            @route="activityPub.actor.followers"
+            @label="discourse_activity_pub.discovery.followers"
           />
         {{/if}}
         {{#if this.showFollows}}
           <NavItem
-            @route="activityPub.category.follows"
-            @label="discourse_activity_pub.category_nav.follows"
+            @route="activityPub.actor.follows"
+            @label="discourse_activity_pub.discovery.follows"
           />
         {{/if}}
       </ul>
       {{#if this.showCreateFollow}}
         <ActivityPubFollowBtn
-          @actor={{@category.activity_pub_actor}}
+          @actor={{@actor}}
           @follow={{@follow}}
           @type="actor_follow"
         />

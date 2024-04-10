@@ -1,5 +1,5 @@
 export default {
-  shouldRender(_, ctx) {
+  shouldRender(attrs, ctx) {
     return ctx.site.activity_pub_enabled;
   },
 };
