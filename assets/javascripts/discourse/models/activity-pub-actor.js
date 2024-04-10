@@ -14,16 +14,6 @@ export const actorModels = ["category"];
 export const actorAdminPath = "/admin/plugins/ap/actor";
 export const actorClientPath = "/ap/local/actor";
 
-export const newActor = {
-  id: "new",
-  default_visibility: "public",
-  post_object_type: "Note",
-  publication_type: "first_post",
-};
-export const actorModels = ["category"];
-export const actorAdminPath = "/admin/plugins/ap/actor";
-export const actorClientPath = "/ap/local/actor";
-
 const ActivityPubActor = EmberObject.extend({
   isNew: equal("id", newActor.id),
 

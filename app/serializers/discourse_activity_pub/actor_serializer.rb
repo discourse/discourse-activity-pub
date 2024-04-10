@@ -15,14 +15,6 @@ module DiscourseActivityPub
       end
     end
 
-    def enabled
-      object.model.activity_pub_enabled
-    end
-
-    def include_enabled?
-      object.model.present?
-    end
-
     def include_model?
       @options[:include_model]
     end
