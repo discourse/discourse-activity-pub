@@ -66,7 +66,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
   describe "#perform" do
     before do
       Jobs.run_immediately!
-      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+      toggle_activity_pub(category, publication_type: "full_topic")
       freeze_time
     end
 

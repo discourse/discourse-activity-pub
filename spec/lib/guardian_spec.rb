@@ -10,7 +10,7 @@ RSpec.describe Guardian do
   describe "can_edit?" do
     describe "a Post" do
       context "with activity pub enabled" do
-        before { toggle_activity_pub(category, callbacks: true) }
+        before { toggle_activity_pub(category) }
 
         context "with a remote Note" do
           fab!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: false) }
@@ -72,7 +72,7 @@ RSpec.describe Guardian do
         end
 
         context "with activity pub enabled" do
-          before { toggle_activity_pub(category, callbacks: true) }
+          before { toggle_activity_pub(category) }
 
           it "returns false for all users" do
             expect(Guardian.new(admin, request).can_change_post_owner?).to be_falsey

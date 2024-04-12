@@ -6,6 +6,7 @@ import ActivityPubActor from "../models/activity-pub-actor";
 export default DiscourseRoute.extend({
   router: service(),
   site: service(),
+  store: service(),
 
   model(params) {
     return ActivityPubActor.find(params.actor_id);
@@ -15,11 +16,22 @@ export default DiscourseRoute.extend({
     const actor = model;
     const props = {
       actor,
+      category: null,
+      tag: null,
+      tags: [],
     };
     if (actor.model_type === "category") {
       props.category = this.site.categories.find(
         (c) => c.id === actor.model_id
       );
+    }
+    if (actor.model_type === "tag") {
+      const tag = this.store.createRecord("tag", {
+        id: actor.model_name,
+      });
+      props.tag = tag;
+      props.tags = [tag.id];
+      props.canCreateTopicOnTag = !actor.model.staff || this.currentUser?.staff;
     }
     controller.setProperties(props);
   },

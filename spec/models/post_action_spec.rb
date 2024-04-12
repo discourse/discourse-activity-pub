@@ -46,7 +46,7 @@ RSpec.describe PostAction do
 
     context "with first_post enabled on the category" do
       before do
-        toggle_activity_pub(category, callbacks: true)
+        toggle_activity_pub(category)
         post_action.reload
       end
 
@@ -57,7 +57,7 @@ RSpec.describe PostAction do
     end
 
     context "with full_topic enabled on the category" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+      before { toggle_activity_pub(category, publication_type: "full_topic") }
 
       context "with like" do
         def perform_like

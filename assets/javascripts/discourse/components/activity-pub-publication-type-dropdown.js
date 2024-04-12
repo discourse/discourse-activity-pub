@@ -14,7 +14,10 @@ export default ComboBoxComponent.extend({
           "discourse_activity_pub.publication_type.label.first_post"
         ),
         title: I18n.t(
-          "discourse_activity_pub.publication_type.description.first_post"
+          "discourse_activity_pub.publication_type.description.first_post",
+          {
+            model_type: this.modelType,
+          }
         ),
       },
       {
@@ -23,7 +26,10 @@ export default ComboBoxComponent.extend({
           "discourse_activity_pub.publication_type.label.full_topic"
         ),
         title: I18n.t(
-          "discourse_activity_pub.publication_type.description.full_topic"
+          "discourse_activity_pub.publication_type.description.full_topic",
+          {
+            model_type: this.modelType,
+          }
         ),
       },
     ];

@@ -2,7 +2,7 @@ import ActivityPubActor from "../../models/activity-pub-actor";
 
 function showStatus(attrs, component) {
   const actor = ActivityPubActor.findByModel(
-    attrs.model.get("category.id"),
+    attrs.model.get("category"),
     "category"
   );
   return (

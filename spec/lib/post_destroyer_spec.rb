@@ -11,7 +11,7 @@ RSpec.describe PostDestroyer do
     Fabricate(:discourse_activity_pub_activity_create, object: note, published_at: Time.now)
   end
 
-  before { toggle_activity_pub(category, callbacks: true) }
+  before { toggle_activity_pub(category) }
 
   def perform_destroy(post)
     PostDestroyer.new(user, post).destroy

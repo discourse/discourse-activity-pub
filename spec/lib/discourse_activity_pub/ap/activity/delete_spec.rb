@@ -10,7 +10,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
   describe "#process" do
     before do
-      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+      toggle_activity_pub(category, publication_type: "full_topic")
       topic.create_activity_pub_collection!
     end
 

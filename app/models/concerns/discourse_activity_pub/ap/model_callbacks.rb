@@ -15,14 +15,15 @@ module DiscourseActivityPub
         return nil unless DiscourseActivityPub.publishing_enabled
 
         @performing_activity = DiscourseActivityPub::AP::Object.from_type(activity_type)
-        @target_activity =
-          DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
-        return unless valid_activity_pub_activity?
 
         if self.respond_to?(:before_perform_activity_pub_activity)
           @performing_activity = before_perform_activity_pub_activity(performing_activity)
           return true unless performing_activity
         end
+
+        @target_activity =
+          DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
+        return unless valid_activity_pub_activity?
 
         @performing_activity_object = get_performing_activity_object
         return unless performing_activity_object

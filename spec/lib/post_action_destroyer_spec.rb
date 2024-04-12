@@ -37,7 +37,7 @@ RSpec.describe PostActionDestroyer do
   describe "destroy" do
     context "with a full_topic activity pub post" do
       before do
-        toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+        toggle_activity_pub(category, publication_type: "full_topic")
         post.topic.create_activity_pub_collection!
       end
 
@@ -71,7 +71,7 @@ RSpec.describe PostActionDestroyer do
     end
 
     context "with a first_post activity pub post" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "first_post") }
+      before { toggle_activity_pub(category, publication_type: "first_post") }
 
       it "does not call any callbacks" do
         PostAction.any_instance.expects(:perform_activity_pub_activity).never

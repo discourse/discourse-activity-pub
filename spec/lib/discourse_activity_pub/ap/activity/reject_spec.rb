@@ -7,7 +7,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Reject do
 
   describe "#process" do
     context "with activity pub enabled" do
-      before { toggle_activity_pub(category, callbacks: true) }
+      before { toggle_activity_pub(category) }
 
       context "with a followed actor" do
         let!(:followed_actor_id) { "https://mastodon.pavilion.tech/users/angus" }

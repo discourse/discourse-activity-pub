@@ -30,7 +30,7 @@ export default class ActivityPubNavItem extends Component {
   @bind
   didChangeModel() {
     const actor = ActivityPubActor.findByModel(
-      this.args.model.id,
+      this.args.model,
       this.args.modelType
     );
     if (actor && this.canAccess(actor)) {

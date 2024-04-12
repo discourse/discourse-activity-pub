@@ -21,8 +21,8 @@ RSpec.describe CategoriesController do
             end
 
           SiteSetting.activity_pub_enabled = true
-          toggle_activity_pub(category1, callbacks: true)
-          toggle_activity_pub(category2, callbacks: true)
+          toggle_activity_pub(category1)
+          toggle_activity_pub(category2)
 
           enabled_queries =
             track_sql_queries do

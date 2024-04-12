@@ -36,7 +36,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     before { SiteSetting.activity_pub_enabled = true }
 
     context "with model activity pub enabled" do
-      before { toggle_activity_pub(category, callbacks: true) }
+      before { toggle_activity_pub(category) }
 
       context "with login required" do
         before { SiteSetting.login_required = true }
@@ -60,7 +60,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
 
   context "with model activity pub enabled" do
     before do
-      toggle_activity_pub(category, callbacks: true)
+      toggle_activity_pub(category)
       activity.object.model.topic.create_activity_pub_collection!
       freeze_time
     end

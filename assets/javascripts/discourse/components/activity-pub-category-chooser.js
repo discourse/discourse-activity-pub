@@ -13,7 +13,7 @@ export default CategoryChooser.extend({
       if (category.read_restricted) {
         return false;
       }
-      const actor = ActivityPubActor.findByModel(category.id, "category");
+      const actor = ActivityPubActor.findByModel(category, "category");
       if (this.selectKit.options.hasActor) {
         return !!actor;
       } else {

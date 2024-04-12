@@ -8,8 +8,8 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import I18n from "I18n";
-import { default as CategoryFollowers } from "../fixtures/category-followers-fixtures";
-import { default as CategoryFollows } from "../fixtures/category-follows-fixtures";
+import { default as Followers } from "../fixtures/followers-fixtures";
+import { default as Follows } from "../fixtures/follows-fixtures";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 import { default as Actors } from "../fixtures/actors-fixtures";
 
@@ -71,7 +71,7 @@ acceptance(
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followersPath}.json`, () => helper.response(CategoryFollowers[followersPath]));
+      server.get(`${followersPath}.json`, () => helper.response(Followers[followersPath]));
     });
 
     test("with a non-category route", async function (assert) {
@@ -223,7 +223,7 @@ acceptance(
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followersPath}.json`, () => helper.response(CategoryFollowers[followersPath]));
+      server.get(`${followersPath}.json`, () => helper.response(Followers[followersPath]));
     });
 
     test("with activity pub ready", async function (assert) {
@@ -343,7 +343,7 @@ acceptance(
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followsPath}.json`, () => helper.response(CategoryFollows[followsPath]));
+      server.get(`${followsPath}.json`, () => helper.response(Follows[followsPath]));
     });
 
     test("with activity pub ready", async function (assert) {

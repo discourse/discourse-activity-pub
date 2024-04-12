@@ -38,7 +38,7 @@ RSpec.describe DiscourseActivityPub::PostController do
         context "with a valid post id" do
           context "with a first_post activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
+              toggle_activity_pub(category, publication_type: "first_post")
             end
 
             context "with the first post" do
@@ -113,7 +113,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
           context "with a full_topic activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+              toggle_activity_pub(category, publication_type: "full_topic")
             end
 
             it "returns a first post not enabled error" do
@@ -167,7 +167,7 @@ RSpec.describe DiscourseActivityPub::PostController do
         context "with a valid post id" do
           context "with a first_post activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
+              toggle_activity_pub(category, publication_type: "first_post")
             end
 
             context "with the first post" do
@@ -242,7 +242,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
           context "with a full_topic activity pub category" do
             before do
-              toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+              toggle_activity_pub(category, publication_type: "full_topic")
               topic.create_activity_pub_collection!
             end
 

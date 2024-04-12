@@ -8,7 +8,7 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
     Fabricate(:discourse_activity_pub_actor_person, model: post.user, local: true)
   end
 
-  before { toggle_activity_pub(category, callbacks: true) }
+  before { toggle_activity_pub(category) }
 
   context "with link to forum enabled" do
     before { SiteSetting.activity_pub_note_link_to_forum = true }
@@ -39,7 +39,7 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
 
   context "with full_topic enabled" do
     before do
-      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+      toggle_activity_pub(category, publication_type: "full_topic")
       post.topic.create_activity_pub_collection!
     end
 

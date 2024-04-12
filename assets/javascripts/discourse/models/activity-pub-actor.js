@@ -41,6 +41,7 @@ const ActivityPubActor = EmberObject.extend({
         enabled: this.enabled,
         model_id: this.model_id,
         model_type: this.model_type,
+        model_name: this.model_name,
         username: this.username,
         name: this.name,
         default_visibility: this.default_visibility,
@@ -81,7 +82,7 @@ ActivityPubActor.reopenClass({
       .catch(popupAjaxError);
   },
 
-  findByModel(modelId, modelType) {
+  findByModel(model, modelType) {
     const siteActors = Site.currentProp("activity_pub_actors");
     if (!siteActors) {
       return;
@@ -90,7 +91,17 @@ ActivityPubActor.reopenClass({
     if (!typeActors) {
       return;
     }
-    return typeActors.find((a) => a.model_id === modelId);
+    return typeActors.find((a) => {
+      if (modelType === "tag") {
+        if (typeof model === "string") {
+          return a.model_name === model;
+        } else {
+          return [model.id, model.name].includes(a.model_name);
+        }
+      } else if (typeof model === "object" && model !== null) {
+        return a.model_id === model.id;
+      }
+    });
   },
 
   follow(actorId, targetActorId) {

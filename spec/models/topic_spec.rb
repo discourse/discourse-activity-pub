@@ -32,7 +32,7 @@ RSpec.describe Topic do
   let!(:activity3) { Fabricate(:discourse_activity_pub_activity_create, object: note3) }
 
   describe "move_posts" do
-    before { toggle_activity_pub(category1, callbacks: true, publication_type: "full_topic") }
+    before { toggle_activity_pub(category1, publication_type: "full_topic") }
 
     context "with an ap full_topic topic to a new ap full_topic topic" do
       before do

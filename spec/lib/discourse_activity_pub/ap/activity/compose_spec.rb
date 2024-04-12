@@ -31,7 +31,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
     context "with full topic enabled" do
       before do
-        toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+        toggle_activity_pub(category, publication_type: "full_topic")
         topic.create_activity_pub_collection!
       end
 
@@ -73,7 +73,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
     context "with full topic disabled" do
       before do
         setup_logging
-        toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
+        toggle_activity_pub(category, publication_type: "first_post")
         process_json(activity_json)
       end
       after { teardown_logging }

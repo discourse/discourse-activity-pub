@@ -3,27 +3,26 @@
 RSpec.configure { |config| config.include DiscourseActivityPub::JsonLd }
 
 def toggle_activity_pub(
-  category,
-  callbacks: false,
+  model,
   disable: false,
   username: nil,
   publication_type: nil
 )
-  category.reload
+  model.reload
 
-  if !category.activity_pub_actor
+  if !model.activity_pub_actor
     attrs = { ap_type: DiscourseActivityPub::AP::Actor::Group.type, local: true, enabled: true }
-    category.build_activity_pub_actor(attrs)
+    model.build_activity_pub_actor(attrs)
   end
 
-  username = username || category.slug
+  username = username || model.is_a?(Category) ? model.slug : model.name
 
-  category.activity_pub_actor.username = username
-  category.activity_pub_actor.publication_type = publication_type if publication_type
-  category.activity_pub_actor.enabled = !disable
-  category.activity_pub_actor.save!
+  model.activity_pub_actor.username = username
+  model.activity_pub_actor.publication_type = publication_type if publication_type
+  model.activity_pub_actor.enabled = !disable
+  model.activity_pub_actor.save!
 
-  category.reload
+  model.reload
 end
 
 def get_object(object, url: nil, headers: {})

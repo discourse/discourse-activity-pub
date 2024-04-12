@@ -3,7 +3,7 @@ module DiscourseActivityPub
   class ActorHandler
     include HasErrors
 
-    MODEL_TYPES = %w[User Category]
+    MODEL_TYPES = %w[User Category Tag]
 
     attr_accessor :opts
 
@@ -30,6 +30,8 @@ module DiscourseActivityPub
         when "User"
           DiscourseActivityPub::AP::Actor::Person.type
         when "Category"
+          DiscourseActivityPub::AP::Actor::Group.type
+        when "Tag"
           DiscourseActivityPub::AP::Actor::Group.type
         end
       attrs = { ap_type: ap_type, local: true, enabled: true }

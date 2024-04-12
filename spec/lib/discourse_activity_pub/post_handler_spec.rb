@@ -27,7 +27,7 @@ RSpec.describe DiscourseActivityPub::PostHandler do
 
       context "when given a category id" do
         context "when activity pub full topic is ready" do
-          before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+          before { toggle_activity_pub(category, publication_type: "full_topic") }
 
           it "creates a topic in the category" do
             post = described_class.create(user, object, category_id: category.id)

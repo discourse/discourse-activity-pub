@@ -25,7 +25,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
   describe "#process" do
     before do
       stub_stored_request(note.attributed_to)
-      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+      toggle_activity_pub(category, publication_type: "full_topic")
       topic.create_activity_pub_collection!
     end
 
@@ -120,7 +120,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       end
 
       context "with activity pub enabled" do
-        before { toggle_activity_pub(actor.model, callbacks: true) }
+        before { toggle_activity_pub(actor.model) }
 
         it "returns true" do
           expect(perform_process(json, activity_type)).to eq(true)

@@ -13,7 +13,6 @@ export default class ActivityPubStatus extends Component {
   @service messageBus;
 
   @tracked forComposer;
-  @tracked category;
   @tracked ready;
   @tracked enabled;
 
@@ -21,23 +20,40 @@ export default class ActivityPubStatus extends Component {
     super(...arguments);
 
     this.forComposer = this.args.modelType === "composer";
-    this.category = this.forComposer
-      ? this.args.model.category
-      : this.args.model;
 
-    if (this.category) {
-      const actor = ActivityPubActor.findByModel(this.category.id, "category");
+    const actor = this.findActor();
+    if (actor) {
+      this.ready = actor.ready;
+      this.enabled = actor.enabled;
+      this.messageBus.subscribe("/activity-pub", this.handleMessage);
 
-      if (actor) {
-        this.ready = actor.ready;
-        this.enabled = actor.enabled;
-        this.messageBus.subscribe("/activity-pub", this.handleMessage);
-
-        if (this.forComposer && !this.args.model.activity_pub_visibility) {
-          this.args.model.activity_pub_visibility = actor.default_visibility;
-        }
+      if (this.forComposer && !this.args.model.activity_pub_visibility) {
+        this.args.model.activity_pub_visibility = actor.default_visibility;
       }
     }
+  }
+
+  findActor() {
+    const category = this.forComposer
+      ? this.args.model.category
+      : this.args.model;
+    const tags = this.forComposer ? this.args.model.tags : [this.args.model];
+
+    let actor;
+
+    if (category) {
+      actor = ActivityPubActor.findByModel(category, "category");
+    }
+    if (!actor && tags) {
+      tags.some((tag) => {
+        if (tag) {
+          actor = ActivityPubActor.findByModel(tag, "tag");
+        }
+        return !!actor;
+      });
+    }
+
+    return actor;
   }
 
   willDestroy() {
@@ -68,7 +84,6 @@ export default class ActivityPubStatus extends Component {
       model_type: this.args.modelType,
     };
     if (this.active) {
-      args.category_name = this.category.name;
       args.delay_minutes =
         this.siteSettings.activity_pub_delivery_delay_minutes;
     }

@@ -5,7 +5,7 @@ import DTooltip from "float-kit/components/d-tooltip";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 import ActivityPubHandle from "./activity-pub-handle";
 
-export default class ActivityPubCategoryBanner extends Component {
+export default class ActivityPubBanner extends Component {
   @service site;
 
   get bannerDescription() {
@@ -29,9 +29,7 @@ export default class ActivityPubCategoryBanner extends Component {
   <template>
     <div class="activity-pub-banner">
       {{#if @actor}}
-        <div
-          class="activity-pub-banner-left activity-pub-banner-side"
-        >
+        <div class="activity-pub-banner-left activity-pub-banner-side">
           <DTooltip
             @icon="discourse-activity-pub"
             @content={{this.bannerDescription}}
@@ -41,16 +39,11 @@ export default class ActivityPubCategoryBanner extends Component {
             <span class="responsive">{{this.responsiveText}}</span>
           </div>
         </div>
-        <div
-          class="activity-pub-banner-right activity-pub-banner-side"
-        >
+        <div class="activity-pub-banner-right activity-pub-banner-side">
           {{#unless this.site.mobileView}}
             <ActivityPubHandle @actor={{@actor}} />
           {{/unless}}
-          <ActivityPubFollowBtn
-            @actor={{@actor}}
-            @type="follow"
-          />
+          <ActivityPubFollowBtn @actor={{@actor}} @type="follow" />
         </div>
       {{/if}}
     </div>

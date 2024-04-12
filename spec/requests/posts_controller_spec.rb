@@ -9,7 +9,7 @@ RSpec.describe PostsController do
       context "with a ready ActivityPub category" do
         fab!(:category)
 
-        before { toggle_activity_pub(category, callbacks: true) }
+        before { toggle_activity_pub(category) }
 
         context "when passed activity_pub_visibility params" do
           let!(:params) do

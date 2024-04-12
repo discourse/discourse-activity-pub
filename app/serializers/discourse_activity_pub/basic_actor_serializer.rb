@@ -8,6 +8,7 @@ module DiscourseActivityPub
                :username,
                :model_id,
                :model_type,
+               :model_name,
                :can_admin,
                :default_visibility,
                :publication_type,
@@ -17,6 +18,14 @@ module DiscourseActivityPub
 
     def model_type
       object.model_type&.downcase
+    end
+
+    def model_name
+      object.model.name
+    end
+
+    def include_model_name?
+      object.model_type === 'Tag'
     end
 
     def can_admin

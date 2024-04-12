@@ -11,7 +11,9 @@ import ActivityPubActor from "../models/activity-pub-actor";
 export default class AdminPluginsActivityPubActorShow extends Controller {
   @service dialog;
   @service router;
+  @service site;
   @tracked categoryId = null;
+  @tracked tag = null;
   @tracked showForm = false;
   @tracked enabled = this.actor.enabled;
   @tracked saving = false;
@@ -20,6 +22,10 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     {
       id: "category",
       label: I18n.t("admin.discourse_activity_pub.actor.model_type.category"),
+    },
+    {
+      id: "tag",
+      label: I18n.t("admin.discourse_activity_pub.actor.model_type.tag"),
     },
   ];
 
@@ -96,6 +102,16 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
       this.actor.model = Category.findById(categoryId);
       this.actor.model_type = "Category";
       this.actor.model_id = categoryId;
+      this.showForm = true;
+    }
+  }
+
+  @action
+  changeTag(tag) {
+    if (tag) {
+      this.tag = tag;
+      this.actor.model_type = "Tag";
+      this.actor.model_name = tag;
       this.showForm = true;
     }
   }

@@ -20,7 +20,10 @@ module DiscourseActivityPub
         actors = DiscourseActivityPubActor.where(model_type: model_type, local: true)
 
         if model_type == "Category"
-          actors = actors.joins(:category).includes(category: :_custom_fields)
+          actors = actors.joins(:category)
+        end
+        if model_type == "Tag"
+          actors = actors.joins(:tag)
         end
 
         offset = params[:offset].to_i || 0
@@ -37,6 +40,8 @@ module DiscourseActivityPub
             case model_type.downcase
             when "category"
               "categories.name"
+            when "tag"
+              "tags.name"
             end
           else
             "discourse_activity_pub_actors.created_at"
@@ -91,6 +96,8 @@ module DiscourseActivityPub
 
       def update_or_create
         handler = ActorHandler.new(model: @model)
+
+        actor_params[:model_id] = @model.id if actor_params[:model_type] === Tag
         actor = handler.update_or_create_actor(actor_params)
 
         if handler.success?
@@ -109,7 +116,9 @@ module DiscourseActivityPub
       end
 
       def validate_actor_params
-        return render_error("username_required", 400) if actor_params[:username].blank?
+        if actor_params[:username].blank? && action_name === "create"
+          return render_error("username_required", 400)
+        end
         if actor_params[:publication_type] == "full_topic" &&
              actor_params[:default_visibility] == "private"
           render_error("full_topic_must_be_public", 400)
@@ -127,7 +136,7 @@ module DiscourseActivityPub
       end
 
       def find_model
-        if actor_params[:model_id].blank? || actor_params[:model_type].blank?
+        if (actor_params[:model_id].blank? && actor_params[:model_name].blank?) || actor_params[:model_type].blank?
           return render_error("invalid_model", 400)
         end
 
@@ -136,13 +145,17 @@ module DiscourseActivityPub
           return render_error("invalid_model", 400)
         end
 
-        @model = model_type.constantize.find_by(id: actor_params[:model_id])
+        if model_type === "Tag"
+          @model = model_type.constantize.find_by(name: actor_params[:model_name])
+        else
+          @model = model_type.constantize.find_by(id: actor_params[:model_id])
+        end
 
         render_error("model_not_found", 404) if @model.blank?
       end
 
       def render_error(key, status)
-        render json: failed_json.merge(errors: I18n.t("discourse_activity_pub.actor.error.#{key}")),
+        render json: failed_json.merge(errors: [I18n.t("discourse_activity_pub.actor.error.#{key}")]),
                status: status
       end
 
@@ -150,6 +163,7 @@ module DiscourseActivityPub
         params.require(:actor).permit(
           :model_id,
           :model_type,
+          :model_name,
           *DiscourseActivityPubActor::SERIALIZED_FIELDS,
         )
       end

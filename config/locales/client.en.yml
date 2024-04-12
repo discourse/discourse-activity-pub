@@ -54,9 +54,14 @@ en:
             label: Categories
             title: Category Actors
             none: Select a category
+          tag:
+            label: Tags
+            title: Tag Actors
+            none: Select a tag
           model_type:
             none: Select a model
             category: Category
+            tag: Tag
         log:
           label: Logs
   js:   
@@ -70,7 +75,7 @@ en:
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
           model_active:
-            first_post: The first post of a new topic in %{category_name} will be published %{delay_minutes} minutes after being posted
+            first_post: The first post of a new topic will be published %{delay_minutes} minutes after being posted
         label:
           active: Active
           not_active: Not Active
@@ -151,8 +156,8 @@ en:
           first_post: First Post
           full_topic: Full Topic
         description:
-          first_post: First post of every topic in this category is published via ActivityPub.
-          full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
+          first_post: First post of every topic in this %{model_type} is published via ActivityPub.
+          full_topic: Every post of every topic in this %{model_type} is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
 
     post:
       discourse_activity_pub:

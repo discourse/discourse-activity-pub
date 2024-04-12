@@ -3,7 +3,7 @@ import { inject as service } from "@ember/service";
 import NavItem from "discourse/components/nav-item";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 
-export default class ActivityPubCategoryNav extends Component {
+export default class ActivityPubNav extends Component {
   @service router;
   @service site;
 
@@ -24,7 +24,7 @@ export default class ActivityPubCategoryNav extends Component {
   }
 
   <template>
-    <div class="activity-pub-category-nav">
+    <div class="activity-pub-nav">
       <ul class="nav nav-pills">
         {{#if this.showFollowers}}
           <NavItem
