@@ -537,3 +537,12 @@ body.user-preferences-activity-pub-page {
   align-items: center;
   gap: 1em;
 }
+
+.select-kit.combo-box.activity-pub-tag-chooser,
+.select-kit.combo-box.activity-pub-category-chooser {
+  width: 300px;
+
+  .select-kit-header {
+    color: var(--primary-high);
+  }
+}

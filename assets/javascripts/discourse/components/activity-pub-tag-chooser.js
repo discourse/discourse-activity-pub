@@ -1,5 +1,10 @@
 import { computed } from "@ember/object";
-import TagDrop from "select-kit/components/tag-drop";
+import I18n from "I18n";
+import TagDrop, {
+  ALL_TAGS_ID,
+  NO_TAG_ID,
+  NONE_TAG,
+} from "select-kit/components/tag-drop";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default TagDrop.extend({
@@ -25,6 +30,20 @@ export default TagDrop.extend({
 
   search(filter) {
     return this.activityPubFilter(this._super(filter));
+  },
+
+  modifyNoSelection() {
+    if (this.tagId === NONE_TAG) {
+      return this.defaultItem(
+        NO_TAG_ID,
+        I18n.t("admin.discourse_activity_pub.actor.tag.none")
+      );
+    } else {
+      return this.defaultItem(
+        ALL_TAGS_ID,
+        I18n.t("admin.discourse_activity_pub.actor.tag.none")
+      );
+    }
   },
 
   actions: {
