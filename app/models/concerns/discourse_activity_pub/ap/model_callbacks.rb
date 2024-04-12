@@ -138,12 +138,33 @@ module DiscourseActivityPub
           return
         end
 
-        DiscourseActivityPub::DeliveryHandler.perform(
-          actor: activity_pub_delivery_actor,
-          object: activity_pub_delivery_object,
-          recipient_ids: activity_pub_delivery_recipient_ids,
-          delay: activity_pub_delivery_delay,
-        )
+        deliveries = []
+        all_recipient_ids = []
+        object = activity_pub_delivery_object
+        delay = activity_pub_delivery_delay
+
+        activity_pub_delivery_actors.each do |actor|
+          recipient_ids =
+            activity_pub_delivery_recipient_ids(actor).select do |recipient_id|
+              all_recipient_ids.exclude?(recipient_id)
+            end
+          all_recipient_ids += recipient_ids
+          deliveries << OpenStruct.new(
+            actor: actor,
+            object: object,
+            recipient_ids: recipient_ids,
+            delay: delay,
+          )
+        end
+
+        deliveries.each do |delivery|
+          DiscourseActivityPub::DeliveryHandler.perform(
+            actor: delivery.actor,
+            object: delivery.object,
+            recipient_ids: delivery.recipient_ids,
+            delay: delivery.delay,
+          )
+        end
       end
 
       def perform_activity_pub_activity_cleanup
@@ -152,24 +173,21 @@ module DiscourseActivityPub
         @performing_activity_actor = nil
       end
 
-      def activity_pub_delivery_recipient_ids
-        @activity_pub_delivery_recipient_ids ||=
-          begin
-            actor_ids = activity_pub_group_actor.reload.followers.map(&:id)
+      def activity_pub_delivery_recipient_ids(actor)
+        actor_ids = actor.reload.followers.map(&:id)
 
-            if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
-              activity_pub_collection
-                .contributors(local: false)
-                .each do |contributor|
-                  if actor_ids.exclude?(contributor.id) &&
-                       contributor.id != performing_activity_actor.id
-                    actor_ids << contributor.id
-                  end
-                end
+        if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
+          activity_pub_collection
+            .contributors(local: false)
+            .each do |contributor|
+              if actor_ids.exclude?(contributor.id) &&
+                   contributor.id != performing_activity_actor.id
+                actor_ids << contributor.id
+              end
             end
+        end
 
-            actor_ids
-          end
+        actor_ids
       end
 
       def activity_pub_schedule?
@@ -177,11 +195,11 @@ module DiscourseActivityPub
           (!activity_pub_is_first_post? || !performing_activity.create?)
       end
 
-      def activity_pub_delivery_actor
+      def activity_pub_delivery_actors
         if performing_activity.create?
-          activity_pub_group_actor
+          activity_pub_group_actors
         else
-          performing_activity_actor
+          [performing_activity_actor]
         end
       end
 

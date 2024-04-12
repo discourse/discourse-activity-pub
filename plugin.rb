@@ -232,10 +232,11 @@ after_initialize do
   Topic.has_one :activity_pub_object, class_name: "DiscourseActivityPubCollection", as: :model
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
+  add_to_class(:topic, :activity_pub_taxonomies) do
+    [*tags, category].select { |t| t.activity_pub_actor.present? }
+  end
   add_to_class(:topic, :activity_pub_taxonomy) do
-    tag = tags.find{ |t| t&.activity_pub_ready? }
-    return tag if tag
-    category
+    activity_pub_taxonomies.first
   end
   add_to_class(:topic, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && activity_pub_taxonomy&.activity_pub_ready?
@@ -421,9 +422,9 @@ after_initialize do
   add_to_class(:post, :activity_pub_first_post_scheduled_at) do
     activity_pub_topic.first_post&.activity_pub_scheduled_at
   end
-  add_to_class(:post, :activity_pub_group_actor) do
-    return @destroyed_post_activity_pub_group_actor if !@destroyed_post_activity_pub_group_actor.nil?
-    activity_pub_topic.activity_pub_actor
+  add_to_class(:post, :activity_pub_group_actors) do
+    return @destroyed_post_activity_pub_group_actors if !@destroyed_post_activity_pub_group_actors.nil?
+    activity_pub_topic.activity_pub_taxonomies.map { |t| t.activity_pub_actor }
   end
   add_to_class(:post, :activity_pub_collection) { activity_pub_topic.activity_pub_object }
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
@@ -486,7 +487,7 @@ after_initialize do
     @destroyed_post_activity_pub_enabled = self.activity_pub_enabled
     @destroyed_post_activity_pub_actor = self.activity_pub_actor
     @destroyed_post_activity_pub_visibility = self.activity_pub_visibility
-    @destroyed_post_activity_pub_group_actor = self.activity_pub_group_actor
+    @destroyed_post_activity_pub_group_actors = self.activity_pub_group_actors
     @destroyed_post_activity_pub_full_topic = self.activity_pub_full_topic
     @destroyed_post_activity_pub_first_post = self.activity_pub_first_post
   end
@@ -552,7 +553,7 @@ after_initialize do
   add_to_class(:post_action, :activity_pub_published?) { nil }
   add_to_class(:post_action, :activity_pub_visibility) { "public" }
   add_to_class(:post_action, :activity_pub_actor) { user.activity_pub_actor }
-  add_to_class(:post_action, :activity_pub_group_actor) { post.activity_pub_group_actor }
+  add_to_class(:post_action, :activity_pub_group_actors) { post.activity_pub_group_actors }
   add_to_class(:post_action, :activity_pub_object) { post.activity_pub_object }
   add_to_class(:post_action, :activity_pub_full_topic) { post.activity_pub_full_topic }
   add_to_class(:post_action, :activity_pub_first_post) { post.activity_pub_first_post }

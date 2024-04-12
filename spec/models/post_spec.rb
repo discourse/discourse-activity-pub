@@ -1366,6 +1366,124 @@ RSpec.describe Post do
       end
     end
 
+    context "with first_post enabled on the tag and the category" do
+      before do
+        toggle_activity_pub(tag)
+        toggle_activity_pub(category)
+        post.reload
+      end
+
+      context "with create" do
+        def perform_create
+          post.perform_activity_pub_activity(:create)
+          post.reload
+        end
+
+        context "when the tag and category have different followers" do
+          let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+          let!(:follow1) do
+            Fabricate(
+              :discourse_activity_pub_follow,
+              follower: follower1,
+              followed: tag.activity_pub_actor,
+            )
+          end
+          let!(:follower2) { Fabricate(:discourse_activity_pub_actor_person) }
+          let!(:follow2) do
+            Fabricate(
+              :discourse_activity_pub_follow,
+              follower: follower2,
+              followed: category.activity_pub_actor,
+            )
+          end
+
+          it "enqueues deliveries to both the tag and category's followers" do
+            freeze_time
+            perform_create
+            activity = tag.activity_pub_actor.activities.find_by(ap_type: "Create")
+            delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+            job1_args = {
+              object_id: activity.id,
+              object_type: "DiscourseActivityPubActivity",
+              from_actor_id: tag.activity_pub_actor.id,
+              send_to: follower1.inbox,
+            }
+            job2_args = {
+              object_id: activity.id,
+              object_type: "DiscourseActivityPubActivity",
+              from_actor_id: category.activity_pub_actor.id,
+              send_to: follower2.inbox,
+            }
+            expect(
+              job_enqueued?(
+                job: :discourse_activity_pub_deliver,
+                args: job1_args,
+                at: delay.minutes.from_now,
+              ),
+            ).to eq(true)
+            expect(
+              job_enqueued?(
+                job: :discourse_activity_pub_deliver,
+                args: job2_args,
+                at: delay.minutes.from_now,
+              ),
+            ).to eq(true)
+          end
+        end
+
+        context "when an actor is following both the tag and the category" do
+          let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+          let!(:follow1) do
+            Fabricate(
+              :discourse_activity_pub_follow,
+              follower: follower1,
+              followed: tag.activity_pub_actor,
+            )
+          end
+          let!(:follow2) do
+            Fabricate(
+              :discourse_activity_pub_follow,
+              follower: follower1,
+              followed: category.activity_pub_actor,
+            )
+          end
+
+          it "enqueues a single delivery to the follower as the tag actor" do
+            freeze_time
+            perform_create
+            activity = tag.activity_pub_actor.activities.find_by(ap_type: "Create")
+            delay = SiteSetting.activity_pub_delivery_delay_minutes.to_i
+            job1_args = {
+              object_id: activity.id,
+              object_type: "DiscourseActivityPubActivity",
+              from_actor_id: tag.activity_pub_actor.id,
+              send_to: follower1.inbox,
+            }
+            job2_args = {
+              object_id: activity.id,
+              object_type: "DiscourseActivityPubActivity",
+              from_actor_id: category.activity_pub_actor.id,
+              send_to: follower1.inbox,
+            }
+            expect(
+              job_enqueued?(
+                job: :discourse_activity_pub_deliver,
+                args: job1_args,
+                at: delay.minutes.from_now,
+              ),
+            ).to eq(true)
+            expect(
+              job_enqueued?(
+                job: :discourse_activity_pub_deliver,
+                args: job2_args,
+                at: delay.minutes.from_now,
+              ),
+            ).to eq(false)
+          end
+        end
+      end
+    end
+
     context "with full_topic enabled on the category" do
       before do
         toggle_activity_pub(category, publication_type: "full_topic")
