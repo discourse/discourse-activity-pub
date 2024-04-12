@@ -45,6 +45,20 @@ export default TagDrop.extend({
     }
   },
 
+  modifyNoSelection() {
+    if (this.tagId === NONE_TAG) {
+      return this.defaultItem(
+        NO_TAG_ID,
+        I18n.t("admin.discourse_activity_pub.actor.tag.none")
+      );
+    } else {
+      return this.defaultItem(
+        ALL_TAGS_ID,
+        I18n.t("admin.discourse_activity_pub.actor.tag.none")
+      );
+    }
+  },
+
   actions: {
     onChange(tagId) {
       this.onChange(tagId);
