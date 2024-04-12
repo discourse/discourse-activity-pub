@@ -19,12 +19,8 @@ module DiscourseActivityPub
 
         actors = DiscourseActivityPubActor.where(model_type: model_type, local: true)
 
-        if model_type == "Category"
-          actors = actors.joins(:category)
-        end
-        if model_type == "Tag"
-          actors = actors.joins(:tag)
-        end
+        actors = actors.joins(:category) if model_type == "Category"
+        actors = actors.joins(:tag) if model_type == "Tag"
 
         offset = params[:offset].to_i || 0
         load_more_query_params = { offset: offset + 1, model_type: model_type.downcase }
@@ -65,7 +61,12 @@ module DiscourseActivityPub
       end
 
       def show
-        render_serialized(@actor, DiscourseActivityPub::ActorSerializer, root: false, include_model: true)
+        render_serialized(
+          @actor,
+          DiscourseActivityPub::ActorSerializer,
+          root: false,
+          include_model: true,
+        )
       end
 
       def create
@@ -105,10 +106,10 @@ module DiscourseActivityPub
                    success_json.merge(
                      actor:
                        DiscourseActivityPub::ActorSerializer.new(
-                        actor,
-                        root: false,
-                        include_model: true
-                      ).as_json,
+                         actor,
+                         root: false,
+                         include_model: true,
+                       ).as_json,
                    )
         else
           render json: failed_json.merge(errors: handler.errors.map(&:message)), status: 400
@@ -136,7 +137,8 @@ module DiscourseActivityPub
       end
 
       def find_model
-        if (actor_params[:model_id].blank? && actor_params[:model_name].blank?) || actor_params[:model_type].blank?
+        if (actor_params[:model_id].blank? && actor_params[:model_name].blank?) ||
+             actor_params[:model_type].blank?
           return render_error("invalid_model", 400)
         end
 
@@ -155,7 +157,8 @@ module DiscourseActivityPub
       end
 
       def render_error(key, status)
-        render json: failed_json.merge(errors: [I18n.t("discourse_activity_pub.actor.error.#{key}")]),
+        render json:
+                 failed_json.merge(errors: [I18n.t("discourse_activity_pub.actor.error.#{key}")]),
                status: status
       end
 

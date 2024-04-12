@@ -117,9 +117,7 @@ RSpec.describe Post do
       it "publishes status only to staff" do
         message =
           MessageBus.track_publish("/activity-pub") { post.activity_pub_publish_state }.first
-        expect(message.group_ids).to eq(
-          [Group::AUTO_GROUPS[:staff]],
-        )
+        expect(message.group_ids).to eq([Group::AUTO_GROUPS[:staff]])
       end
     end
   end
@@ -397,17 +395,13 @@ RSpec.describe Post do
     shared_examples "pre publication delete" do
       it "does not create an activity" do
         perform_delete
-        expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(
-          false,
-        )
+        expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(false)
       end
 
       it "destroys associated objects" do
         perform_delete
         expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(false)
-        expect(DiscourseActivityPubObject.exists?(id: topic.activity_pub_object.id)).to eq(
-          false,
-        )
+        expect(DiscourseActivityPubObject.exists?(id: topic.activity_pub_object.id)).to eq(false)
       end
 
       it "destroys associated activities" do
@@ -423,22 +417,13 @@ RSpec.describe Post do
       end
 
       it "clears associated jobs" do
-        job1_args = {
-          object_id: create.id,
-          object_type: "DiscourseActivityPubActivity",
-        }
-        Jobs
-          .expects(:cancel_scheduled_job)
-          .with(:discourse_activity_pub_deliver, **job1_args)
-          .once
+        job1_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
+        Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job1_args).once
         job2_args = {
           object_id: topic.activity_pub_object.id,
           object_type: "DiscourseActivityPubCollection",
         }
-        Jobs
-          .expects(:cancel_scheduled_job)
-          .with(:discourse_activity_pub_deliver, **job2_args)
-          .once
+        Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
         perform_delete
       end
 
@@ -451,17 +436,13 @@ RSpec.describe Post do
     shared_examples "post publication delete" do
       it "creates the right activity" do
         perform_delete
-        expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(
-          true,
-        )
+        expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(true)
       end
 
       it "does not destroy associated objects" do
         perform_delete
         expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
-        expect(
-          DiscourseActivityPubCollection.exists?(id: topic.activity_pub_object.id),
-        ).to eq(true)
+        expect(DiscourseActivityPubCollection.exists?(id: topic.activity_pub_object.id)).to eq(true)
       end
 
       it "does not destroy associated activities" do
@@ -789,10 +770,7 @@ RSpec.describe Post do
           end
 
           it "clears associated jobs" do
-            job_args = {
-              object_id: create.id,
-              object_type: "DiscourseActivityPubActivity",
-            }
+            job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
             Jobs
               .expects(:cancel_scheduled_job)
               .with(:discourse_activity_pub_deliver, **job_args)
@@ -1232,10 +1210,7 @@ RSpec.describe Post do
           end
 
           it "clears associated jobs" do
-            job_args = {
-              object_id: create.id,
-              object_type: "DiscourseActivityPubActivity",
-            }
+            job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
             Jobs
               .expects(:cancel_scheduled_job)
               .with(:discourse_activity_pub_deliver, **job_args)
@@ -1864,10 +1839,7 @@ RSpec.describe Post do
               end
 
               it "clears associated jobs" do
-                job_args = {
-                  object_id: create.id,
-                  object_type: "DiscourseActivityPubActivity",
-                }
+                job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
                 Jobs
                   .expects(:cancel_scheduled_job)
                   .with(:discourse_activity_pub_deliver, **job_args)
@@ -2010,12 +1982,13 @@ RSpec.describe Post do
 
           context "with delete" do
             let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-            let!(:create) {
-              Fabricate(:discourse_activity_pub_activity_create,
+            let!(:create) do
+              Fabricate(
+                :discourse_activity_pub_activity_create,
                 actor: post.activity_pub_actor,
-                object: note
+                object: note,
               )
-            }
+            end
 
             context "when post is trashed" do
               def perform_delete
@@ -2408,10 +2381,7 @@ RSpec.describe Post do
               end
 
               it "clears associated jobs" do
-                job_args = {
-                  object_id: create.id,
-                  object_type: "DiscourseActivityPubActivity",
-                }
+                job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
                 Jobs
                   .expects(:cancel_scheduled_job)
                   .with(:discourse_activity_pub_deliver, **job_args)

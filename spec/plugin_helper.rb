@@ -2,12 +2,7 @@
 
 RSpec.configure { |config| config.include DiscourseActivityPub::JsonLd }
 
-def toggle_activity_pub(
-  model,
-  disable: false,
-  username: nil,
-  publication_type: nil
-)
+def toggle_activity_pub(model, disable: false, username: nil, publication_type: nil)
   model.reload
 
   if !model.activity_pub_actor

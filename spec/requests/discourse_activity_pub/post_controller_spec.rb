@@ -37,9 +37,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
         context "with a valid post id" do
           context "with a first_post activity pub category" do
-            before do
-              toggle_activity_pub(category, publication_type: "first_post")
-            end
+            before { toggle_activity_pub(category, publication_type: "first_post") }
 
             context "with the first post" do
               before do
@@ -112,9 +110,7 @@ RSpec.describe DiscourseActivityPub::PostController do
           end
 
           context "with a full_topic activity pub category" do
-            before do
-              toggle_activity_pub(category, publication_type: "full_topic")
-            end
+            before { toggle_activity_pub(category, publication_type: "full_topic") }
 
             it "returns a first post not enabled error" do
               post "/ap/post/schedule/#{post1.id}"
@@ -166,9 +162,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
         context "with a valid post id" do
           context "with a first_post activity pub category" do
-            before do
-              toggle_activity_pub(category, publication_type: "first_post")
-            end
+            before { toggle_activity_pub(category, publication_type: "first_post") }
 
             context "with the first post" do
               before do

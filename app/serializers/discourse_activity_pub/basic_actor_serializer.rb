@@ -25,7 +25,7 @@ module DiscourseActivityPub
     end
 
     def include_model_name?
-      object.model_type === 'Tag'
+      object.model_type === "Tag"
     end
 
     def can_admin

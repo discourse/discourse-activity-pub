@@ -268,12 +268,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns an updated actor" do
-          put "/admin/ap/actor/#{actor.id}.json",
-              params: {
-                actor: {
-                  name: "New name"
-                },
-              }
+          put "/admin/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["name"]).to eq("New name")
         end
@@ -282,9 +277,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
     context "with a tag actor" do
       let!(:tag) { Fabricate(:tag) }
-      let!(:actor) do
-        Fabricate(:discourse_activity_pub_actor_group, model: tag, enabled: true)
-      end
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: tag, enabled: true) }
 
       context "with private visibility and full topic publication" do
         it "returns a 400" do
@@ -304,12 +297,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with a new username" do
         it "returns the right error" do
-          put "/admin/ap/actor/#{actor.id}.json",
-              params: {
-                actor: {
-                  username: "new_actor",
-                },
-              }
+          put "/admin/ap/actor/#{actor.id}.json", params: { actor: { username: "new_actor" } }
           expect(response.status).to eq(400)
           expect(response.parsed_body["errors"]).to include(actor_warning("no_change_when_set"))
         end
@@ -317,12 +305,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns an updated actor" do
-          put "/admin/ap/actor/#{actor.id}.json",
-              params: {
-                actor: {
-                  name: "New name"
-                },
-              }
+          put "/admin/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["name"]).to eq("New name")
         end
