@@ -60,4 +60,21 @@ export default {
       ready: true,
     },
   ],
+  tag: [
+    {
+      id: 4,
+      handle: "@tag1@test.local",
+      name: "Tag 1",
+      username: "tag_1",
+      model_type: "Tag",
+      model_id: 1,
+      model_name: 'tag_1',
+      can_admin: true,
+      default_visibility: 'public',
+      publication_type: 'first_post',
+      post_object_type: 'Note',
+      enabled: true,
+      ready: true
+    }
+  ]
 };
