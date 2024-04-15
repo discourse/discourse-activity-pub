@@ -33,7 +33,8 @@
             <DButton
               @icon="check"
               @title="ip_lookup.copied"
-              class="activity-pub-object-id-copy success">
+              class="activity-pub-object-id-copy success"
+            >
               <div class="activity-pub-object-id-copy-text">
                 {{i18n "post.controls.link_copied"}}
               </div>
@@ -42,7 +43,8 @@
             <DButton
               @action={{this.copyObjectId}}
               @icon="copy"
-              class="no-text activity-pub-object-id-copy" />
+              class="no-text activity-pub-object-id-copy"
+            />
           {{/if}}
         </span>
       {{/if}}
