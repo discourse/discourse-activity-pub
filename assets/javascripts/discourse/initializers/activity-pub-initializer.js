@@ -49,6 +49,10 @@ export default {
         "activity_pub_is_first_post",
         "activity_pub_is_first_post"
       );
+      api.includePostAttributes(
+        "activity_pub_object_id",
+        "activity_pub_object_id"
+      );
       api.serializeOnCreate("activity_pub_visibility");
 
       // TODO (future): PR discourse/discourse to add post infos via api

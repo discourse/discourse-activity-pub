@@ -1,7 +1,21 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
+import { action } from "@ember/object";
+import { clipboardCopy } from "discourse/lib/utilities";
 import I18n from "I18n";
 
 export default class ActivityPubPostInfo extends Component {
+  @tracked copiedObjectId = false;
+
+  @action
+  copyObjectId() {
+    clipboardCopy(this.args.model.post.activity_pub_object_id);
+    this.copiedObjectId = true;
+    setTimeout(() => {
+      this.copiedObjectId = false;
+    }, 2500);
+  }
+
   get title() {
     return I18n.t("post.discourse_activity_pub.info.title", {
       post_number: this.args.model.post.post_number,
@@ -63,5 +77,9 @@ export default class ActivityPubPostInfo extends Component {
       !this.args.model.post.activity_pub_local &&
       this.args.model.post.activity_pub_url
     );
+  }
+
+  get showObjectId() {
+    return this.args.model.post.activity_pub_local;
   }
 }

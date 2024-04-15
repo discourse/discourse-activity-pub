@@ -25,6 +25,27 @@
           </a>
         </span>
       {{/if}}
+      {{#if showObjectId}}
+        <span class="activity-pub-object-id">
+          {{d-icon "link"}}
+          <span>{{@model.post.activity_pub_object_id}}</span>
+          {{#if this.copiedObjectId}}
+            <DButton
+              @icon="check"
+              @title="ip_lookup.copied"
+              class="activity-pub-object-id-copy success">
+              <div class="activity-pub-object-id-copy-text">
+                {{i18n "post.controls.link_copied"}}
+              </div>
+            </DButton>
+          {{else}}
+            <DButton
+              @action={{this.copyObjectId}}
+              @icon="copy"
+              class="no-text activity-pub-object-id-copy" />
+          {{/if}}
+        </span>
+      {{/if}}
     </div>
   </:body>
 </DModal>

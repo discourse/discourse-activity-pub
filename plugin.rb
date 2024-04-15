@@ -524,6 +524,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_topic_trashed) do
     @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
+  add_to_class(:post, :activity_pub_object_id) { activity_pub_local? && activity_pub_object&.ap_id }
 
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
   activity_pub_post_custom_field_names.each do |field_name|
@@ -563,6 +564,11 @@ after_initialize do
     :activity_pub_is_first_post,
     include_condition: -> { object.activity_pub_enabled },
   ) { object.activity_pub_is_first_post? }
+  add_to_serializer(
+    :post,
+    :activity_pub_object_id,
+    include_condition: -> { object.activity_pub_enabled },
+  ) { object.activity_pub_object_id }
 
   TopicView.on_preload do |topic_view|
     if topic_view.topic.activity_pub_enabled
