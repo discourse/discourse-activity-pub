@@ -7,7 +7,7 @@ discourse_activity_pub:
   activity_pub_rate_limit_get_objects_per_minute:
     default: 20
   activity_pub_note_excerpt_maxlength:
-    default: 500
+    default: 0
   activity_pub_note_link_to_forum:
     default: true
   activity_pub_require_signed_requests:
