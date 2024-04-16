@@ -46,54 +46,79 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
         end
 
         context "when announcing an object" do
-          let!(:note_actor_id) { "https://mastodon.discourse.com/users/1" }
-          let!(:note_actor) do
-            Fabricate(:discourse_activity_pub_actor_person, ap_id: note_actor_id, local: false)
-          end
-          let!(:followed_actor_id) { "https://mastodon.discourse.com/users/2" }
-          let!(:followed_actor) do
-            Fabricate(:discourse_activity_pub_actor_person, ap_id: followed_actor_id, local: false)
-          end
-          let!(:follow) do
-            Fabricate(
-              :discourse_activity_pub_follow,
-              follower: category.activity_pub_actor,
-              followed: followed_actor,
-            )
-          end
-          let!(:object_json) do
-            build_object_json(attributed_to: note_actor_id, name: "My cool topic title")
-          end
-          let(:announce_json) do
-            build_activity_json(
-              id: "#{followed_actor_id}#note/1",
-              type: "Announce",
-              actor: followed_actor,
-              object: object_json,
-              to: [category_actor.ap_id],
-            )
+          shared_examples "implicit create works" do
+            let!(:follow) do
+              Fabricate(
+                :discourse_activity_pub_follow,
+                follower: category.activity_pub_actor,
+                followed: followed_actor,
+              )
+            end
+            let!(:object_json) do
+              build_object_json(attributed_to: note_actor_id, name: "My cool topic title")
+            end
+            let(:announce_json) do
+              build_activity_json(
+                id: "#{followed_actor_id}#note/1",
+                type: "Announce",
+                actor: followed_actor,
+                object: object_json[:id],
+                to: [category_actor.ap_id],
+              )
+            end
+
+            before do
+              stub_stored_request(object_json)
+              stub_stored_request(note_actor)
+              perform_process(announce_json, category.activity_pub_actor.ap_id)
+            end
+
+            it "creates an announce activity" do
+              expect(
+                DiscourseActivityPubActivity.exists?(
+                  ap_type: described_class.type,
+                  actor_id: followed_actor.id,
+                ),
+              ).to eq(true)
+            end
+
+            it "performs the announce activity as a create activity" do
+              post = Post.find_by(raw: object_json[:content])
+              expect(post.present?).to be(true)
+              expect(post.topic.present?).to be(true)
+              expect(post.topic.title).to eq(object_json[:name])
+              expect(post.post_number).to be(1)
+            end
           end
 
-          before do
-            stub_stored_request(note_actor)
-            perform_process(announce_json, category.activity_pub_actor.ap_id)
+          context "when announcing actor is a person" do
+            let!(:note_actor_id) { "https://mastodon.discourse.com/users/1" }
+            let!(:note_actor) do
+              Fabricate(:discourse_activity_pub_actor_person, ap_id: note_actor_id, local: false)
+            end
+            let!(:followed_actor_id) { "https://mastodon.discourse.com/users/2" }
+            let!(:followed_actor) do
+              Fabricate(
+                :discourse_activity_pub_actor_person,
+                ap_id: followed_actor_id,
+                local: false,
+              )
+            end
+
+            include_examples "implicit create works"
           end
 
-          it "creates an announce activity" do
-            expect(
-              DiscourseActivityPubActivity.exists?(
-                ap_type: described_class.type,
-                actor_id: followed_actor.id,
-              ),
-            ).to eq(true)
-          end
+          context "when announcing actor is a group" do
+            let!(:note_actor_id) { "https://community.nodebb.org/users/1" }
+            let!(:note_actor) do
+              Fabricate(:discourse_activity_pub_actor_person, ap_id: note_actor_id, local: false)
+            end
+            let!(:followed_actor_id) { "https://community.nodebb.org/category/2" }
+            let!(:followed_actor) do
+              Fabricate(:discourse_activity_pub_actor_group, ap_id: followed_actor_id, local: false)
+            end
 
-          it "performs the announce activity as a create activity" do
-            post = Post.find_by(raw: object_json[:content])
-            expect(post.present?).to be(true)
-            expect(post.topic.present?).to be(true)
-            expect(post.topic.title).to eq(object_json[:name])
-            expect(post.post_number).to be(1)
+            include_examples "implicit create works"
           end
         end
       end

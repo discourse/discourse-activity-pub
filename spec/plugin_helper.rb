@@ -288,8 +288,10 @@ def expect_no_delivery
 end
 
 def stub_stored_request(object)
-  stub_request(:get, object.ap_id).to_return(
-    body: object.ap.json.to_json,
+  object_id = object.respond_to?(:ap_id) ? object.ap_id : object[:id]
+  object_json = object.respond_to?(:ap) ? object.ap.json : object
+  stub_request(:get, object_id).to_return(
+    body: object_json.to_json,
     headers: {
       "Content-Type" => "application/json",
     },
