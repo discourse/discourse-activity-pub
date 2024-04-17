@@ -37,7 +37,7 @@ module DiscourseActivityPub
     end
 
     def user
-      @user ||= actor&.model
+      @user ||= actor&.model.is_a?(User) ? actor.model : nil
     end
 
     def actor

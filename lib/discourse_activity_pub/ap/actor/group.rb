@@ -19,7 +19,7 @@ module DiscourseActivityPub
             create: %i[note article],
             delete: %i[note article],
             update: %i[note article],
-            announce: %i[create update delete like undo ordered_collection],
+            announce: %i[create update delete like undo ordered_collection note article],
             follow: %i[group person],
             undo: [:follow],
           }
