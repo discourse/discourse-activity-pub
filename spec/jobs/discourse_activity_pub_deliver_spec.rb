@@ -96,15 +96,34 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     context "when request succeeds" do
-      before { expect_post(returns: true) }
+      before do
+        expect_post(returns: true)
+        setup_logging
+      end
+      after { teardown_logging }
 
       it "does not retry" do
         expect_not_enqueued_with(job: :discourse_activity_pub_deliver) { execute_job }
       end
+
+      it "logs the successful delivery" do
+        execute_job
+        log =
+          I18n.t(
+            "discourse_activity_pub.deliver.info.successfully_delivered",
+            from_actor: group.ap_id,
+            send_to: person.inbox,
+          )
+        expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
+      end
     end
 
     context "when request fails" do
-      before { expect_post(returns: false) }
+      before do
+        expect_post(returns: false)
+        setup_logging
+      end
+      after { teardown_logging }
 
       it "enqueues retries" do
         freeze_time
@@ -124,6 +143,17 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         expect_not_enqueued_with(job: :discourse_activity_pub_deliver) do
           execute_job(retry_count: described_class::MAX_RETRY_COUNT)
         end
+      end
+
+      it "logs the failed delivery" do
+        execute_job
+        log =
+          I18n.t(
+            "discourse_activity_pub.deliver.warning.failed_to_deliver",
+            from_actor: group.ap_id,
+            send_to: person.inbox,
+          )
+        expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
       end
     end
 

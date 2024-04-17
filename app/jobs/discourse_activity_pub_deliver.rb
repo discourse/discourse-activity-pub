@@ -132,7 +132,8 @@ module Jobs
     end
 
     def log_success
-      DiscourseActivityPub::Logger.info(
+      ## TODO: change the severity level back to info once logs are surfaced in ActivityPub admin.
+      DiscourseActivityPub::Logger.warn(
         I18n.t(
           "discourse_activity_pub.deliver.info.successfully_delivered",
           from_actor: from_actor.ap_id,
