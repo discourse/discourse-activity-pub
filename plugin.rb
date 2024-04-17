@@ -26,6 +26,10 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/post_handler"
   require_relative "lib/discourse_activity_pub/delivery_handler"
   require_relative "lib/discourse_activity_pub/follow_handler"
+  require_relative "lib/discourse_activity_pub/bulk/process_result"
+  require_relative "lib/discourse_activity_pub/bulk/process"
+  require_relative "lib/discourse_activity_pub/bulk/publish_result"
+  require_relative "lib/discourse_activity_pub/bulk/publish"
   require_relative "lib/discourse_activity_pub/auth"
   require_relative "lib/discourse_activity_pub/auth/oauth"
   require_relative "lib/discourse_activity_pub/auth/oauth/app"
@@ -56,6 +60,8 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/ap/object/note"
   require_relative "lib/discourse_activity_pub/ap/object/article"
   require_relative "lib/discourse_activity_pub/ap/collection"
+  require_relative "lib/discourse_activity_pub/ap/collection/collection_page"
+  require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection_page"
   require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection"
   require_relative "lib/discourse_activity_pub/admin"
   require_relative "app/models/concerns/discourse_activity_pub/ap/identifier_validations"
@@ -290,6 +296,9 @@ after_initialize do
   end
   add_to_class(:topic, :activity_pub_first_post) { category&.activity_pub_first_post }
   add_to_class(:topic, :activity_pub_full_topic) { category&.activity_pub_full_topic }
+  add_to_class(:topic, :activity_pub_full_topic_enabled) do
+    activity_pub_enabled && activity_pub_full_topic
+  end
   add_to_class(:topic, :create_activity_pub_collection!) do
     create_activity_pub_object!(
       local: true,
@@ -446,21 +455,20 @@ after_initialize do
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
   end
+  add_to_class(:post, :activity_pub_visibility_on_create) do
+    if is_first_post?
+      activity_pub_topic&.category&.activity_pub_default_visibility
+    else
+      activity_pub_topic.first_post.activity_pub_visibility
+    end
+  end
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
     DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user) if activity_pub_full_topic
 
     content = DiscourseActivityPub::ContentParser.get_content(self)
-    visibility =
-      (
-        if is_first_post?
-          activity_pub_topic&.category&.activity_pub_default_visibility
-        else
-          activity_pub_topic.first_post.activity_pub_visibility
-        end
-      )
-
+    visibility = activity_pub_visibility_on_create
     custom_fields["activity_pub_content"] = content
     custom_fields["activity_pub_visibility"] = visibility
     save_custom_fields(true)
@@ -489,6 +497,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_topic_trashed) do
     @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
+  add_to_class(:post, :activity_pub_object_id) { activity_pub_local? && activity_pub_object&.ap_id }
 
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
   activity_pub_post_custom_field_names.each do |field_name|
@@ -528,6 +537,11 @@ after_initialize do
     :activity_pub_is_first_post,
     include_condition: -> { object.activity_pub_enabled },
   ) { object.activity_pub_is_first_post? }
+  add_to_serializer(
+    :post,
+    :activity_pub_object_id,
+    include_condition: -> { object.activity_pub_enabled },
+  ) { object.activity_pub_object_id }
 
   TopicView.on_preload do |topic_view|
     if topic_view.topic.activity_pub_enabled
@@ -659,28 +673,35 @@ after_initialize do
       topic.create_activity_pub_collection!
     end
   end
-  on(:post_moved) do |post, original_topic_id|
-    topic = post.topic
-    full_topic_enabled = topic&.activity_pub_enabled && topic&.activity_pub_full_topic
+  on(:first_post_moved) do |new_post, old_post|
+    topic = new_post.topic
 
-    if full_topic_enabled
-      topic.create_activity_pub_collection! if !topic.activity_pub_object
+    if topic.activity_pub_full_topic_enabled && !topic.activity_pub_object
+      topic.create_activity_pub_collection!
     end
 
-    # The post mover creates a new post for a moved first post
-    note =
-      if post.is_first_post?
-        original_topic = Topic.find_by(id: original_topic_id)
-        original_first_post = original_topic&.first_post
-        original_first_post&.activity_pub_object
-      else
-        post.activity_pub_object
+    note = old_post.activity_pub_object
+    if note
+      note.model_id = new_post.id
+      note.collection_id =
+        topic.activity_pub_full_topic_enabled ? topic.activity_pub_object.id : nil
+      note.save!
+    end
+  end
+  on(:post_moved) do |new_post, original_topic_id|
+    if !new_post.is_first_post?
+      topic = new_post.topic
+
+      if topic.activity_pub_full_topic_enabled && !topic.activity_pub_object
+        topic.create_activity_pub_collection!
       end
 
-    if note
-      note.model_id = post.id unless note.model_id == post.id
-      note.collection_id = full_topic_enabled ? topic.activity_pub_object.id : nil
-      note.save! if note.changed?
+      note = new_post.activity_pub_object
+      if note
+        note.collection_id =
+          topic.activity_pub_full_topic_enabled ? topic.activity_pub_object.id : nil
+        note.save!
+      end
     end
   end
   on(:like_created) do |post_action, post_action_creator|

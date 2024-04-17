@@ -47,35 +47,23 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
     end
 
     context "with verbose logging enabled" do
-      before { SiteSetting.activity_pub_verbose_logging = true }
+      before { setup_logging }
+      after { teardown_logging }
 
       it "logs a detailed error if validations fail" do
-        orig_logger = Rails.logger
-        Rails.logger = fake_logger = FakeLogger.new
-
         DiscourseActivityPubActor.stubs(:find_by).returns(nil)
         stored = Fabricate(:discourse_activity_pub_actor_person)
-
         perform(stored.ap.json)
-
-        expect(fake_logger.errors.first).to include(
+        expect(@fake_logger.errors.first).to include(
           "[Discourse Activity Pub] Ap has already been taken",
         )
-
-        Rails.logger = orig_logger
       end
-    end
 
-    it "prevents concurrent updates" do
-      orig_logger = Rails.logger
-      Rails.logger = fake_logger = FakeLogger.new
-
-      threads = 5.times.map { Thread.new { perform } }
-      threads.map(&:join)
-
-      expect(fake_logger.errors.empty?).to eq(true)
-
-      Rails.logger = orig_logger
+      it "prevents concurrent updates" do
+        threads = 5.times.map { Thread.new { perform } }
+        threads.map(&:join)
+        expect(@fake_logger.errors.empty?).to eq(true)
+      end
     end
   end
 end

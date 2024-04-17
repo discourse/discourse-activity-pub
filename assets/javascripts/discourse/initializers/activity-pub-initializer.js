@@ -1,6 +1,7 @@
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { AUTO_GROUPS } from "discourse/lib/constants";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { bind } from "discourse-common/utils/decorators";
 
@@ -48,10 +49,29 @@ export default {
         "activity_pub_is_first_post",
         "activity_pub_is_first_post"
       );
+      api.includePostAttributes(
+        "activity_pub_object_id",
+        "activity_pub_object_id"
+      );
       api.serializeOnCreate("activity_pub_visibility");
 
       // TODO (future): PR discourse/discourse to add post infos via api
       api.reopenWidget("post-meta-data", {
+        showStatusToUser(user) {
+          if (!user) {
+            return false;
+          }
+          const groupIds =
+            this.siteSettings.activity_pub_post_status_visibility_groups
+              .split("|")
+              .map(Number);
+          return user.groups.some(
+            (group) =>
+              groupIds.includes(AUTO_GROUPS.everyone.id) ||
+              groupIds.includes(group.id)
+          );
+        },
+
         html(attrs) {
           const result = this._super(attrs);
           let postStatuses = result[result.length - 1].children;
@@ -61,7 +81,7 @@ export default {
           if (
             site.activity_pub_enabled &&
             attrs.activity_pub_enabled &&
-            currentUser?.staff
+            this.showStatusToUser(this.currentUser)
           ) {
             let time;
             let state;

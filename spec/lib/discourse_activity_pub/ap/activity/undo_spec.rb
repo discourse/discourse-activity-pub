@@ -115,16 +115,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
         end
 
         context "with verbose logging enabled" do
-          before { SiteSetting.activity_pub_verbose_logging = true }
-
           before do
-            @orig_logger = Rails.logger
-            Rails.logger = @fake_logger = FakeLogger.new
-
+            setup_logging
             perform_process(json)
           end
-
-          after { Rails.logger = @orig_logger }
+          after { teardown_logging }
 
           it "logs a warning" do
             expect(@fake_logger.warnings).to include(

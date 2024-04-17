@@ -217,6 +217,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     actor
   end
 
+  def self.find_by_id_or_handle(id_or_handle, local: true, refresh: false)
+    if id_or_handle.include?("@")
+      find_by_handle(id_or_handle, local: local, refresh: refresh)
+    elsif DiscourseActivityPub::URI.valid_url?(id_or_handle)
+      find_by_ap_id(id_or_handle, local: local, refresh: refresh)
+    else
+      find_by(id: id_or_handle)
+    end
+  end
+
   def self.resolve_and_store_by_handle(raw_handle)
     ap_id = DiscourseActivityPub::Webfinger.resolve_id_by_handle(raw_handle)
     return nil unless ap_id
@@ -302,4 +312,5 @@ end
 # Indexes
 #
 #  index_discourse_activity_pub_actors_on_ap_id  (ap_id)
+#  unique_activity_pub_actor_models              (model_type,model_id) UNIQUE
 #

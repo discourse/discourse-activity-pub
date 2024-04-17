@@ -191,7 +191,38 @@ section.activity-pub-actor-setting {
   a {
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: 1em;
+    min-height: 35px;
+  }
+
+  button {
+    height: 100%;
+  }
+}
+
+.activity-pub-object-id {
+  > span {
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+  }
+
+  .activity-pub-object-id-copy {
+    position: relative;
+
+    .activity-pub-object-id-copy-text {
+      position: absolute;
+      top: -25px;
+      width: 90px;
+      left: -30px;
+    }
+  }
+
+  .activity-pub-object-id-copy.success {
+    .d-icon,
+    .activity-pub-object-id-copy-text {
+      color: var(--success);
+    }
   }
 }
 

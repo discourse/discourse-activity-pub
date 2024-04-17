@@ -7,7 +7,7 @@ discourse_activity_pub:
   activity_pub_rate_limit_get_objects_per_minute:
     default: 20
   activity_pub_note_excerpt_maxlength:
-    default: 500
+    default: 0
   activity_pub_note_link_to_forum:
     default: true
   activity_pub_require_signed_requests:
@@ -23,6 +23,12 @@ discourse_activity_pub:
   activity_pub_delivery_delay_minutes:
     default: 5
     min: 1
+    client: true
+  activity_pub_post_status_visibility_groups:
+    default: "0" # everyone
+    type: group_list
+    allow_any: false
+    refresh: true
     client: true
   activity_pub_verbose_logging:
     default: false

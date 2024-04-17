@@ -83,6 +83,7 @@ en:
         only_category_actors_accept_new_topics: "Only category actors accept new topics."
         only_followed_actors_create_new_topics: "Only followed actors can create new topics."
         actor_already_following: "Actor is already following that object"
+        invalid_collection_item: "Invalid item"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"
@@ -150,11 +151,95 @@ en:
         failed_to_deliver: "%{from_actor} failed to deliver to %{send_to}"
       info:
         successfully_delivered: "%{from_actor} successfully delivered to %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} failed to process the outbox of %{target_actor}"
+          actors_not_ready: "Actors are not ready"
+          not_following_target: "%{actor} is not following %{target_actor}"
+          outbox_response_invalid: "outbox of %{target_actor} returned an invalid response"
+        info:
+          started: "%{actor} started processing the activities of %{target_actor}."
+          finished: "%{actor} finished processing the activities of %{target_actor}."
+          created_actors:
+            one: "Created 1 actor."
+            other: "Created %{count} actors."  
+          updated_actors:
+            one: "Updated 1 actor."
+            other: "Updated %{count} actors."
+          created_objects:
+            one: "Created 1 object."
+            other: "Created %{count} objects."  
+          updated_objects:
+            one: "Updated 1 object."
+            other: "Updated %{count} objects." 
+          created_collections:
+            one: "Created 1 collection."
+            other: "Created %{count} collections."  
+          updated_collections:
+            one: "Updated 1 collection."
+            other: "Updated %{count} collections."
+          created_activities:
+            one: "Created 1 activity."
+            other: "Created %{count} activities."  
+          updated_activities:
+            one: "Updated 1 activity."
+            other: "Updated %{count} activities." 
+          created_users:
+            one: "Created 1 user."
+            other: "Created %{count} users."
+          updated_users:
+            one: "Updated 1 user."
+            other: "Updated %{count} users."
+          created_topics:
+            one: "Created 1 topic."
+            other: "Created %{count} topics."
+          updated_topics:
+            one: "Updated 1 topic."
+            other: "Updated %{count} topics."
+          created_replies:
+            one: "Created 1 reply."
+            other: "Created %{count} replies."
+          updated_replies:
+            one: "Updated 1 reply."
+            other: "Updated %{count} replies."
+      publish:
+        warning:
+          publish_did_not_start: "Failed to bulk publish the activities of %{actor}"
+          actor_not_ready: "Actor is not ready"
+          actor_model_not_supported: "Actor model is not supported"
+        info:
+          started: "Started publishing the activities of %{actor}."
+          finished: "Finished publishing the activities of %{actor}."
+          created_actors:
+            one: "Created 1 actor."
+            other: "Created %{count} actors."  
+          updated_actors:
+            one: "Updated 1 actor."
+            other: "Updated %{count} actors."
+          created_objects:
+            one: "Created 1 object."
+            other: "Created %{count} objects."  
+          updated_objects:
+            one: "Updated 1 object."
+            other: "Updated %{count} objects." 
+          created_collections:
+            one: "Created 1 collection."
+            other: "Created %{count} collections."  
+          updated_collections:
+            one: "Updated 1 collection."
+            other: "Updated %{count} collections."
+          created_activities:
+            one: "Created 1 activity."
+            other: "Created %{count} activities."  
+          updated_activities:
+            one: "Updated 1 activity."
+            other: "Updated %{count} activities." 
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
     activity_pub_rate_limit_get_objects_per_minute: "Number of GET requests that can be made on AcitivityPub objects per minute."
-    activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes."
+    activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes (0 for no maximum length)."
     activity_pub_note_link_to_forum: "Include a link to this forum in ActivityPub notes."
     activity_pub_require_signed_requests: "Require ActivityPub requests to be signed with HTTP signatures."
     activity_pub_allowed_request_origins: "List of domains allowed to make ActivityPub requests."
@@ -162,3 +247,4 @@ en:
     activity_pub_delivery_delay_minutes: "Number of minutes to delay delivery of ActivityPub activities ('delete' activities are delivered instantly)."
     activity_pub_verbose_logging: "Enable verbose ActivityPub logs."
     activity_pub_object_logging: "Print all incoming and outgoing ActivityPub objects in the logs (requires verbose logging)."
+    activity_pub_post_status_visibility_groups: "Groups who can see ActivityPub post statuses."

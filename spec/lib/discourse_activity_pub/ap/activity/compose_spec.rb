@@ -42,9 +42,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
 
       context "with an activity and object from different hosts" do
         before do
-          SiteSetting.activity_pub_verbose_logging = true
-          @orig_logger = Rails.logger
-          Rails.logger = @fake_logger = FakeLogger.new
+          setup_logging
 
           @mismatched_json = activity_json.dup
           @mismatched_json[
@@ -54,10 +52,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
           process_json(@mismatched_json)
         end
 
-        after do
-          Rails.logger = @orig_logger
-          SiteSetting.activity_pub_verbose_logging = false
-        end
+        after { teardown_logging }
 
         it "does not perform the activity" do
           expect(post.reload.raw).not_to eq(object_json[:content])
