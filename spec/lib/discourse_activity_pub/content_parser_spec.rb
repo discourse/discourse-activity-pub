@@ -16,12 +16,21 @@ RSpec.describe DiscourseActivityPub::ContentParser do
   end
 
   describe "#get_content" do
-    it "respects the site setting for note excerpts" do
+    it "respects the maxlength site setting for note excerpts" do
       SiteSetting.activity_pub_note_excerpt_maxlength = 10
       expected_excerpt = "This is a &hellip;"
       post = Fabricate(:post_with_long_raw_content)
       post.rebake!
       expect(described_class.get_content(post)).to eq(expected_excerpt)
+    end
+
+    it "does not apply a maxlength if the site setting is 0" do
+      SiteSetting.activity_pub_note_excerpt_maxlength = 0
+      post = Fabricate(:post_with_long_raw_content)
+      post.rebake!
+      expect(described_class.get_content(post)).to eq(
+        "This is a sample post with semi-long raw content. The raw content is also more than\ntwo hundred characters to satisfy any test conditions that require content longer\nthan the typical test post raw content. It really is some long content, folks.",
+      )
     end
 
     it "respects [note] tags" do

@@ -98,7 +98,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
   end
 
   def characters(string)
-    if @current_length + string.length > @length
+    if @length > 0 && (@current_length + string.length > @length)
       length = [0, @length - @current_length - 1].max
       @content << string[0..length]
       @content << "&hellip;"
