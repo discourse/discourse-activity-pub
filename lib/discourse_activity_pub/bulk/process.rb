@@ -237,7 +237,7 @@ module DiscourseActivityPub
 
         result.actors_by_ap_id.each do |actor_ap_id, actor|
           creating = !actor.model
-          user = DiscourseActivityPub::UserHandler.update_or_create_user(actor, import_mode: true)
+          user = DiscourseActivityPub::ActorHandler.update_or_create_user(actor)
 
           if user
             if creating
