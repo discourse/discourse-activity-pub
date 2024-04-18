@@ -6,7 +6,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   include DiscourseActivityPub::JsonLd
   include DiscourseActivityPub::DomainVerification
   include DiscourseActivityPub::SignatureVerification
-  include DiscourseActivityPub::EnabledVerfication
+  include DiscourseActivityPub::EnabledVerification
 
   skip_before_action :preload_json,
                      :redirect_to_login_if_required,

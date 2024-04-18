@@ -4,7 +4,7 @@ module DiscourseActivityPub
   class PostController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
-    include DiscourseActivityPub::EnabledVerfication
+    include DiscourseActivityPub::EnabledVerification
 
     before_action :ensure_site_enabled
     before_action :ensure_staff

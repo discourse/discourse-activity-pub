@@ -7,7 +7,7 @@ module DiscourseActivityPub
 
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
-    include DiscourseActivityPub::EnabledVerfication
+    include DiscourseActivityPub::EnabledVerification
 
     before_action :ensure_site_enabled
     before_action :ensure_publishing_enabled, only: [:followers]

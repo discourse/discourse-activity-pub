@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module DiscourseActivityPub
-  module EnabledVerfication
+  module EnabledVerification
     def ensure_site_enabled
       render_not_enabled unless DiscourseActivityPub.enabled
     end

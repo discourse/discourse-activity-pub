@@ -4,7 +4,7 @@ module DiscourseActivityPub
   class WebfingerController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
-    include DiscourseActivityPub::EnabledVerfication
+    include DiscourseActivityPub::EnabledVerification
 
     skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr
 

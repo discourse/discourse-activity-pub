@@ -5,7 +5,7 @@ module DiscourseActivityPub
     class AdminController < ::Admin::AdminController
       requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
-      include DiscourseActivityPub::EnabledVerfication
+      include DiscourseActivityPub::EnabledVerification
 
       before_action :ensure_site_enabled
 

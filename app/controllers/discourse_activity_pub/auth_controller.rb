@@ -4,7 +4,7 @@ module DiscourseActivityPub
   class AuthController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
-    include DiscourseActivityPub::EnabledVerfication
+    include DiscourseActivityPub::EnabledVerification
 
     before_action :ensure_logged_in
     before_action :ensure_site_enabled
