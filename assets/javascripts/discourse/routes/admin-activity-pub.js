@@ -1,7 +1,7 @@
 import { service } from "@ember/service";
 import DiscourseRoute from "discourse/routes/discourse";
 
-export default class AdminRoute extends DiscourseRoute {
+export default class AdminActivityPubRoute extends DiscourseRoute {
   @service router;
 
   afterModel(model, transition) {
