@@ -12,7 +12,7 @@ export default class AdminActivityPubActorShowRoute extends DiscourseRoute {
   }
 
   setupController(controller, model) {
-    let props = {
+    const props = {
       actor: ActivityPubActor.create(model),
       showForm: model.id !== newActor.id,
     };
