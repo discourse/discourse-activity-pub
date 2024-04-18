@@ -63,7 +63,7 @@ en:
         invalid_signature_pseudo_header: 'Invalid Signature pseudo-header (%{header})'
         invalid_date_header: "Invalid Date header: %{reason}"
         request_to_failed: "%{method} request to %{uri} failed: %{message}"
-        request_from_failed: "%{method} request from %{uri} failed: %{status} %{message}"
+        request_from_failed: "%{method} request received by %{uri} failed: %{status} %{message}"
     process:
       warning:
         failed_to_process: "Failed to process %{object_id}"
