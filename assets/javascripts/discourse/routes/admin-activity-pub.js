@@ -1,8 +1,8 @@
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import DiscourseRoute from "discourse/routes/discourse";
 
-export default DiscourseRoute.extend({
-  router: service(),
+export default class AdminRoute extends DiscourseRoute {
+  @service router;
 
   afterModel(model, transition) {
     if (!this.site.activity_pub_enabled) {
@@ -12,5 +12,5 @@ export default DiscourseRoute.extend({
     if (transition.targetName === "adminActivityPub.index") {
       this.router.transitionTo("adminActivityPubActor");
     }
-  },
-});
+  }
+}
