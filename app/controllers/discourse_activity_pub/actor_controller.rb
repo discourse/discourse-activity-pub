@@ -9,13 +9,13 @@ module DiscourseActivityPub
 
     include DiscourseActivityPub::EnabledVerification
 
-    before_action :ensure_admin, only: %i[follow unfollow find_by_handle]
+    before_action :ensure_admin, only: %i[follow unfollow reject find_by_handle]
     before_action :ensure_site_enabled
     before_action :ensure_user_api, only: %i[find_by_user]
     before_action :find_actor, except: %i[find_by_user]
     before_action :ensure_model_enabled, except: %i[find_by_user]
     before_action :ensure_can_access, except: %i[find_by_user]
-    before_action :find_target_actor, only: %i[follow unfollow]
+    before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
       render_serialized(@actor, DiscourseActivityPub::ActorSerializer, include_model: true)
@@ -59,6 +59,18 @@ module DiscourseActivityPub
       actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
 
       render_actors
+    end
+
+    def reject
+      # Currently, we only process rejections of existing follows.
+      # See further https://github.com/mastodon/mastodon/issues/5708
+      return render_actor_error("not_following_actor", 404) if !@target_actor.following?(@actor)
+
+      if FollowHandler.reject(@actor.id, @target_actor.id)
+        render json: success_json
+      else
+        render json: failed_json
+      end
     end
 
     def find_by_handle

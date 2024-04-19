@@ -133,6 +133,11 @@ en:
         title: Unfollow for %{actor} via ActivityPub
         modal_title: Confirm Unfollow
         confirm: Are you sure you want %{actor} to unfollow %{followed_actor}?
+      actor_reject:
+        label: Reject
+        title: Reject follow of %{actor} via ActivityPub
+        modal_title: Confirm Reject Follow
+        confirm: Are you sure you want %{actor} to reject the follow of %{followed_actor}?
       follow_table:
         actor: Actor
         user: User

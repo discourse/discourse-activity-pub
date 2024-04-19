@@ -273,14 +273,71 @@ RSpec.describe DiscourseActivityPubActivity do
       context "when not delivered" do
         it "does not destroy the follow" do
           undo_activity.after_deliver(false)
-          expect(follow_activity).not_to be_destroyed
+          expect(
+            DiscourseActivityPubFollow.where(
+              follower_id: actor.id,
+              followed_id: follow_activity.object.id,
+            ).exists?,
+          ).to eq(true)
         end
       end
 
       context "when delievered" do
         it "destroys the follow" do
           undo_activity.after_deliver(true)
-          expect(follow_activity).not_to be_destroyed
+          expect(
+            DiscourseActivityPubFollow.where(
+              follower_id: actor.id,
+              followed_id: follow_activity.object.id,
+            ).exists?,
+          ).to eq(false)
+        end
+      end
+    end
+
+    context "with a local reject follow activity" do
+      let!(:remote_actor) { Fabricate(:discourse_activity_pub_actor_person, local: nil) }
+      let!(:follow_activity) do
+        Fabricate(
+          :discourse_activity_pub_activity_follow,
+          local: nil,
+          actor: remote_actor,
+          object: actor,
+        )
+      end
+      let!(:reject_activity) do
+        Fabricate(
+          :discourse_activity_pub_activity_reject,
+          actor: actor,
+          object: follow_activity,
+          local: true,
+        )
+      end
+      let!(:follow) do
+        Fabricate(:discourse_activity_pub_follow, follower: remote_actor, followed: actor)
+      end
+
+      context "when not delivered" do
+        it "destroys the follow" do
+          reject_activity.after_deliver(false)
+          expect(
+            DiscourseActivityPubFollow.where(
+              follower_id: remote_actor.id,
+              followed_id: actor.id,
+            ).exists?,
+          ).to eq(false)
+        end
+      end
+
+      context "when delievered" do
+        it "destroys the follow" do
+          reject_activity.after_deliver(true)
+          expect(
+            DiscourseActivityPubFollow.where(
+              follower_id: remote_actor.id,
+              followed_id: actor.id,
+            ).exists?,
+          ).to eq(false)
         end
       end
     end

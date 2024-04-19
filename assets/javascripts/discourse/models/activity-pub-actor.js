@@ -128,6 +128,18 @@ ActivityPubActor.reopenClass({
       .catch(popupAjaxError);
   },
 
+  reject(actorId, targetActorId) {
+    return ajax({
+      url: `/ap/actor/${actorId}/reject`,
+      type: "POST",
+      data: {
+        target_actor_id: targetActorId,
+      },
+    })
+      .then((response) => !!response?.success)
+      .catch(popupAjaxError);
+  },
+
   list(actorId, params, listType) {
     const queryParams = new URLSearchParams();
 
