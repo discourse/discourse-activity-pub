@@ -6,6 +6,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   include DiscourseActivityPub::JsonLd
   include DiscourseActivityPub::DomainVerification
   include DiscourseActivityPub::SignatureVerification
+  include DiscourseActivityPub::EnabledVerification
 
   skip_before_action :preload_json,
                      :redirect_to_login_if_required,
@@ -41,12 +42,16 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   end
 
   def ensure_site_enabled
-    render_activity_pub_error("not_enabled", 403) unless DiscourseActivityPub.enabled
+    unless DiscourseActivityPub.enabled
+      log_request_error(I18n.t("discourse_activity_pub.not_enabled"), 403)
+      render_not_enabled
+    end
   end
 
   def ensure_request_permitted
     unless (DiscourseActivityPub.publishing_enabled || publishing_disabled_request_permitted?)
-      render_activity_pub_error("not_enabled", 403)
+      log_request_error(I18n.t("discourse_activity_pub.not_enabled"), 403)
+      render_not_enabled
     end
   end
 

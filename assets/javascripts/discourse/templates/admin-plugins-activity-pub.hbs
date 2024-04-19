@@ -1,0 +1,18 @@
+{{#admin-nav}}
+  <DNavigationItem @route="adminPlugins.activityPub.actor">
+    <span>{{i18n "admin.discourse_activity_pub.actor.category.label"}}</span>
+  </DNavigationItem>
+  <li class="activity-pub-add-actor">
+    <LinkTo
+      @route="adminPlugins.activityPub.actorShow"
+      @model={{this.newActor}}
+    >
+      {{d-icon "plus"}}
+      <span>{{i18n "admin.discourse_activity_pub.actor.add.label"}}</span>
+    </LinkTo>
+  </li>
+{{/admin-nav}}
+
+<div class="admin-container">
+  {{outlet}}
+</div>

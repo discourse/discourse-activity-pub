@@ -2,14 +2,19 @@
 
 module DiscourseActivityPub
   class ActorSerializer < BasicActorSerializer
-    attributes :username, :local, :domain, :url, :icon_url, :user, :followed_at
+    attributes :username, :local, :domain, :url, :icon_url, :followed_at, :model
 
-    def user
-      BasicUserSerializer.new(object.model, root: false).as_json
+    def model
+      case object.model_type
+      when "User"
+        BasicUserSerializer.new(object.model, root: false).as_json
+      when "Category"
+        SiteCategorySerializer.new(object.model, root: false).as_json
+      end
     end
 
-    def include_user?
-      object.model_type === "User" && object.model_id.present?
+    def include_model?
+      @options[:include_model]
     end
   end
 end

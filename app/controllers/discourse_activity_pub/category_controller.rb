@@ -7,6 +7,8 @@ module DiscourseActivityPub
 
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
+    include DiscourseActivityPub::EnabledVerification
+
     before_action :ensure_site_enabled
     before_action :ensure_publishing_enabled, only: [:followers]
     before_action :find_category
@@ -35,7 +37,7 @@ module DiscourseActivityPub
 
     def render_actors
       render_json_dump(
-        actors: serialize_data(actors, ActorSerializer, root: false),
+        actors: serialize_data(actors, ActorSerializer, root: false, include_model: true),
         meta: {
           total: @total,
           load_more_url: load_more_url(@page),
@@ -120,15 +122,7 @@ module DiscourseActivityPub
     end
 
     def ensure_category_enabled
-      render_category_error("not_enabled", 403) unless @category.activity_pub_enabled
-    end
-
-    def ensure_publishing_enabled
-      render_category_error("not_enabled", 403) unless DiscourseActivityPub.publishing_enabled
-    end
-
-    def ensure_site_enabled
-      render_category_error("not_enabled", 403) unless DiscourseActivityPub.enabled
+      render_not_enabled unless @category.activity_pub_enabled
     end
 
     def render_category_error(key, status)

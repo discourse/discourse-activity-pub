@@ -57,7 +57,7 @@ module DiscourseActivityPub
 
         current_user.activity_pub_save_actor_id(@domain, actor_id)
 
-        user = DiscourseActivityPub::UserHandler.find_user_by_stored_actor_id(actor_id)
+        user = DiscourseActivityPub::ActorHandler.find_user_by_stored_actor_id(actor_id)
 
         if user
           Jobs.enqueue(

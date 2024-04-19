@@ -88,7 +88,7 @@ RSpec.describe Topic do
       end
 
       it "updates the note references" do
-        expect(note1.reload.model_id).to eq(@first_post.id)
+        expect(note1.reload.model_id).to eq(@first_post.reload.id)
         expect(note1.collection_id).to eq(collection2.id)
         expect(note2.reload.collection_id).to eq(collection1.id)
       end

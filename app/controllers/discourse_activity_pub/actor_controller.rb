@@ -4,6 +4,8 @@ module DiscourseActivityPub
   class ActorController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
+    include DiscourseActivityPub::EnabledVerification
+
     before_action :ensure_admin
     before_action :ensure_site_enabled
     before_action :find_actor
@@ -58,10 +60,6 @@ module DiscourseActivityPub
     def find_target_actor
       @target_actor = DiscourseActivityPubActor.find_by_id(params[:target_actor_id])
       render_actor_error("target_actor_not_found", 404) unless @target_actor.present?
-    end
-
-    def ensure_site_enabled
-      render_actor_error("not_enabled", 403) unless DiscourseActivityPub.enabled
     end
 
     def render_actor_error(key, status)

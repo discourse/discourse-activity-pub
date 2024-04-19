@@ -4,32 +4,62 @@ en:
       site_settings:
         categories:
           discourse_activity_pub: "Discourse Activity Pub"
-  js:
-    category:
       discourse_activity_pub:
-        settings_heading: ActivityPub
-        enable: Enable ActivityPub in this category.
-        site_setting:
-          activity_pub_enabled:
-            label: ActivityPub plugin is enabled
-            title: The ActivityPub plugin is enabled by the activity pub enabled site setting.
-            description: Incoming activities addressed to this category will be processed.
-          login_required:
-            label: Login is required
-            title: Login is required by the login required site setting.
-            description: Only outgoing follow requests and the category actor attributes (below) are published.
-        username: ActivityPub username for this category.
-        username_description: Cannot be changed once saved.
-        handle: ActivityPub handle for this category.
-        handle_description: Used to identify this category on services using Webfinger (e.g. Mastodon).
-        name: ActivityPub name for this category.
-        name_description: Used as a display name on some services (e.g. Mastodon).
-        default_visibility: ActivityPub visibility for this category.
-        default_visibility_description: All posts will be published via ActivityPub with this visibility.
-        post_object_type: ActivityPub type to publish posts in this category as.
-        post_object_type_description: Use Note for short content (e.g. Mastodon) and Article for long content.
-        publication_type: ActivityPub publication type.
-        publication_type_description: First Post publishes the first post in each topic. Full Topic publishes all posts and ingests replies.
+        label: ActivityPub
+        actor:
+          add:
+            title: Add ActivityPub actor
+            label: Add Actor
+          save: 
+            title: Save ActivityPub actor
+            label: Save Actor
+            success: Saved
+            failed: Not Saved
+          edit:
+            title: Edit ActivityPub actor
+            label: Edit Actor
+          enabled:
+            title: ActivityPub actor enabled
+            label: Enabled
+          disabled:
+            title: ActivityPub actor disabled
+            label: Disabled
+          site_setting:
+            title: Site Settings
+            activity_pub_enabled:
+              label: Plugin is enabled
+              title: The ActivityPub plugin is enabled by the activity pub enabled site setting.
+              description: Incoming activities addressed to enabled actors will be processed.
+            login_required:
+              label: Login is required
+              title: Login is required by the login required site setting.
+              description: Only outgoing follow requests and the attributes of enabled actors are published.
+          username: Username
+          username_description: Cannot be changed once saved.
+          handle: Handle
+          handle_description: Used to identify this actor on services using Webfinger (e.g. Mastodon).
+          name: Name
+          name_description: Used as a display name on some services (e.g. Mastodon).
+          default_visibility: Visibility
+          default_visibility_description: All posts will be published via ActivityPub with this visibility.
+          post_object_type: Post object type
+          post_object_type_description: Use Note for short content (e.g. Mastodon) and Article for long content.
+          publication_type: Publication type
+          publication_type_description: First Post publishes the first post in each topic. Full Topic publishes all posts and ingests replies.
+          table:
+            actor: Actor
+            model: Model
+            actions: Actions
+          category:
+            label: Categories
+            title: Category Actors
+            none: Select a category
+          model_type:
+            none: Select a model
+            category: Category
+        log:
+          label: Logs
+  js:   
     discourse_activity_pub:
       status:
         title:

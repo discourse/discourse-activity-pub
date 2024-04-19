@@ -96,6 +96,25 @@ module DiscourseActivityPub
       )
     end
 
+    def self.ensure_activity_has_post(activity)
+      post = activity.object.stored.model
+
+      unless post
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+              I18n.t("discourse_activity_pub.process.warning.cant_find_post")
+      end
+
+      if post.trashed?
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+              I18n.t("discourse_activity_pub.process.warning.post_is_deleted")
+      end
+
+      unless post.activity_pub_full_topic
+        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+              I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
+      end
+    end
+
     protected
 
     def can_create_topic?(category)

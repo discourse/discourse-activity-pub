@@ -4,6 +4,8 @@ module DiscourseActivityPub
   class AuthController < ApplicationController
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
+    include DiscourseActivityPub::EnabledVerification
+
     before_action :ensure_logged_in
     before_action :ensure_site_enabled
 
@@ -12,10 +14,6 @@ module DiscourseActivityPub
     end
 
     protected
-
-    def ensure_site_enabled
-      render_auth_error("not_enabled", 403) unless DiscourseActivityPub.enabled
-    end
 
     def render_auth_error(key, status)
       render_json_error(I18n.t("discourse_activity_pub.auth.error.#{key}"), status)

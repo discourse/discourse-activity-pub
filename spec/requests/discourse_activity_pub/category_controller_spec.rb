@@ -81,7 +81,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
         it "orders by user" do
           get "/ap/category/#{actor.model.id}/followers.json?order=user"
           expect(response.status).to eq(200)
-          expect(response.parsed_body["actors"].map { |f| f.dig("user", "username") }).to eq(
+          expect(response.parsed_body["actors"].map { |f| f.dig("model", "username") }).to eq(
             ["xavier_local", "bob_local", nil],
           )
         end
@@ -105,8 +105,7 @@ RSpec.describe DiscourseActivityPub::CategoryController do
 
           it "returns the right error" do
             get "/ap/category/#{actor.model.id}/followers.json"
-            expect(response.status).to eq(403)
-            expect(response.parsed_body).to eq(build_error("not_enabled"))
+            expect_not_enabled(response)
           end
         end
       end
