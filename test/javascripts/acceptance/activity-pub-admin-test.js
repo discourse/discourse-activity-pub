@@ -12,7 +12,8 @@ import {
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
 
-const categoryActors = AdminActors["/admin/plugins/ap/actor?model_type=category"];
+const categoryActors =
+  AdminActors["/admin/plugins/ap/actor?model_type=category"];
 
 acceptance(
   "Discourse Activity Pub | Admin | ActivityPub disabled",
@@ -23,7 +24,9 @@ acceptance(
       activity_pub_publishing_enabled: false,
     });
     needs.pretender((server, helper) => {
-      server.get("/admin/plugins/ap/actor", () => helper.response(categoryActors));
+      server.get("/admin/plugins/ap/actor", () =>
+        helper.response(categoryActors)
+      );
     });
 
     test("returns 404", async function (assert) {
@@ -40,7 +43,9 @@ acceptance("Discourse Activity Pub | Admin | Categories", function (needs) {
     activity_pub_publishing_enabled: true,
   });
   needs.pretender((server, helper) => {
-    server.get("/admin/plugins/ap/actor", () => helper.response(categoryActors));
+    server.get("/admin/plugins/ap/actor", () =>
+      helper.response(categoryActors)
+    );
   });
 
   test("lists category actors", async function (assert) {
@@ -73,7 +78,9 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
     activity_pub_publishing_enabled: true,
   });
   needs.pretender((server, helper) => {
-    server.get("/admin/plugins/ap/actor/new", () => helper.response(categoryActors));
+    server.get("/admin/plugins/ap/actor/new", () =>
+      helper.response(categoryActors)
+    );
   });
 
   test("creates a new actor", async function (assert) {
@@ -168,7 +175,9 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     activity_pub_publishing_enabled: true,
   });
   needs.pretender((server, helper) => {
-    server.get(`/admin/plugins/ap/actor/${actor.id}`, () => helper.response(actor));
+    server.get(`/admin/plugins/ap/actor/${actor.id}`, () =>
+      helper.response(actor)
+    );
   });
 
   test("edits an actor", async function (assert) {

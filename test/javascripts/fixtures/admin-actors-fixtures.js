@@ -42,7 +42,8 @@ export default {
     ],
     meta: {
       total: 2,
-      load_more_url: "/admin/plugins/ap/actor.json?model_type=category&offset=4",
+      load_more_url:
+        "/admin/plugins/ap/actor.json?model_type=category&offset=4",
     },
   },
 };
