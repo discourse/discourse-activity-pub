@@ -550,7 +550,7 @@ after_initialize do
 
   add_to_class(:post_action, :activity_pub_enabled) { post.activity_pub_enabled }
   add_to_class(:post_action, :activity_pub_deleted?) { nil }
-  add_to_class(:post_action, :activity_pub_published?) { nil }
+  add_to_class(:post_action, :activity_pub_published?) { !!post.activity_pub_published_at }
   add_to_class(:post_action, :activity_pub_visibility) { "public" }
   add_to_class(:post_action, :activity_pub_actor) { user.activity_pub_actor }
   add_to_class(:post_action, :activity_pub_group_actors) { post.activity_pub_group_actors }

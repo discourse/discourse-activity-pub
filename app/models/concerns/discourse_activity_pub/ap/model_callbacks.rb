@@ -131,9 +131,9 @@ module DiscourseActivityPub
       def activity_pub_deliver_activity
         return if !activity_pub_delivery_object
 
-        if activity_pub_schedule?
+        if !self.destroyed? && !activity_pub_published? && !performing_activity.create?
           if self.respond_to?(:activity_pub_after_scheduled)
-            activity_pub_after_scheduled(scheduled_at: activity_pub_first_post_scheduled_at)
+            activity_pub_after_scheduled(scheduled_at: activity_pub_scheduled_at)
           end
           return
         end
@@ -190,11 +190,6 @@ module DiscourseActivityPub
         actor_ids
       end
 
-      def activity_pub_schedule?
-        !self.destroyed? && activity_pub_full_topic && !activity_pub_topic_published? &&
-          (!activity_pub_is_first_post? || !performing_activity.create?)
-      end
-
       def activity_pub_delivery_actors
         if performing_activity.create? || performing_activity.like? ||
              performing_activity.undo_like?
@@ -205,11 +200,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_object
-        if !self.destroyed? && !activity_pub_topic_published? && activity_pub_full_topic
-          activity_pub_collection.activities_collection
-        else
-          performing_activity.stored
-        end
+        performing_activity.stored
       end
 
       def activity_pub_delivery_delay

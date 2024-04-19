@@ -120,7 +120,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       end
 
       context "with activity pub enabled" do
-        before { toggle_activity_pub(actor.model) }
+        before { toggle_activity_pub(actor.model, callbacks: true) }
 
         it "returns true" do
           expect(perform_process(json, activity_type)).to eq(true)
