@@ -6,12 +6,14 @@ import DButton from "discourse/components/d-button";
 import I18n from "I18n";
 import ActivityPubActorFollowModal from "../components/modal/activity-pub-actor-follow";
 import ActivityPubActorUnfollowModal from "../components/modal/activity-pub-actor-unfollow";
+import ActivityPubActorRejectModal from "../components/modal/activity-pub-actor-reject";
 import ActivityPubFollowModal from "../components/modal/activity-pub-follow";
 
 const modalMap = {
   follow: ActivityPubFollowModal,
   actor_follow: ActivityPubActorFollowModal,
   actor_unfollow: ActivityPubActorUnfollowModal,
+  actor_reject: ActivityPubActorRejectModal,
 };
 
 export default class ActivityPubFollowBtn extends Component {

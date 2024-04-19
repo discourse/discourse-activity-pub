@@ -4,7 +4,7 @@
   class="activity-pub-followers-container"
 >
   {{#if this.hasActors}}
-    <ResponsiveTable @className="activity-pub-follow-table followers">
+    <ResponsiveTable @className={{this.tableClass}}>
       <:header>
         <TableHeaderToggle
           @field="actor"
@@ -27,6 +27,11 @@
           @order={{this.order}}
           @asc={{this.asc}}
         />
+        {{#if this.currentUser.admin}}
+          <th
+            class="activity-pub-follow-table-actions directory-table__column-header"
+          ></th>
+        {{/if}}
       </:header>
       <:body>
         {{#each this.actors as |actor|}}
@@ -50,6 +55,18 @@
             >
               {{bound-date actor.followed_at}}
             </div>
+            {{#if this.currentUser.admin}}
+              <div
+                class="directory-table__cell activity-pub-follow-table-actions"
+              >
+                <ActivityPubFollowBtn
+                  @actor={{this.model.category.activity_pub_actor}}
+                  @followingActor={{actor}}
+                  @reject={{route-action "reject"}}
+                  @type="actor_reject"
+                />
+              </div>
+            {{/if}}
           </div>
         {{/each}}
       </:body>

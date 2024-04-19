@@ -139,6 +139,8 @@ en:
         no_change_when_set: An ActivityPub username can't be changed once set.
         invalid_username: "ActivityPub usernames can only contain ASCII characters."
         username_taken: "That username is already taken on this server."
+        user_not_authorized: "User not authorized"
+        not_following_actor: "Target actor is not following the actor"
     auth:
       error:
         invalid_oauth_domain: "Invalid ActivityPub OAuth domain"

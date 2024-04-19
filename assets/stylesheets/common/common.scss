@@ -331,6 +331,9 @@ body.user-preferences-activity-pub-page {
 .activity-pub-follow-table {
   &.followers {
     grid-template-columns: minmax(13em, 3fr) repeat(2, 110px);
+    &.show-controls {
+      grid-template-columns: minmax(13em, 3fr) repeat(3, 110px);
+    }
   }
   &.follows {
     grid-template-columns: minmax(13em, 3fr) repeat(3, 110px);
