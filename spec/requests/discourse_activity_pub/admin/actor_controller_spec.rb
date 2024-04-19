@@ -166,7 +166,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "without a username" do
         it "returns a 400" do
-          post "/admin/ap/actor.json",
+          post "/admin/plugins/ap/actor.json",
                params: {
                  actor: {
                    model_type: "Tag",
@@ -181,7 +181,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with private visibility and full topic publication" do
         it "returns a 400" do
-          post "/admin/ap/actor.json",
+          post "/admin/plugins/ap/actor.json",
                params: {
                  actor: {
                    model_type: "Tag",
@@ -201,7 +201,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns a new actor" do
-          post "/admin/ap/actor.json",
+          post "/admin/plugins/ap/actor.json",
                params: {
                  actor: {
                    model_type: "Tag",
@@ -268,7 +268,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns an updated actor" do
-          put "/admin/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
+          put "/admin/plugins/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["name"]).to eq("New name")
         end
@@ -281,7 +281,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with private visibility and full topic publication" do
         it "returns a 400" do
-          put "/admin/ap/actor/#{actor.id}.json",
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
                   default_visibility: "private",
@@ -297,7 +297,12 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with a new username" do
         it "returns the right error" do
-          put "/admin/ap/actor/#{actor.id}.json", params: { actor: { username: "new_actor" } }
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
+              params: {
+                actor: {
+                  username: "new_actor",
+                },
+              }
           expect(response.status).to eq(400)
           expect(response.parsed_body["errors"]).to include(actor_warning("no_change_when_set"))
         end
@@ -305,7 +310,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns an updated actor" do
-          put "/admin/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
+          put "/admin/plugins/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["name"]).to eq("New name")
         end

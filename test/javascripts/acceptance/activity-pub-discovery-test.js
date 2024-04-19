@@ -8,10 +8,10 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import I18n from "I18n";
+import { default as Actors } from "../fixtures/actors-fixtures";
 import { default as Followers } from "../fixtures/followers-fixtures";
 import { default as Follows } from "../fixtures/follows-fixtures";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
-import { default as Actors } from "../fixtures/actors-fixtures";
 
 const actorPath = `/ap/local/actor/2`;
 const followsPath = `${actorPath}/follows`;
@@ -24,7 +24,7 @@ acceptance(
     needs.site({
       activity_pub_enabled: false,
       activity_pub_publishing_enabled: false,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
 
     test("with a non-category route", async function (assert) {
@@ -71,7 +71,9 @@ acceptance(
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followersPath}.json`, () => helper.response(Followers[followersPath]));
+      server.get(`${followersPath}.json`, () =>
+        helper.response(Followers[followersPath])
+      );
     });
 
     test("with a non-category route", async function (assert) {
@@ -141,7 +143,7 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: false,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
@@ -169,10 +171,12 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: false,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
-      server.get("/ap/local/actor/1", () => helper.response(Actors["/ap/local/actor/1"]));
+      server.get("/ap/local/actor/1", () =>
+        helper.response(Actors["/ap/local/actor/1"])
+      );
     });
 
     test("returns 404", async function (assert) {
@@ -189,11 +193,13 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followersPath}.json`, () => helper.response({ followers: [] }));
+      server.get(`${followersPath}.json`, () =>
+        helper.response({ followers: [] })
+      );
     });
 
     test("with activity pub ready", async function (assert) {
@@ -219,16 +225,16 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followersPath}.json`, () => helper.response(Followers[followersPath]));
+      server.get(`${followersPath}.json`, () =>
+        helper.response(Followers[followersPath])
+      );
     });
 
     test("with activity pub ready", async function (assert) {
-      const category = Category.findById(2);
-
       await visit(followersPath);
 
       assert.ok(
@@ -294,10 +300,12 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
-      server.get("/ap/local/actor/1", () => helper.response(Actors["/ap/local/actor/1"]));
+      server.get("/ap/local/actor/1", () =>
+        helper.response(Actors["/ap/local/actor/1"])
+      );
     });
 
     test("returns 404", async function (assert) {
@@ -314,11 +322,15 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
-      server.get("/ap/local/actor/3", () => helper.response(Actors["/ap/local/actor/3"]));
-      server.get(`/ap/local/actor/3/follows.json`, () => helper.response({ follows: [] }));
+      server.get("/ap/local/actor/3", () =>
+        helper.response(Actors["/ap/local/actor/3"])
+      );
+      server.get(`/ap/local/actor/3/follows.json`, () =>
+        helper.response({ follows: [] })
+      );
     });
 
     test("with activity pub ready", async function (assert) {
@@ -339,16 +351,16 @@ acceptance(
     needs.site({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: SiteActors
+      activity_pub_actors: SiteActors,
     });
     needs.pretender((server, helper) => {
       server.get(actorPath, () => helper.response(Actors[actorPath]));
-      server.get(`${followsPath}.json`, () => helper.response(Follows[followsPath]));
+      server.get(`${followsPath}.json`, () =>
+        helper.response(Follows[followsPath])
+      );
     });
 
     test("with activity pub ready", async function (assert) {
-      const category = Category.findById(2);
-
       await visit(followsPath);
 
       assert.ok(

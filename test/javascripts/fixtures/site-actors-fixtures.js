@@ -8,11 +8,11 @@ export default {
       model_type: "Category",
       model_id: 1,
       can_admin: false,
-      default_visibility: 'public',
-      publication_type: 'first_post',
-      post_object_type: 'Note',
+      default_visibility: "public",
+      publication_type: "first_post",
+      post_object_type: "Note",
       enabled: true,
-      ready: true
+      ready: true,
     },
     {
       id: 2,
@@ -22,11 +22,11 @@ export default {
       model_type: "Category",
       model_id: 2,
       can_admin: true,
-      default_visibility: 'public',
-      publication_type: 'first_post',
-      post_object_type: 'Note',
+      default_visibility: "public",
+      publication_type: "first_post",
+      post_object_type: "Note",
       enabled: true,
-      ready: true
+      ready: true,
     },
     {
       id: 3,
@@ -36,11 +36,11 @@ export default {
       model_type: "Category",
       model_id: 3,
       can_admin: true,
-      default_visibility: 'public',
-      publication_type: 'first_post',
-      post_object_type: 'Note',
+      default_visibility: "public",
+      publication_type: "first_post",
+      post_object_type: "Note",
       enabled: true,
-      ready: true
+      ready: true,
     },
   ],
   tag: [
@@ -51,13 +51,13 @@ export default {
       username: "tag_1",
       model_type: "Tag",
       model_id: 1,
-      model_name: 'tag_1',
+      model_name: "tag_1",
       can_admin: true,
-      default_visibility: 'public',
-      publication_type: 'first_post',
-      post_object_type: 'Note',
+      default_visibility: "public",
+      publication_type: "first_post",
+      post_object_type: "Note",
       enabled: true,
-      ready: true
-    }
-  ]
+      ready: true,
+    },
+  ],
 };

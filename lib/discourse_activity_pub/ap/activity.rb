@@ -104,6 +104,10 @@ module DiscourseActivityPub
         type == Undo.type
       end
 
+      def undo_like?
+        undo? && object&.like?
+      end
+
       def follow?
         type == Follow.type
       end

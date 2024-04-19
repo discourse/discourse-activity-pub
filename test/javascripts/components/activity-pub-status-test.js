@@ -10,9 +10,9 @@ import {
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
+import { cloneJSON } from "discourse-common/lib/object";
 import I18n from "I18n";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
-import { cloneJSON } from "discourse-common/lib/object";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
@@ -20,13 +20,13 @@ function setSite(context, attrs = {}) {
   Site.current().setProperties({
     activity_pub_enabled: attrs.activity_pub_enabled,
     activity_pub_publishing_enabled: attrs.activity_pub_publishing_enabled,
-    activity_pub_actors: attrs.activity_pub_actors
+    activity_pub_actors: attrs.activity_pub_actors,
   });
 }
 
 function setCategory(context) {
   const categories = context.site.categoriesList;
-  const category = categories.find(c => c.id === 2);
+  const category = categories.find((c) => c.id === 2);
   context.set("category", category);
 }
 
@@ -54,7 +54,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setCategory(this);
 
@@ -78,7 +78,7 @@ module(
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setCategory(this);
 
@@ -109,8 +109,8 @@ module(
               actor.enabled = false;
             }
             return actor;
-          })
-        }
+          }),
+        },
       });
       setCategory(this);
 
@@ -144,8 +144,8 @@ module(
               actor.ready = false;
             }
             return actor;
-          })
-        }
+          }),
+        },
       });
       setCategory(this);
 
@@ -171,7 +171,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setCategory(this);
 
@@ -197,7 +197,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setCategory(this);
 
@@ -233,7 +233,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setCategory(this);
       setComposer(this, {
@@ -262,7 +262,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setTag(this);
 
@@ -286,7 +286,7 @@ module(
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setTag(this);
 
@@ -317,8 +317,8 @@ module(
               actor.enabled = false;
             }
             return actor;
-          })
-        }
+          }),
+        },
       });
       setTag(this);
 
@@ -352,8 +352,8 @@ module(
               actor.ready = false;
             }
             return actor;
-          })
-        }
+          }),
+        },
       });
       setTag(this);
 
@@ -379,7 +379,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setTag(this);
 
@@ -405,7 +405,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setTag(this);
 
@@ -441,7 +441,7 @@ module(
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
-        activity_pub_actors: cloneJSON(SiteActors)
+        activity_pub_actors: cloneJSON(SiteActors),
       });
       setTag(this);
       setComposer(this, {

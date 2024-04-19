@@ -19,7 +19,7 @@ export default {
         name: "Cat 1",
         slug: "cat-1",
       },
-    }
+    },
   },
   "/ap/local/actor/2": {
     actor: {
@@ -41,7 +41,7 @@ export default {
         name: "Cat 2",
         slug: "cat-2",
       },
-    }
+    },
   },
   "/ap/local/actor/3": {
     actor: {
@@ -63,6 +63,6 @@ export default {
         name: "Sub Cat 1",
         slug: "cat-1/sub-cat-1",
       },
-    }
+    },
   },
 };

@@ -8,7 +8,13 @@ module DiscourseActivityPub
       @object = object
     end
 
-    def create(category_id: nil, tag_id: nil)
+    def create(
+      category_id: nil,
+      tag_id: nil,
+      topic_id: nil,
+      reply_to_post_number: nil,
+      import_mode: false
+    )
       if !user || !object || object.model_id ||
            (!object.in_reply_to_post && !category_id && !tag_id)
         return nil
@@ -21,7 +27,16 @@ module DiscourseActivityPub
       tag = Tag.find_by(id: tag_id) if tag_id
 
       new_topic = !object.in_reply_to_post && (category || tag)
-      params = { raw: object.content, skip_events: true, skip_validations: true, custom_fields: {} }
+      params = {
+        raw: object.content,
+        skip_events: true,
+        skip_validations: true,
+        custom_fields: {
+        },
+        import_mode: import_mode,
+        topic_id: topic_id,
+        reply_to_post_number: reply_to_post_number,
+      }
 
       if new_topic
         params[:title] = object.name ||
@@ -75,8 +90,22 @@ module DiscourseActivityPub
       post
     end
 
-    def self.create(user, object, category_id: nil, tag_id: nil)
-      new(user, object).create(category_id: category_id, tag_id: tag_id)
+    def self.create(
+      user,
+      object,
+      category_id: nil,
+      tag_id: nil,
+      topic_id: nil,
+      reply_to_post_number: nil,
+      import_mode: false
+    )
+      new(user, object).create(
+        category_id: category_id,
+        tag_id: tag_id,
+        import_mode: import_mode,
+        topic_id: topic_id,
+        reply_to_post_number: reply_to_post_number,
+      )
     end
 
     def self.ensure_activity_has_post(activity)

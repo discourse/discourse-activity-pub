@@ -196,7 +196,8 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_actors
-        if performing_activity.create?
+        if performing_activity.create? || performing_activity.like? ||
+             performing_activity.undo_like?
           activity_pub_group_actors
         else
           [performing_activity_actor]

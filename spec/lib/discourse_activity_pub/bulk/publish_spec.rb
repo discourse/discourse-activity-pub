@@ -27,7 +27,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
     end
 
     context "when the actor has full topic enabled" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+      before { toggle_activity_pub(category, publication_type: "full_topic") }
 
       context "when the actor has models without ap objects" do
         let!(:topic1) { Fabricate(:topic, category: category) }
@@ -223,6 +223,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           after { teardown_logging }
 
           it "logs the right info" do
+            actor.reload
             described_class.perform(actor_id: actor.id)
             [
               I18n.t("discourse_activity_pub.bulk.publish.info.started", actor: actor.handle),
@@ -374,6 +375,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           after { teardown_logging }
 
           it "logs the right info" do
+            actor.reload
             described_class.perform(actor_id: actor.id)
             [
               I18n.t("discourse_activity_pub.bulk.publish.info.started", actor: actor.handle),
@@ -496,7 +498,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
     end
 
     context "when the actor has first_post enabled" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "first_post") }
+      before { toggle_activity_pub(category, publication_type: "first_post") }
 
       context "when the actor has models without ap objects" do
         let!(:topic1) { Fabricate(:topic, category: category) }
@@ -586,6 +588,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           after { teardown_logging }
 
           it "logs the right info" do
+            actor.reload
             described_class.perform(actor_id: actor.id)
             [
               I18n.t("discourse_activity_pub.bulk.publish.info.started", actor: actor.handle),

@@ -97,7 +97,7 @@ RSpec.describe PostAction do
 
             it "sends to the remote contributors for delivery without delay" do
               expect_delivery(
-                actor: post_action.activity_pub_actor,
+                actor: category.activity_pub_actor,
                 object_type: "Like",
                 recipient_ids: [person.id],
               )
@@ -116,7 +116,7 @@ RSpec.describe PostAction do
 
               it "sends to followers and remote contributors for delivery without delay" do
                 expect_delivery(
-                  actor: post_action.activity_pub_actor,
+                  actor: category.activity_pub_actor,
                   object_type: "Like",
                   recipient_ids: [follower1.id] + [person.id],
                 )
@@ -169,7 +169,7 @@ RSpec.describe PostAction do
 
             it "sends to the remote contributors for delivery without delay" do
               expect_delivery(
-                actor: post_action.activity_pub_actor,
+                actor: category.activity_pub_actor,
                 object_type: "Undo",
                 recipient_ids: [person.id],
               )
@@ -188,7 +188,7 @@ RSpec.describe PostAction do
 
               it "sends to followers and remote contributors for delivery without delay" do
                 expect_delivery(
-                  actor: post_action.activity_pub_actor,
+                  actor: category.activity_pub_actor,
                   object_type: "Undo",
                   recipient_ids: [follower1.id] + [person.id],
                 )

@@ -254,8 +254,8 @@ after_initialize do
     first_post = posts.with_deleted.find_by(post_number: 1)
     first_post&.activity_pub_published?
   end
-  add_to_class(:topic, :activity_pub_first_post) { category&.activity_pub_first_post }
-  add_to_class(:topic, :activity_pub_full_topic) { category&.activity_pub_full_topic }
+  add_to_class(:topic, :activity_pub_first_post) { activity_pub_taxonomy&.activity_pub_first_post }
+  add_to_class(:topic, :activity_pub_full_topic) { activity_pub_taxonomy&.activity_pub_full_topic }
   add_to_class(:topic, :activity_pub_full_topic_enabled) do
     activity_pub_enabled && activity_pub_full_topic
   end

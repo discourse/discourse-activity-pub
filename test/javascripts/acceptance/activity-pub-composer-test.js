@@ -7,9 +7,9 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
+import { cloneJSON } from "discourse-common/lib/object";
 import I18n from "I18n";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
-import { cloneJSON } from "discourse-common/lib/object";
 
 acceptance("Discourse Activity Pub | composer", function (needs) {
   needs.user();
@@ -18,7 +18,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     Site.current().setProperties({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: cloneJSON(SiteActors)
+      activity_pub_actors: cloneJSON(SiteActors),
     });
 
     await visit("/");
@@ -34,7 +34,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     Site.current().setProperties({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: cloneJSON(SiteActors)
+      activity_pub_actors: cloneJSON(SiteActors),
     });
 
     await visit("/");
@@ -59,7 +59,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     Site.current().setProperties({
       activity_pub_enabled: false,
       activity_pub_publishing_enabled: true,
-      activity_pub_actors: cloneJSON(SiteActors)
+      activity_pub_actors: cloneJSON(SiteActors),
     });
 
     await visit("/");

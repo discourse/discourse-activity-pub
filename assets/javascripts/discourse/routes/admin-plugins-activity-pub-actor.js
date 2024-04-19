@@ -18,7 +18,7 @@ export default class AdminPluginsActivityPubActorRoute extends DiscourseRoute {
       }
     });
     return ajax(`${actorAdminPath}?${searchParams.toString()}`);
-  },
+  }
 
   setupController(controller, model) {
     controller.setProperties({
