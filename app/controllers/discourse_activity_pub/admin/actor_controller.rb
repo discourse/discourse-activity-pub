@@ -44,7 +44,7 @@ module DiscourseActivityPub
         direction = params[:asc] == "true" ? "ASC" : "DESC"
         actors = actors.order("#{order} #{direction}").limit(LIST_LIMIT).offset(offset * LIST_LIMIT)
 
-        load_more_url = URI("/admin/ap/actor.json")
+        load_more_url = URI("/admin/plugins/ap/actor.json")
         load_more_url.query = ::URI.encode_www_form(load_more_query_params)
 
         render_serialized(

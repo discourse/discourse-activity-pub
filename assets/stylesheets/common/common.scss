@@ -422,8 +422,18 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.admin-controls .nav-pills > li.activity-pub-add-actor {
-  margin-left: auto;
+.admin-plugins.activity-pub {
+  .admin-container > .admin-controls nav {
+    background-color: var(--primary-very-low);
+
+    &::before,
+    &::after {
+      content: unset;
+    }
+    .nav-pills > li.activity-pub-add-actor {
+      margin-left: auto;
+    }
+  }
 }
 
 .activity-pub-actor-table {
@@ -446,6 +456,7 @@ body.user-preferences-activity-pub-page {
 .activity-pub-actor-title {
   align-items: center;
   gap: 1em;
+  margin-top: 1em;
 }
 
 .activity-pub-actor-header {

@@ -1,5 +1,5 @@
 export default {
-  "/admin/ap/actor?model_type=category": {
+  "/admin/plugins/ap/actor?model_type=category": {
     actors: [
       {
         id: 1,
@@ -42,7 +42,7 @@ export default {
     ],
     meta: {
       total: 2,
-      load_more_url: "/admin/ap/actor.json?model_type=category&offset=4",
+      load_more_url: "/admin/plugins/ap/actor.json?model_type=category&offset=4",
     },
   },
 };

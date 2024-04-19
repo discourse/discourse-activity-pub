@@ -17,7 +17,7 @@ const ActivityPubActor = EmberObject.extend({
     if (this.isNew) {
       return;
     }
-    return ajax(`/admin/ap/actor/${this.id}/disable`, {
+    return ajax(`/admin/plugins/ap/actor/${this.id}/disable`, {
       type: "POST",
     }).catch(popupAjaxError);
   },
@@ -26,7 +26,7 @@ const ActivityPubActor = EmberObject.extend({
     if (this.isNew) {
       return;
     }
-    return ajax(`/admin/ap/actor/${this.id}/enable`, {
+    return ajax(`/admin/plugins/ap/actor/${this.id}/enable`, {
       type: "POST",
     }).catch(popupAjaxError);
   },
@@ -45,7 +45,7 @@ const ActivityPubActor = EmberObject.extend({
       },
     };
     let type = "POST";
-    let path = "/admin/ap/actor";
+    let path = "/admin/plugins/ap/actor";
 
     if (this.id !== "new") {
       path = `${path}/${this.id}`;

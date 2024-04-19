@@ -3,7 +3,7 @@ import { ajax } from "discourse/lib/ajax";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default class AdminActivityPubActorRoute extends DiscourseRoute {
+export default class AdminPluginsActivityPubActorRoute extends DiscourseRoute {
   queryParams = {
     order: { refreshModel: true },
     asc: { refreshModel: true },
@@ -17,7 +17,7 @@ export default class AdminActivityPubActorRoute extends DiscourseRoute {
         searchParams.set(param, params[param]);
       }
     });
-    return ajax(`/admin/ap/actor?${searchParams.toString()}`);
+    return ajax(`/admin/plugins/ap/actor?${searchParams.toString()}`);
   }
 
   setupController(controller, model) {

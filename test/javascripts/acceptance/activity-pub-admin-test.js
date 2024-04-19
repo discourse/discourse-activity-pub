@@ -12,7 +12,7 @@ import {
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
 
-const categoryActors = AdminActors["/admin/ap/actor?model_type=category"];
+const categoryActors = AdminActors["/admin/plugins/ap/actor?model_type=category"];
 
 acceptance(
   "Discourse Activity Pub | Admin | ActivityPub disabled",
@@ -23,11 +23,11 @@ acceptance(
       activity_pub_publishing_enabled: false,
     });
     needs.pretender((server, helper) => {
-      server.get("/admin/ap/actor", () => helper.response(categoryActors));
+      server.get("/admin/plugins/ap/actor", () => helper.response(categoryActors));
     });
 
     test("returns 404", async function (assert) {
-      await visit("/admin/ap/actor");
+      await visit("/admin/plugins/ap/actor");
       assert.strictEqual(currentURL(), "/404");
     });
   }
@@ -40,11 +40,11 @@ acceptance("Discourse Activity Pub | Admin | Categories", function (needs) {
     activity_pub_publishing_enabled: true,
   });
   needs.pretender((server, helper) => {
-    server.get("/admin/ap/actor", () => helper.response(categoryActors));
+    server.get("/admin/plugins/ap/actor", () => helper.response(categoryActors));
   });
 
   test("lists category actors", async function (assert) {
-    await visit("/admin/ap/actor");
+    await visit("/admin/plugins/ap/actor");
     assert.ok(
       exists(".activity-pub-actor-table"),
       "the actors table is visible"
@@ -60,7 +60,7 @@ acceptance("Discourse Activity Pub | Admin | Categories", function (needs) {
     );
     await click(".activity-pub-actor-edit-btn");
     assert.ok(
-      exists(".admin-activity-pub-actor-show"),
+      exists(".admin-plugins.activity-pub.actor-show"),
       "it routes to actor show"
     );
   });
@@ -73,11 +73,11 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
     activity_pub_publishing_enabled: true,
   });
   needs.pretender((server, helper) => {
-    server.get("/admin/ap/actor/new", () => helper.response(categoryActors));
+    server.get("/admin/plugins/ap/actor/new", () => helper.response(categoryActors));
   });
 
   test("creates a new actor", async function (assert) {
-    await visit("/admin/ap/actor/new");
+    await visit("/admin/plugins/ap/actor/new");
 
     assert.ok(
       exists(".activity-pub-actor-add"),
@@ -140,7 +140,7 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
       ...actor,
     };
 
-    pretender.post("/admin/ap/actor", (request) => {
+    pretender.post("/admin/plugins/ap/actor", (request) => {
       const body = parsePostData(request.requestBody);
       Object.keys(actor).forEach((attr) => {
         assert.strictEqual(
@@ -152,7 +152,7 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
       return response({ success: true, actor: createdActor });
     });
 
-    pretender.get(`/admin/ap/actor/${createdActor.id}`, () => {
+    pretender.get(`/admin/plugins/ap/actor/${createdActor.id}`, () => {
       return response(createdActor);
     });
 
@@ -168,11 +168,11 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     activity_pub_publishing_enabled: true,
   });
   needs.pretender((server, helper) => {
-    server.get(`/admin/ap/actor/${actor.id}`, () => helper.response(actor));
+    server.get(`/admin/plugins/ap/actor/${actor.id}`, () => helper.response(actor));
   });
 
   test("edits an actor", async function (assert) {
-    await visit(`/admin/ap/actor/${actor.id}`);
+    await visit(`/admin/plugins/ap/actor/${actor.id}`);
 
     assert.ok(
       exists(".activity-pub-actor-edit"),
@@ -195,7 +195,7 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
 
     await fillIn("#activity-pub-name", updatedActor.name);
 
-    pretender.put(`/admin/ap/actor/${updatedActor.id}`, (request) => {
+    pretender.put(`/admin/plugins/ap/actor/${updatedActor.id}`, (request) => {
       const body = parsePostData(request.requestBody);
       assert.strictEqual(
         body.actor.name,

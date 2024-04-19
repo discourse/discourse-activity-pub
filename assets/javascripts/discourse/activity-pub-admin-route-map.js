@@ -1,22 +1,10 @@
 export default {
-  resource: "admin",
+  resource: "admin.adminPlugins",
+  path: "/plugins",
   map() {
-    this.route(
-      "adminActivityPub",
-      {
-        path: "/ap",
-        resetNamespace: true,
-      },
-      function () {
-        this.route("adminActivityPubActor", {
-          path: "/actor",
-          resetNamespace: true,
-        });
-        this.route("adminActivityPubActorShow", {
-          path: "/actor/:actor_id",
-          resetNamespace: true,
-        });
-      }
-    );
+    this.route("activityPub", { path: "/ap" }, function () {
+      this.route("actor");
+      this.route("actorShow", { path: "/actor/:actor_id" });
+    });
   },
 };

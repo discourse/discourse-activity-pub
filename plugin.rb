@@ -11,6 +11,8 @@ register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
 register_svg_icon "user-check"
 
+add_admin_route "admin.discourse_activity_pub.label", "activityPub"
+
 after_initialize do
   require_relative "lib/discourse_activity_pub/engine"
   require_relative "lib/discourse_activity_pub/json_ld"
@@ -1132,13 +1134,15 @@ after_initialize do
         }
 
     scope module: "discourse_activity_pub", constraints: AdminConstraint.new do
-      get "admin/ap" => "admin/admin#index"
-      get "admin/ap/actor" => "admin/actor#index"
-      post "admin/ap/actor" => "admin/actor#create", :constraints => { format: :json }
-      get "admin/ap/actor/:actor_id" => "admin/actor#show"
-      put "admin/ap/actor/:actor_id" => "admin/actor#update", :constraints => { format: :json }
-      post "admin/ap/actor/:actor_id/enable" => "admin/actor#enable"
-      post "admin/ap/actor/:actor_id/disable" => "admin/actor#disable"
+      scope "/admin/plugins" do
+        get "ap" => "admin/admin#index"
+        get "ap/actor" => "admin/actor#index"
+        post "ap/actor" => "admin/actor#create", :constraints => { format: :json }
+        get "ap/actor/:actor_id" => "admin/actor#show"
+        put "ap/actor/:actor_id" => "admin/actor#update", :constraints => { format: :json }
+        post "ap/actor/:actor_id/enable" => "admin/actor#enable"
+        post "ap/actor/:actor_id/disable" => "admin/actor#disable"
+      end
     end
   end
 end

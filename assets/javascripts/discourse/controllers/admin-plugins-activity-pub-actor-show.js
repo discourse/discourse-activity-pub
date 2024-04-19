@@ -8,7 +8,7 @@ import discourseLater from "discourse-common/lib/later";
 import I18n from "I18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default class adminActivityPubActorShow extends Controller {
+export default class AdminPluginsActivityPubActorShow extends Controller {
   @service dialog;
   @service router;
   @tracked categoryId = null;
@@ -45,7 +45,7 @@ export default class adminActivityPubActorShow extends Controller {
 
   @action
   goBack() {
-    this.router.transitionTo("adminActivityPubActor");
+    this.router.transitionTo("adminPlugins.activityPub.actor");
   }
 
   @action
@@ -56,7 +56,7 @@ export default class adminActivityPubActorShow extends Controller {
         if (this.actor.isNew) {
           this.saving = false;
           return this.router.transitionTo(
-            "adminActivityPubActorShow",
+            "adminPlugins.activityPub.actorShow",
             result.actor
           );
         }

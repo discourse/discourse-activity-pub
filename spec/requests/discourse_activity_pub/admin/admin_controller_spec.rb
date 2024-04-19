@@ -15,7 +15,7 @@ RSpec.describe DiscourseActivityPub::Admin::AdminController do
           before { SiteSetting.activity_pub_enabled = false }
 
           it "returns a not enabled error" do
-            get "/admin/ap.json"
+            get "/admin/plugins/ap.json"
             expect_not_enabled(response)
           end
         end
@@ -24,7 +24,7 @@ RSpec.describe DiscourseActivityPub::Admin::AdminController do
           before { SiteSetting.activity_pub_enabled = true }
 
           it "permits access with a 202 response" do
-            get "/admin/ap.json"
+            get "/admin/plugins/ap.json"
             expect(response.status).to eq(202)
           end
         end

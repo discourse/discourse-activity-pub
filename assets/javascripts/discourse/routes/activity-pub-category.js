@@ -8,7 +8,8 @@ export default DiscourseRoute.extend({
   router: service(),
 
   model(params) {
-    return Category.findById(params.category_id);
+    const categoryId = parseInt(params.category_id, 10);
+    return Category.findById(categoryId);
   },
 
   setupController(controller, model) {

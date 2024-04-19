@@ -8,9 +8,9 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import I18n from "I18n";
 import ActivityPubActor, { newActor } from "../models/activity-pub-actor";
 
-export default class adminActivityPubActor extends Controller {
+export default class AdminPluginsActivityPubActor extends Controller {
   @service router;
-  @controller adminActivityPubActorShow;
+  @controller("adminPlugins.activityPub.actorShow") actorShowController;
   @tracked order = "";
   @tracked asc = null;
   @tracked model_type = "category";
@@ -55,15 +55,19 @@ export default class adminActivityPubActor extends Controller {
 
   @action
   addActor() {
-    this.router.transitionTo("adminActivityPubActorShow", newActor).then(() => {
-      this.adminActivityPubActorShow.set("showForm", false);
-    });
+    this.router
+      .transitionTo("adminPlugins.activityPub.actorShow", newActor)
+      .then(() => {
+        this.actorShowController.set("showForm", false);
+      });
   }
 
   @action
   editActor(actor) {
-    this.router.transitionTo("adminActivityPubActorShow", actor).then(() => {
-      this.adminActivityPubActorShow.set("showForm", true);
-    });
+    this.router
+      .transitionTo("adminPlugins.activityPub.actorShow", actor)
+      .then(() => {
+        this.actorShowController.set("showForm", true);
+      });
   }
 }

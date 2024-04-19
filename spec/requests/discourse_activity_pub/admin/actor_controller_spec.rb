@@ -18,7 +18,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
   describe "#index" do
     context "without a model type" do
       it "returns a 400 error" do
-        get "/admin/ap/actor.json"
+        get "/admin/plugins/ap/actor.json"
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"]).to include(
           "param is missing or the value is empty: model_type",
@@ -28,7 +28,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
     context "with an invalid model type" do
       it "returns a 400 error" do
-        get "/admin/ap/actor.json?model_type=user"
+        get "/admin/plugins/ap/actor.json?model_type=user"
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"]).to include(actor_error("invalid_model"))
       end
@@ -40,7 +40,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
         actor2 = Fabricate(:discourse_activity_pub_actor_group)
         actor3 = Fabricate(:discourse_activity_pub_actor_person)
         actor4 = Fabricate(:discourse_activity_pub_actor_group, local: false)
-        get "/admin/ap/actor.json?model_type=category"
+        get "/admin/plugins/ap/actor.json?model_type=category"
         expect(response.status).to eq(200)
         expect(response.parsed_body["actors"].size).to eq(2)
       end
@@ -51,7 +51,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
     context "with an administratable actor" do
       it "returns the actor" do
         actor = Fabricate(:discourse_activity_pub_actor_group)
-        get "/admin/ap/actor/#{actor.id}.json"
+        get "/admin/plugins/ap/actor/#{actor.id}.json"
         expect(response.status).to eq(200)
         expect(response.parsed_body["id"]).to eq(actor.id)
       end
@@ -60,7 +60,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
     context "with a non-administrable actor" do
       it "returns an actor not found error" do
         actor = Fabricate(:discourse_activity_pub_actor_person)
-        get "/admin/ap/actor/#{actor.id}.json"
+        get "/admin/plugins/ap/actor/#{actor.id}.json"
         expect(response.status).to eq(404)
         expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
       end
@@ -70,7 +70,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
   describe "#create" do
     context "without a model" do
       it "returns a 400" do
-        post "/admin/ap/actor.json", params: { actor: { model_id: 1 } }
+        post "/admin/plugins/ap/actor.json", params: { actor: { model_id: 1 } }
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"]).to include(actor_error("invalid_model"))
       end
@@ -78,7 +78,13 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
     context "with an invalid model" do
       it "returns a 400" do
-        post "/admin/ap/actor.json", params: { actor: { model_type: "Topic", model_id: 30 } }
+        post "/admin/plugins/ap/actor.json",
+             params: {
+               actor: {
+                 model_type: "Topic",
+                 model_id: 30,
+               },
+             }
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"]).to include(actor_error("invalid_model"))
       end
@@ -86,7 +92,13 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
     context "when the model cant be found" do
       it "returns a 404" do
-        post "/admin/ap/actor.json", params: { actor: { model_type: "Category", model_id: 30 } }
+        post "/admin/plugins/ap/actor.json",
+             params: {
+               actor: {
+                 model_type: "Category",
+                 model_id: 30,
+               },
+             }
         expect(response.status).to eq(404)
         expect(response.parsed_body["errors"]).to include(actor_error("model_not_found"))
       end
@@ -97,7 +109,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "without a username" do
         it "returns a 400" do
-          post "/admin/ap/actor.json",
+          post "/admin/plugins/ap/actor.json",
                params: {
                  actor: {
                    model_type: "Category",
@@ -111,7 +123,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with private visibility and full topic publication" do
         it "returns a 400" do
-          post "/admin/ap/actor.json",
+          post "/admin/plugins/ap/actor.json",
                params: {
                  actor: {
                    model_type: "Category",
@@ -130,7 +142,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns a new actor" do
-          post "/admin/ap/actor.json",
+          post "/admin/plugins/ap/actor.json",
                params: {
                  actor: {
                    model_type: "Category",
@@ -159,7 +171,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
     context "when the actor cant be found" do
       it "returns a 404" do
-        put "/admin/ap/actor/30.json"
+        put "/admin/plugins/ap/actor/30.json"
         expect(response.status).to eq(404)
         expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
       end
@@ -175,7 +187,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "without a username" do
         it "returns a 400" do
-          put "/admin/ap/actor/#{actor.id}.json",
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
                   model_type: "Category",
@@ -189,7 +201,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with private visibility and full topic publication" do
         it "returns a 400" do
-          put "/admin/ap/actor/#{actor.id}.json",
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
                   model_type: "Category",
@@ -208,7 +220,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with a new username" do
         it "returns the right error" do
-          put "/admin/ap/actor/#{actor.id}.json",
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
                   model_type: "Category",
@@ -225,7 +237,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
 
       context "with valid params" do
         it "returns a new actor" do
-          put "/admin/ap/actor/#{actor.id}.json",
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
                   model_type: "Category",

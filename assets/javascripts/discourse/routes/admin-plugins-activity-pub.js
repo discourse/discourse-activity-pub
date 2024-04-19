@@ -1,7 +1,7 @@
 import { service } from "@ember/service";
 import DiscourseRoute from "discourse/routes/discourse";
 
-export default class AdminActivityPubRoute extends DiscourseRoute {
+export default class AdminPluginsActivityPubRoute extends DiscourseRoute {
   @service router;
 
   afterModel(model, transition) {
@@ -9,8 +9,8 @@ export default class AdminActivityPubRoute extends DiscourseRoute {
       this.router.replaceWith("/404");
       return;
     }
-    if (transition.targetName === "adminActivityPub.index") {
-      this.router.transitionTo("adminActivityPubActor");
+    if (transition.targetName === "adminPlugins.activityPub.index") {
+      this.router.transitionTo("adminPlugins.activityPub.actor");
     }
   }
 }
