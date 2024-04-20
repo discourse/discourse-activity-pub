@@ -1,11 +1,17 @@
 {{#admin-nav}}
   <li>
-    <LinkTo @route="adminPlugins.activityPub.actor" @query={{hash model_type="category"}}>
+    <LinkTo
+      @route="adminPlugins.activityPub.actor"
+      @query={{hash model_type="category"}}
+    >
       <span>{{i18n "admin.discourse_activity_pub.actor.category.label"}}</span>
     </LinkTo>
   </li>
   <li>
-    <LinkTo @route="adminPlugins.activityPub.actor" @query={{hash model_type="tag"}}>
+    <LinkTo
+      @route="adminPlugins.activityPub.actor"
+      @query={{hash model_type="tag"}}
+    >
       <span>{{i18n "admin.discourse_activity_pub.actor.tag.label"}}</span>
     </LinkTo>
   </li>

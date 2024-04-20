@@ -9,9 +9,6 @@
   <ActivityPubBanner @actor={{this.actor}} />
 {{/if}}
 
-<ActivityPubNav
-  @actor={{this.actor}}
-  @follow={{route-action "follow"}}
-/>
+<ActivityPubNav @actor={{this.actor}} @follow={{route-action "follow"}} />
 
 {{outlet}}
