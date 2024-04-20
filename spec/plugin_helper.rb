@@ -285,10 +285,10 @@ def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil, recip
   DiscourseActivityPub::DeliveryHandler
     .expects(:perform)
     .with do |args|
-      args[:actor].id == actor.id && (!actor || args[:actor].id == actor.id) &&
-        (!object || args[:object].id == object.id) &&
+      (!actor || args[:actor].id == actor.id) && (!object || args[:object].id == object.id) &&
         (!object_type || args[:object].ap_type == object_type) &&
-        (!recipient_ids || args[:recipient_ids].sort == recipient_ids.sort) && args[:delay] == delay
+        (!recipient_ids || args[:recipient_ids].sort == recipient_ids.sort) &&
+        (!delay || args[:delay] == delay)
     end
     .once
 end

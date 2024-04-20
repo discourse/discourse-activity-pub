@@ -2092,10 +2092,10 @@ RSpec.describe Post do
               )
             end
 
-            it "sends the topic collection as the topic actor for delayed delivery" do
+            it "sends activity as the topic actor for delayed delivery" do
               expect_delivery(
                 actor: topic.activity_pub_actor,
-                object: topic.activity_pub_object,
+                object_type: "Create",
                 delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
               )
               perform_create
@@ -2323,8 +2323,8 @@ RSpec.describe Post do
             end
 
             context "while not published" do
-              it "does not send anything for delivery" do
-                expect_no_delivery
+              it "enqueues the activity for delivery" do
+                expect_delivery(actor: topic.activity_pub_actor, object_type: "Create")
                 perform_create
               end
             end

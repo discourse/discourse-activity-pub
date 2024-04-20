@@ -214,18 +214,13 @@ after_initialize do
   end
 
   add_to_serializer(:site, :activity_pub_actors) do
-    actors = {
-      category: [],
-      tag: []
-    }
-    DiscourseActivityPubActor
-      .active
-      .each do |actor| 
-        actors[actor.model_type.downcase.to_sym] << DiscourseActivityPub::BasicActorSerializer.new(
-          actor,
-          root: false,
-        ).as_json
-      end
+    actors = { category: [], tag: [] }
+    DiscourseActivityPubActor.active.each do |actor|
+      actors[actor.model_type.downcase.to_sym] << DiscourseActivityPub::BasicActorSerializer.new(
+        actor,
+        root: false,
+      ).as_json
+    end
     actors.as_json
   end
 
@@ -235,9 +230,7 @@ after_initialize do
   add_to_class(:topic, :activity_pub_taxonomies) do
     [*tags, category].select { |t| t.activity_pub_actor.present? }
   end
-  add_to_class(:topic, :activity_pub_taxonomy) do
-    activity_pub_taxonomies.first
-  end
+  add_to_class(:topic, :activity_pub_taxonomy) { activity_pub_taxonomies.first }
   add_to_class(:topic, :activity_pub_enabled) do
     DiscourseActivityPub.enabled && activity_pub_taxonomy&.activity_pub_ready?
   end
@@ -423,7 +416,9 @@ after_initialize do
     activity_pub_topic.first_post&.activity_pub_scheduled_at
   end
   add_to_class(:post, :activity_pub_group_actors) do
-    return @destroyed_post_activity_pub_group_actors if !@destroyed_post_activity_pub_group_actors.nil?
+    if !@destroyed_post_activity_pub_group_actors.nil?
+      return @destroyed_post_activity_pub_group_actors
+    end
     activity_pub_topic.activity_pub_taxonomies.map { |t| t.activity_pub_actor }
   end
   add_to_class(:post, :activity_pub_collection) { activity_pub_topic.activity_pub_object }
@@ -759,9 +754,7 @@ after_initialize do
 
       if delivered_to_actors.blank?
         raise DiscourseActivityPub::AP::Handlers::Error::Validate,
-              I18n.t(
-                "discourse_activity_pub.process.warning.actor_does_not_accept_new_topics",
-              )
+              I18n.t("discourse_activity_pub.process.warning.actor_does_not_accept_new_topics")
       end
 
       unless delivered_to_actors.any? { |actor|
@@ -784,9 +777,7 @@ after_initialize do
       if delivered_to_model.is_a?(Category)
         activity.cache["delivered_to_category_id"] = delivered_to_model.id
       end
-      if delivered_to_model.is_a?(Tag)
-        activity.cache["delivered_to_tag_id"] = delivered_to_model.id
-      end
+      activity.cache["delivered_to_tag_id"] = delivered_to_model.id if delivered_to_model.is_a?(Tag)
     end
   end
 
@@ -830,7 +821,7 @@ after_initialize do
         user,
         activity.object.stored,
         category_id: activity.cache["delivered_to_category_id"],
-        tag_id: activity.cache["delivered_to_tag_id"]
+        tag_id: activity.cache["delivered_to_tag_id"],
       )
 
     unless post
