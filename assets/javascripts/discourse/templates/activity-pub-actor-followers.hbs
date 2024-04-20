@@ -60,7 +60,7 @@
                 class="directory-table__cell activity-pub-follow-table-actions"
               >
                 <ActivityPubFollowBtn
-                  @actor={{this.model.category.activity_pub_actor}}
+                  @actor={{this.actor}}
                   @followingActor={{actor}}
                   @reject={{route-action "reject"}}
                   @type="actor_reject"
