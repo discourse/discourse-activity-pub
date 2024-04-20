@@ -277,7 +277,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
         before { sign_in(user) }
 
         it "returns an unauthorized error" do
-          post "/ap/actor/#{actor1.id}/reject"
+          post "/ap/local/actor/#{actor1.id}/reject"
           expect(response.status).to eq(403)
         end
       end
@@ -289,7 +289,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
         context "with an invalid actor id" do
           it "returns a not found error" do
-            post "/ap/actor/#{actor1.id + 50}/reject", params: { target_actor_id: actor2.id }
+            post "/ap/local/actor/#{actor1.id + 50}/reject", params: { target_actor_id: actor2.id }
             expect(response.status).to eq(404)
           end
         end
@@ -297,7 +297,10 @@ RSpec.describe DiscourseActivityPub::ActorController do
         context "with a valid actor id" do
           context "with an invalid target actor id" do
             it "returns a not found error" do
-              post "/ap/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id + 50 }
+              post "/ap/local/actor/#{actor1.id}/reject",
+                   params: {
+                     target_actor_id: actor2.id + 50,
+                   }
               expect(response.status).to eq(404)
             end
           end
@@ -305,7 +308,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
           context "with a valid target actor id" do
             context "with a target actor that is not following the actor" do
               it "returns a not found error" do
-                post "/ap/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(404)
               end
             end
@@ -317,7 +320,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
               it "initiates a reject" do
                 DiscourseActivityPub::FollowHandler.expects(:reject).with(actor1.id, actor2.id)
-                post "/ap/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
               end
 
@@ -326,7 +329,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .expects(:reject)
                   .with(actor1.id, actor2.id)
                   .returns(true)
-                post "/ap/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["success"]).to eq("OK")
               end
@@ -336,7 +339,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .expects(:reject)
                   .with(actor1.id, actor2.id)
                   .returns(false)
-                post "/ap/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["failed"]).to eq("FAILED")
               end
