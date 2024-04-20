@@ -57,7 +57,6 @@ SQL
       ) as ccf
       WHERE ccf.category_id = discourse_activity_pub_actors.model_id
 SQL
-
   end
 
   def down
