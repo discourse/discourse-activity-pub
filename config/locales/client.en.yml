@@ -186,10 +186,16 @@ en:
       discourse_activity_pub:
         title: ActivityPub
         authorize:
-          title: Authorize
-          description: Authorize an account on another domain to associate its activities with your user.
-          placeholder: Enter a domain
-          instructions: "e.g. mastodon.social"
+          mastodon:
+            title: Link Mastodon User
+            description: Link a Mastodon user's activities on %{domain} with your account.
+            placeholder: Domain of Mastodon user
+            instructions: "e.g. mastodon.social"
+          discourse:
+            title: Link Discourse User
+            description: Link an external Discourse user's activities on %{domain} with your account.
+            placeholder: Domain of Discourse user
+            instructions: "e.g. meta.discourse.org"
         clear_domain_button:
           title: Clear domain.
         verify_domain_button:
@@ -200,6 +206,6 @@ en:
           title: Authorize an account on the domain.
         authorizations:
           title: Authorizations
-          description: Activities of these accounts will be associated with your user.
+          description: Activities of these actors will be associated with your user.
         authorization:
           confirm_remove: Are you sure you want to remove the authorization for %{actor_id}?
