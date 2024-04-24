@@ -11,6 +11,7 @@ module DiscourseActivityPub
 
     before_action :ensure_admin, only: %i[follow unfollow find_by_handle]
     before_action :ensure_site_enabled
+    before_action :ensure_user_api, only: %i[find_by_user]
     before_action :find_actor
     before_action :ensure_model_enabled
     before_action :ensure_can_access
@@ -73,6 +74,14 @@ module DiscourseActivityPub
       actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
 
       render_actors
+    end
+
+    def find_by_user
+      if current_user.present? && current_user.activity_pub_actor.present?
+        render json: current_user.activity_pub_actor.ap.json
+      else
+        render json: failed_json, status: 404
+      end
     end
 
     protected
@@ -167,6 +176,10 @@ module DiscourseActivityPub
     def find_target_actor
       @target_actor = DiscourseActivityPubActor.find_by_id(params[:target_actor_id])
       render_actor_error("target_actor_not_found", 404) if @target_actor.blank?
+    end
+
+    def ensure_user_api
+      render_actor_error("user_not_authorized", 403) unless is_user_api?
     end
 
     def render_actor_error(key, status)

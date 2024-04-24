@@ -1,9 +1,7 @@
-<div class="activity-pub-authorize">
-  <h4>{{i18n "user.discourse_activity_pub.authorize.title"}}</h4>
-  <label class="activity-pub-authorize-description">
-    {{i18n "user.discourse_activity_pub.authorize.description"}}
-  </label>
-  <div class="activity-pub-authorize-controls">
+<div class={{containerClass}}>
+  <label class="control-label">{{title}}</label>
+  <div class="controls">
+    <label>{{description}}</label>
     {{#if verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
         <a class="btn">{{this.domain}}</a>
@@ -27,7 +25,7 @@
       <Input
         @value={{this.domain}}
         disabled={{this.verifyingDomain}}
-        placeholder={{i18n "user.discourse_activity_pub.authorize.placeholder"}}
+        placeholder={{this.placeholder}}
         id="user_activity_pub_authorize_domain"
       />
       <DButton
@@ -41,7 +39,7 @@
       />
     {{/if}}
   </div>
-  <span class="control-instructions">
-    {{i18n "user.discourse_activity_pub.authorize.instructions"}}
-  </span>
+  <div class="instructions">
+    {{instructions}}
+  </div>
 </div>

@@ -8,11 +8,11 @@ DiscourseActivityPub::Engine.routes.draw do
 
   get "auth" => "auth#index", :defaults => { format: :json }
   scope module: "auth", path: "auth", defaults: { format: :json } do
-    delete "authorization" => "authorization#destroy"
-
-    post "oauth/verify" => "o_auth#verify"
-    get "oauth/authorize" => "o_auth#authorize"
-    get "oauth/redirect" => "o_auth#redirect"
+    post "verify" => "authorization#verify"
+    get "verify-redirect" => "authorization#verify_redirect"
+    get "authorize/:platform" => "authorization#authorize"
+    get "redirect/:platform" => "authorization#redirect"
+    delete "destroy" => "authorization#destroy"
   end
 
   scope "/local" do
@@ -23,6 +23,7 @@ DiscourseActivityPub::Engine.routes.draw do
       post ":actor_id/follow" => "actor#follow", :defaults => { format: :json }
       delete ":actor_id/follow" => "actor#unfollow", :defaults => { format: :json }
       get ":actor_id/find-by-handle" => "actor#find_by_handle", :defaults => { format: :json }
+      get "find-by-user" => "actor#find_by_user"
     end
   end
 
