@@ -139,12 +139,17 @@ en:
         no_change_when_set: An ActivityPub username can't be changed once set.
         invalid_username: "ActivityPub usernames can only contain ASCII characters."
         username_taken: "That username is already taken on this server."
+        user_not_authorized: "User not authorized"
     auth:
       error:
-        invalid_oauth_domain: "Invalid ActivityPub OAuth domain"
-        oauth_session_expired: "ActivityPub OAuth session expired"
-        failed_to_authorize: "ActivityPub OAuth failed to authorize"
-        failed_to_get_actor: "ActivityPub OAuth failed to get actor"
+        not_enabled: "ActivityPub Auth is not enabled"
+        invalid_domain: "Invalid ActivityPub domain"
+        invalid_auth_redirect: "Invalid auth redirect"
+        session_expired: "ActivityPub auth session expired"
+        failed_to_authorize: "ActivityPub failed to authorize"
+        failed_to_get_actor: "ActivityPub failed to get actor"
+        failed_to_verify_redirect: "failed to verify redirect on domain"
+        failed_to_create_app: "failed to create app on domain"
     deliver:
       warning:
         failed_to_schedule: "%{actor_id} failed to schedule %{object_id} for delivery: %{reason}"
