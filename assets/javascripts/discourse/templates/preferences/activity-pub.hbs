@@ -1,6 +1,8 @@
 <DSection @pageClass="user-preferences-activity-pub" />
 
-<ActivityPubAuthorize />
+{{#each this.supportedPlatforms as |platform|}}
+  <ActivityPubAuthorize @platform={{platform}} />
+{{/each}}
 
 {{#if hasAuthorizations}}
   <div class="activity-pub-authorizations">

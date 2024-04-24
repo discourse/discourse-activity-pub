@@ -232,16 +232,21 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-authorize-controls {
-  display: flex;
-  gap: 0.5em;
+.activity-pub-authorize {
+  .controls > button {
+    display: inline-block;
+  }
 }
 
 .activity-pub-authorize-verified-domain {
-  display: flex;
+  display: inline-flex;
 
   a {
     cursor: unset;
+  }
+
+  button {
+    display: inline-block;
   }
 }
 
