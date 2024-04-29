@@ -1,44 +1,27 @@
 # frozen_string_literal: true
 
 module DiscourseActivityPub
-  module Auth
-    class Discourse < Authorization
+  class Auth
+    class Discourse < Auth
       SCOPE = "read"
       FIND_ACTOR_BY_USER_PATH = "ap/actor/find-by-user"
 
-      def platform_store_key
-        "discourse"
-      end
-
       def verify
-        if !verify_redirect
-          add_error(I18n.t("discourse_activity_pub.auth.error.failed_to_verify_redirect"))
-          return false
-        end
-        !!create_app
+        return auth_error("failed_to_verify_redirect") unless verify_redirect
       end
 
-      def create_app
-        app = get_app
-        return app if app
-
-        save_app(client_id: DiscourseActivityPub.base_url, pem: OpenSSL::PKey::RSA.new(2048).export)
-        get_app
+      def nonce
+        @nonce ||= secure_random_hex(32)
       end
 
       def get_authorize_url
-        app = get_app
-        return unless app && app.pem
+        return auth_error("authorization_required") unless authorization
 
         uri = DiscourseActivityPub::URI.parse("https://#{domain}/user-api-key/new")
-        return unless uri
-
-        nonce = app.nonce || generate_nonce(app)
-        rsa = OpenSSL::PKey::RSA.new(app.pem)
-
+        rsa = OpenSSL::PKey::RSA.new(authorization.private_key)
         params = {
           public_key: rsa.public_key,
-          client_id: app.client_id,
+          client_id: client_id,
           nonce: nonce,
           auth_redirect: auth_redirect,
           application_name: SiteSetting.title,
@@ -48,66 +31,60 @@ module DiscourseActivityPub
         uri.to_s
       end
 
+      def get_token(params = {})
+        return auth_error("invalid_redirect_params") unless params[:payload]
+        return auth_error("authorization_required") unless authorization
+
+        data = decrypt_payload(params)
+        return false unless data.is_a?(Hash) && data[:key]
+
+        data[:key]
+      end
+
+      def get_actor_ap_id(key)
+        actor_json = get_actor(key)
+        actor_json && actor_json["id"]
+      end
+
+      protected
+
       def verify_redirect
         params = { auth_redirect: auth_redirect }
         path = "ap/auth/verify-redirect"
         request(path, verb: :get, params: params)
       end
 
+      def client_id
+        @client_id ||= "#{DiscourseActivityPub.host}-activity-pub-#{secure_random_hex(16)}"
+      end
+
       def auth_redirect
-        "#{DiscourseActivityPub.base_url}/ap/auth/redirect/discourse"
+        @auth_redirect ||= "#{DiscourseActivityPub.base_url}/ap/auth/redirect/discourse"
       end
 
-      def get_token(params)
-        payload = params[:payload]
-        return unless payload
+      def decrypt_payload(params = {})
+        rsa = OpenSSL::PKey::RSA.new(authorization.private_key)
+        decrypted_payload = rsa.private_decrypt(Base64.decode64(params[:payload]))
 
-        data = decrypt_payload(payload)
-        return false unless data.is_a?(Hash) && data[:key]
-
-        data[:key]
-      end
-
-      def decrypt_payload(payload)
-        app = get_app
-        return false unless app.present? && app.pem
-
-        rsa = OpenSSL::PKey::RSA.new(app.pem)
-        decrypted_payload = rsa.private_decrypt(Base64.decode64(payload))
-        return false unless decrypted_payload.present?
+        return auth_error("failed_to_decrypt_payload") unless decrypted_payload
 
         begin
           data = JSON.parse(decrypted_payload).symbolize_keys
         rescue JSON::ParserError
-          return false
+          return auth_error("failed_to_decrypt_payload")
         end
 
-        nonce = app.nonce
-        destroy_nonce(app)
-        return false unless data[:nonce] == nonce
+        return auth_error("failed_to_verify_nonce") unless data[:nonce] == params[:nonce]
 
         data
       end
 
-      def generate_nonce(app)
-        nonce = SecureRandom.hex(32)
-
-        save_app(client_id: app.client_id, pem: app.pem, nonce: nonce)
-
-        nonce
-      end
-
-      def destroy_nonce(app)
-        save_app(client_id: app.client_id, pem: app.pem, nonce: nil)
-      end
-
-      def get_actor_id(key)
-        actor_json = get_actor(key)
-        actor_json && actor_json["id"]
-      end
-
       def get_actor(key)
         request(FIND_ACTOR_BY_USER_PATH, verb: :get, headers: { "User-Api-Key" => "#{key}" })
+      end
+
+      def secure_random_hex(bytes)
+        Rails.env.test? ? ENV["ACTIVITY_PUB_TEST_RANDOM_HEX"] : SecureRandom.hex(bytes)
       end
     end
   end
