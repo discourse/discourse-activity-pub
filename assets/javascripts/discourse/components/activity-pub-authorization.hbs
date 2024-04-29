@@ -1,16 +1,9 @@
 <div class="activity-pub-authorization">
-  <a
-    href={{@authorization.actor_id}}
-    class="activity-pub-authorization-link btn"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {{d-icon "external-link-alt"}}
-    {{@authorization.actor_id}}
-  </a>
+  <ActivityPubActor @actor={{@authorization.actor}} />
   <DButton
     @icon="times"
     @action={{action "remove"}}
+    @label="user.discourse_activity_pub.remove_authorization_button.label"
     @title="user.discourse_activity_pub.remove_authorization_button.title"
     id="user_activity_pub_authorize_remove_authorization"
     class="activity-pub-authorize-remove-authorization"

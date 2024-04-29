@@ -233,8 +233,16 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-authorize {
-  .controls > button {
-    display: inline-block;
+  .controls {
+    > *:not(label) {
+      display: inline-flex;
+      vertical-align: middle;
+      margin-right: .25em;
+    }
+  }
+
+  input {
+    min-width: 250px;
   }
 }
 
@@ -330,6 +338,7 @@ body.user-preferences-activity-pub-page {
     margin-left: 1em;
     display: flex;
     flex-flow: column;
+    justify-content: center;
   }
 }
 

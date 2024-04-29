@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::Auth::Mastodon do
+  let!(:user) { Fabricate(:user) }
   let!(:domain1) { "external.com" }
   let!(:redirect_uri) do
     "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::Mastodon::REDIRECT_PATH}"
@@ -115,7 +116,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
         DiscourseActivityPub::Auth::Mastodon.create_app(domain1)
         expect(
           PluginStoreRow.exists?(
-            plugin_name: DiscourseActivityPub::Auth::Mastodon.plugin_store_key,
+            plugin_name: DiscourseActivityPub::Auth::Mastodon.plugin_store_name,
             key: domain1,
             value: app_stored.to_json,
           ),
@@ -163,16 +164,16 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
 
   describe "#get_authorize_url" do
     it "returns nil without an app for the domain" do
-      expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain1)).to eq(nil)
+      expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain: domain1)).to eq(nil)
     end
 
     context "with an app for the domain" do
       before do
-        PluginStore.set(DiscourseActivityPub::Auth::Mastodon.plugin_store_key, domain1, app_stored)
+        PluginStore.set(DiscourseActivityPub::Auth::Mastodon.plugin_store_name, domain1, app_stored)
       end
 
       it "returns an authorize url" do
-        expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain1)).to eq(
+        expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain: domain1)).to eq(
           # https://docs.joinmastodon.org/methods/Mastodon/#query-parameters
           "https://external.com/auth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
         )
@@ -183,14 +184,16 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
   describe "#get_token" do
     context "without an app for the domain" do
       it "returns nil" do
-        expect(DiscourseActivityPub::Auth::Mastodon.get_token(domain1, { code: code })).to eq(nil)
+        expect(
+          DiscourseActivityPub::Auth::Mastodon.get_token(domain: domain1, params: { code: code }),
+        ).to eq(nil)
       end
     end
 
     context "with an app for the domain" do
       before do
         PluginStore.set(
-          DiscourseActivityPub::Auth::Mastodon.plugin_store_key,
+          DiscourseActivityPub::Auth::Mastodon.plugin_store_name,
           domain1,
           app_response_body,
         )
@@ -207,9 +210,9 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
         end
 
         it "returns an access token" do
-          expect(DiscourseActivityPub::Auth::Mastodon.get_token(domain1, { code: code })).to eq(
-            access_token,
-          )
+          expect(
+            DiscourseActivityPub::Auth::Mastodon.get_token(domain: domain1, params: { code: code }),
+          ).to eq(access_token)
         end
       end
 
@@ -224,7 +227,9 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
         end
 
         it "returns nil" do
-          expect(DiscourseActivityPub::Auth::Mastodon.get_token(domain1, { code: code })).to eq(nil)
+          expect(
+            DiscourseActivityPub::Auth::Mastodon.get_token(domain: domain1, params: { code: code }),
+          ).to eq(nil)
         end
 
         it "adds errors to the instance" do
@@ -238,7 +243,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
     end
   end
 
-  describe "#get_actor_id" do
+  describe "#get_actor_ap_id" do
     context "with a successful account response" do
       before do
         expect_request(
@@ -253,9 +258,12 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       end
 
       it "returns an actor id" do
-        expect(DiscourseActivityPub::Auth::Mastodon.get_actor_id(domain1, access_token)).to eq(
-          "https://#{domain1}/users/#{account_response_body[:username]}",
-        )
+        expect(
+          DiscourseActivityPub::Auth::Mastodon.get_actor_ap_id(
+            domain: domain1,
+            token: access_token,
+          ),
+        ).to eq("https://#{domain1}/users/#{account_response_body[:username]}")
       end
     end
 
@@ -273,12 +281,17 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       end
 
       it "returns nil" do
-        expect(DiscourseActivityPub::Auth::Mastodon.get_actor_id(domain1, access_token)).to eq(nil)
+        expect(
+          DiscourseActivityPub::Auth::Mastodon.get_actor_ap_id(
+            domain: domain1,
+            token: access_token,
+          ),
+        ).to eq(nil)
       end
 
       it "adds errors to the instance" do
         auth = DiscourseActivityPub::Auth::Mastodon.new(domain: domain1)
-        auth.get_actor_id(access_token)
+        auth.get_actor_ap_id(access_token)
         expect(auth.errors.full_messages).to include("The access token is invalid")
       end
     end

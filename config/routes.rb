@@ -6,13 +6,13 @@ DiscourseActivityPub::Engine.routes.draw do
     delete "schedule/:post_id" => "post#unschedule"
   end
 
-  get "auth" => "auth#index", :defaults => { format: :json }
-  scope module: "auth", path: "auth", defaults: { format: :json } do
+  get "/auth" => "authorization#index", :defaults => { format: :json }
+  scope "/auth", defaults: { format: :json } do
     post "verify" => "authorization#verify"
     get "verify-redirect" => "authorization#verify_redirect"
-    get "authorize/:platform" => "authorization#authorize"
-    get "redirect/:platform" => "authorization#redirect"
-    delete "destroy" => "authorization#destroy"
+    get "authorize/:auth_type" => "authorization#authorize"
+    get "redirect/:auth_type" => "authorization#redirect"
+    delete "destroy/:auth_id" => "authorization#destroy"
   end
 
   scope "/local" do
