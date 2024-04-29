@@ -1,7 +1,14 @@
 <div class={{containerClass}}>
-  <label class="control-label">{{title}}</label>
+  <label class="control-label">{{i18n "user.discourse_activity_pub.authorize.title"}}</label>
   <div class="controls">
-    <label>{{description}}</label>
+    <label>{{i18n "user.discourse_activity_pub.authorize.description"}}</label>
+    <ComboBox
+      @id="user_activity_pub_authorize_platfom"
+      @content={{this.authTypes}}
+      @value={{this.authType}}
+      @onChange={{fn (mut this.authType)}}
+      @disabled={{this.verifiedDomain}}
+    />
     {{#if verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
         <a class="btn">{{this.domain}}</a>
@@ -33,13 +40,10 @@
         @action={{action "verifyDomain"}}
         @label="user.discourse_activity_pub.verify_domain_button.label"
         @title="user.discourse_activity_pub.verify_domain_button.title"
-        @disabled={{this.verifyingDomain}}
+        @disabled={{this.verifyDisabled}}
         id="user_activity_pub_authorize_verify_domain"
         class="activity-pub-authorize-verify-domain"
       />
     {{/if}}
-  </div>
-  <div class="instructions">
-    {{instructions}}
   </div>
 </div>
