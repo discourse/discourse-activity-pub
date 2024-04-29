@@ -1,15 +1,50 @@
 <DSection @pageClass="user-preferences-activity-pub" />
 
-{{#each this.supportedPlatforms as |platform|}}
-  <ActivityPubAuthorize @platform={{platform}} />
-{{/each}}
+<ActivityPubAuthorize />
 
 {{#if hasAuthorizations}}
   <div class="activity-pub-authorizations">
-    <h4>{{i18n "user.discourse_activity_pub.authorizations.title"}}</h4>
-    <label>{{i18n
-        "user.discourse_activity_pub.authorizations.description"
-      }}</label>
+    <h3>{{i18n "user.discourse_activity_pub.authorizations.title"}}</h3>
+
+    <ResponsiveTable @className="activity-pub-follow-table followers">
+      <:header>
+        <TableHeaderToggle
+          @field="actor"
+          @labelKey="discourse_activity_pub.follow_table.actor"
+          @automatic={{true}}
+          @order={{this.order}}
+          @asc={{this.asc}}
+        />
+        <th
+          class="activity-pub-follow-table-actions directory-table__column-header"
+        ></th>
+      </:header>
+      <:body>
+        {{#each this.model.actors as |actor|}}
+          <div class="directory-table__row activity-pub-follow-table-row">
+            <div class="directory-table__cell activity-pub-follow-table-actor">
+              <ActivityPubActor @actor={{actor}} />
+            </div>
+            <div class="directory-table__cell activity-pub-follow-table-user">
+              {{#if actor.model}}
+                <a
+                  class="avatar"
+                  href={{concat "/u/" actor.model.username}}
+                  data-user-card={{actor.model.username}}
+                >
+                  {{avatar actor.model imageSize="small"}}
+                </a>
+              {{/if}}
+            </div>
+            <div
+              class="directory-table__cell activity-pub-follow-table-followed-at"
+            >
+              {{bound-date actor.followed_at}}
+            </div>
+          </div>
+        {{/each}}
+      </:body>
+    </ResponsiveTable>
     <ul>
       {{#each authorizations as |authorization|}}
         <li>

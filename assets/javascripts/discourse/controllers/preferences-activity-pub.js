@@ -9,8 +9,6 @@ export default class PreferencesActivityPubController extends Controller {
   @tracked authorizations = null;
   @notEmpty("authorizations") hasAuthorizations;
 
-  supportedPlatforms = ["mastodon", "discourse"];
-
   @action
   removeAuthorization(actorId) {
     ajax("/ap/auth/destroy.json", {

@@ -141,14 +141,20 @@ en:
         user_not_authorized: "User not authorized"
     auth:
       error:
-        not_enabled: "ActivityPub Auth is not enabled"
+        not_enabled: "Auth is not enabled"
         invalid_domain: "Invalid ActivityPub domain"
         invalid_auth_redirect: "Invalid auth redirect"
-        session_expired: "ActivityPub auth session expired"
-        failed_to_authorize: "ActivityPub failed to authorize"
-        failed_to_get_actor: "ActivityPub failed to get actor"
-        failed_to_verify_redirect: "failed to verify redirect on domain"
-        failed_to_create_app: "failed to create app on domain"
+        invalid_redirect_params: "Invalid redirect params"
+        authorization_required: "Authorization record is required"
+        session_expired: "Auth session expired"
+        failed_to_authorize: "Failed to authorize"
+        failed_to_get_actor: "Failed to get actor"
+        failed_to_verify_redirect: "Failed to verify redirect on domain"
+        failed_to_create_app: "Failed to create app on domain"
+        failed_to_find_app: "Failed to find app for domain"
+        failed_to_get_token: "Failed to get token"
+        failed_to_decrypt_payload: "Failed to decrypt payload"
+        failed_to_verify_nonce: "Failed to verify nonce"
     deliver:
       warning:
         failed_to_schedule: "%{actor_id} failed to schedule %{object_id} for delivery: %{reason}"

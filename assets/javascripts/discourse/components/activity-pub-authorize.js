@@ -6,40 +6,45 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import getURL from "discourse-common/lib/get-url";
 import I18n from "I18n";
 
+const supportedAuthTypes = ['discourse', 'mastodon'];
+
 export default class ActivityPubAuthorize extends Component {
+  @tracked authType = 'discourse';
   @tracked domain = null;
   @tracked verifyingDomain = false;
   @tracked verifiedDomain = false;
 
   get containerClass() {
-    return `control-group activity-pub-authorize activity-pub-authorize-${this.args.platform}`;
+    return `control-group activity-pub-authorize activity-pub-authorize-${this.authType}`;
+  }
+
+  get authTypes() {
+    return supportedAuthTypes.map(authType => {
+      return {
+        id: authType,
+        name: I18n.t(`user.discourse_activity_pub.authorize.${authType}.title`)
+      };
+    });
   }
 
   get title() {
     return I18n.t(
-      `user.discourse_activity_pub.authorize.${this.args.platform}.title`
-    );
-  }
-
-  get description() {
-    return I18n.t(
-      `user.discourse_activity_pub.authorize.${this.args.platform}.description`,
-      {
-        domain: window.location.hostname,
-      }
+      `user.discourse_activity_pub.authorize.${this.authType}.title`
     );
   }
 
   get placeholder() {
     return I18n.t(
-      `user.discourse_activity_pub.authorize.${this.args.platform}.placeholder`
+      `user.discourse_activity_pub.authorize.${this.authType}.placeholder`
     );
   }
 
-  get instructions() {
-    return I18n.t(
-      `user.discourse_activity_pub.authorize.${this.args.platform}.instructions`
-    );
+  get mayContainUrl() {
+    return this.domain && this.domain.length > 2 && this.domain.slice(1,-1).includes('.');
+  }
+
+  get verifyDisabled() {
+    return this.verifyingDomain || !this.mayContainUrl;
   }
 
   @action
@@ -48,7 +53,7 @@ export default class ActivityPubAuthorize extends Component {
     ajax("/ap/auth/verify.json", {
       data: {
         domain: this.domain,
-        platform: this.args.platform,
+        auth_type: this.authType,
       },
       type: "POST",
     })
@@ -69,6 +74,6 @@ export default class ActivityPubAuthorize extends Component {
 
   @action
   authorizeDomain() {
-    window.open(getURL(`/ap/auth/authorize/${this.args.platform}`), "_self");
+    window.open(getURL(`/ap/auth/authorize/${this.authType}`), "_self");
   }
 }
