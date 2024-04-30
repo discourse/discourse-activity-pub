@@ -47,6 +47,7 @@ en:
           table:
             actor: Actor
             model: Model
+            auth_type: Type
             actions: Actions
           category:
             label: Categories
@@ -180,8 +181,8 @@ en:
       discourse_activity_pub:
         title: ActivityPub
         authorize:
-          title: Actors
-          description: Link an actor from another domain with your account.
+          title: Linked Actors
+          description: Posts associated with a linked actor will be attributed to your account. 
           mastodon:
             title: Mastodon
             placeholder: e.g. mastodon.social
@@ -196,10 +197,12 @@ en:
         authorize_button:
           label: Authorize
           title: Authorize an account on the domain.
+        authorize_error:
+          title: Failed to Authorize
         authorizations:
           title: Linked Actors
         authorization:
-          confirm_remove: Are you sure you want to remove the authorization for %{actor_id}?
+          confirm_remove: Are you sure you want to remove the link with %{handle}?
         remove_authorization_button:
           title: Remove authorization
           label: Remove

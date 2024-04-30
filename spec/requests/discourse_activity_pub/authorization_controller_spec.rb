@@ -25,8 +25,8 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
   end
   let!(:actor_id) { "https://external1.com/users/user1" }
 
-  def setup_mastodon_app
-    DiscourseActivityPub::Auth::Mastodon.save_app(domain1, mastodon_app_json)
+  def setup_mastodon_app(domain)
+    DiscourseActivityPub::Auth::Mastodon.save_app(domain, mastodon_app_json)
   end
 
   def remove_mastodon_app
@@ -58,12 +58,12 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
         before { SiteSetting.activity_pub_enabled = true }
 
         it "returns authorizations" do
-          mastodon = Fabricate(:discourse_activity_pub_authorization_mastodon, user: user)
-          discourse = Fabricate(:discourse_activity_pub_authorization_discourse, user: user)
+          actor = Fabricate(:discourse_activity_pub_actor_person, model: user)
+          mastodon = Fabricate(:discourse_activity_pub_authorization_mastodon, user: user, actor: actor)
           get "/ap/auth"
           expect(response.status).to eq(200)
           expect(response.parsed_body["authorizations"].map { |a| a["id"] }).to match_array(
-            [mastodon.id, discourse.id],
+            [mastodon.id],
           )
         end
       end
@@ -220,7 +220,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
       context "with mastodon" do
         context "when domain has an app" do
-          before { setup_mastodon_app }
+          before { setup_mastodon_app(domain1) }
 
           it "redirects to the authorize url for the app" do
             get "/ap/auth/authorize/mastodon", params: { domain: domain1 }
@@ -307,37 +307,43 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
       context "with mastodon" do
         context "without a code param" do
-          it "returns an authorization failure" do
+          it "redirects to the current user's activity pub settings with the right error" do
             get "/ap/auth/redirect/mastodon"
-            expect(response.status).to eq(403)
+            message = CGI.escape("Invalid redirect params")
+            expect(response).to redirect_to(
+              "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+            )
           end
         end
 
-        context "with an unsuccessful request for an access token for the domain" do
-          before do
-            DiscourseActivityPub::Auth::Mastodon
-              .stubs(:get_token)
-              .with(auth_id: authorization.id, domain: domain1, params: { code: code })
-              .returns(nil)
+        context "when domain has an app" do
+          before { setup_mastodon_app(authorization.domain) }
+
+          context "with an unsuccessful request for an access token for the domain" do
+            before do
+              stub_request(
+                :post,
+                "https://#{authorization.domain}/#{DiscourseActivityPub::Auth::Mastodon::TOKEN_PATH}",
+              ).to_return(status: 404)
+            end
+
+            it "redirects to the current user's activity pub settings with the right error" do
+              get "/ap/auth/redirect/mastodon", params: { code: code }
+              message = CGI.escape("Failed to get token")
+              expect(response).to redirect_to(
+                "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+              )
+            end
           end
 
-          it "raises and invalid access error" do
-            get "/ap/auth/redirect/mastodon", params: { code: code }
-            expect(response.status).to eq(403)
-          end
-        end
-
-        context "with a successful request for an access token for the domain" do
-          before do
-            DiscourseActivityPub::Auth::Mastodon
-              .any_instance
-              .stubs(:get_token)
-              .with({ code: code })
-              .returns(access_token1)
-          end
-
-          context "when domain has an app" do
-            before { setup_mastodon_app }
+          context "with a successful request for an access token for the domain" do
+            before do
+              DiscourseActivityPub::Auth::Mastodon
+                .any_instance
+                .stubs(:get_token)
+                .with({ code: code })
+                .returns(access_token1)
+            end
 
             context "with an successful request for an actor id with the access token" do
               let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, ap_id: actor_id) }
@@ -384,14 +390,17 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
               before do
                 DiscourseActivityPub::Auth::Mastodon
                   .any_instance
-                  .stubs(:get_actor_ap_id)
+                  .stubs(:get_account)
                   .with(access_token1)
                   .returns(nil)
               end
 
-              it "redirects to the current user's activity pub settings" do
+              it "redirects to the current user's activity pub settings with the right error" do
                 get "/ap/auth/redirect/mastodon", params: { code: code }
-                expect(response).to redirect_to("/u/#{user.username}/preferences/activity-pub")
+                message = CGI.escape("Failed to get actor")
+                expect(response).to redirect_to(
+                  "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+                )
               end
             end
           end

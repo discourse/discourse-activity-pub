@@ -12,15 +12,23 @@ module DiscourseActivityPub
     include DiscourseActivityPub::EnabledVerification
 
     before_action :ensure_site_enabled
-    before_action :ensure_logged_in
+    before_action :ensure_logged_in, except: %i[verify_redirect]
     before_action :validate_domain, only: %i[verify]
     before_action :validate_auth_type, only: %i[verify authorize]
     before_action :ensure_domain_session, only: %i[authorize]
+    before_action :create_authorization, only: %i[authorize]
     before_action :ensure_authorization_session, only: %i[redirect]
-    before_action :ensure_authorization, only: %i[authorize redirect]
+    before_action :ensure_authorization, only: %i[redirect]
 
-    skip_before_action :ensure_logged_in, only: %i[verify_redirect]
     skip_before_action :preload_json, :check_xhr, only: %i[redirect verify_redirect]
+
+    class DiscourseActivityPub::AuthFailed < StandardError
+    end
+
+    rescue_from DiscourseActivityPub::AuthFailed do |e|
+      @authorization.destroy! if @authorization.present?
+      redirect_to "/u/#{current_user.username}/preferences/activity-pub?error=#{CGI.escape(e.message)}"
+    end
 
     def index
       render_serialized(
@@ -64,33 +72,30 @@ module DiscourseActivityPub
     end
 
     def redirect
-      token = auth_handler.get_token(redirect_params)
-      unless token
-        raise ::Discourse::InvalidAccess.new(
-                I18n.t("discourse_activity_pub.auth.error.failed_to_authorize"),
-              )
-      end
-      @authorization.token = token
+      @authorization.token = auth_handler.get_token(redirect_params)
+      raise_auth_failed unless @authorization.token
 
-      actor_ap_id = auth_handler.get_actor_ap_id(token)
-      if actor_ap_id
-        actor = DiscourseActivityPubActor.find_by_ap_id(actor_ap_id)
+      actor_ap_id = auth_handler.get_actor_ap_id(@authorization.token)
+      raise_auth_failed unless actor_ap_id
 
-        if actor
-          @authorization.actor_id = actor.id
+      actor = DiscourseActivityPubActor.find_by_ap_id(actor_ap_id)
+      raise_auth_failed unless actor
 
-          if actor.model.is_a?(User) && actor.model&.staged?
-            Jobs.enqueue(
-              :merge_user,
-              user_id: actor.model.id,
-              target_user_id: current_user.id,
-              current_user_id: current_user.id,
-            )
-          end
-        end
+      ActiveRecord::Base.transaction do
+        DiscourseActivityPubAuthorization.where(actor_id: actor.id).destroy_all
+
+        @authorization.actor_id = actor.id
+        @authorization.save!
       end
 
-      @authorization.save!
+      if actor.model.is_a?(User) && actor.model&.staged?
+        Jobs.enqueue(
+          :merge_user,
+          user_id: actor.model.id,
+          target_user_id: current_user.id,
+          current_user_id: current_user.id,
+        )
+      end
 
       redirect_to "/u/#{current_user.username}/preferences/activity-pub"
     end
@@ -110,6 +115,18 @@ module DiscourseActivityPub
 
     def render_auth_error(key, status)
       render_json_error(I18n.t("discourse_activity_pub.auth.error.#{key}"), status)
+    end
+
+    def raise_auth_failed
+      message =
+        (
+          if auth_handler.errors.full_messages.present?
+            auth_handler.errors.full_messages.join("\n")
+          else
+            I18n.t("discourse_activity_pub.auth.error.failed_to_authorize")
+          end
+        )
+      raise DiscourseActivityPub::AuthFailed.new(message)
     end
 
     def auth_handler
@@ -145,6 +162,21 @@ module DiscourseActivityPub
       end
     end
 
+    def create_authorization
+      @authorization =
+        DiscourseActivityPubAuthorization.create!(
+          domain: @domain,
+          user_id: current_user.id,
+          auth_type: DiscourseActivityPubAuthorization.auth_types[@auth_type.to_sym],
+        )
+      unless @authorization
+        raise ::Discourse::InvalidAccess.new(
+                I18n.t("discourse_activity_pub.auth.error.authorization_required"),
+              )
+      end
+      @auth_id = @authorization.id
+    end
+
     def ensure_authorization_session
       @auth_id = get_session_value(AUTHORIZATION_SESSION_KEY)
       unless @auth_id
@@ -155,24 +187,12 @@ module DiscourseActivityPub
     end
 
     def ensure_authorization
-      if @auth_id
-        @authorization = DiscourseActivityPubAuthorization.find_by(id: @auth_id)
-      else
-        @authorization =
-          DiscourseActivityPubAuthorization.create!(
-            domain: @domain,
-            user_id: current_user.id,
-            auth_type: DiscourseActivityPubAuthorization.auth_types[@auth_type.to_sym],
-          )
-      end
-
+      @authorization = DiscourseActivityPubAuthorization.find_by(id: @auth_id)
       unless @authorization
         raise ::Discourse::InvalidAccess.new(
                 I18n.t("discourse_activity_pub.auth.error.authorization_required"),
               )
       end
-
-      @auth_id = @authorization.id
       @auth_type = @authorization.auth_type_name
       @domain = @authorization.domain
     end
