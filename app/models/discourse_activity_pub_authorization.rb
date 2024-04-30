@@ -4,6 +4,8 @@ class DiscourseActivityPubAuthorization < ActiveRecord::Base
   belongs_to :user
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
 
+  scope :active, -> { where("actor_id IS NOT NULL") }
+
   before_save :ensure_keys, if: :discourse?
 
   def discourse?

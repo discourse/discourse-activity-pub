@@ -4,56 +4,52 @@
 
 {{#if hasAuthorizations}}
   <div class="activity-pub-authorizations">
-    <h3>{{i18n "user.discourse_activity_pub.authorizations.title"}}</h3>
-
-    <ResponsiveTable @className="activity-pub-follow-table followers">
+    <ResponsiveTable @className="activity-pub-actor-table authorizations">
       <:header>
-        <TableHeaderToggle
-          @field="actor"
-          @labelKey="discourse_activity_pub.follow_table.actor"
-          @automatic={{true}}
-          @order={{this.order}}
-          @asc={{this.asc}}
-        />
-        <th
-          class="activity-pub-follow-table-actions directory-table__column-header"
-        ></th>
+        <div
+          class="activity-pub-actor-table-actor directory-table__column-header"
+        >
+          <div class="header-contents">
+            {{i18n "admin.discourse_activity_pub.actor.table.actor"}}
+          </div>
+        </div>
+        <div
+          class="activity-pub-actor-table-auth-type directory-table__column-header"
+        >
+          <div class="header-contents">
+            {{i18n "admin.discourse_activity_pub.actor.table.auth_type"}}
+          </div>
+        </div>
+        <div
+          class="activity-pub-actor-table-actions directory-table__column-header"
+        >
+          <div class="header-contents">
+            {{i18n "admin.discourse_activity_pub.actor.table.actions"}}
+          </div>
+        </div>
       </:header>
       <:body>
-        {{#each this.model.actors as |actor|}}
-          <div class="directory-table__row activity-pub-follow-table-row">
-            <div class="directory-table__cell activity-pub-follow-table-actor">
-              <ActivityPubActor @actor={{actor}} />
+        {{#each this.authorizations as |authorization|}}
+          <div class="directory-table__row activity-pub-actor-table-row">
+            <div class="directory-table__cell activity-pub-actor-table-actor">
+              <ActivityPubActor @actor={{authorization.actor}} />
             </div>
-            <div class="directory-table__cell activity-pub-follow-table-user">
-              {{#if actor.model}}
-                <a
-                  class="avatar"
-                  href={{concat "/u/" actor.model.username}}
-                  data-user-card={{actor.model.username}}
-                >
-                  {{avatar actor.model imageSize="small"}}
-                </a>
-              {{/if}}
+            <div class="directory-table__cell activity-pub-actor-table-auth-type">
+              {{i18n (concat "user.discourse_activity_pub.authorize." authorization.auth_type  ".title")}}
             </div>
-            <div
-              class="directory-table__cell activity-pub-follow-table-followed-at"
-            >
-              {{bound-date actor.followed_at}}
+            <div class="directory-table__cell activity-pub-actor-table-actions">
+              <DButton
+                @icon="times"
+                @action={{action "remove" authorization}}
+                @label="user.discourse_activity_pub.remove_authorization_button.label"
+                @title="user.discourse_activity_pub.remove_authorization_button.title"
+                id="user_activity_pub_authorize_remove_authorization"
+                class="activity-pub-authorize-remove-authorization"
+              />
             </div>
           </div>
         {{/each}}
       </:body>
     </ResponsiveTable>
-    <ul>
-      {{#each authorizations as |authorization|}}
-        <li>
-          <ActivityPubAuthorization
-            @authorization={{authorization}}
-            @remove={{action "removeAuthorization"}}
-          />
-        </li>
-      {{/each}}
-    </ul>
   </div>
 {{/if}}

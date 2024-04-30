@@ -17,6 +17,7 @@ DiscourseActivityPub::Engine.routes.draw do
 
   scope "/local" do
     scope "/actor" do
+      get "/find-by-user" => "actor#find_by_user", :defaults => { format: :json }
       get ":actor_id" => "actor#show"
       get ":actor_id/followers" => "actor#followers"
       get ":actor_id/follows" => "actor#follows"
@@ -24,7 +25,6 @@ DiscourseActivityPub::Engine.routes.draw do
       delete ":actor_id/follow" => "actor#unfollow", :defaults => { format: :json }
       post ":actor_id/reject" => "actor#reject", :defaults => { format: :json }
       get ":actor_id/find-by-handle" => "actor#find_by_handle", :defaults => { format: :json }
-      get "find-by-user" => "actor#find_by_user"
     end
   end
 

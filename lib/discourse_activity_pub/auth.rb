@@ -57,7 +57,7 @@ module DiscourseActivityPub
 
     def auth_error(key)
       add_error(I18n.t("discourse_activity_pub.auth.error.#{key}"))
-      return nil
+      nil
     end
 
     def request(path, verb: :post, body: nil, headers: nil, params: nil)

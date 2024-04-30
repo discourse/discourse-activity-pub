@@ -418,7 +418,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
         context "when the user does not have an actor" do
           it "returns a not found error" do
-            get "/ap/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
+            get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
             expect(response.status).to eq(404)
           end
         end
@@ -427,7 +427,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
           let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
 
           it "returns the actor" do
-            get "/ap/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
+            get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
             expect(response.status).to eq(200)
             expect(response.parsed_body["id"]).to eq(actor.ap_id)
           end
@@ -436,7 +436,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
       context "without a valid user api key" do
         it "returns a not authorized error" do
-          get "/ap/actor/find-by-user"
+          get "/ap/local/actor/find-by-user"
           expect(response.status).to eq(403)
         end
       end

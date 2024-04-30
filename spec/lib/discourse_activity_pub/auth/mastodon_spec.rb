@@ -175,7 +175,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       it "returns an authorize url" do
         expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain: domain1)).to eq(
           # https://docs.joinmastodon.org/methods/Mastodon/#query-parameters
-          "https://external.com/auth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
+          "https://external.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
         )
       end
     end

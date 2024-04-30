@@ -6,10 +6,10 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import getURL from "discourse-common/lib/get-url";
 import I18n from "I18n";
 
-const supportedAuthTypes = ['discourse', 'mastodon'];
+const supportedAuthTypes = ["discourse", "mastodon"];
 
 export default class ActivityPubAuthorize extends Component {
-  @tracked authType = 'discourse';
+  @tracked authType = "discourse";
   @tracked domain = null;
   @tracked verifyingDomain = false;
   @tracked verifiedDomain = false;
@@ -19,10 +19,10 @@ export default class ActivityPubAuthorize extends Component {
   }
 
   get authTypes() {
-    return supportedAuthTypes.map(authType => {
+    return supportedAuthTypes.map((authType) => {
       return {
         id: authType,
-        name: I18n.t(`user.discourse_activity_pub.authorize.${authType}.title`)
+        name: I18n.t(`user.discourse_activity_pub.authorize.${authType}.title`),
       };
     });
   }
@@ -40,11 +40,31 @@ export default class ActivityPubAuthorize extends Component {
   }
 
   get mayContainUrl() {
-    return this.domain && this.domain.length > 2 && this.domain.slice(1,-1).includes('.');
+    return (
+      this.domain &&
+      this.domain.length > 2 &&
+      this.domain.slice(1, -1).includes(".")
+    );
   }
 
   get verifyDisabled() {
-    return this.verifyingDomain || !this.mayContainUrl;
+    return this.verifiedDomain || this.verifyingDomain || !this.mayContainUrl;
+  }
+
+  get verifyBtnClass() {
+    return `activity-pub-authorize-verify-domain ${
+      this.verifyDisabled ? "" : " btn-primary"
+    }`;
+  }
+
+  get authorizeDisabled() {
+    return !this.verifiedDomain;
+  }
+
+  get authorizeBtnClass() {
+    return `activity-pub-authorize-domain ${
+      this.authorizeDisabled ? "" : " btn-primary"
+    }`;
   }
 
   @action
