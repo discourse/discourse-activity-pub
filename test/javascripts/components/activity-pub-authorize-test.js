@@ -15,13 +15,14 @@ module(
 
     test("verifies a domain", async function (assert) {
       let domain = "test.com";
+      let authType = "discourse";
       let requests = 0;
 
-      pretender.post("/ap/auth/oauth/verify.json", (request) => {
+      pretender.post("/ap/auth/verify.json", (request) => {
         ++requests;
         assert.strictEqual(
           request.requestBody,
-          `domain=${domain}`,
+          `domain=${domain}&auth_type=${authType}`,
           "it sets correct request parameters"
         );
         return response({ success: true });
@@ -48,7 +49,7 @@ module(
     });
 
     test("clears a verified domain", async function (assert) {
-      pretender.post("/ap/auth/oauth/verify.json", () => {
+      pretender.post("/ap/auth/verify.json", () => {
         return response({ success: true });
       });
 
@@ -73,7 +74,9 @@ module(
     });
 
     test("authorizes a verified domain", async function (assert) {
-      pretender.post("/ap/auth/oauth/verify.json", () => {
+      let authType = "discourse";
+
+      pretender.post("/ap/auth/verify.json", () => {
         return response({ success: true });
       });
 
@@ -85,7 +88,7 @@ module(
       await click("#user_activity_pub_authorize_authorize_domain");
 
       assert.strictEqual(
-        openStub.calledWith("/ap/auth/oauth/authorize", "_self"),
+        openStub.calledWith(`/ap/auth/authorize/${authType}`, "_self"),
         true,
         "it loads the authorize route in the current tab"
       );

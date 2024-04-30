@@ -4,19 +4,20 @@ module DiscourseActivityPub
   class Auth
     class Mastodon < Auth
       REDIRECT_PATH = "ap/auth/redirect/mastodon"
+      AUTHORIZE_PATH = "oauth/authorize"
       APP_PATH = "api/v1/apps"
       TOKEN_PATH = "oauth/token"
       ACCOUNT_PATH = "api/v1/accounts/verify_credentials"
       SCOPES = "read:accounts"
 
       def verify
-        return auth_error("failed_to_create_app") unless create_app
+        auth_error("failed_to_create_app") unless create_app
       end
 
       def get_authorize_url
         return auth_error("failed_to_find_app") unless app
 
-        uri = DiscourseActivityPub::URI.parse("https://#{domain}/auth/authorize")
+        uri = DiscourseActivityPub::URI.parse("https://#{domain}/#{AUTHORIZE_PATH}")
         uri.query =
           ::URI.encode_www_form(
             client_id: app.client_id,
@@ -53,7 +54,8 @@ module DiscourseActivityPub
 
       def get_actor_ap_id(token)
         account = get_account(token)
-        "https://#{domain}/users/#{account["username"]}" if account
+        return auth_error("failed_to_get_actor") unless account
+        "https://#{domain}/users/#{account["username"]}"
       end
 
       def create_app
@@ -88,6 +90,10 @@ module DiscourseActivityPub
         "#{DiscourseActivityPub::PLUGIN_NAME}-oauth-app"
       end
 
+      def get_account(token)
+        request(ACCOUNT_PATH, verb: :get, headers: { "Authorization" => "Bearer #{token}" })
+      end
+
       def self.get_app(domain)
         new(domain: domain).get_app
       end
@@ -105,10 +111,6 @@ module DiscourseActivityPub
       end
 
       protected
-
-      def get_account(token)
-        request(ACCOUNT_PATH, verb: :get, headers: { "Authorization" => "Bearer #{token}" })
-      end
 
       def app
         @app ||= get_app

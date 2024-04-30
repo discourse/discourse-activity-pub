@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.0]
   def up
     create_table :discourse_activity_pub_authorizations do |t|
@@ -13,10 +14,13 @@ class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.0]
     end
 
     add_foreign_key :discourse_activity_pub_authorizations, :users, column: :user_id
-
     add_foreign_key :discourse_activity_pub_authorizations,
                     :discourse_activity_pub_actors,
                     column: :actor_id
+    add_index :discourse_activity_pub_authorizations,
+              %i[actor_id],
+              unique: true,
+              name: "unique_activity_pub_authorization_actors"
 
     users =
       User.joins("INNER JOIN user_custom_fields ucf ON ucf.user_id = users.id").where(

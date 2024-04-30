@@ -563,7 +563,9 @@ after_initialize do
                class_name: "DiscourseActivityPubActor",
                as: :model,
                dependent: :destroy
-  User.has_many :activity_pub_authorizations, class_name: "DiscourseActivityPubAuthorization"
+  User.has_many :activity_pub_authorizations,
+                -> { active },
+                class_name: "DiscourseActivityPubAuthorization"
 
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }

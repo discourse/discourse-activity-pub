@@ -451,7 +451,7 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-actor-table {
-  grid-template-columns: minmax(13em, 3fr) minmax(13em, 3fr) repeat(1, 200px);
+  grid-template-columns: minmax(13em, 3fr) 150px 150px;
 }
 
 .activity-pub-actor-table-actor {

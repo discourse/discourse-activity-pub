@@ -12,9 +12,9 @@ module DiscourseActivityPub
     before_action :ensure_admin, only: %i[follow unfollow find_by_handle]
     before_action :ensure_site_enabled
     before_action :ensure_user_api, only: %i[find_by_user]
-    before_action :find_actor
-    before_action :ensure_model_enabled
-    before_action :ensure_can_access
+    before_action :find_actor, except: %i[find_by_user]
+    before_action :ensure_model_enabled, except: %i[find_by_user]
+    before_action :ensure_can_access, except: %i[find_by_user]
     before_action :find_target_actor, only: %i[follow unfollow]
 
     def show
@@ -45,21 +45,6 @@ module DiscourseActivityPub
       end
     end
 
-    def find_by_handle
-      params.require(:handle)
-
-      handle_actor = DiscourseActivityPubActor.find_by_handle(params[:handle])
-
-      if handle_actor
-        handle_actor_follow = handle_actor.follow_followers.find_by(follower_id: @actor.id)
-        handle_actor.followed_at = handle_actor_follow.followed_at if handle_actor_follow
-
-        render_serialized(handle_actor, DiscourseActivityPub::ActorSerializer)
-      else
-        render json: failed_json
-      end
-    end
-
     def follows
       guardian.ensure_can_admin!(@actor)
 
@@ -74,6 +59,21 @@ module DiscourseActivityPub
       actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
 
       render_actors
+    end
+
+    def find_by_handle
+      params.require(:handle)
+
+      handle_actor = DiscourseActivityPubActor.find_by_handle(params[:handle])
+
+      if handle_actor
+        handle_actor_follow = handle_actor.follow_followers.find_by(follower_id: @actor.id)
+        handle_actor.followed_at = handle_actor_follow.followed_at if handle_actor_follow
+
+        render_serialized(handle_actor, DiscourseActivityPub::ActorSerializer)
+      else
+        render json: failed_json
+      end
     end
 
     def find_by_user

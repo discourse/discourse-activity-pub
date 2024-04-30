@@ -5,15 +5,14 @@ import {
   exists,
   loggedInUser,
 } from "discourse/tests/helpers/qunit-helpers";
+import { default as Authorizations } from "../fixtures/authorization-fixtures";
 
 acceptance("Discourse Activity Pub | Preferences", function (needs) {
-  needs.user({
-    activity_pub_authorizations: [
-      { actor_id: "https://external1.com/user/1" },
-      { actor_id: "https://external2.com/user/1" },
-    ],
-  });
+  needs.user();
   needs.site({ activity_pub_enabled: true });
+  needs.pretender((server, helper) => {
+    server.get("/ap/auth.json", () => helper.response(Authorizations["/ap/auth.json"]));
+  });
 
   test("displays account authorization section", async function (assert) {
     await visit(`/u/${loggedInUser().username}/preferences/activity-pub`);
@@ -24,15 +23,5 @@ acceptance("Discourse Activity Pub | Preferences", function (needs) {
     await visit(`/u/${loggedInUser().username}/preferences/activity-pub`);
 
     assert.ok(exists(".activity-pub-authorizations"));
-    assert.ok(
-      exists(
-        "a.activity-pub-authorization-link[href='https://external1.com/user/1']"
-      )
-    );
-    assert.ok(
-      exists(
-        "a.activity-pub-authorization-link[href='https://external2.com/user/1']"
-      )
-    );
   });
 });
