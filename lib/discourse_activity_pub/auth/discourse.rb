@@ -4,10 +4,10 @@ module DiscourseActivityPub
   class Auth
     class Discourse < Auth
       SCOPE = "read"
-      FIND_ACTOR_BY_USER_PATH = "ap/actor/find-by-user"
+      FIND_ACTOR_BY_USER_PATH = "ap/local/actor/find-by-user"
 
       def verify
-        return auth_error("failed_to_verify_redirect") unless verify_redirect
+        auth_error("failed_to_verify_redirect") unless verify_redirect
       end
 
       def nonce
@@ -43,7 +43,8 @@ module DiscourseActivityPub
 
       def get_actor_ap_id(key)
         actor_json = get_actor(key)
-        actor_json && actor_json["id"]
+        return auth_error("failed_to_get_actor") unless actor_json
+        actor_json["id"]
       end
 
       protected
