@@ -1,17 +1,19 @@
 <div class={{containerClass}}>
-  <label class="control-label">{{i18n "user.discourse_activity_pub.authorize.title"}}</label>
   <div class="controls">
-    <label>{{i18n "user.discourse_activity_pub.authorize.description"}}</label>
     <ComboBox
-      @id="user_activity_pub_authorize_platfom"
+      @id="user_activity_pub_authorize_auth_type"
+      class="activity-pub-authorize-auth-type"
       @content={{this.authTypes}}
       @value={{this.authType}}
       @onChange={{fn (mut this.authType)}}
       @disabled={{this.verifiedDomain}}
+      @options={{hash
+        none="user.discourse_activity_pub.authorize.auth_type.none.label"
+      }}
     />
     {{#if verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
-        <a class="btn">{{this.domain}}</a>
+        <span>{{this.domain}}</span>
         <DButton
           @icon="times"
           @action={{action "clearDomain"}}

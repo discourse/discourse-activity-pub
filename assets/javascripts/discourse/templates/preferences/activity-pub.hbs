@@ -1,6 +1,14 @@
 <DSection @pageClass="user-preferences-activity-pub" />
 
-<ActivityPubAuthorize />
+<div class="control-group user-actors">
+  <label class="control-label">{{i18n
+      "user.discourse_activity_pub.actors.title"
+    }}</label>
+  <div class="controls">
+    <label>{{i18n "user.discourse_activity_pub.actors.description"}}</label>
+    <ActivityPubAuthorize />
+  </div>
+</div>
 
 {{#if hasAuthorizations}}
   <div class="activity-pub-authorizations">
@@ -34,8 +42,16 @@
             <div class="directory-table__cell activity-pub-actor-table-actor">
               <ActivityPubActor @actor={{authorization.actor}} />
             </div>
-            <div class="directory-table__cell activity-pub-actor-table-auth-type">
-              {{i18n (concat "user.discourse_activity_pub.authorize." authorization.auth_type  ".title")}}
+            <div
+              class="directory-table__cell activity-pub-actor-table-auth-type"
+            >
+              {{i18n
+                (concat
+                  "user.discourse_activity_pub.authorize.auth_type."
+                  authorization.auth_type
+                  ".title"
+                )
+              }}
             </div>
             <div class="directory-table__cell activity-pub-actor-table-actions">
               <DButton
