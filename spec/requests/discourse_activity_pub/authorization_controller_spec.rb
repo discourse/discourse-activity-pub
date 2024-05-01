@@ -59,7 +59,8 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
         it "returns authorizations" do
           actor = Fabricate(:discourse_activity_pub_actor_person, model: user)
-          mastodon = Fabricate(:discourse_activity_pub_authorization_mastodon, user: user, actor: actor)
+          mastodon =
+            Fabricate(:discourse_activity_pub_authorization_mastodon, user: user, actor: actor)
           get "/ap/auth"
           expect(response.status).to eq(200)
           expect(response.parsed_body["authorizations"].map { |a| a["id"] }).to match_array(
