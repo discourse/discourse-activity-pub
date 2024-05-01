@@ -5,6 +5,7 @@ import sinon from "sinon";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { exists, query } from "discourse/tests/helpers/qunit-helpers";
+import selectKit from "discourse/tests/helpers/select-kit-helper";
 
 module(
   "Discourse Activity Pub | Component | activity-pub-authorize",
@@ -29,12 +30,17 @@ module(
       });
 
       await render(template);
+
+      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
+      await authTypes.expand();
+      await authTypes.selectRowByValue("discourse");
+
       await fillIn("#user_activity_pub_authorize_domain", domain);
       await click("#user_activity_pub_authorize_verify_domain");
 
       assert.strictEqual(requests, 1, "performs one request");
       assert.strictEqual(
-        query(".activity-pub-authorize-verified-domain a.btn").textContent,
+        query(".activity-pub-authorize-verified-domain span").textContent,
         domain,
         "displays the verified domain"
       );
@@ -54,6 +60,11 @@ module(
       });
 
       await render(template);
+
+      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
+      await authTypes.expand();
+      await authTypes.selectRowByValue("discourse");
+
       await fillIn("#user_activity_pub_authorize_domain", "test.com");
       await click("#user_activity_pub_authorize_verify_domain");
       await click("#user_activity_pub_authorize_clear_domain");
@@ -83,6 +94,11 @@ module(
       const openStub = sinon.stub(window, "open").returns(null);
 
       await render(template);
+
+      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
+      await authTypes.expand();
+      await authTypes.selectRowByValue("discourse");
+
       await fillIn("#user_activity_pub_authorize_domain", "test.com");
       await click("#user_activity_pub_authorize_verify_domain");
       await click("#user_activity_pub_authorize_authorize_domain");

@@ -4,7 +4,7 @@ export default {
       {
         id: 1,
         user_id: 1,
-        auth_type: 'mastodon',
+        auth_type: "mastodon",
         actor: {
           handle: "@angus_ap@test.local",
           name: "Angus",
@@ -17,12 +17,12 @@ export default {
           model: {
             username: "angus_local",
           },
-        }
+        },
       },
       {
         id: 2,
         user_id: 2,
-        auth_type: 'discourse',
+        auth_type: "discourse",
         actor: {
           handle: "@angus_ap@test.local",
           name: "Bob",
@@ -35,7 +35,7 @@ export default {
           model: {
             username: "bob_local",
           },
-        }
+        },
       },
     ],
   },
