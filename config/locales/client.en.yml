@@ -180,23 +180,28 @@ en:
     user:
       discourse_activity_pub:
         title: ActivityPub
-        authorize:
+        actors:
           title: Linked Actors
-          description: Posts associated with a linked actor will be attributed to your account. 
-          mastodon:
-            title: Mastodon
-            placeholder: e.g. mastodon.social
-          discourse:
-            title: Discourse
-            placeholder: e.g. meta.discourse.org
+          description: Posts associated with a linked actor will be attributed to your account.
+        authorize:
+          auth_type:
+            none: 
+              label: Select a type...
+              placeholder: "enter a domain"
+            mastodon:
+              title: Mastodon
+              placeholder: e.g. mastodon.social
+            discourse:
+              title: Discourse
+              placeholder: e.g. meta.discourse.org
         clear_domain_button:
-          title: Clear domain.
+          title: Clear the verified domain.
         verify_domain_button:
           label: Verify
-          title: Verify the domain where you will authorize an account.
+          title: Verify the domain is supported.
         authorize_button:
           label: Authorize
-          title: Authorize an account on the domain.
+          title: Authorize an actor on the domain.
         authorize_error:
           title: Failed to Authorize
         authorizations:

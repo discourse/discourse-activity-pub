@@ -9,37 +9,47 @@ import I18n from "I18n";
 const supportedAuthTypes = ["discourse", "mastodon"];
 
 export default class ActivityPubAuthorize extends Component {
-  @tracked authType = "discourse";
+  @tracked authType = null;
   @tracked domain = null;
   @tracked verifyingDomain = false;
   @tracked verifiedDomain = false;
 
   get containerClass() {
-    return `control-group activity-pub-authorize activity-pub-authorize-${this.authType}`;
+    let result = "activity-pub-authorize";
+    if (this.authType) {
+      result += ` ${this.authType}`;
+    }
+    return result;
   }
 
   get authTypes() {
     return supportedAuthTypes.map((authType) => {
       return {
         id: authType,
-        name: I18n.t(`user.discourse_activity_pub.authorize.${authType}.title`),
+        name: I18n.t(
+          `user.discourse_activity_pub.authorize.auth_type.${authType}.title`
+        ),
       };
     });
   }
 
   get title() {
     return I18n.t(
-      `user.discourse_activity_pub.authorize.${this.authType}.title`
+      `user.discourse_activity_pub.authorize.auth_type.${
+        this.authType || "none"
+      }.title`
     );
   }
 
   get placeholder() {
     return I18n.t(
-      `user.discourse_activity_pub.authorize.${this.authType}.placeholder`
+      `user.discourse_activity_pub.authorize.auth_type.${
+        this.authType || "none"
+      }.placeholder`
     );
   }
 
-  get mayContainUrl() {
+  get mayContainDomain() {
     return (
       this.domain &&
       this.domain.length > 2 &&
@@ -48,7 +58,12 @@ export default class ActivityPubAuthorize extends Component {
   }
 
   get verifyDisabled() {
-    return this.verifiedDomain || this.verifyingDomain || !this.mayContainUrl;
+    return (
+      !this.authType ||
+      this.verifiedDomain ||
+      this.verifyingDomain ||
+      !this.mayContainDomain
+    );
   }
 
   get verifyBtnClass() {
