@@ -28,7 +28,7 @@ module DiscourseActivityPub
 
       new_topic = !object.reply_to_id && !topic_id && (category || tag)
       reply_to = object.in_reply_to_post
-      return nil if !new_topic && !reply_to
+      return nil if !import_mode && !new_topic && !reply_to
 
       params = {
         raw: object.content,
