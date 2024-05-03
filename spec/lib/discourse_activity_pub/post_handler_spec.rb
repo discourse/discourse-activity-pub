@@ -197,6 +197,17 @@ RSpec.describe DiscourseActivityPub::PostHandler do
         expect(object.model_type).to eq("Post")
         expect(object.collection_id).to eq(topic.activity_pub_object.id)
       end
+
+      context "when inReplyTo object is not present" do
+        before do
+          toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+          note.destroy!
+        end
+
+        it "does nothing" do
+          expect(described_class.create(user, object, category_id: category.id)).to eq(nil)
+        end
+      end
     end
   end
 end
