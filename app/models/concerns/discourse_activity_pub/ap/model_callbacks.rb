@@ -15,14 +15,15 @@ module DiscourseActivityPub
         return nil unless DiscourseActivityPub.publishing_enabled
 
         @performing_activity = DiscourseActivityPub::AP::Object.from_type(activity_type)
-        @target_activity =
-          DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
-        return unless valid_activity_pub_activity?
 
         if self.respond_to?(:before_perform_activity_pub_activity)
           @performing_activity = before_perform_activity_pub_activity(performing_activity)
           return true unless performing_activity
         end
+
+        @target_activity =
+          DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
+        return unless valid_activity_pub_activity?
 
         @performing_activity_object = get_performing_activity_object
         return unless performing_activity_object
@@ -137,12 +138,33 @@ module DiscourseActivityPub
           return
         end
 
-        DiscourseActivityPub::DeliveryHandler.perform(
-          actor: activity_pub_delivery_actor,
-          object: activity_pub_delivery_object,
-          recipient_ids: activity_pub_delivery_recipient_ids,
-          delay: activity_pub_delivery_delay,
-        )
+        deliveries = []
+        all_recipient_ids = []
+        object = activity_pub_delivery_object
+        delay = activity_pub_delivery_delay
+
+        activity_pub_delivery_actors.each do |actor|
+          recipient_ids =
+            activity_pub_delivery_recipient_ids(actor).select do |recipient_id|
+              all_recipient_ids.exclude?(recipient_id)
+            end
+          all_recipient_ids += recipient_ids
+          deliveries << OpenStruct.new(
+            actor: actor,
+            object: object,
+            recipient_ids: recipient_ids,
+            delay: delay,
+          )
+        end
+
+        deliveries.each do |delivery|
+          DiscourseActivityPub::DeliveryHandler.perform(
+            actor: delivery.actor,
+            object: delivery.object,
+            recipient_ids: delivery.recipient_ids,
+            delay: delivery.delay,
+          )
+        end
       end
 
       def perform_activity_pub_activity_cleanup
@@ -151,31 +173,29 @@ module DiscourseActivityPub
         @performing_activity_actor = nil
       end
 
-      def activity_pub_delivery_recipient_ids
-        @activity_pub_delivery_recipient_ids ||=
-          begin
-            actor_ids = activity_pub_group_actor.reload.followers.map(&:id)
+      def activity_pub_delivery_recipient_ids(actor)
+        actor_ids = actor.reload.followers.map(&:id)
 
-            if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
-              activity_pub_collection
-                .contributors(local: false)
-                .each do |contributor|
-                  if actor_ids.exclude?(contributor.id) &&
-                       contributor.id != performing_activity_actor.id
-                    actor_ids << contributor.id
-                  end
-                end
+        if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
+          activity_pub_collection
+            .contributors(local: false)
+            .each do |contributor|
+              if actor_ids.exclude?(contributor.id) &&
+                   contributor.id != performing_activity_actor.id
+                actor_ids << contributor.id
+              end
             end
+        end
 
-            actor_ids
-          end
+        actor_ids
       end
 
-      def activity_pub_delivery_actor
-        if performing_activity.create?
-          activity_pub_group_actor
+      def activity_pub_delivery_actors
+        if performing_activity.create? || performing_activity.like? ||
+             performing_activity.undo_like?
+          activity_pub_group_actors
         else
-          performing_activity_actor
+          [performing_activity_actor]
         end
       end
 

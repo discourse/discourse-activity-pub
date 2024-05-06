@@ -2,32 +2,22 @@
 
 RSpec.configure { |config| config.include DiscourseActivityPub::JsonLd }
 
-def toggle_activity_pub(
-  category,
-  callbacks: false,
-  disable: false,
-  username: nil,
-  publication_type: nil
-)
-  category.reload
+def toggle_activity_pub(model, disable: false, username: nil, publication_type: nil)
+  model.reload
 
-  username = username || category.slug
-
-  category.custom_fields["activity_pub_enabled"] = !disable
-  category.custom_fields["activity_pub_username"] = username
-  category.custom_fields["activity_pub_publication_type"] = publication_type if publication_type
-
-  if callbacks
-    category.save!
-    if !category.activity_pub_actor
-      actor_opts = { username: username }
-      actor_opts[:publication_type] = publication_type if publication_type
-      DiscourseActivityPub::ActorHandler.update_or_create_actor(category, actor_opts)
-    end
-    category.reload
-  else
-    category.save_custom_fields(true)
+  if !model.activity_pub_actor
+    attrs = { ap_type: DiscourseActivityPub::AP::Actor::Group.type, local: true, enabled: true }
+    model.build_activity_pub_actor(attrs)
   end
+
+  username = username || model.is_a?(Category) ? model.slug : model.name
+
+  model.activity_pub_actor.username = username
+  model.activity_pub_actor.publication_type = publication_type if publication_type
+  model.activity_pub_actor.enabled = !disable
+  model.activity_pub_actor.save!
+
+  model.reload
 end
 
 def get_object(object, url: nil, headers: {})
@@ -295,10 +285,10 @@ def expect_delivery(actor: nil, object: nil, object_type: nil, delay: nil, recip
   DiscourseActivityPub::DeliveryHandler
     .expects(:perform)
     .with do |args|
-      args[:actor].id == actor.id && (!actor || args[:actor].id == actor.id) &&
-        (!object || args[:object].id == object.id) &&
+      (!actor || args[:actor].id == actor.id) && (!object || args[:object].id == object.id) &&
         (!object_type || args[:object].ap_type == object_type) &&
-        (!recipient_ids || args[:recipient_ids].sort == recipient_ids.sort) && args[:delay] == delay
+        (!recipient_ids || args[:recipient_ids].sort == recipient_ids.sort) &&
+        (!delay || args[:delay] == delay)
     end
     .once
 end

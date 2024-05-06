@@ -6,18 +6,24 @@ DiscourseActivityPub::Engine.routes.draw do
     delete "schedule/:post_id" => "post#unschedule"
   end
 
-  scope "/category" do
-    get ":category_id" => "category#index"
-    get ":category_id/followers" => "category#followers"
-    get ":category_id/follows" => "category#follows"
+  get "auth" => "auth#index", :defaults => { format: :json }
+  scope module: "auth", path: "auth", defaults: { format: :json } do
+    delete "authorization" => "authorization#destroy"
+
+    post "oauth/verify" => "o_auth#verify"
+    get "oauth/authorize" => "o_auth#authorize"
+    get "oauth/redirect" => "o_auth#redirect"
   end
 
-  post "users/inbox" => "a_p/shared_inboxes#create"
-
-  scope "/actor", defaults: { format: :json } do
-    post ":actor_id/follow" => "actor#follow"
-    delete ":actor_id/follow" => "actor#unfollow"
-    get ":actor_id/find-by-handle" => "actor#find_by_handle"
+  scope "/local" do
+    scope "/actor" do
+      get ":actor_id" => "actor#show"
+      get ":actor_id/followers" => "actor#followers"
+      get ":actor_id/follows" => "actor#follows"
+      post ":actor_id/follow" => "actor#follow", :defaults => { format: :json }
+      delete ":actor_id/follow" => "actor#unfollow", :defaults => { format: :json }
+      get ":actor_id/find-by-handle" => "actor#find_by_handle", :defaults => { format: :json }
+    end
   end
 
   scope module: "a_p" do
@@ -28,14 +34,6 @@ DiscourseActivityPub::Engine.routes.draw do
     get "activity/:key" => "activities#show"
     get "object/:key" => "objects#show"
     get "collection/:key" => "collections#show"
-  end
-
-  get "auth" => "auth#index", :defaults => { format: :json }
-  scope module: "auth", path: "auth", defaults: { format: :json } do
-    delete "authorization" => "authorization#destroy"
-
-    post "oauth/verify" => "o_auth#verify"
-    get "oauth/authorize" => "o_auth#authorize"
-    get "oauth/redirect" => "o_auth#redirect"
+    post "users/inbox" => "shared_inboxes#create"
   end
 end

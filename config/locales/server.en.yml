@@ -80,7 +80,7 @@ en:
         post_is_deleted: "Post is deleted"
         full_topic_not_enabled: "Full topic is not enabled"
         announce_not_publicly_addressed: "Announcement is not publicly addressed."
-        only_category_actors_accept_new_topics: "Only category actors accept new topics."
+        actor_does_not_accept_new_topics: "Actor does not accept new topics."
         only_followed_actors_create_new_topics: "Only followed actors can create new topics."
         actor_already_following: "Actor is already following that object"
         invalid_collection_item: "Invalid item"

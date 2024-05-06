@@ -1,7 +1,7 @@
 import { A } from "@ember/array";
 import { ajax } from "discourse/lib/ajax";
 import DiscourseRoute from "discourse/routes/discourse";
-import ActivityPubActor from "../models/activity-pub-actor";
+import ActivityPubActor, { actorAdminPath } from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorRoute extends DiscourseRoute {
   queryParams = {
@@ -17,7 +17,7 @@ export default class AdminPluginsActivityPubActorRoute extends DiscourseRoute {
         searchParams.set(param, params[param]);
       }
     });
-    return ajax(`/admin/plugins/ap/actor?${searchParams.toString()}`);
+    return ajax(`${actorAdminPath}?${searchParams.toString()}`);
   }
 
   setupController(controller, model) {

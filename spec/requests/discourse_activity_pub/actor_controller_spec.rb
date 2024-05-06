@@ -3,6 +3,111 @@
 RSpec.describe DiscourseActivityPub::ActorController do
   let!(:actor1) { Fabricate(:discourse_activity_pub_actor_group) }
   let!(:actor2) { Fabricate(:discourse_activity_pub_actor_group, local: false, model: nil) }
+  let!(:follower1) do
+    Fabricate(
+      :discourse_activity_pub_actor_person,
+      domain: "google.com",
+      username: "bob_ap",
+      model: Fabricate(:user, username: "bob_local"),
+    )
+  end
+  let!(:follow1) do
+    Fabricate(
+      :discourse_activity_pub_follow,
+      follower: follower1,
+      followed: actor1,
+      created_at: (DateTime.now - 2),
+    )
+  end
+  let!(:follower2) do
+    Fabricate(
+      :discourse_activity_pub_actor_person,
+      domain: "twitter.com",
+      username: "jenny_ap",
+      model: nil,
+    )
+  end
+  let!(:follow2) do
+    Fabricate(
+      :discourse_activity_pub_follow,
+      follower: follower2,
+      followed: actor1,
+      created_at: (DateTime.now - 1),
+    )
+  end
+  let!(:follower3) do
+    Fabricate(
+      :discourse_activity_pub_actor_person,
+      domain: "netflix.com",
+      username: "xavier_ap",
+      model: Fabricate(:user, username: "xavier_local"),
+    )
+  end
+  let!(:follow3) do
+    Fabricate(
+      :discourse_activity_pub_follow,
+      follower: follower3,
+      followed: actor1,
+      created_at: DateTime.now,
+    )
+  end
+
+  describe "#followers" do
+    context "with a user" do
+      let!(:user) { Fabricate(:user) }
+
+      before { sign_in(user) }
+
+      context "with activity pub enabled" do
+        before { toggle_activity_pub(actor1.model) }
+
+        it "returns the actors followers" do
+          get "/ap/local/actor/#{actor1.id}/followers.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq(
+            [follower3.ap_id, follower2.ap_id, follower1.ap_id],
+          )
+        end
+
+        it "returns followers without users" do
+          get "/ap/local/actor/#{actor1.id}/followers.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["username"] }).to include("jenny_ap")
+        end
+
+        it "orders by user" do
+          get "/ap/local/actor/#{actor1.id}/followers.json?order=user"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f.dig("model", "username") }).to eq(
+            ["xavier_local", "bob_local", nil],
+          )
+        end
+
+        it "orders by actor" do
+          get "/ap/local/actor/#{actor1.id}/followers.json?order=actor"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["username"] }).to eq(
+            %w[xavier_ap jenny_ap bob_ap],
+          )
+        end
+
+        it "paginates" do
+          get "/ap/local/actor/#{actor1.id}/followers.json?limit=2&page=1"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq([follower1.ap_id])
+        end
+
+        context "with publishing disabled" do
+          before { SiteSetting.login_required = true }
+
+          it "returns the right error" do
+            get "/ap/local/actor/#{actor1.id}/followers.json"
+            expect_not_enabled(response)
+          end
+        end
+      end
+    end
+  end
 
   describe "#follow" do
     context "with activity pub enabled" do
@@ -14,7 +119,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
         before { sign_in(user) }
 
         it "returns an unauthorized error" do
-          post "/ap/actor/#{actor1.id}/follow"
+          post "/ap/local/actor/#{actor1.id}/follow"
           expect(response.status).to eq(403)
         end
       end
@@ -26,7 +131,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
         context "with an invalid actor id" do
           it "returns a not found error" do
-            post "/ap/actor/#{actor1.id + 50}/follow", params: { target_actor_id: actor2.id }
+            post "/ap/local/actor/#{actor1.id + 50}/follow", params: { target_actor_id: actor2.id }
             expect(response.status).to eq(404)
           end
         end
@@ -34,25 +139,19 @@ RSpec.describe DiscourseActivityPub::ActorController do
         context "with a valid actor id" do
           context "with an invalid follow actor id" do
             it "returns a not found error" do
-              post "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id + 50 }
+              post "/ap/local/actor/#{actor1.id}/follow",
+                   params: {
+                     target_actor_id: actor2.id + 50,
+                   }
               expect(response.status).to eq(404)
             end
           end
 
           context "with a valid target actor id" do
-            context "with an actor that cant follow other actors" do
-              let!(:actor3) { Fabricate(:discourse_activity_pub_actor_service) }
-
-              it "returns a not authorized error" do
-                post "/ap/actor/#{actor3.id}/follow", params: { target_actor_id: actor2.id }
-                expect(response.status).to eq(401)
-              end
-            end
-
             context "with an actor that can follow other actors" do
               it "initiates a follow" do
                 DiscourseActivityPub::FollowHandler.expects(:follow).with(actor1.id, actor2.id)
-                post "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
               end
 
@@ -61,7 +160,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .expects(:follow)
                   .with(actor1.id, actor2.id)
                   .returns(true)
-                post "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["success"]).to eq("OK")
               end
@@ -71,7 +170,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .expects(:follow)
                   .with(actor1.id, actor2.id)
                   .returns(false)
-                post "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                post "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["failed"]).to eq("FAILED")
               end
@@ -92,7 +191,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
         before { sign_in(user) }
 
         it "returns an unauthorized error" do
-          delete "/ap/actor/#{actor1.id}/follow"
+          delete "/ap/local/actor/#{actor1.id}/follow"
           expect(response.status).to eq(403)
         end
       end
@@ -104,7 +203,10 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
         context "with an invalid actor id" do
           it "returns a not found error" do
-            delete "/ap/actor/#{actor1.id + 50}/follow", params: { target_actor_id: actor2.id }
+            delete "/ap/local/actor/#{actor1.id + 50}/follow",
+                   params: {
+                     target_actor_id: actor2.id,
+                   }
             expect(response.status).to eq(404)
           end
         end
@@ -112,7 +214,10 @@ RSpec.describe DiscourseActivityPub::ActorController do
         context "with a valid actor id" do
           context "with an invalid target actor id" do
             it "returns a not found error" do
-              delete "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id + 50 }
+              delete "/ap/local/actor/#{actor1.id}/follow",
+                     params: {
+                       target_actor_id: actor2.id + 50,
+                     }
               expect(response.status).to eq(404)
             end
           end
@@ -120,7 +225,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
           context "with a valid target actor id" do
             context "with an actor that is not following the target actor" do
               it "returns a not found error" do
-                delete "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                delete "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(404)
               end
             end
@@ -132,7 +237,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
               it "initiates a follow" do
                 DiscourseActivityPub::FollowHandler.expects(:unfollow).with(actor1.id, actor2.id)
-                delete "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                delete "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
               end
 
@@ -141,7 +246,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .expects(:unfollow)
                   .with(actor1.id, actor2.id)
                   .returns(true)
-                delete "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                delete "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["success"]).to eq("OK")
               end
@@ -151,7 +256,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .expects(:unfollow)
                   .with(actor1.id, actor2.id)
                   .returns(false)
-                delete "/ap/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                delete "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["failed"]).to eq("FAILED")
               end
@@ -172,7 +277,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
         before { sign_in(user) }
 
         it "returns an unauthorized error" do
-          get "/ap/actor/#{actor1.id}/find-by-handle"
+          get "/ap/local/actor/#{actor1.id}/find-by-handle"
           expect(response.status).to eq(403)
         end
       end
@@ -184,7 +289,10 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
         context "with an invalid actor id" do
           it "returns a not found error" do
-            get "/ap/actor/#{actor1.id + 50}/find-by-handle", params: { handle: actor2.handle }
+            get "/ap/local/actor/#{actor1.id + 50}/find-by-handle",
+                params: {
+                  handle: actor2.handle,
+                }
             expect(response.status).to eq(404)
           end
         end
@@ -195,7 +303,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
             it "returns failed json" do
               DiscourseActivityPubActor.expects(:find_by_handle).with(handle).returns(nil)
-              get "/ap/actor/#{actor1.id}/find-by-handle", params: { handle: handle }
+              get "/ap/local/actor/#{actor1.id}/find-by-handle", params: { handle: handle }
               expect(response.status).to eq(200)
               expect(response.parsed_body["failed"]).to eq("FAILED")
             end
@@ -206,7 +314,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
 
             it "returns the actor" do
               DiscourseActivityPubActor.expects(:find_by_handle).with(handle).returns(actor2)
-              get "/ap/actor/#{actor1.id}/find-by-handle", params: { handle: actor2.handle }
+              get "/ap/local/actor/#{actor1.id}/find-by-handle", params: { handle: actor2.handle }
               expect(response.status).to eq(200)
               expect(response.parsed_body["actor"]["id"]).to eq(actor2.id)
             end

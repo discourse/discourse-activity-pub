@@ -19,4 +19,13 @@ module DiscourseActivityPubGuardianExtension
     topic = Topic.find_by(id: request.params["topic_id"].to_i)
     topic&.activity_pub_enabled
   end
+
+  def can_admin?(actor)
+    case actor.model_type
+    when "Category"
+      can_edit?(actor.model)
+    when "Tag"
+      can_admin_tags?
+    end
+  end
 end

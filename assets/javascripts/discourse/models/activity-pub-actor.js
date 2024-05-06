@@ -2,6 +2,7 @@ import EmberObject from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import Site from "discourse/models/site";
 
 export const newActor = {
   id: "new",
@@ -9,6 +10,9 @@ export const newActor = {
   post_object_type: "Note",
   publication_type: "first_post",
 };
+export const actorModels = ["category"];
+export const actorAdminPath = "/admin/plugins/ap/actor";
+export const actorClientPath = "/ap/local/actor";
 
 const ActivityPubActor = EmberObject.extend({
   isNew: equal("id", newActor.id),
@@ -17,7 +21,7 @@ const ActivityPubActor = EmberObject.extend({
     if (this.isNew) {
       return;
     }
-    return ajax(`/admin/plugins/ap/actor/${this.id}/disable`, {
+    return ajax(`${actorAdminPath}/${this.id}/disable`, {
       type: "POST",
     }).catch(popupAjaxError);
   },
@@ -26,7 +30,7 @@ const ActivityPubActor = EmberObject.extend({
     if (this.isNew) {
       return;
     }
-    return ajax(`/admin/plugins/ap/actor/${this.id}/enable`, {
+    return ajax(`${actorAdminPath}/${this.id}/enable`, {
       type: "POST",
     }).catch(popupAjaxError);
   },
@@ -37,6 +41,7 @@ const ActivityPubActor = EmberObject.extend({
         enabled: this.enabled,
         model_id: this.model_id,
         model_type: this.model_type,
+        model_name: this.model_name,
         username: this.username,
         name: this.name,
         default_visibility: this.default_visibility,
@@ -45,8 +50,7 @@ const ActivityPubActor = EmberObject.extend({
       },
     };
     let type = "POST";
-    let path = "/admin/plugins/ap/actor";
-
+    let path = actorAdminPath;
     if (this.id !== "new") {
       path = `${path}/${this.id}`;
       type = "PUT";
@@ -57,9 +61,18 @@ const ActivityPubActor = EmberObject.extend({
 });
 
 ActivityPubActor.reopenClass({
+  find(actorId) {
+    return ajax({
+      url: `${actorClientPath}/${actorId}`,
+      type: "GET",
+    })
+      .then((response) => response.actor || false)
+      .catch(popupAjaxError);
+  },
+
   findByHandle(actorId, handle) {
     return ajax({
-      url: `/ap/actor/${actorId}/find-by-handle`,
+      url: `${actorClientPath}/${actorId}/find-by-handle`,
       type: "GET",
       data: {
         handle,
@@ -69,9 +82,31 @@ ActivityPubActor.reopenClass({
       .catch(popupAjaxError);
   },
 
+  findByModel(model, modelType) {
+    const siteActors = Site.currentProp("activity_pub_actors");
+    if (!siteActors) {
+      return;
+    }
+    const typeActors = siteActors[modelType];
+    if (!typeActors) {
+      return;
+    }
+    return typeActors.find((a) => {
+      if (modelType === "tag") {
+        if (typeof model === "string") {
+          return a.model_name === model;
+        } else {
+          return [model.id, model.name].includes(a.model_name);
+        }
+      } else if (typeof model === "object" && model !== null) {
+        return a.model_id === model.id;
+      }
+    });
+  },
+
   follow(actorId, targetActorId) {
     return ajax({
-      url: `/ap/actor/${actorId}/follow`,
+      url: `${actorClientPath}/${actorId}/follow`,
       type: "POST",
       data: {
         target_actor_id: targetActorId,
@@ -83,7 +118,7 @@ ActivityPubActor.reopenClass({
 
   unfollow(actorId, targetActorId) {
     return ajax({
-      url: `/ap/actor/${actorId}/follow`,
+      url: `${actorClientPath}/${actorId}/follow`,
       type: "DELETE",
       data: {
         target_actor_id: targetActorId,
@@ -91,6 +126,27 @@ ActivityPubActor.reopenClass({
     })
       .then((response) => !!response?.success)
       .catch(popupAjaxError);
+  },
+
+  list(actorId, params, listType) {
+    const queryParams = new URLSearchParams();
+
+    if (params.order) {
+      queryParams.set("order", params.order);
+    }
+
+    if (params.asc) {
+      queryParams.set("asc", params.asc);
+    }
+
+    const path = `${actorClientPath}/${actorId}/${listType}`;
+
+    let url = `${path}.json`;
+    if (queryParams.size) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    return ajax(url).catch(popupAjaxError);
   },
 });
 

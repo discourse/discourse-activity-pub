@@ -9,7 +9,7 @@ RSpec.describe PostRevisor do
   describe "revise" do
     subject(:post_revisor) { PostRevisor.new(post) }
 
-    before { toggle_activity_pub(category, callbacks: true) }
+    before { toggle_activity_pub(category) }
 
     context "when revising a published activity pub post" do
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: true) }
@@ -51,7 +51,7 @@ RSpec.describe PostRevisor do
 
       context "with full_topic enabled" do
         before do
-          toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+          toggle_activity_pub(category, publication_type: "full_topic")
           topic.create_activity_pub_collection!
         end
 

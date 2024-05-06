@@ -60,7 +60,7 @@ RSpec.describe DiscourseActivityPubActivity do
       Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: actor)
     end
 
-    before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+    before { toggle_activity_pub(category, publication_type: "full_topic") }
 
     it "returns the group actor id" do
       expect(activity.audience).to eq(actor.ap_id)

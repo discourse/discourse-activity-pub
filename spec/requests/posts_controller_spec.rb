@@ -9,7 +9,7 @@ RSpec.describe PostsController do
       context "with a ready ActivityPub category" do
         fab!(:category)
 
-        before { toggle_activity_pub(category, callbacks: true) }
+        before { toggle_activity_pub(category) }
 
         context "when passed activity_pub_visibility params" do
           let!(:params) do
@@ -31,8 +31,8 @@ RSpec.describe PostsController do
 
           context "when the category has a default visibility" do
             before do
-              category.custom_fields["activity_pub_default_visibility"] = "public"
-              category.save_custom_fields(true)
+              category.activity_pub_actor.default_visibility = "first_post"
+              category.activity_pub_actor.save!
             end
 
             it "saves the category's default visibility" do

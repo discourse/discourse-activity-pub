@@ -54,9 +54,14 @@ en:
             label: Categories
             title: Category Actors
             none: Select a category
+          tag:
+            label: Tags
+            title: Tag Actors
+            none: Select a tag
           model_type:
             none: Select a model
             category: Category
+            tag: Tag
         log:
           label: Logs
   js:   
@@ -66,22 +71,22 @@ en:
           publishing_disabled: ActivityPub publishing is disabled by the login required site setting. Incoming activities and outgoing follows are enabled.
           plugin_disabled: The ActivityPub plugin is disabled
           category_read_restricted: ActivityPub does not work with private categories
-          model_disabled: AcivityPub is disabled for this %{model_type}
+          model_disabled: ActivityPub is disabled for this %{model_type}
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
           model_active:
-            first_post: The first post of a new topic in %{category_name} will be published %{delay_minutes} minutes after being posted
+            first_post: The first post of a new topic will be published %{delay_minutes} minutes after being posted
         label:
           active: Active
           not_active: Not Active
           publishing_disabled: Publishing Disabled
-      category_nav:
+      discovery:
         label: Federation
-        description: Federation for %{category_name}
+        description: Federation for %{model_name}
         followers: Followers
         follows: Follows
       banner:
-        text: Follow %{category_name} on any service that supports federation
+        text: Follow %{model_name} on any service that supports federation
         responsive_text: Federated
         public_full_topic: Each post of each topic will be published publicly via ActivityPub.
         public_first_post: The first post of each topic will be published publicly via ActivityPub.
@@ -151,8 +156,8 @@ en:
           first_post: First Post
           full_topic: Full Topic
         description:
-          first_post: First post of every topic in this category is published via ActivityPub.
-          full_topic: Every post of every topic in this category is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
+          first_post: First post of every topic in this %{model_type} is published via ActivityPub.
+          full_topic: Every post of every topic in this %{model_type} is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
 
     post:
       discourse_activity_pub:

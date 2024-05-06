@@ -11,7 +11,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
   describe "#process" do
     before do
-      toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+      toggle_activity_pub(category, publication_type: "full_topic")
       topic.create_activity_pub_collection!
       DiscourseActivityPub::DeliveryHandler.stubs(:perform).returns(true)
     end
@@ -166,8 +166,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
         context "when the category has first_post enabled" do
           before do
-            category.custom_fields["activity_pub_publication_type"] = "first_post"
-            category.save_custom_fields(true)
+            category.activity_pub_actor.publication_type = "first_post"
+            category.activity_pub_actor.save!
           end
 
           include_examples "creates a new topic"
@@ -334,8 +334,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
         context "when the category has first_post enabled" do
           before do
-            category.custom_fields["activity_pub_publication_type"] = "first_post"
-            category.save_custom_fields(true)
+            category.activity_pub_actor.publication_type = "first_post"
+            category.activity_pub_actor.save!
           end
 
           include_examples "creates a new topic"

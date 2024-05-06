@@ -1,8 +1,8 @@
 export default function () {
   this.route(
-    "activityPub.category",
+    "activityPub.actor",
     {
-      path: "/ap/category/:category_id",
+      path: "/ap/local/actor/:actor_id",
       resetNamespace: true,
     },
     function () {

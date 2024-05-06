@@ -12,7 +12,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
 
   describe "#process" do
     context "with activity pub enabled" do
-      before { toggle_activity_pub(group.model, callbacks: true) }
+      before { toggle_activity_pub(group.model) }
 
       context "with an Undo of a Follow" do
         let(:json) { build_activity_json(actor: person, object: activity, type: "Undo") }

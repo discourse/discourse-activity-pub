@@ -176,6 +176,6 @@ end
 #
 # Indexes
 #
-#  index_discourse_activity_pub_objects_on_ap_id  (ap_id)
+#  index_discourse_activity_pub_objects_on_ap_id  (ap_id) UNIQUE
 #  unique_activity_pub_object_models              (model_type,model_id) UNIQUE
 #

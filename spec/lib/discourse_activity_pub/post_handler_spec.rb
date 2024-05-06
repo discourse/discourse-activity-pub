@@ -3,8 +3,9 @@
 RSpec.describe DiscourseActivityPub::PostHandler do
   describe "#create" do
     let!(:user) { Fabricate(:user) }
-    let(:category) { Fabricate(:category) }
-    let(:topic) { Fabricate(:topic, category: category) }
+    let!(:category) { Fabricate(:category) }
+    let!(:tag) { Fabricate(:tag) }
+    let!(:topic) { Fabricate(:topic, category: category, tags: [tag]) }
     let!(:post) { Fabricate(:post, topic: topic) }
     let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
     let!(:object) do
@@ -27,7 +28,7 @@ RSpec.describe DiscourseActivityPub::PostHandler do
 
       context "when given a category id" do
         context "when activity pub full topic is ready" do
-          before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+          before { toggle_activity_pub(category, publication_type: "full_topic") }
 
           it "creates a topic in the category" do
             post = described_class.create(user, object, category_id: category.id)
@@ -95,7 +96,77 @@ RSpec.describe DiscourseActivityPub::PostHandler do
         end
       end
 
-      context "when not given a category id" do
+      context "when given a tag id" do
+        context "when activity pub full topic is ready" do
+          before { toggle_activity_pub(tag, publication_type: "full_topic") }
+
+          it "creates a topic in the category" do
+            post = described_class.create(user, object, tag_id: tag.id)
+            expect(post.present?).to eq(true)
+            expect(post.topic.present?).to eq(true)
+            expect(post.topic.tags&.map(&:id)&.include?(tag.id)).to eq(true)
+          end
+
+          context "when the object has a context" do
+            let!(:collection_ap_id) { "https://forum.com/ap/topic/1" }
+
+            before do
+              object.context = collection_ap_id
+              object.save!
+            end
+
+            context "when the context is a collection" do
+              let!(:collection_json) do
+                {
+                  "@context": "https://www.w3.org/ns/activitystreams",
+                  id: collection_ap_id,
+                  type: "OrderedCollection",
+                }.with_indifferent_access
+              end
+
+              before do
+                stub_request(:get, collection_ap_id).with(
+                  headers: {
+                    "Accept" => DiscourseActivityPub::JsonLd.content_type_header,
+                  },
+                ).to_return(
+                  status: 200,
+                  body: collection_json.to_json,
+                  headers: {
+                    "Content-Type" => DiscourseActivityPub::JsonLd.content_type_header,
+                  },
+                )
+              end
+
+              it "resolves and stores it as the topic collection" do
+                post = described_class.create(user, object, tag_id: tag.id)
+                expect(object.reload.collection.present?).to eq(true)
+                expect(object.collection.local).to eq(false)
+                expect(object.collection.ap_id).to eq(collection_ap_id)
+                expect(object.collection.model.id).to eq(post.topic.id)
+              end
+            end
+          end
+
+          context "when the object does not have a context" do
+            it "creates a new local topic collection" do
+              post = described_class.create(user, object, tag_id: tag.id)
+              expect(object.reload.collection.present?).to eq(true)
+              expect(object.collection.local).to eq(true)
+              expect(object.collection_id).to eq(post.topic.activity_pub_object.id)
+              expect(object.collection.model.id).to eq(post.topic.id)
+            end
+          end
+        end
+
+        context "when activity pub full topic is not ready" do
+          it "does nothing" do
+            expect(described_class.create(user, object, category_id: category.id)).to eq(nil)
+          end
+        end
+      end
+
+      context "when not given a category id or tag" do
         it "does nothing" do
           expect(described_class.create(user, object)).to eq(nil)
         end

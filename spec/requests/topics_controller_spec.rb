@@ -37,7 +37,7 @@ RSpec.describe TopicsController do
           disabled_queries = track_topic_show_queries
 
           SiteSetting.activity_pub_enabled = true
-          toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
+          toggle_activity_pub(category, publication_type: "first_post")
 
           enabled_queries = track_topic_show_queries
           expect(enabled_queries.count).to be <= (disabled_queries.count + ADDITIONAL_QUERY_LIMIT)
@@ -54,7 +54,7 @@ RSpec.describe TopicsController do
           disabled_queries = track_topic_show_queries
 
           SiteSetting.activity_pub_enabled = true
-          toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+          toggle_activity_pub(category, publication_type: "full_topic")
 
           enabled_queries = track_topic_show_queries
           expect(enabled_queries.count).to be <= (disabled_queries.count + ADDITIONAL_QUERY_LIMIT)
@@ -77,7 +77,7 @@ RSpec.describe TopicsController do
           disabled_queries = track_topic_show_queries
 
           SiteSetting.activity_pub_enabled = true
-          toggle_activity_pub(category, callbacks: true, publication_type: "first_post")
+          toggle_activity_pub(category, publication_type: "first_post")
 
           enabled_queries = track_topic_show_queries
 
@@ -95,7 +95,7 @@ RSpec.describe TopicsController do
           disabled_queries = track_topic_show_queries
 
           SiteSetting.activity_pub_enabled = true
-          toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+          toggle_activity_pub(category, publication_type: "full_topic")
 
           enabled_queries = track_topic_show_queries
           expect(enabled_queries.count).to be <= (disabled_queries.count + ADDITIONAL_QUERY_LIMIT)

@@ -44,7 +44,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
       end
 
       context "with activity pub enabled" do
-        before { toggle_activity_pub(category, callbacks: true) }
+        before { toggle_activity_pub(category) }
 
         context "when not following" do
           shared_examples "processes a new follow" do

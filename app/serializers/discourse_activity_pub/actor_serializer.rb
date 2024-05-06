@@ -2,7 +2,7 @@
 
 module DiscourseActivityPub
   class ActorSerializer < BasicActorSerializer
-    attributes :username, :local, :domain, :url, :icon_url, :followed_at, :model
+    attributes :local, :domain, :url, :icon_url, :followed_at, :model
 
     def model
       case object.model_type
@@ -10,6 +10,8 @@ module DiscourseActivityPub
         BasicUserSerializer.new(object.model, root: false).as_json
       when "Category"
         SiteCategorySerializer.new(object.model, root: false).as_json
+      when "Tag"
+        TagSerializer.new(object.model, root: false).as_json
       end
     end
 

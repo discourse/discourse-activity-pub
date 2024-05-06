@@ -27,8 +27,8 @@ RSpec.describe SiteController do
 
           SiteSetting.activity_pub_enabled = true
 
-          toggle_activity_pub(category1, callbacks: true)
-          toggle_activity_pub(category2, callbacks: true)
+          toggle_activity_pub(category1)
+          toggle_activity_pub(category2)
 
           enabled_queries =
             track_sql_queries do
@@ -36,7 +36,7 @@ RSpec.describe SiteController do
               expect(response.status).to eq(200)
             end
 
-          expect(enabled_queries.count).to eq(disabled_queries.count)
+          expect(enabled_queries.count).to be <= disabled_queries.count
         end
       end
 

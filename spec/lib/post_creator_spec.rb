@@ -31,7 +31,7 @@ RSpec.describe PostCreator do
     end
 
     context "with a ready ActivityPub category" do
-      before { toggle_activity_pub(category, callbacks: true) }
+      before { toggle_activity_pub(category) }
 
       context "when passed a visibility" do
         it "saves the category's default visibility" do

@@ -1,6 +1,5 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import Category from "discourse/models/category";
 import Site from "discourse/models/site";
 import {
   acceptance,
@@ -8,13 +7,19 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
+import { cloneJSON } from "discourse-common/lib/object";
 import I18n from "I18n";
+import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 acceptance("Discourse Activity Pub | composer", function (needs) {
   needs.user();
 
   test("without a category", async function (assert) {
-    Site.current().set("activity_pub_enabled", true);
+    Site.current().setProperties({
+      activity_pub_enabled: true,
+      activity_pub_publishing_enabled: true,
+      activity_pub_actors: cloneJSON(SiteActors),
+    });
 
     await visit("/");
     await click("#create-topic");
@@ -29,10 +34,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     Site.current().setProperties({
       activity_pub_enabled: true,
       activity_pub_publishing_enabled: true,
-    });
-    Category.findById(2).setProperties({
-      activity_pub_ready: true,
-      activity_pub_default_visibility: "public",
+      activity_pub_actors: cloneJSON(SiteActors),
     });
 
     await visit("/");
@@ -54,8 +56,11 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
   });
 
   test("when the plugin is disabled", async function (assert) {
-    Site.current().set("activity_pub_enabled", false);
-    Category.findById(2).set("activity_pub_ready", true);
+    Site.current().setProperties({
+      activity_pub_enabled: false,
+      activity_pub_publishing_enabled: true,
+      activity_pub_actors: cloneJSON(SiteActors),
+    });
 
     await visit("/");
     await click("#create-topic");

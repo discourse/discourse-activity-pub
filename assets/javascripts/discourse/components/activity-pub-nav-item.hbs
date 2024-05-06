@@ -1,17 +1,17 @@
-{{#if @category}}
+{{#if @model}}
   <a
     class={{this.classes}}
     href={{this.href}}
     title={{i18n
-      "discourse_activity_pub.category_nav.description"
-      category_name=@category.name
+      "discourse_activity_pub.discovery.description"
+      model_name=@model.name
     }}
     {{did-insert this.subscribe}}
-    {{did-insert this.didChangeCategory}}
-    {{did-update this.didChangeCategory @category}}
+    {{did-insert this.didChangeModel}}
+    {{did-update this.didChangeModel @model}}
     {{will-destroy this.unsubscribe}}
   >
     {{d-icon "discourse-activity-pub"}}
-    {{i18n "discourse_activity_pub.category_nav.label"}}
+    {{i18n "discourse_activity_pub.discovery.label"}}
   </a>
 {{/if}}

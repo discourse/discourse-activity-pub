@@ -27,6 +27,13 @@
             }}
           />
         {{/if}}
+        {{#if (eq this.actor.model_type "tag")}}
+          <ActivityPubTagChooser
+            @tagId={{this.tag}}
+            @onChange={{action "changeTag"}}
+            @options={{hash hasActor=false}}
+          />
+        {{/if}}
       </div>
     {{else}}
       <ActivityPubActorModel @actor={{this.actor}} />
@@ -132,6 +139,7 @@
               }}</label>
             <ActivityPubPublicationTypeDropdown
               @value={{this.actor.publication_type}}
+              @modelType={{this.actor.model_type}}
               @onChange={{action (mut this.actor.publication_type)}}
             />
             <div class="activity-pub-actor-setting-description">
@@ -175,7 +183,7 @@
             {{i18n "admin.discourse_activity_pub.actor.save.success"}}
           {{else}}
             {{d-icon "times"}}
-            {{i18n "admin.discourse_activity_pub.actor.save.fail"}}
+            {{i18n "admin.discourse_activity_pub.actor.save.failed"}}
           {{/if}}
         </span>
       {{/if}}

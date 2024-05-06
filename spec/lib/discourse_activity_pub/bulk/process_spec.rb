@@ -42,6 +42,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
     let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
 
     def perform
+      actor.reload
       described_class.perform(actor_id: actor.id, target_actor_id: target_actor.id)
     end
 
@@ -63,7 +64,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
     end
 
     context "when the actor has full topic enabled" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+      before { toggle_activity_pub(category, publication_type: "full_topic") }
 
       context "when not following the target actor" do
         before { setup_logging }
@@ -75,6 +76,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
         end
 
         it "logs the right warning" do
+          actor.reload
           described_class.perform(actor_id: actor.id, target_actor_id: target_actor.id)
           expect(@fake_logger.warnings.first).to eq(build_warning_log("not_following_target"))
         end
@@ -600,7 +602,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
     end
 
     context "when the actor has first post enabled" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "first_post") }
+      before { toggle_activity_pub(category, publication_type: "first_post") }
 
       context "when following the target actor" do
         let!(:follow1) do

@@ -104,7 +104,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
       end
     end
 
-    context "with a valid model" do
+    context "with a category" do
       let!(:category) { Fabricate(:category) }
 
       context "without a username" do
@@ -155,20 +155,74 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["username"]).to eq("new_actor")
           expect(response.parsed_body["actor"]["model"]["id"]).to eq(category.id)
-          expect(response.parsed_body["actor"]["model"]["activity_pub_default_visibility"]).to eq(
-            "public",
+          expect(response.parsed_body["actor"]["default_visibility"]).to eq("public")
+          expect(response.parsed_body["actor"]["publication_type"]).to eq("full_topic")
+        end
+      end
+    end
+
+    context "with a tag" do
+      let!(:tag) { Fabricate(:tag) }
+
+      context "without a username" do
+        it "returns a 400" do
+          post "/admin/plugins/ap/actor.json",
+               params: {
+                 actor: {
+                   model_type: "Tag",
+                   model_name: tag.name,
+                   model_id: tag.id,
+                 },
+               }
+          expect(response.status).to eq(400)
+          expect(response.parsed_body["errors"]).to include(actor_error("username_required"))
+        end
+      end
+
+      context "with private visibility and full topic publication" do
+        it "returns a 400" do
+          post "/admin/plugins/ap/actor.json",
+               params: {
+                 actor: {
+                   model_type: "Tag",
+                   model_id: tag.id,
+                   model_name: tag.name,
+                   username: "new_actor",
+                   default_visibility: "private",
+                   publication_type: "full_topic",
+                 },
+               }
+          expect(response.status).to eq(400)
+          expect(response.parsed_body["errors"]).to include(
+            actor_error("full_topic_must_be_public"),
           )
-          expect(response.parsed_body["actor"]["model"]["activity_pub_publication_type"]).to eq(
-            "full_topic",
-          )
+        end
+      end
+
+      context "with valid params" do
+        it "returns a new actor" do
+          post "/admin/plugins/ap/actor.json",
+               params: {
+                 actor: {
+                   model_type: "Tag",
+                   model_id: tag.id,
+                   model_name: tag.name,
+                   username: "new_actor",
+                   default_visibility: "public",
+                   publication_type: "full_topic",
+                 },
+               }
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actor"]["username"]).to eq("new_actor")
+          expect(response.parsed_body["actor"]["model"]["id"]).to eq(tag.id)
+          expect(response.parsed_body["actor"]["default_visibility"]).to eq("public")
+          expect(response.parsed_body["actor"]["publication_type"]).to eq("full_topic")
         end
       end
     end
   end
 
   describe "#update" do
-    let!(:category) { Fabricate(:category) }
-
     context "when the actor cant be found" do
       it "returns a 404" do
         put "/admin/plugins/ap/actor/30.json"
@@ -177,26 +231,10 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
       end
     end
 
-    context "with a valid actor" do
-      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-
-      before do
-        actor.model.custom_fields["activity_pub_enabled"] = true
-        actor.model.save_custom_fields(true)
-      end
-
-      context "without a username" do
-        it "returns a 400" do
-          put "/admin/plugins/ap/actor/#{actor.id}.json",
-              params: {
-                actor: {
-                  model_type: "Category",
-                  model_id: category.id,
-                },
-              }
-          expect(response.status).to eq(400)
-          expect(response.parsed_body["errors"]).to include(actor_error("username_required"))
-        end
+    context "with a category actor" do
+      let!(:category) { Fabricate(:category) }
+      let!(:actor) do
+        Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true)
       end
 
       context "with private visibility and full topic publication" do
@@ -204,9 +242,6 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
           put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
-                  model_type: "Category",
-                  model_id: category.id,
-                  username: actor.username,
                   default_visibility: "private",
                   publication_type: "full_topic",
                 },
@@ -223,11 +258,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
           put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
-                  model_type: "Category",
-                  model_id: category.id,
                   username: "new_actor",
-                  default_visibility: "public",
-                  publication_type: "full_topic",
                 },
               }
           expect(response.status).to eq(400)
@@ -236,26 +267,52 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
       end
 
       context "with valid params" do
-        it "returns a new actor" do
+        it "returns an updated actor" do
+          put "/admin/plugins/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actor"]["name"]).to eq("New name")
+        end
+      end
+    end
+
+    context "with a tag actor" do
+      let!(:tag) { Fabricate(:tag) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: tag, enabled: true) }
+
+      context "with private visibility and full topic publication" do
+        it "returns a 400" do
           put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
-                  model_type: "Category",
-                  model_id: category.id,
-                  username: actor.username,
-                  default_visibility: "public",
+                  default_visibility: "private",
                   publication_type: "full_topic",
                 },
               }
+          expect(response.status).to eq(400)
+          expect(response.parsed_body["errors"]).to include(
+            actor_error("full_topic_must_be_public"),
+          )
+        end
+      end
+
+      context "with a new username" do
+        it "returns the right error" do
+          put "/admin/plugins/ap/actor/#{actor.id}.json",
+              params: {
+                actor: {
+                  username: "new_actor",
+                },
+              }
+          expect(response.status).to eq(400)
+          expect(response.parsed_body["errors"]).to include(actor_warning("no_change_when_set"))
+        end
+      end
+
+      context "with valid params" do
+        it "returns an updated actor" do
+          put "/admin/plugins/ap/actor/#{actor.id}.json", params: { actor: { name: "New name" } }
           expect(response.status).to eq(200)
-          expect(response.parsed_body["actor"]["username"]).to eq(actor.username)
-          expect(response.parsed_body["actor"]["model"]["id"]).to eq(category.id)
-          expect(response.parsed_body["actor"]["model"]["activity_pub_default_visibility"]).to eq(
-            "public",
-          )
-          expect(response.parsed_body["actor"]["model"]["activity_pub_publication_type"]).to eq(
-            "full_topic",
-          )
+          expect(response.parsed_body["actor"]["name"]).to eq("New name")
         end
       end
     end

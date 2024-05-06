@@ -6,8 +6,10 @@ class DiscourseActivityPubActor < ActiveRecord::Base
 
   APPLICATION_ACTOR_ID = -1
   APPLICATION_ACTOR_USERNAME = "discourse.internal"
-  CUSTOM_FIELDS = %i[username name default_visibility publication_type post_object_type]
-  ADMIN_MODELS = %w[Category]
+  SERIALIZED_FIELDS = %i[enabled username name default_visibility publication_type post_object_type]
+  ACTIVE_MODELS = %w[Category Tag]
+
+  scope :active, -> { where(model_type: ACTIVE_MODELS, enabled: true) }
 
   belongs_to :model, polymorphic: true, optional: true
   belongs_to :category,
@@ -15,6 +17,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
                includes(:activity_pub_actor).where(
                  discourse_activity_pub_actors: {
                    model_type: "Category",
+                 },
+               )
+             end,
+             foreign_key: "model_id",
+             optional: true
+  belongs_to :tag,
+             -> do
+               includes(:activity_pub_actor).where(
+                 discourse_activity_pub_actors: {
+                   model_type: "Tag",
                  },
                )
              end,
@@ -168,17 +180,17 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def enable!
-    model.custom_fields["activity_pub_enabled"] = true
+    self.enabled = true
     save_model_changes
   end
 
   def disable!
-    model.custom_fields["activity_pub_enabled"] = false
+    self.enabled = false
     save_model_changes
   end
 
   def save_model_changes
-    if model.save_custom_fields(true)
+    if save!
       model.activity_pub_publish_state
       true
     else
@@ -289,28 +301,32 @@ end
 #
 # Table name: discourse_activity_pub_actors
 #
-#  id           :bigint           not null, primary key
-#  ap_id        :string           not null
-#  ap_key       :string
-#  ap_type      :string           not null
-#  domain       :string
-#  local        :boolean
-#  available    :boolean          default(TRUE)
-#  inbox        :string
-#  outbox       :string
-#  username     :string
-#  name         :string
-#  model_id     :integer
-#  model_type   :string
-#  private_key  :text
-#  public_key   :text
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  icon_url     :string
-#  shared_inbox :string
+#  id                 :bigint           not null, primary key
+#  ap_id              :string           not null
+#  ap_key             :string
+#  ap_type            :string           not null
+#  domain             :string
+#  local              :boolean
+#  available          :boolean          default(TRUE)
+#  inbox              :string
+#  outbox             :string
+#  username           :string
+#  name               :string
+#  model_id           :integer
+#  model_type         :string
+#  private_key        :text
+#  public_key         :text
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  icon_url           :string
+#  shared_inbox       :string
+#  enabled            :boolean
+#  default_visibility :string
+#  publication_type   :string
+#  post_object_type   :string
 #
 # Indexes
 #
-#  index_discourse_activity_pub_actors_on_ap_id  (ap_id)
+#  index_discourse_activity_pub_actors_on_ap_id  (ap_id) UNIQUE
 #  unique_activity_pub_actor_models              (model_type,model_id) UNIQUE
 #

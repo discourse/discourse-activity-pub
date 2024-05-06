@@ -69,7 +69,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
     end
 
     context "when delivery actor is ready" do
-      before { toggle_activity_pub(category, callbacks: true) }
+      before { toggle_activity_pub(category) }
 
       context "with publishing disabled" do
         before { SiteSetting.login_required = true }

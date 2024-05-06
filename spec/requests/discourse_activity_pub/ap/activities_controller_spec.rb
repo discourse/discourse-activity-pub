@@ -81,7 +81,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
         it "returns activity json" do
           get_object(activity)
           expect(response.status).to eq(200)
-          expect(parsed_body).to eq(activity.ap.json)
+          expect(parsed_body).to eq(activity.reload.ap.json)
         end
       end
 
@@ -91,7 +91,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
         it "returns activity json" do
           get_object(activity)
           expect(response.status).to eq(200)
-          expect(parsed_body).to eq(activity.ap.json)
+          expect(parsed_body).to eq(activity.reload.ap.json)
         end
       end
 
@@ -101,7 +101,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
         it "returns activity json" do
           get_object(activity)
           expect(response.status).to eq(200)
-          expect(parsed_body).to eq(activity.ap.json)
+          expect(parsed_body).to eq(activity.reload.ap.json)
         end
       end
     end

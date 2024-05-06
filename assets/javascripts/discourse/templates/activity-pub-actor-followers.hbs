@@ -3,7 +3,7 @@
   @action={{action "loadMore"}}
   class="activity-pub-followers-container"
 >
-  {{#if this.model.hasActors}}
+  {{#if this.hasActors}}
     <ResponsiveTable @className="activity-pub-follow-table followers">
       <:header>
         <TableHeaderToggle
@@ -29,7 +29,7 @@
         />
       </:header>
       <:body>
-        {{#each this.model.actors as |actor|}}
+        {{#each this.actors as |actor|}}
           <div class="directory-table__row activity-pub-follow-table-row">
             <div class="directory-table__cell activity-pub-follow-table-actor">
               <ActivityPubActor @actor={{actor}} />
@@ -55,7 +55,7 @@
       </:body>
     </ResponsiveTable>
 
-    <ConditionalLoadingSpinner @condition={{this.model.loadingMore}} />
+    <ConditionalLoadingSpinner @condition={{this.loadingMore}} />
   {{else}}
     <p>{{i18n "search.no_results"}}</p>
   {{/if}}

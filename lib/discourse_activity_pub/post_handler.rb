@@ -8,8 +8,15 @@ module DiscourseActivityPub
       @object = object
     end
 
-    def create(category_id: nil, topic_id: nil, reply_to_post_number: nil, import_mode: false)
-      if !user || !object || object.model_id || (!object.in_reply_to_post && !category_id)
+    def create(
+      category_id: nil,
+      tag_id: nil,
+      topic_id: nil,
+      reply_to_post_number: nil,
+      import_mode: false
+    )
+      if !user || !object || object.model_id ||
+           (!object.in_reply_to_post && !category_id && !tag_id)
         return nil
       end
 
@@ -17,8 +24,9 @@ module DiscourseActivityPub
         category = Category.find_by(id: category_id)
         return nil unless can_create_topic?(category)
       end
+      tag = Tag.find_by(id: tag_id) if tag_id
 
-      new_topic = !object.in_reply_to_post && !topic_id && category
+      new_topic = !object.in_reply_to_post && (category || tag)
       params = {
         raw: object.content,
         skip_events: true,
@@ -33,8 +41,10 @@ module DiscourseActivityPub
       if new_topic
         params[:title] = object.name ||
           DiscourseActivityPub::ContentParser.get_title(object.content)
-        params[:category] = category.id
-      elsif reply_to = object.in_reply_to_post
+        params[:category] = category.id if category
+        params[:topic_opts] = { tags: [tag.name] } if tag
+      else
+        reply_to = object.in_reply_to_post
         params[:topic_id] = reply_to.topic.id
         params[:reply_to_post_number] = reply_to.post_number
       end
@@ -84,12 +94,14 @@ module DiscourseActivityPub
       user,
       object,
       category_id: nil,
+      tag_id: nil,
       topic_id: nil,
       reply_to_post_number: nil,
       import_mode: false
     )
       new(user, object).create(
         category_id: category_id,
+        tag_id: tag_id,
         import_mode: import_mode,
         topic_id: topic_id,
         reply_to_post_number: reply_to_post_number,

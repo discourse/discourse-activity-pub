@@ -23,7 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
     end
 
     context "with activity pub enabled" do
-      before { toggle_activity_pub(category, callbacks: true, publication_type: "full_topic") }
+      before { toggle_activity_pub(category, publication_type: "full_topic") }
 
       context "when addressed publicly" do
         before { announce_json[:cc] = DiscourseActivityPub::JsonLd.public_collection_id }

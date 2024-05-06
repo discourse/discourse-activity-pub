@@ -1,6 +1,13 @@
+import ActivityPubActor from "../../models/activity-pub-actor";
+
 function showStatus(attrs, component) {
+  const actor = ActivityPubActor.findByModel(
+    attrs.model.get("category"),
+    "category"
+  );
   return (
-    attrs.model.get("category.activity_pub_ready") &&
+    actor &&
+    actor.ready &&
     attrs.model.get("action") === "createTopic" &&
     component.site.activity_pub_publishing_enabled
   );

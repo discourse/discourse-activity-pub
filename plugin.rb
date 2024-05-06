@@ -98,7 +98,6 @@ after_initialize do
   require_relative "app/controllers/discourse_activity_pub/admin/admin_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/actor_controller"
   require_relative "app/controllers/discourse_activity_pub/post_controller"
-  require_relative "app/controllers/discourse_activity_pub/category_controller"
   require_relative "app/controllers/discourse_activity_pub/actor_controller"
   require_relative "app/serializers/discourse_activity_pub/ap/object_serializer"
   require_relative "app/serializers/discourse_activity_pub/ap/activity_serializer"
@@ -137,151 +136,103 @@ after_initialize do
   end
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
-  Category.has_one :activity_pub_actor,
-                   class_name: "DiscourseActivityPubActor",
-                   as: :model,
-                   dependent: :destroy
-  Category.has_many :activity_pub_followers,
-                    through: :activity_pub_actor,
-                    source: :followers,
-                    class_name: "DiscourseActivityPubActor"
-  Category.has_many :activity_pub_follows,
-                    through: :activity_pub_actor,
-                    source: :follows,
-                    class_name: "DiscourseActivityPubActor"
+  DiscourseActivityPubActor::ACTIVE_MODELS.each do |model_type|
+    model_type.constantize.has_one :activity_pub_actor,
+                                   class_name: "DiscourseActivityPubActor",
+                                   as: :model,
+                                   dependent: :destroy
+    model_type.constantize.has_many :activity_pub_followers,
+                                    through: :activity_pub_actor,
+                                    source: :followers,
+                                    class_name: "DiscourseActivityPubActor"
+    model_type.constantize.has_many :activity_pub_follows,
+                                    through: :activity_pub_actor,
+                                    source: :follows,
+                                    class_name: "DiscourseActivityPubActor"
 
-  register_category_custom_field_type("activity_pub_enabled", :boolean)
-  DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
-    register_category_custom_field_type("activity_pub_#{field}", :string)
-  end
+    class_name = model_type.downcase.to_sym
 
-  add_to_class(:category, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
-  add_to_class(:category, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
-  add_to_class(:category, :activity_pub_enabled) do
-    DiscourseActivityPub.enabled && !!custom_fields["activity_pub_enabled"] && activity_pub_allowed?
-  end
-  add_to_class(:category, :activity_pub_allowed?) { !self.read_restricted }
-  add_to_class(:category, :activity_pub_ready?) do
-    activity_pub_enabled && activity_pub_actor.present? && activity_pub_actor.persisted?
-  end
-  add_to_class(:category, :activity_pub_username) { custom_fields["activity_pub_username"] }
-  add_to_class(:category, :activity_pub_name) { custom_fields["activity_pub_name"] }
-  add_to_class(:category, :activity_pub_publish_state) do
-    message = {
-      model: {
-        id: self.id,
-        type: "category",
-        ready: activity_pub_ready?,
-        enabled: activity_pub_enabled,
-      },
-    }
-    MessageBus.publish("/activity-pub", message)
-  end
-  add_to_class(:category, :activity_pub_default_visibility) do
-    if activity_pub_full_topic
-      "public"
-    else
-      custom_fields["activity_pub_default_visibility"] ||
-        DiscourseActivityPubActivity.default_visibility
+    add_to_class(class_name, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
+    add_to_class(class_name, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
+    add_to_class(class_name, :activity_pub_enabled) do
+      DiscourseActivityPub.enabled && !!activity_pub_actor&.enabled
     end
+    add_to_class(class_name, :activity_pub_allowed?) do
+      case model_type
+      when "Category"
+        !self.read_restricted
+      when "Tag"
+        true
+      end
+    end
+    add_to_class(class_name, :activity_pub_ready?) { activity_pub_enabled && activity_pub_allowed? }
+    add_to_class(class_name, :activity_pub_username) { activity_pub_actor.username }
+    add_to_class(class_name, :activity_pub_name) { activity_pub_actor.name }
+    add_to_class(class_name, :activity_pub_publish_state) do
+      message = {
+        model: {
+          id: self.id,
+          type: class_name.to_s,
+          ready: activity_pub_ready?,
+          enabled: activity_pub_enabled,
+        },
+      }
+      MessageBus.publish("/activity-pub", message)
+    end
+    add_to_class(class_name, :activity_pub_default_visibility) do
+      if activity_pub_full_topic
+        "public"
+      else
+        activity_pub_actor.default_visibility || DiscourseActivityPubActivity.default_visibility
+      end
+    end
+    add_to_class(class_name, :activity_pub_post_object_type) do
+      activity_pub_actor&.post_object_type
+    end
+    add_to_class(class_name, :activity_pub_default_object_type) do
+      DiscourseActivityPub::AP::Actor::Group.type
+    end
+    add_to_class(class_name, :activity_pub_publication_type) do
+      activity_pub_actor&.publication_type || "first_post"
+    end
+    add_to_class(class_name, :activity_pub_first_post) do
+      activity_pub_publication_type === "first_post"
+    end
+    add_to_class(class_name, :activity_pub_full_topic) do
+      activity_pub_publication_type === "full_topic"
+    end
+    add_to_class(class_name, :activity_pub_default_object_type) do
+      DiscourseActivityPub::AP::Actor::Group.type
+    end
+    add_to_class(class_name, :activity_pub_follower_count) { activity_pub_followers.count }
   end
-  add_to_class(:category, :activity_pub_post_object_type) do
-    custom_fields["activity_pub_post_object_type"]
-  end
-  add_to_class(:category, :activity_pub_default_object_type) do
-    DiscourseActivityPub::AP::Actor::Group.type
-  end
-  add_to_class(:category, :activity_pub_publication_type) do
-    custom_fields["activity_pub_publication_type"] || "first_post"
-  end
-  add_to_class(:category, :activity_pub_first_post) do
-    activity_pub_publication_type === "first_post"
-  end
-  add_to_class(:category, :activity_pub_full_topic) do
-    activity_pub_publication_type === "full_topic"
-  end
-  add_to_class(:category, :activity_pub_default_object_type) do
-    DiscourseActivityPub::AP::Actor::Group.type
-  end
-  add_to_class(:category, :activity_pub_follower_count) { activity_pub_followers.count }
 
   on(:site_setting_changed) do |name, old_val, new_val|
     if %i[activity_pub_enabled login_required].include?(name)
-      Category
-        .joins(
-          "LEFT JOIN category_custom_fields ON categories.id = category_custom_fields.category_id",
-        )
-        .where(
-          "category_custom_fields.name = 'activity_pub_enabled' AND category_custom_fields.value IS NOT NULL",
-        )
-        .each(&:activity_pub_publish_state)
+      DiscourseActivityPubActor.active.each { |actor| actor.model.activity_pub_publish_state }
     end
   end
 
-  add_to_serializer(:basic_category, :activity_pub_enabled) { object.activity_pub_enabled }
-  add_to_serializer(
-    :site_category,
-    :activity_pub_ready,
-    include_condition: -> { object.activity_pub_enabled },
-  ) { object.activity_pub_ready? }
-  add_to_serializer(
-    :site_category,
-    :activity_pub_actor,
-    include_condition: -> do
-      object.activity_pub_enabled && object.respond_to?(:activity_pub_actor)
-    end,
-  ) do
-    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
-  end
-  add_to_serializer(
-    :site_category,
-    :activity_pub_actor_exists,
-    include_condition: -> { object.respond_to?(:activity_pub_actor) },
-  ) { object.activity_pub_actor.present? }
-  add_to_serializer(
-    :category,
-    :activity_pub_actor,
-    include_condition: -> do
-      object.activity_pub_enabled && object.respond_to?(:activity_pub_actor)
-    end,
-  ) do
-    DiscourseActivityPub::BasicActorSerializer.new(object.activity_pub_actor, root: false).as_json
-  end
-
-  if respond_to?(:register_preloaded_category_custom_fields)
-    register_preloaded_category_custom_fields("activity_pub_enabled")
-    register_preloaded_category_custom_fields("activity_pub_ready")
-  else
-    # TODO: Drop the if-statement and this if-branch in Discourse v3.2
-    Site.preloaded_category_custom_fields << "activity_pub_enabled"
-    Site.preloaded_category_custom_fields << "activity_pub_ready"
-  end
-
-  register_modifier(:site_all_categories_cache_query) do |query|
-    query.includes(:activity_pub_actor)
-  end
-
-  DiscourseActivityPubActor::CUSTOM_FIELDS.each do |field|
-    custom_field = "activity_pub_#{field}"
-    add_to_serializer(
-      :basic_category,
-      custom_field.to_sym,
-      include_condition: -> { object.activity_pub_enabled },
-    ) { object.send(custom_field) }
-
-    if respond_to?(:register_preloaded_category_custom_fields)
-      register_preloaded_category_custom_fields(custom_field)
-    else
-      # TODO: Drop the if-statement and this if-branch in Discourse v3.2
-      Site.preloaded_category_custom_fields << custom_field
+  add_to_serializer(:site, :activity_pub_actors) do
+    actors = { category: [], tag: [] }
+    DiscourseActivityPubActor.active.each do |actor|
+      actors[actor.model_type.downcase.to_sym] << DiscourseActivityPub::BasicActorSerializer.new(
+        actor,
+        root: false,
+      ).as_json
     end
+    actors.as_json
   end
 
   Topic.has_one :activity_pub_object, class_name: "DiscourseActivityPubCollection", as: :model
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
+  add_to_class(:topic, :activity_pub_taxonomies) do
+    [*tags, category].select { |t| t.activity_pub_actor.present? }
+  end
+  add_to_class(:topic, :activity_pub_taxonomy) { activity_pub_taxonomies.first }
   add_to_class(:topic, :activity_pub_enabled) do
-    DiscourseActivityPub.enabled && category&.activity_pub_ready?
+    DiscourseActivityPub.enabled && activity_pub_taxonomy&.activity_pub_ready?
   end
   add_to_class(:topic, :activity_pub_ready?) do
     activity_pub_enabled &&
@@ -296,8 +247,8 @@ after_initialize do
     first_post = posts.with_deleted.find_by(post_number: 1)
     first_post&.activity_pub_published?
   end
-  add_to_class(:topic, :activity_pub_first_post) { category&.activity_pub_first_post }
-  add_to_class(:topic, :activity_pub_full_topic) { category&.activity_pub_full_topic }
+  add_to_class(:topic, :activity_pub_first_post) { activity_pub_taxonomy&.activity_pub_first_post }
+  add_to_class(:topic, :activity_pub_full_topic) { activity_pub_taxonomy&.activity_pub_full_topic }
   add_to_class(:topic, :activity_pub_full_topic_enabled) do
     activity_pub_enabled && activity_pub_full_topic
   end
@@ -312,7 +263,7 @@ after_initialize do
     activity_pub_object.activities_collection
   end
   add_to_class(:topic, :activity_pub_objects_collection) { activity_pub_object.objects_collection }
-  add_to_class(:topic, :activity_pub_actor) { category&.activity_pub_actor }
+  add_to_class(:topic, :activity_pub_actor) { activity_pub_taxonomy&.activity_pub_actor }
   add_to_class(:topic, :activity_pub_name) { title }
 
   Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
@@ -335,9 +286,16 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_full_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
   add_to_class(:post, :activity_pub_domain) { self.activity_pub_object&.domain }
-  add_to_class(:post, :activity_pub_full_topic) { activity_pub_topic&.activity_pub_full_topic }
-  add_to_class(:post, :activity_pub_first_post) { !activity_pub_full_topic }
+  add_to_class(:post, :activity_pub_full_topic) do
+    return @destroyed_post_activity_pub_full_topic if !@destroyed_post_activity_pub_full_topic.nil?
+    activity_pub_topic&.activity_pub_full_topic
+  end
+  add_to_class(:post, :activity_pub_first_post) do
+    return @destroyed_post_activity_pub_first_post if !@destroyed_post_activity_pub_first_post.nil?
+    !activity_pub_full_topic
+  end
   add_to_class(:post, :activity_pub_enabled) do
+    return @destroyed_post_activity_pub_enabled if !@destroyed_post_activity_pub_enabled.nil?
     return false unless DiscourseActivityPub.enabled
     return false unless activity_pub_topic&.activity_pub_ready?
 
@@ -353,8 +311,9 @@ after_initialize do
     end
   end
   add_to_class(:post, :activity_pub_actor) do
+    return @destroyed_post_activity_pub_actor if !@destroyed_post_activity_pub_actor.nil?
     return nil unless activity_pub_enabled
-    return nil unless activity_pub_topic.category
+    return nil unless activity_pub_topic.activity_pub_taxonomy
 
     if activity_pub_full_topic
       user.activity_pub_actor
@@ -379,11 +338,12 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_updated_at) { custom_fields["activity_pub_updated_at"] }
   add_to_class(:post, :activity_pub_visibility) do
+    return @destroyed_post_activity_pub_visibility if !@destroyed_post_activity_pub_visibility.nil?
     if activity_pub_full_topic
       "public"
     else
       custom_fields["activity_pub_visibility"] ||
-        activity_pub_topic.category&.activity_pub_default_visibility
+        activity_pub_topic.activity_pub_taxonomy&.activity_pub_default_visibility
     end
   end
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
@@ -399,7 +359,10 @@ after_initialize do
       model[field.to_sym] = self.send("activity_pub_#{field}")
     end
 
-    group_ids = [Group::AUTO_GROUPS[:staff], *activity_pub_topic.category.reviewable_by_group_id]
+    group_ids = [Group::AUTO_GROUPS[:staff]]
+    if activity_pub_topic.activity_pub_taxonomy.is_a?(Category)
+      group_ids += [*activity_pub_topic.activity_pub_taxonomy.reviewable_by_group_id]
+    end
 
     MessageBus.publish("/activity-pub", { model: model }, { group_ids: group_ids })
   end
@@ -427,7 +390,7 @@ after_initialize do
     self.activity_pub_object&.ap_type || self.activity_pub_default_object_type
   end
   add_to_class(:post, :activity_pub_default_object_type) do
-    self.activity_pub_topic&.category&.activity_pub_post_object_type ||
+    self.activity_pub_topic&.activity_pub_taxonomy&.activity_pub_post_object_type ||
       DiscourseActivityPub::AP::Object::Note.type
   end
   add_to_class(:post, :activity_pub_reply_to_object) do
@@ -452,7 +415,12 @@ after_initialize do
   add_to_class(:post, :activity_pub_first_post_scheduled_at) do
     activity_pub_topic.first_post&.activity_pub_scheduled_at
   end
-  add_to_class(:post, :activity_pub_group_actor) { activity_pub_topic.activity_pub_actor }
+  add_to_class(:post, :activity_pub_group_actors) do
+    if !@destroyed_post_activity_pub_group_actors.nil?
+      return @destroyed_post_activity_pub_group_actors
+    end
+    activity_pub_topic.activity_pub_taxonomies.map { |t| t.activity_pub_actor }
+  end
   add_to_class(:post, :activity_pub_collection) { activity_pub_topic.activity_pub_object }
   add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
     activity&.composition?
@@ -470,7 +438,15 @@ after_initialize do
     DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user) if activity_pub_full_topic
 
     content = DiscourseActivityPub::ContentParser.get_content(self)
-    visibility = activity_pub_visibility_on_create
+    visibility =
+      (
+        if is_first_post?
+          activity_pub_topic.activity_pub_taxonomy&.activity_pub_default_visibility
+        else
+          activity_pub_topic.first_post.activity_pub_visibility
+        end
+      )
+
     custom_fields["activity_pub_content"] = content
     custom_fields["activity_pub_visibility"] = visibility
     save_custom_fields(true)
@@ -500,6 +476,16 @@ after_initialize do
     @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
   add_to_class(:post, :activity_pub_object_id) { activity_pub_local? && activity_pub_object&.ap_id }
+
+  add_model_callback(:post, :after_destroy) do
+    # We need these to create a Delete activity when the post is actually destroyed
+    @destroyed_post_activity_pub_enabled = self.activity_pub_enabled
+    @destroyed_post_activity_pub_actor = self.activity_pub_actor
+    @destroyed_post_activity_pub_visibility = self.activity_pub_visibility
+    @destroyed_post_activity_pub_group_actors = self.activity_pub_group_actors
+    @destroyed_post_activity_pub_full_topic = self.activity_pub_full_topic
+    @destroyed_post_activity_pub_first_post = self.activity_pub_first_post
+  end
 
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
   activity_pub_post_custom_field_names.each do |field_name|
@@ -562,7 +548,7 @@ after_initialize do
   add_to_class(:post_action, :activity_pub_published?) { !!post.activity_pub_published_at }
   add_to_class(:post_action, :activity_pub_visibility) { "public" }
   add_to_class(:post_action, :activity_pub_actor) { user.activity_pub_actor }
-  add_to_class(:post_action, :activity_pub_group_actor) { post.activity_pub_group_actor }
+  add_to_class(:post_action, :activity_pub_group_actors) { post.activity_pub_group_actors }
   add_to_class(:post_action, :activity_pub_object) { post.activity_pub_object }
   add_to_class(:post_action, :activity_pub_full_topic) { post.activity_pub_full_topic }
   add_to_class(:post_action, :activity_pub_first_post) { post.activity_pub_first_post }
@@ -582,6 +568,7 @@ after_initialize do
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
 
+  add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_class(:user, :activity_pub_ready?) { true }
   add_to_class(:user, :activity_pub_allowed?) { self.human? }
   add_to_class(:user, :activity_pub_url) { full_url }
@@ -752,29 +739,27 @@ after_initialize do
               I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
       end
     else
-      delivered_to_category_actors = []
+      delivered_to_actors = []
 
       activity.delivered_to.each do |delivered_to_id|
-        category_actor =
+        actor =
           DiscourseActivityPubActor.find_by(
             ap_id: delivered_to_id,
             local: true,
             ap_type: DiscourseActivityPub::AP::Actor::Group.type,
-            model_type: Category,
+            model_type: DiscourseActivityPubActor::ACTIVE_MODELS,
           )
-        delivered_to_category_actors << category_actor if category_actor
+        delivered_to_actors << actor if actor
       end
 
-      if delivered_to_category_actors.blank?
+      if delivered_to_actors.blank?
         raise DiscourseActivityPub::AP::Handlers::Error::Validate,
-              I18n.t(
-                "discourse_activity_pub.process.warning.only_category_actors_accept_new_topics",
-              )
+              I18n.t("discourse_activity_pub.process.warning.actor_does_not_accept_new_topics")
       end
 
-      unless delivered_to_category_actors.any? { |category_actor|
-               category_actor.following?(activity.actor.stored) ||
-                 category_actor.following?(activity.parent&.actor&.stored)
+      unless delivered_to_actors.any? { |actor|
+               actor.following?(activity.actor.stored) ||
+                 actor.following?(activity.parent&.actor&.stored)
              }
         raise DiscourseActivityPub::AP::Handlers::Error::Validate,
               I18n.t(
@@ -782,14 +767,17 @@ after_initialize do
               )
       end
 
-      delivered_to_category = delivered_to_category_actors.first.model
+      delivered_to_model = delivered_to_actors.first.model
 
-      if !delivered_to_category.activity_pub_ready?
+      if !delivered_to_model.activity_pub_ready?
         raise DiscourseActivityPub::AP::Handlers::Error::Validate,
               I18n.t("discourse_activity_pub.process.warning.object_not_ready")
       end
 
-      activity.cache["delivered_to_category_id"] = delivered_to_category.id
+      if delivered_to_model.is_a?(Category)
+        activity.cache["delivered_to_category_id"] = delivered_to_model.id
+      end
+      activity.cache["delivered_to_tag_id"] = delivered_to_model.id if delivered_to_model.is_a?(Tag)
     end
   end
 
@@ -833,6 +821,7 @@ after_initialize do
         user,
         activity.object.stored,
         category_id: activity.cache["delivered_to_category_id"],
+        tag_id: activity.cache["delivered_to_tag_id"],
       )
 
     unless post

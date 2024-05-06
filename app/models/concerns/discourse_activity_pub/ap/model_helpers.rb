@@ -16,12 +16,8 @@ module DiscourseActivityPub
               activity_job_args = {
                 object_id: activity.id,
                 object_type: "DiscourseActivityPubActivity",
-                from_actor_id: activity.actor.id,
               }
-              activity.actor.followers.each do |follower|
-                activity_job_args[:to_actor_id] = follower.id
-                Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, **activity_job_args)
-              end
+              Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, **activity_job_args)
             end
             object.activities.destroy_all
           end
@@ -34,12 +30,8 @@ module DiscourseActivityPub
           object_job_args = {
             object_id: collection.id,
             object_type: "DiscourseActivityPubCollection",
-            from_actor_id: self.activity_pub_actor.id,
           }
-          self.activity_pub_actor.followers.each do |follower|
-            object_job_args[:to_actor_id] = follower.id
-            Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, **object_job_args)
-          end
+          Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, **object_job_args)
         end
       end
     end

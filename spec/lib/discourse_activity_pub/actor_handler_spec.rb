@@ -226,12 +226,8 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
         end
 
         context "with an actor" do
-          let!(:actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
-
-          before do
-            category.custom_fields["activity_pub_enabled"] = true
-            category.custom_fields["activity_pub_username"] = actor.username
-            category.save_custom_fields(true)
+          let!(:actor) do
+            Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true)
           end
 
           it "updates actor fields" do
