@@ -228,7 +228,7 @@ after_initialize do
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
   add_to_class(:topic, :activity_pub_taxonomies) do
-    [*tags, category].select { |t| t.activity_pub_actor.present? }
+    [*tags, category].select { |t| t&.activity_pub_actor.present? }
   end
   add_to_class(:topic, :activity_pub_taxonomy) { activity_pub_taxonomies.first }
   add_to_class(:topic, :activity_pub_enabled) do
