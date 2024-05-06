@@ -200,7 +200,7 @@ RSpec.describe DiscourseActivityPub::PostHandler do
 
       context "when inReplyTo object is not present" do
         before do
-          toggle_activity_pub(category, callbacks: true, publication_type: "full_topic")
+          toggle_activity_pub(category, publication_type: "full_topic")
           note.destroy!
         end
 
