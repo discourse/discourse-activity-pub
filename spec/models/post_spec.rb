@@ -68,6 +68,12 @@ RSpec.describe Post do
           it { expect(reply.activity_pub_enabled).to eq(true) }
         end
       end
+
+      context "with a private message" do
+        let!(:post) { Fabricate(:private_message_post) }
+
+        it { expect(post.activity_pub_enabled).to eq(false) }
+      end
     end
 
     context "with activity pub plugin disabled" do
