@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AP::ObjectsController do
-  let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
+  let!(:category) { Fabricate(:category) }
+  let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:keypair) { OpenSSL::PKey::RSA.new(2048) }
   let!(:actor) do
     Fabricate(:discourse_activity_pub_actor_person, public_key: keypair.public_key.to_pem)
   end
-  let!(:object) { Fabricate(:discourse_activity_pub_object_note) }
+  let!(:topic) { Fabricate(:topic, category: category) }
+  let!(:first_post) { Fabricate(:post, topic: topic) }
+  let!(:object) { Fabricate(:discourse_activity_pub_object_note, model: first_post) }
+  let!(:create_activity) { Fabricate(:discourse_activity_pub_activity_create, object: object) }
   let!(:post_body) { build_activity_json(object: group) }
 
   before do
@@ -124,10 +128,12 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   end
 
   describe "#show" do
-    it "returns a object json" do
+    it "returns object json with addressing" do
       get_object(object)
       expect(response.status).to eq(200)
       expect(parsed_body).to eq(object.ap.json)
+      expect(parsed_body["to"]).to eq(group&.ap_id)
+      expect(parsed_body["cc"]).to eq([public_collection_id])
     end
   end
 end
