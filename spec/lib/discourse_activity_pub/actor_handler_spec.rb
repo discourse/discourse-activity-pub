@@ -282,8 +282,8 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
               expect(@fake_logger.warnings.first).to match(
                 I18n.t(
                   "discourse_activity_pub.actor.warning.invalid_username",
-                  model_id: category.id,
-                  model_type: category.class.name,
+                  min_length: SiteSetting.min_username_length,
+                  max_length: SiteSetting.max_username_length,
                 ),
               )
             end
