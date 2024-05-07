@@ -243,7 +243,12 @@ module DiscourseActivityPub
     end
 
     def invalid_opt(key)
-      add_error(I18n.t("discourse_activity_pub.actor.warning.#{key}"))
+      opts = {}
+      if key == "invalid_username"
+        opts[:min_length] = SiteSetting.min_username_length
+        opts[:max_length] = SiteSetting.max_username_length
+      end
+      add_error(I18n.t("discourse_activity_pub.actor.warning.#{key}", opts))
       false
     end
 

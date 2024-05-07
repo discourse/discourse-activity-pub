@@ -35,7 +35,7 @@ en:
               title: Login is required by the login required site setting.
               description: Only outgoing follow requests and the attributes of enabled actors are published.
           username: Username
-          username_description: 3 or more letters and numbers.
+          username_description: "%{min_length} to %{max_length} letters, numbers, dashes or underscores."
           name: Name
           name_description: Used as a display name on some services.
           default_visibility: Visibility
