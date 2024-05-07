@@ -26,7 +26,10 @@ module DiscourseActivityPub
       end
       tag = Tag.find_by(id: tag_id) if tag_id
 
-      new_topic = !object.in_reply_to_post && (category || tag)
+      new_topic = !object.reply_to_id && !topic_id && (category || tag)
+      reply_to = object.in_reply_to_post
+      return nil if !import_mode && !new_topic && !reply_to
+
       params = {
         raw: object.content,
         skip_events: true,
@@ -43,8 +46,9 @@ module DiscourseActivityPub
           DiscourseActivityPub::ContentParser.get_title(object.content)
         params[:category] = category.id if category
         params[:topic_opts] = { tags: [tag.name] } if tag
-      else
-        reply_to = object.in_reply_to_post
+      end
+
+      if reply_to
         params[:topic_id] = reply_to.topic.id
         params[:reply_to_post_number] = reply_to.post_number
       end

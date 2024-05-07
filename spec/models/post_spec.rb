@@ -68,6 +68,39 @@ RSpec.describe Post do
           it { expect(reply.activity_pub_enabled).to eq(true) }
         end
       end
+
+      context "with activity pub set to first post on tag" do
+        before { toggle_activity_pub(tag) }
+
+        context "when first post in topic" do
+          it { expect(post.activity_pub_enabled).to eq(true) }
+        end
+
+        context "when not first post in topic" do
+          it { expect(reply.activity_pub_enabled).to eq(false) }
+        end
+      end
+
+      context "with activity pub set to full topic on tag" do
+        before do
+          toggle_activity_pub(tag, publication_type: "full_topic")
+          topic.create_activity_pub_collection!
+        end
+
+        context "when first post in topic" do
+          it { expect(post.activity_pub_enabled).to eq(true) }
+        end
+
+        context "when not first post in topic" do
+          it { expect(reply.activity_pub_enabled).to eq(true) }
+        end
+      end
+
+      context "with a private message" do
+        let!(:post) { Fabricate(:private_message_post) }
+
+        it { expect(post.activity_pub_enabled).to eq(false) }
+      end
     end
 
     context "with activity pub plugin disabled" do

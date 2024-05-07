@@ -1,4 +1,3 @@
-import { computed } from "@ember/object";
 import I18n from "I18n";
 import TagDrop, {
   ALL_TAGS_ID,
@@ -10,9 +9,9 @@ import ActivityPubActor from "../models/activity-pub-actor";
 export default TagDrop.extend({
   classNames: ["activity-pub-tag-chooser"],
 
-  content: computed("topTags.[]", function () {
-    return this.activityPubFilter(this.topTags);
-  }),
+  selectKitOptions: {
+    hasActor: false,
+  },
 
   activityPubFilter(tags) {
     return tags.filter((tag) => {
@@ -28,8 +27,8 @@ export default TagDrop.extend({
     });
   },
 
-  search(filter) {
-    return this.activityPubFilter(this._super(filter));
+  modifyContent(content) {
+    return this.activityPubFilter(content);
   },
 
   modifyNoSelection() {

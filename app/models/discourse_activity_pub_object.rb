@@ -8,6 +8,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   belongs_to :collection, class_name: "DiscourseActivityPubCollection", foreign_key: "collection_id"
 
   has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
+  has_one :create_activity,
+          -> { where(ap_type: DiscourseActivityPub::AP::Activity::Create.type) },
+          class_name: "DiscourseActivityPubActivity",
+          foreign_key: "object_id"
   has_many :announcements,
            class_name: "DiscourseActivityPubActivity",
            through: :activities,
@@ -118,6 +122,14 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def audience
     self.read_attribute(:audience) || topic_actor&.ap_id
+  end
+
+  def to
+    local? && create_activity&.to
+  end
+
+  def cc
+    local? && create_activity&.cc
   end
 
   def topic_actor

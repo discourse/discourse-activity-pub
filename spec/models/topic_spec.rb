@@ -31,6 +31,16 @@ RSpec.describe Topic do
   let!(:activity2) { Fabricate(:discourse_activity_pub_activity_create, object: note2) }
   let!(:activity3) { Fabricate(:discourse_activity_pub_activity_create, object: note3) }
 
+  describe "#activity_pub_enabled" do
+    context "with activity pub plugin enabled" do
+      context "with a private message" do
+        let!(:topic) { Fabricate(:private_message_topic) }
+
+        it { expect(topic.activity_pub_enabled).to eq(false) }
+      end
+    end
+  end
+
   describe "move_posts" do
     before { toggle_activity_pub(category1, publication_type: "full_topic") }
 
