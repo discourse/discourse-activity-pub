@@ -1011,6 +1011,9 @@ after_initialize do
           )
       else
         actor.stored.name = actor.json[:name] if actor.json[:name].present?
+        actor.stored.username = actor.json[:preferredUsername] if actor.json[
+          :preferredUsername
+        ].present?
 
         if actor.json[:icon].present?
           actor.stored.icon_url = DiscourseActivityPub::JsonLd.resolve_icon_url(actor.json[:icon])

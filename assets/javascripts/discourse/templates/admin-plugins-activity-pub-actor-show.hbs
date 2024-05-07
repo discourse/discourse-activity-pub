@@ -41,6 +41,7 @@
         @model={{this.actor.model}}
         @modelType={{this.actor.model_type}}
       />
+      <ActivityPubHandle @actor={{this.actor}} />
       <div class="activity-pub-actor-enabled-toggle">
         <DToggleSwitch
           @state={{this.enabled}}
@@ -54,35 +55,22 @@
   <div class="activity-pub-actor-form-container">
     <div class="activity-pub-actor-form">
       {{#if this.showForm}}
-        {{#if this.actor.handle}}
-          <section class="activity-pub-actor-setting activity-pub-handle-field">
-            <label>{{i18n "admin.discourse_activity_pub.actor.handle"}}</label>
-            <ActivityPubHandle @actor={{this.actor}} />
-            <div class="activity-pub-actor-setting-description">
-              {{i18n "admin.discourse_activity_pub.actor.handle_description"}}
-            </div>
-          </section>
-        {{else}}
-          <section class="activity-pub-actor-setting activity-pub-username">
-            <label for="activity-pub-username">{{i18n
-                "admin.discourse_activity_pub.actor.username"
-              }}</label>
-            <div class="activity-pub-username-input">
-              <Input
-                id="activity-pub-username"
-                @value={{this.actor.username}}
-              />
-              <span
-                class="activity-pub-host"
-              >@{{this.site.activity_pub_host}}</span>
-            </div>
-            <div class="activity-pub-actor-setting-notice">
-              <span>{{d-icon "exclamation-triangle"}}{{i18n
-                  "admin.discourse_activity_pub.actor.username_description"
-                }}</span>
-            </div>
-          </section>
-        {{/if}}
+        <section class="activity-pub-actor-setting activity-pub-username">
+          <label for="activity-pub-username">{{i18n
+              "admin.discourse_activity_pub.actor.username"
+            }}</label>
+          <div class="activity-pub-username-input">
+            <Input id="activity-pub-username" @value={{this.actor.username}} />
+            <span
+              class="activity-pub-host"
+            >@{{this.site.activity_pub_host}}</span>
+          </div>
+          <div class="activity-pub-actor-setting-description">
+            <span>{{i18n
+                "admin.discourse_activity_pub.actor.username_description"
+              }}</span>
+          </div>
+        </section>
 
         <section class="activity-pub-actor-setting activity-pub-name">
           <label for="activity-pub-name">{{i18n

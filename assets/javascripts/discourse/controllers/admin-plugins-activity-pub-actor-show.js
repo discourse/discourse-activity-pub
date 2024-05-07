@@ -18,6 +18,8 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @tracked enabled = this.actor.enabled;
   @tracked saving = false;
   @tracked saveResponse = null;
+  @tracked actor;
+
   modelTypes = [
     {
       id: "category",
