@@ -136,8 +136,7 @@ en:
         cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
         not_allowed_to_create_actor_for_model: "Not allowed to create an actor for %{model_id}"
         no_options: "No options passed to ActorHandler"
-        no_change_when_set: An ActivityPub username can't be changed once set.
-        invalid_username: "ActivityPub usernames can only contain ASCII characters."
+        invalid_username: "username must be 3 or more letters or numbers with no spaces."
         username_taken: "That username is already taken on this server."
     auth:
       error:

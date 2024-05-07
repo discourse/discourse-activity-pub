@@ -35,11 +35,9 @@ en:
               title: Login is required by the login required site setting.
               description: Only outgoing follow requests and the attributes of enabled actors are published.
           username: Username
-          username_description: Cannot be changed once saved.
-          handle: Handle
-          handle_description: Used to identify this actor on services using Webfinger (e.g. Mastodon).
+          username_description: 3 or more letters and numbers.
           name: Name
-          name_description: Used as a display name on some services (e.g. Mastodon).
+          name_description: Used as a display name on some services.
           default_visibility: Visibility
           default_visibility_description: All posts will be published via ActivityPub with this visibility.
           post_object_type: Post object type
