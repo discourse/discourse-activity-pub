@@ -39,6 +39,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/webfinger/handle"
   require_relative "lib/discourse_activity_pub/activity_forwarder"
   require_relative "lib/discourse_activity_pub/logger"
+  require_relative "lib/discourse_activity_pub/context_resolver"
   require_relative "lib/discourse_activity_pub/ap"
   require_relative "lib/discourse_activity_pub/ap/handlers"
   require_relative "lib/discourse_activity_pub/ap/object"
@@ -721,21 +722,28 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
     if DiscourseActivityPubActivity.exists?(ap_id: activity.json[:id])
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
             I18n.t("discourse_activity_pub.process.warning.activity_already_processed")
     end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
-    reply_to_post = activity.object.stored.in_reply_to_post
+    context_resolver = DiscourseActivityPub::ContextResolver.new(activity.object.stored)
+    context_resolver.perform
+    unless context_resolver.success?
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+            context_resolver.errors.full_messages.join(", ")
+    end
+
+    reply_to_post = activity.object.stored.reload.in_reply_to_post
 
     if reply_to_post
       if reply_to_post.trashed?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.cannot_reply_to_deleted_post")
       end
       unless reply_to_post.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
       end
     else
@@ -753,7 +761,7 @@ after_initialize do
       end
 
       if delivered_to_actors.blank?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.actor_does_not_accept_new_topics")
       end
 
@@ -761,7 +769,7 @@ after_initialize do
                actor.following?(activity.actor.stored) ||
                  actor.following?(activity.parent&.actor&.stored)
              }
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t(
                 "discourse_activity_pub.process.warning.only_followed_actors_create_new_topics",
               )
@@ -770,7 +778,7 @@ after_initialize do
       delivered_to_model = delivered_to_actors.first.model
 
       if !delivered_to_model.activity_pub_ready?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.object_not_ready")
       end
 
@@ -795,7 +803,7 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:announce, :validate) do |activity|
     unless DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
             I18n.t("discourse_activity_pub.process.warning.announce_not_publicly_addressed")
     end
 

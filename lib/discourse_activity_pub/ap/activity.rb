@@ -23,25 +23,27 @@ module DiscourseActivityPub
       end
 
       def process
-        return false unless process_actor_and_object
-        return false unless perform_validate_activity
         return false unless perform_transactions
-
         forward_activity
-
         self
       end
 
-      def perform_transactions
+      def perform_transactions(skip_process: false)
         performed = true
 
         ActiveRecord::Base.transaction do
           begin
+            process_activity unless skip_process
+            validate_activity
             perform_activity
             store_activity
             respond_to_activity
+          rescue DiscourseActivityPub::AP::Handlers::Warning => warning
+            DiscourseActivityPub::Logger.warn(warning.message) if warning.message
+            performed = false
+            raise ActiveRecord::Rollback
           rescue DiscourseActivityPub::AP::Handlers::Error => error
-            DiscourseActivityPub::Logger.error(error.message)
+            DiscourseActivityPub::Logger.error(error.message) if error.message
             performed = false
             raise ActiveRecord::Rollback
           end
@@ -50,14 +52,12 @@ module DiscourseActivityPub
         performed
       end
 
-      def perform_validate_activity
-        return true if validate_activity
-        process_failed("activity_not_valid")
-        false
+      def process_activity
+        raise DiscourseActivityPub::AP::Handlers::Warning unless process_actor_and_object
       end
 
       def validate_activity
-        apply_handlers(type, :validate)
+        apply_handlers(type, :validate, raise_errors: true)
       end
 
       def perform_activity

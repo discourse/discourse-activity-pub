@@ -9,7 +9,9 @@ module DiscourseActivityPub
         end
 
         def validate_activity
-          return false unless activity_host_matches_object_host?
+          unless activity_host_matches_object_host?
+            raise DiscourseActivityPub::AP::Handlers::Warning
+          end
           super
         end
       end
