@@ -93,6 +93,7 @@ en:
         failed_to_save_actor: "Failed to save actor: %{actor_id}"
         failed_to_save_collection: "Failed to save collection: %{collection_id}"
       info:
+        shared_inbox: "shared inbox"
         received_json: "Received JSON delivered to %{delivered_to}"
         processing_json: "Processing JSON delivered to %{delivered_to}"
     webfinger:

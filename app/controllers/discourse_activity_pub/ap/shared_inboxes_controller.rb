@@ -1,17 +1,12 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::SharedInboxesController < DiscourseActivityPub::AP::ObjectsController
+  before_action :validate_json
   before_action :ensure_verified_signature, if: :require_signed_requests?
 
   def create
-    @json = validate_json_ld(request.body.read)
-
-    if @json
-      process_json
-      head 202
-    else
-      render_activity_pub_error("json_not_valid", 422)
-    end
+    process_json
+    head 202
   end
 
   protected
@@ -28,5 +23,21 @@ class DiscourseActivityPub::AP::SharedInboxesController < DiscourseActivityPub::
 
   def process_json
     Jobs.enqueue(:discourse_activity_pub_process, json: @json)
+  end
+
+  def validate_json
+    @json = validate_json_ld(@raw_body)
+
+    if @json
+      DiscourseActivityPub::Logger.info(
+        I18n.t(
+          "discourse_activity_pub.process.info.received_json",
+          delivered_to: I18n.t("discourse_activity_pub.process.info.shared_inbox"),
+        ),
+        json: @json,
+      )
+    else
+      render_activity_pub_error("json_not_valid", 422)
+    end
   end
 end
