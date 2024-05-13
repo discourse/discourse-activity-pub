@@ -94,46 +94,46 @@ RSpec.describe DiscourseActivityPub::ContentParser do
 
       context "with markdown" do
         let(:raw_markdown) { <<~STRING }
-            # First Header
+          # First Header
 
-            ## Second Header
+          ## Second Header
 
-            ### Third Header
+          ### Third Header
 
-            #### Fourth Header
+          #### Fourth Header
 
-            Paragraph
+          Paragraph
 
-            [Link](https://discourse.org)
+          [Link](https://discourse.org)
 
-            > This is a quote
+          > This is a quote
 
-            - This is an unordered list item
+          - This is an unordered list item
 
-            1. This is an ordered list item
+          1. This is an ordered list item
 
-            ```
-            This is a code block
-            ```
+          ```
+          This is a code block
+          ```
           STRING
         let(:cooked_markdown) { <<~HTML }
-            <h1>First Header</h1>
-            <h2>Second Header</h2>
-            <h3>Third Header</h3>
-            <h4>Fourth Header</h4>
-            <p>Paragraph</p>
-            <p><a href="https://discourse.org">Link</a></p>
-            <blockquote>
-            <p>This is a quote</p>
-            </blockquote>
-            <ul>
-            <li>This is an unordered list item</li>
-            </ul>
-            <ol>
-            <li>This is an ordered list item</li>
-            </ol>
-            <code class="lang-auto">This is a code block
-            </code>
+          <h1>First Header</h1>
+          <h2>Second Header</h2>
+          <h3>Third Header</h3>
+          <h4>Fourth Header</h4>
+          <p>Paragraph</p>
+          <p><a href="https://discourse.org">Link</a></p>
+          <blockquote>
+          <p>This is a quote</p>
+          </blockquote>
+          <ul>
+          <li>This is an unordered list item</li>
+          </ul>
+          <ol>
+          <li>This is an ordered list item</li>
+          </ol>
+          <code class="lang-auto">This is a code block
+          </code>
           HTML
         let!(:post) { Fabricate(:post, raw: raw_markdown) }
 
