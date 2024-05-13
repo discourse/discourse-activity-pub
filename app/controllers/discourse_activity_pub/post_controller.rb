@@ -32,7 +32,6 @@ module DiscourseActivityPub
     protected
 
     def ensure_first_post
-      return render_post_error("first_post_not_enabled", 403) unless @post.activity_pub_first_post
       render_post_error("not_first_post", 422) unless @post.activity_pub_is_first_post?
     end
 

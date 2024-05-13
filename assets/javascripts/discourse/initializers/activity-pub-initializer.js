@@ -134,7 +134,6 @@ export default {
 
           const canSchedule =
             currentUser?.staff &&
-            attrs.activity_pub_first_post &&
             attrs.activity_pub_is_first_post &&
             !attrs.activity_pub_published_at;
 
