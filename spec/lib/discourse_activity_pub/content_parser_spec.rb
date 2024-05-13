@@ -105,14 +105,35 @@ RSpec.describe DiscourseActivityPub::ContentParser do
             Paragraph
 
             [Link](https://discourse.org)
+
+            > This is a quote
+
+            - This is an unordered list item
+
+            1. This is an ordered list item
+
+            ```
+            This is a code block
+            ```
           STRING
         let(:cooked_markdown) { <<~HTML }
             <h1>First Header</h1>
             <h2>Second Header</h2>
             <h3>Third Header</h3>
             <h4>Fourth Header</h4>
-            Paragraph
-            <a href="https://discourse.org">Link</a>
+            <p>Paragraph</p>
+            <p><a href="https://discourse.org">Link</a></p>
+            <blockquote>
+            <p>This is a quote</p>
+            </blockquote>
+            <ul>
+            <li>This is an unordered list item</li>
+            </ul>
+            <ol>
+            <li>This is an ordered list item</li>
+            </ol>
+            <code class="lang-auto">This is a code block
+            </code>
           HTML
         let!(:post) { Fabricate(:post, raw: raw_markdown) }
 
