@@ -115,6 +115,11 @@ RSpec.describe DiscourseActivityPub::ContentParser do
           ```
           This is a code block
           ```
+
+          **This is strong text**
+
+          *This is emphasised text*
+
           STRING
         let(:cooked_markdown) { <<~HTML }
           <h1>First Header</h1>
@@ -134,6 +139,8 @@ RSpec.describe DiscourseActivityPub::ContentParser do
           </ol>
           <code class="lang-auto">This is a code block
           </code>
+          <p><strong>This is strong text</strong></p>
+          <p><em>This is emphasised text</em></p>
           HTML
         let!(:post) { Fabricate(:post, raw: raw_markdown) }
 

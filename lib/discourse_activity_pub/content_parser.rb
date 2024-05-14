@@ -52,7 +52,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     when "a"
       start_tag(name, attributes)
       @in_a = true
-    when "h1", "h2", "h3", "h4", "h5", "p", "ul", "ol", "li", "code", "blockquote", "b"
+    when "h1", "h2", "h3", "h4", "h5", "p", "ul", "ol", "li", "code", "blockquote", "em", "strong"
       start_tag(name, attributes)
     when "div"
       if attributes.include?(%w[class note])
@@ -68,7 +68,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     when "a"
       end_tag(name)
       @in_a = false
-    when "h1", "h2", "h3", "h4", "h5", "p", "ul", "ol", "li", "code", "blockquote", "b"
+    when "h1", "h2", "h3", "h4", "h5", "p", "ul", "ol", "li", "code", "blockquote", "em", "strong"
       end_tag(name)
     when "div"
       throw :done if @start_content
