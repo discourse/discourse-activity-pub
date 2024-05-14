@@ -57,4 +57,16 @@ export default DiscourseRoute.extend({
       }
     );
   },
+
+  @action
+  reject(actor, followingActor) {
+    return ActivityPubActor.reject(actor.id, followingActor.id).then(
+      (result) => {
+        this.controllerFor(this.router.currentRouteName).actors.removeObject(
+          followingActor
+        );
+        return result;
+      }
+    );
+  },
 });

@@ -32,17 +32,6 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
       end
     end
 
-    context "when user has authorized the same actor id" do
-      let!(:user) { Fabricate(:user) }
-
-      before { user.activity_pub_save_actor_id("https://external.com", actor.ap_id) }
-
-      it "associates the user with the actor" do
-        described_class.update_or_create_user(actor)
-        expect(actor.reload.model_id).to eq(user.id)
-      end
-    end
-
     context "when actor has user" do
       let!(:user) { Fabricate(:user) }
 
@@ -266,26 +255,11 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
           context "with a changed username" do
             let!(:original_username) { actor.username }
 
-            before { setup_logging }
-            after { teardown_logging }
-
-            it "does not update the username" do
+            it "updates the username" do
               opts[:username] = "new_username"
               described_class.update_or_create_actor(category, opts)
-              expect(actor.reload.username).to eq(original_username)
-              expect(category.reload.activity_pub_username).to eq(original_username)
-            end
-
-            it "logs an error" do
-              opts[:username] = "new_username"
-              described_class.update_or_create_actor(category, opts)
-              expect(@fake_logger.warnings.first).to match(
-                I18n.t(
-                  "discourse_activity_pub.actor.warning.no_change_when_set",
-                  model_id: category.id,
-                  model_type: category.class.name,
-                ),
-              )
+              expect(actor.reload.username).to eq("new_username")
+              expect(category.reload.activity_pub_username).to eq("new_username")
             end
           end
         end
@@ -308,8 +282,8 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
               expect(@fake_logger.warnings.first).to match(
                 I18n.t(
                   "discourse_activity_pub.actor.warning.invalid_username",
-                  model_id: category.id,
-                  model_type: category.class.name,
+                  min_length: SiteSetting.min_username_length,
+                  max_length: SiteSetting.max_username_length,
                 ),
               )
             end

@@ -16,26 +16,24 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Reject do
         end
 
         context "with a follow activity" do
-          let!(:follow) do
+          let!(:follow_activity) do
             Fabricate(
               :discourse_activity_pub_activity_follow,
               actor: category.activity_pub_actor,
               object: followed_actor,
             )
           end
-
-          before do
-            json =
-              build_activity_json(
-                id: "#{followed_actor_id}#accepts/follows/",
-                type: "Reject",
-                actor: followed_actor,
-                object: follow.ap.json,
-              )
-            perform_process(json)
+          let!(:json) do
+            build_activity_json(
+              id: "#{followed_actor_id}#accepts/follows/",
+              type: "Reject",
+              actor: followed_actor,
+              object: follow_activity.ap.json,
+            )
           end
 
           it "creates an activity" do
+            perform_process(json)
             expect(
               DiscourseActivityPubActivity.exists?(
                 ap_type: described_class.type,
@@ -45,12 +43,33 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Reject do
           end
 
           it "does not create a follow" do
+            perform_process(json)
             expect(
               DiscourseActivityPubFollow.exists?(
                 followed_id: followed_actor.id,
                 follower_id: category.activity_pub_actor.id,
               ),
             ).to eq(false)
+          end
+
+          context "with an existing follow" do
+            let!(:follow) do
+              Fabricate(
+                :discourse_activity_pub_follow,
+                follower: category.activity_pub_actor,
+                followed: followed_actor,
+              )
+            end
+
+            it "destroys the follow" do
+              perform_process(json)
+              expect(
+                DiscourseActivityPubFollow.exists?(
+                  follower_id: category.activity_pub_actor.id,
+                  followed_id: followed_actor.id,
+                ),
+              ).to eq(false)
+            end
           end
         end
       end

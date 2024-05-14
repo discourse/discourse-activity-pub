@@ -235,7 +235,7 @@ RSpec.describe DiscourseActivityPub::ActorController do
                 Fabricate(:discourse_activity_pub_follow, follower: actor1, followed: actor2)
               end
 
-              it "initiates a follow" do
+              it "initiates an unfollow" do
                 DiscourseActivityPub::FollowHandler.expects(:unfollow).with(actor1.id, actor2.id)
                 delete "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
@@ -257,6 +257,89 @@ RSpec.describe DiscourseActivityPub::ActorController do
                   .with(actor1.id, actor2.id)
                   .returns(false)
                 delete "/ap/local/actor/#{actor1.id}/follow", params: { target_actor_id: actor2.id }
+                expect(response.status).to eq(200)
+                expect(response.parsed_body["failed"]).to eq("FAILED")
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  describe "#reject" do
+    context "with activity pub enabled" do
+      before { toggle_activity_pub(actor1.model) }
+
+      context "with a normal user" do
+        let(:user) { Fabricate(:user) }
+
+        before { sign_in(user) }
+
+        it "returns an unauthorized error" do
+          post "/ap/local/actor/#{actor1.id}/reject"
+          expect(response.status).to eq(403)
+        end
+      end
+
+      context "with an admin user" do
+        let(:admin) { Fabricate(:user, admin: true) }
+
+        before { sign_in(admin) }
+
+        context "with an invalid actor id" do
+          it "returns a not found error" do
+            post "/ap/local/actor/#{actor1.id + 50}/reject", params: { target_actor_id: actor2.id }
+            expect(response.status).to eq(404)
+          end
+        end
+
+        context "with a valid actor id" do
+          context "with an invalid target actor id" do
+            it "returns a not found error" do
+              post "/ap/local/actor/#{actor1.id}/reject",
+                   params: {
+                     target_actor_id: actor2.id + 50,
+                   }
+              expect(response.status).to eq(404)
+            end
+          end
+
+          context "with a valid target actor id" do
+            context "with a target actor that is not following the actor" do
+              it "returns a not found error" do
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                expect(response.status).to eq(404)
+              end
+            end
+
+            context "with a target actor that is following the actor" do
+              let!(:follow) do
+                Fabricate(:discourse_activity_pub_follow, follower: actor2, followed: actor1)
+              end
+
+              it "initiates a reject" do
+                DiscourseActivityPub::FollowHandler.expects(:reject).with(actor1.id, actor2.id)
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                expect(response.status).to eq(200)
+              end
+
+              it "returns a success when reject is successful" do
+                DiscourseActivityPub::FollowHandler
+                  .expects(:reject)
+                  .with(actor1.id, actor2.id)
+                  .returns(true)
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
+                expect(response.status).to eq(200)
+                expect(response.parsed_body["success"]).to eq("OK")
+              end
+
+              it "returns a failure when reject is not successful" do
+                DiscourseActivityPub::FollowHandler
+                  .expects(:reject)
+                  .with(actor1.id, actor2.id)
+                  .returns(false)
+                post "/ap/local/actor/#{actor1.id}/reject", params: { target_actor_id: actor2.id }
                 expect(response.status).to eq(200)
                 expect(response.parsed_body["failed"]).to eq("FAILED")
               end
@@ -319,6 +402,42 @@ RSpec.describe DiscourseActivityPub::ActorController do
               expect(response.parsed_body["actor"]["id"]).to eq(actor2.id)
             end
           end
+        end
+      end
+    end
+  end
+
+  describe "#find_by_user" do
+    let!(:user) { Fabricate(:user) }
+
+    context "with activity pub enabled" do
+      before { toggle_activity_pub(actor1.model) }
+
+      context "with a valid user api key" do
+        let!(:user_api_key) { Fabricate(:readonly_user_api_key, user: user) }
+
+        context "when the user does not have an actor" do
+          it "returns a not found error" do
+            get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
+            expect(response.status).to eq(404)
+          end
+        end
+
+        context "when the user has an actor" do
+          let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
+
+          it "returns the actor" do
+            get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
+            expect(response.status).to eq(200)
+            expect(response.parsed_body["id"]).to eq(actor.ap_id)
+          end
+        end
+      end
+
+      context "without a valid user api key" do
+        it "returns a not authorized error" do
+          get "/ap/local/actor/find-by-user"
+          expect(response.status).to eq(403)
         end
       end
     end

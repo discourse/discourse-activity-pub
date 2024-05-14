@@ -108,8 +108,20 @@ module DiscourseActivityPub
         undo? && object&.like?
       end
 
+      def undo_follow?
+        undo? && object&.follow?
+      end
+
+      def reject_follow?
+        reject? && object&.follow?
+      end
+
       def follow?
         type == Follow.type
+      end
+
+      def reject?
+        type == Reject.type
       end
 
       def announce?
