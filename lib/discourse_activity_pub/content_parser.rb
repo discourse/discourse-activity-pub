@@ -26,7 +26,6 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     autolink
     list
     backticks
-    newline
     code
     fence
     image
@@ -35,6 +34,8 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     blockquote
     emphasis
   ]
+
+  PERMITTED_TAGS = %w[p a h1 h2 h3 h4 h5 ul ol li code blockquote em strong]
 
   MAX_TITLE_LENGTH = 60
 
@@ -49,29 +50,39 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
 
   def start_element(name, attributes = [])
     case name
+    when "p"
+      start_tag(name, attributes)
+      @in_p = true
     when "a"
       start_tag(name, attributes)
       @in_a = true
-    when "h1", "h2", "h3", "h4", "h5"
+    when *PERMITTED_TAGS
       start_tag(name, attributes)
     when "div"
       if attributes.include?(%w[class note])
         @content = +""
         @current_length = 0
         @start_content = true
+        start_tag("p", []) unless @in_p
       end
     end
   end
 
   def end_element(name)
     case name
+    when "p"
+      end_tag(name)
+      @in_p = false
     when "a"
       end_tag(name)
       @in_a = false
-    when "h1", "h2", "h3", "h4", "h5"
+    when *PERMITTED_TAGS
       end_tag(name)
     when "div"
-      throw :done if @start_content
+      if @start_content
+        end_tag("p")
+        throw :done
+      end
     end
   end
 
@@ -103,6 +114,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
       @content << string[0..length]
       @content << "&hellip;"
       @content << "</a>" if @in_a
+      @content << "</p>" if @in_p
       throw :done
     end
     @content << string
@@ -115,7 +127,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
         text,
         opts.merge(features_override: MARKDOWN_FEATURES, markdown_it_rules: MARKDOWN_IT_RULES),
       )
-    scrubbed_html(html)
+    scrubbed_html(remove_newlines(html))
   end
 
   def self.scrubbed_html(html)
@@ -164,6 +176,21 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     content_parser = self.new(length, opts)
     sax_parser = Nokogiri::HTML::SAX::Parser.new(content_parser)
     catch(:done) { sax_parser.parse(html) }
-    content_parser.content.strip
+    final_clean(content_parser.content.strip)
+  end
+
+  def self.remove_newlines(html)
+    html.gsub("\n", "").squeeze(" ")
+  end
+
+  def self.final_clean(html)
+    fragment = Nokogiri::HTML5.fragment(html)
+    fragment.traverse do |node|
+      if node.content.blank?
+        node.remove
+        next
+      end
+    end
+    fragment.to_html
   end
 end

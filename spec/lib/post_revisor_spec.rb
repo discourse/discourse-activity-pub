@@ -38,7 +38,7 @@ RSpec.describe PostRevisor do
           updated_raw = "#{post.raw} revision inside note"
           post_revisor.revise!(user, raw: updated_raw)
           expect(post.reload.raw).to eq(updated_raw)
-          expect(post.activity_pub_content).to eq(updated_raw)
+          expect(post.activity_pub_content).to eq("<p>#{updated_raw}</p>")
         end
       end
 
