@@ -157,7 +157,7 @@ module DiscourseActivityPub
         end
       end
 
-      actor.update(model_id: model.id, model_type: "User") unless model.activity_pub_actor.present?
+      actor.update(model_id: model.id, model_type: "User") if model.activity_pub_actor.blank?
     end
 
     def update_user
@@ -174,7 +174,7 @@ module DiscourseActivityPub
     end
 
     def update_actor_from_opts
-      return unless opts.present?
+      return if opts.blank?
       DiscourseActivityPubActor::SERIALIZED_FIELDS.each do |attribute|
         actor.send("#{attribute}=", opts[attribute]) if opts[attribute].present?
       end

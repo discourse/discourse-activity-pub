@@ -8,7 +8,7 @@ module DiscourseActivityPub
       included { validate :validate_object_type, if: :will_save_change_to_object_type? }
 
       def validate_object_type
-        unless supported_object_types.include?(object_type)
+        if supported_object_types.exclude?(object_type)
           self.errors.add(
             :object_type,
             I18n.t(

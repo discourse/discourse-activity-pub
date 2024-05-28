@@ -61,7 +61,7 @@ module DiscourseActivityPub
       WHERE ap_id = ANY (ARRAY[:ap_ids])
     SQL
 
-    return nil unless results.present?
+    return nil if results.blank?
 
     results.each do |result|
       if result.type == "Activity" && result.object_type == "Object"
