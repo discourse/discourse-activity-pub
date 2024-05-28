@@ -61,13 +61,13 @@ module DiscourseActivityPub
         delete_activities = []
 
         collection_to_process.resolve_items_to_process
-        return unless collection_to_process.items_to_process.present?
+        return if collection_to_process.items_to_process.blank?
 
         collection_to_process.items_to_process.each do |item, result|
           item = item["object"] if item["type"] == AP::Activity::Announce.type
 
           activity = DiscourseActivityPub::AP::Activity.factory(item)
-          next unless activity.present?
+          next if activity.blank?
 
           create_activities << activity if activity.create?
           update_activities << activity if activity.update?
@@ -84,9 +84,7 @@ module DiscourseActivityPub
         # Remove deleted
         create_activities =
           create_activities.each_with_object([]) do |activity, result|
-            unless deleted_object_ids.include?(resolve_id(activity.json["object"]))
-              result << activity
-            end
+            result << activity if deleted_object_ids.exclude?(resolve_id(activity.json["object"]))
           end
 
         # Apply updates
@@ -109,7 +107,7 @@ module DiscourseActivityPub
           activity.actor = DiscourseActivityPub::AP::Actor.factory(actor_json)
           next unless activity.actor
 
-          next unless [AP::Actor::Person.type, AP::Actor::Group.type].include?(activity.actor.type)
+          next if [AP::Actor::Person.type, AP::Actor::Group.type].exclude?(activity.actor.type)
 
           activity.object = DiscourseActivityPub::AP::Object.factory(object_json)
           next unless activity.object
@@ -124,9 +122,7 @@ module DiscourseActivityPub
               end
           end
 
-          unless [AP::Object::Note.type, AP::Object::Article.type].include?(activity.object.type)
-            next
-          end
+          next if [AP::Object::Note.type, AP::Object::Article.type].exclude?(activity.object.type)
 
           if actor.model.activity_pub_full_topic
             context_or_target_id = activity.object.json[:context] || activity.object.json[:target]
@@ -627,7 +623,7 @@ module DiscourseActivityPub
       end
 
       def store_actors(actor_attrs)
-        return {} unless actor_attrs.present?
+        return {} if actor_attrs.blank?
 
         stored =
           DiscourseActivityPubActor.upsert_all(
@@ -646,7 +642,7 @@ module DiscourseActivityPub
       end
 
       def store_objects(object_attrs)
-        return {} unless object_attrs.present?
+        return {} if object_attrs.blank?
 
         stored =
           DiscourseActivityPubObject.upsert_all(
@@ -675,7 +671,7 @@ module DiscourseActivityPub
       end
 
       def store_activities(activity_attrs)
-        return {} unless activity_attrs.present?
+        return {} if activity_attrs.blank?
 
         stored =
           DiscourseActivityPubActivity.upsert_all(
@@ -694,7 +690,7 @@ module DiscourseActivityPub
       end
 
       def store_collections(collection_attrs)
-        return {} unless collection_attrs.present?
+        return {} if collection_attrs.blank?
 
         stored =
           DiscourseActivityPubCollection.upsert_all(

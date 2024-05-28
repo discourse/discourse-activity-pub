@@ -48,7 +48,7 @@ def setup_logger(args)
 end
 
 def format_stored_info(info)
-  return [] unless info.present?
+  return [] if info.blank?
 
   info.map do |object|
     object = object.to_h

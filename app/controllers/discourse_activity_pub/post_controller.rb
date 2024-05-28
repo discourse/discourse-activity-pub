@@ -49,7 +49,7 @@ module DiscourseActivityPub
 
     def find_post
       @post = Post.find_by(id: params[:post_id])
-      render_post_error("post_not_found", 400) unless @post.present?
+      render_post_error("post_not_found", 400) if @post.blank?
     end
 
     def render_post_error(key, status)

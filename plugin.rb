@@ -590,7 +590,7 @@ after_initialize do
   add_to_class(:user, :activity_pub_remove_actor_id) do |actor_id|
     return unless actor_id
     actor_ids = activity_pub_actor_ids
-    return unless actor_ids[actor_id].present?
+    return if actor_ids[actor_id].blank?
     actor_ids.delete(actor_id)
     custom_fields["activity_pub_actor_ids"] = actor_ids
     save_custom_fields(true)

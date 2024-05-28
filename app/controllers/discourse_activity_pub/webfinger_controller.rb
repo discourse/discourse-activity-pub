@@ -25,12 +25,12 @@ module DiscourseActivityPub
 
     def find_resource
       scheme, uri = params.require(:resource).split(":", 2)
-      unless Webfinger::SUPPORTED_SCHEMES.include?(scheme)
+      if Webfinger::SUPPORTED_SCHEMES.exclude?(scheme)
         return render_webfinger_error("resource_not_supported", 405)
       end
 
       @resource = Webfinger.new(scheme).find(uri)
-      render_webfinger_error("resource_not_found", 400) unless @resource.present?
+      render_webfinger_error("resource_not_found", 400) if @resource.blank?
     end
 
     def render_webfinger_error(key, status)
