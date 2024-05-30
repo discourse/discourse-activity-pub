@@ -50,7 +50,7 @@ module DiscourseActivityPub
 
       raise Error, "not_signed" unless signed_request?
       raise Error, "missing_signature_params" if missing_required_signature_parameters?
-      unless SUPPORTED_ALOGRITHMS.include?(signature_algorithm)
+      if SUPPORTED_ALOGRITHMS.exclude?(signature_algorithm)
         raise Error, "unsupported_signature_algorithm"
       end
       raise Error, "stale_request" unless matches_time_window?
@@ -94,11 +94,11 @@ module DiscourseActivityPub
     end
 
     def verify_signature_strength!
-      unless signed_headers.include?("date") || signed_headers.include?("(created)")
+      if signed_headers.exclude?("date") && signed_headers.exclude?("(created)")
         raise Error, "date_must_be_signed"
       end
-      unless signed_headers.include?(Request::REQUEST_TARGET_HEADER) ||
-               signed_headers.include?("digest")
+      if signed_headers.exclude?(Request::REQUEST_TARGET_HEADER) &&
+           signed_headers.exclude?("digest")
         raise Error, "digest_must_be_signed"
       end
       raise Error, "host_must_be_signed_on_get" if request.get? && !signed_headers.include?("host")
@@ -108,7 +108,7 @@ module DiscourseActivityPub
     end
 
     def verify_body_digest!
-      return unless signed_headers.include?("digest")
+      return if signed_headers.exclude?("digest")
       raise Error, "digest_header_missing" unless request.headers.key?("Digest")
 
       digests =

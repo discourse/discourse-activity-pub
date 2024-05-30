@@ -10,10 +10,10 @@ module DiscourseActivityPub
 
         def process
           @actor = Actor.resolve_and_store(json[:actor])
-          return process_failed("cant_create_actor") unless actor.present?
+          return process_failed("cant_create_actor") if actor.blank?
 
           @object = Object.resolve_and_store(json[:object], self)
-          return process_failed("cant_find_object") unless object.present?
+          return process_failed("cant_find_object") if object.blank?
 
           if object.object?
             # If the Announce wraps an object we process the Announce.

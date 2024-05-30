@@ -126,10 +126,10 @@ module DiscourseActivityPub
 
       def process_actor_and_object
         @actor = Actor.resolve_and_store(json[:actor])
-        return process_failed("cant_create_actor") unless actor.present?
+        return process_failed("cant_create_actor") if actor.blank?
 
         @object = Object.resolve_and_store(json[:object], self)
-        return process_failed("cant_find_object") unless object.present?
+        return process_failed("cant_find_object") if object.blank?
         return process_failed("object_not_ready") unless object.stored&.ready?(type)
         unless actor.stored.can_perform_activity?(type, object.type)
           return process_failed("activity_not_supported")

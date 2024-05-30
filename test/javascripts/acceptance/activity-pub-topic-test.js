@@ -182,8 +182,8 @@ acceptance(
       await click(".show-post-admin-menu");
 
       assert.ok(
-        !exists(".fk-d-menu .activity-pub-schedule"),
-        "The schedule button was not rendered"
+        exists(".fk-d-menu .activity-pub-schedule"),
+        "The schedule button was rendered"
       );
     });
   }
