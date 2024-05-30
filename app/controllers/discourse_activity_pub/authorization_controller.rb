@@ -137,7 +137,7 @@ module DiscourseActivityPub
     def validate_auth_type
       params.require(:auth_type)
       @auth_type = params[:auth_type].to_sym
-      unless DiscourseActivityPubAuthorization.auth_types.keys.include?(@auth_type)
+      if DiscourseActivityPubAuthorization.auth_types.keys.exclude?(@auth_type)
         raise ::Discourse::InvalidParameters
       end
     end
