@@ -53,7 +53,7 @@ module DiscourseActivityPub
             reply_to_object.in_reply_to,
             resolve_attribution: false,
           )
-        break unless reply_to_object.present?
+        break if reply_to_object.blank?
 
         object = DiscourseActivityPubObject.find_by(ap_id: reply_to_object.id)
         if object
@@ -82,13 +82,13 @@ module DiscourseActivityPub
                 { type: DiscourseActivityPub::AP::Activity::Create.type },
               ),
             )
-          rollback_remote_store unless new_local_object&.stored.present?
+          rollback_remote_store if new_local_object&.stored.blank?
 
           user =
             DiscourseActivityPub::ActorHandler.update_or_create_user(
               new_local_object.stored.attributed_to,
             )
-          rollback_remote_store unless user.present?
+          rollback_remote_store if user.blank?
 
           post =
             DiscourseActivityPub::PostHandler.create(
@@ -96,7 +96,7 @@ module DiscourseActivityPub
               new_local_object.stored,
               topic_id: local_object.model.topic_id,
             )
-          rollback_remote_store unless post.present?
+          rollback_remote_store if post.blank?
         end
       end
     end
