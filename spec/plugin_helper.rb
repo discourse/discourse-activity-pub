@@ -250,7 +250,7 @@ def build_collection_page_json(
   next_page: nil,
   prev_page: nil
 )
-  return {} unless items.present? && part_of.present?
+  return {} if items.blank? || part_of.blank?
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: "#{part_of}?page=#{page}",

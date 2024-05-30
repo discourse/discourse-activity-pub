@@ -64,7 +64,7 @@ module DiscourseActivityPub
     end
 
     def valid_content_type?(value)
-      return false unless value.present?
+      return false if value.blank?
       type = value.split(";").first.strip
 
       # technically we should require a profile=ACTIVITY_STREAMS_CONTEXT here too

@@ -184,7 +184,7 @@ module DiscourseActivityPub
 
       def self.resolve(raw_object, resolve_attribution: true)
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
-        return process_failed(raw_object, "cant_resolve_object") unless object_id.present?
+        return process_failed(raw_object, "cant_resolve_object") if object_id.blank?
 
         if DiscourseActivityPub::URI.local?(object_id)
           object =
@@ -197,10 +197,10 @@ module DiscourseActivityPub
         end
 
         resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object)
-        return process_failed(raw_object, "cant_resolve_object") unless resolved_object.present?
+        return process_failed(raw_object, "cant_resolve_object") if resolved_object.blank?
 
         object = factory(resolved_object)
-        return process_failed(resolved_object["id"], "cant_resolve_object") unless object.present?
+        return process_failed(resolved_object["id"], "cant_resolve_object") if object.blank?
 
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
           return process_failed(resolved_object["id"], "object_not_supported")

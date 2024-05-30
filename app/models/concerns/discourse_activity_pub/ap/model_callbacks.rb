@@ -89,7 +89,7 @@ module DiscourseActivityPub
           return self.activity_pub_actor
         end
 
-        unless acting_user.activity_pub_actor.present?
+        if acting_user.activity_pub_actor.blank?
           DiscourseActivityPub::ActorHandler.update_or_create_actor(acting_user)
         end
 

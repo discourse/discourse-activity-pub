@@ -44,7 +44,7 @@ module DiscourseActivityPub
         end
 
         def handler_keys(object_type, handler_type)
-          return nil unless handler_types.include?(handler_type.to_s)
+          return nil if handler_types.exclude?(handler_type.to_s)
           klass = get_klass(object_type.to_s)
           [klass.type.downcase.to_sym, handler_type.to_sym]
         end

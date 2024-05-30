@@ -289,7 +289,7 @@ module DiscourseActivityPub
       end
 
       def create_collections(collections)
-        return unless collections.present?
+        return if collections.blank?
 
         stored =
           DiscourseActivityPubCollection.upsert_all(
@@ -302,7 +302,7 @@ module DiscourseActivityPub
       end
 
       def create_actors(actors)
-        return unless actors.present?
+        return if actors.blank?
 
         stored =
           DiscourseActivityPubActor.upsert_all(
@@ -315,7 +315,7 @@ module DiscourseActivityPub
       end
 
       def create_objects(objects)
-        return unless objects.present?
+        return if objects.blank?
 
         stored =
           result.objects =
@@ -329,7 +329,7 @@ module DiscourseActivityPub
       end
 
       def create_activities(activities)
-        return unless activities.present?
+        return if activities.blank?
 
         stored =
           DiscourseActivityPubActivity.upsert_all(
@@ -342,7 +342,7 @@ module DiscourseActivityPub
       end
 
       def create_announcements(announcements)
-        return unless announcements.present?
+        return if announcements.blank?
 
         stored = DiscourseActivityPubActivity.upsert_all(announcements, returning: %i[ap_id])
         result.announcements = stored.map { |r| r["ap_id"] }

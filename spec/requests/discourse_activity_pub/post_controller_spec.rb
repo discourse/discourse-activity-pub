@@ -36,9 +36,7 @@ RSpec.describe DiscourseActivityPub::PostController do
         end
 
         context "with a valid post id" do
-          context "with a first_post activity pub category" do
-            before { toggle_activity_pub(category, publication_type: "first_post") }
-
+          shared_examples "scheduling the first post works" do
             context "with the first post" do
               before do
                 post1.post_number = 1
@@ -109,14 +107,16 @@ RSpec.describe DiscourseActivityPub::PostController do
             end
           end
 
+          context "with a first_post activity pub category" do
+            before { toggle_activity_pub(category, publication_type: "first_post") }
+
+            include_examples "scheduling the first post works"
+          end
+
           context "with a full_topic activity pub category" do
             before { toggle_activity_pub(category, publication_type: "full_topic") }
 
-            it "returns a first post not enabled error" do
-              post "/ap/post/schedule/#{post1.id}"
-              expect(response.status).to eq(403)
-              expect(response.parsed_body).to eq(build_error("first_post_not_enabled"))
-            end
+            include_examples "scheduling the first post works"
           end
         end
       end
@@ -161,9 +161,7 @@ RSpec.describe DiscourseActivityPub::PostController do
         end
 
         context "with a valid post id" do
-          context "with a first_post activity pub category" do
-            before { toggle_activity_pub(category, publication_type: "first_post") }
-
+          shared_examples "unscheduling the first post works" do
             context "with the first post" do
               before do
                 post1.post_number = 1
@@ -234,17 +232,19 @@ RSpec.describe DiscourseActivityPub::PostController do
             end
           end
 
+          context "with a first_post activity pub category" do
+            before { toggle_activity_pub(category, publication_type: "first_post") }
+
+            include_examples "unscheduling the first post works"
+          end
+
           context "with a full_topic activity pub category" do
             before do
               toggle_activity_pub(category, publication_type: "full_topic")
               topic.create_activity_pub_collection!
             end
 
-            it "returns a first post not enabled error" do
-              delete "/ap/post/schedule/#{post1.id}"
-              expect(response.status).to eq(403)
-              expect(response.parsed_body).to eq(build_error("first_post_not_enabled"))
-            end
+            include_examples "unscheduling the first post works"
           end
         end
       end

@@ -93,6 +93,7 @@ en:
         failed_to_save_actor: "Failed to save actor: %{actor_id}"
         failed_to_save_collection: "Failed to save collection: %{collection_id}"
       info:
+        shared_inbox: "shared inbox"
         received_json: "Received JSON delivered to %{delivered_to}"
         processing_json: "Processing JSON delivered to %{delivered_to}"
     webfinger:
@@ -107,7 +108,6 @@ en:
         post_not_found: "Post not found"
         cant_schedule_post: "Can't schedule post"
         cant_unschedule_post: "Can't unschedule post"
-        first_post_not_enabled: "First Post is not enabled"
         not_first_post: "Post is not the first post"
         failed_to_create: "Failed to create post for %{object_id}: %{message}"
     user:
