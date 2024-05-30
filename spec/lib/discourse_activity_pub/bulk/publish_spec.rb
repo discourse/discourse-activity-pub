@@ -69,10 +69,10 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right post objects" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.activity_pub_object.content).to eq(post1.raw)
-          expect(post2.activity_pub_object.content).to eq(post2.raw)
-          expect(post3.activity_pub_object.content).to eq(post3.raw)
-          expect(post4.activity_pub_object.content).to eq(post4.raw)
+          expect(post1.activity_pub_object.content).to eq(post1.cooked)
+          expect(post2.activity_pub_object.content).to eq(post2.cooked)
+          expect(post3.activity_pub_object.content).to eq(post3.cooked)
+          expect(post4.activity_pub_object.content).to eq(post4.cooked)
           expect(post2.activity_pub_object.reply_to_id).to eq(post1.activity_pub_object.ap_id)
           expect(post4.activity_pub_object.reply_to_id).to eq(post3.activity_pub_object.ap_id)
           expect(post1.activity_pub_object.collection_id).to eq(post1.topic.activity_pub_object.id)
@@ -95,10 +95,10 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           expect(post2.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
           expect(post3.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
           expect(post4.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
-          expect(post1.activity_pub_content).to eq(post1.raw)
-          expect(post2.activity_pub_content).to eq(post2.raw)
-          expect(post3.activity_pub_content).to eq(post3.raw)
-          expect(post4.activity_pub_content).to eq(post3.raw)
+          expect(post1.activity_pub_content).to eq(post1.cooked)
+          expect(post2.activity_pub_content).to eq(post2.cooked)
+          expect(post3.activity_pub_content).to eq(post3.cooked)
+          expect(post4.activity_pub_content).to eq(post3.cooked)
           expect(post1.activity_pub_visibility).to eq("public")
           expect(post2.activity_pub_visibility).to eq("public")
           expect(post3.activity_pub_visibility).to eq("public")
@@ -297,8 +297,8 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right post objects" do
           described_class.perform(actor_id: actor.id)
-          expect(post2.activity_pub_object.content).to eq(post2.raw)
-          expect(post3.activity_pub_object.content).to eq(post3.raw)
+          expect(post2.activity_pub_object.content).to eq(post2.cooked)
+          expect(post3.activity_pub_object.content).to eq(post3.cooked)
           expect(post2.activity_pub_object.reply_to_id).to eq(post1.activity_pub_object.ap_id)
           expect(post2.activity_pub_object.collection_id).to eq(post2.topic.activity_pub_object.id)
           expect(post3.activity_pub_object.collection_id).to eq(post3.topic.activity_pub_object.id)
@@ -310,8 +310,8 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
           )
           expect(post2.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
           expect(post3.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
-          expect(post2.activity_pub_content).to eq(post2.raw)
-          expect(post3.activity_pub_content).to eq(post3.raw)
+          expect(post2.activity_pub_content).to eq(post2.cooked)
+          expect(post3.activity_pub_content).to eq(post3.cooked)
           expect(post2.activity_pub_visibility).to eq("public")
           expect(post3.activity_pub_visibility).to eq("public")
           expect(
@@ -435,7 +435,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
           it "creates and publishes the right post objects" do
             described_class.perform(actor_id: actor.id)
-            expect(post3.activity_pub_object.content).to eq(post3.raw)
+            expect(post3.activity_pub_object.content).to eq(post3.cooked)
             expect(post3.activity_pub_object.collection_id).to eq(
               post3.topic.activity_pub_object.id,
             )
@@ -446,7 +446,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
               Time.now,
             )
             expect(post3.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
-            expect(post3.activity_pub_content).to eq(post3.raw)
+            expect(post3.activity_pub_content).to eq(post3.cooked)
             expect(post3.activity_pub_visibility).to eq("public")
             expect(
               post2.custom_fields["activity_pub_published_at"].to_time,
@@ -527,10 +527,10 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right post objects" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.activity_pub_object.content).to eq(post1.raw)
-          expect(post3.activity_pub_object.content).to eq(post3.raw)
-          expect(post1.activity_pub_content).to eq(post1.raw)
-          expect(post3.activity_pub_content).to eq(post3.raw)
+          expect(post1.activity_pub_object.content).to eq(post1.cooked)
+          expect(post3.activity_pub_object.content).to eq(post3.cooked)
+          expect(post1.activity_pub_content).to eq(post1.cooked)
+          expect(post3.activity_pub_content).to eq(post3.cooked)
           expect(post1.activity_pub_visibility).to eq("public")
           expect(post3.activity_pub_visibility).to eq("public")
           expect(

@@ -37,7 +37,7 @@ module DiscourseActivityPub
 
       def process
         resolve_items_to_process
-        return unless items_to_process.present?
+        return if items_to_process.blank?
 
         success = []
         failure = []

@@ -183,7 +183,7 @@ RSpec.describe Post do
 
         it "sets the post content" do
           post.activity_pub_publish!
-          expect(post.reload.activity_pub_content).to eq(post.raw)
+          expect(post.reload.activity_pub_content).to eq(post.cooked)
         end
 
         it "sets the post visibility" do
@@ -215,7 +215,7 @@ RSpec.describe Post do
 
         it "sets the post content" do
           post.activity_pub_publish!
-          expect(post.reload.activity_pub_content).to eq(post.raw)
+          expect(post.reload.activity_pub_content).to eq(post.cooked)
         end
 
         it "sets the post visibility" do
@@ -244,7 +244,7 @@ RSpec.describe Post do
 
         it "sets the post content" do
           post.activity_pub_publish!
-          expect(post.reload.activity_pub_content).to eq(post.raw)
+          expect(post.reload.activity_pub_content).to eq(post.cooked)
         end
 
         it "sets the post visibility" do
@@ -276,7 +276,7 @@ RSpec.describe Post do
 
         it "sets the post content" do
           post.activity_pub_publish!
-          expect(post.reload.activity_pub_content).to eq(post.raw)
+          expect(post.reload.activity_pub_content).to eq(post.cooked)
         end
 
         it "sets the post visibility" do

@@ -119,7 +119,7 @@ acceptance(
         "the activitypub category banner is visible"
       );
       assert.strictEqual(
-        query(".activity-pub-banner-text").innerText,
+        query(".activity-pub-banner-text .desktop").textContent.trim(),
         I18n.t("discourse_activity_pub.banner.text", {
           model_name: "Cat 2",
         }),
@@ -128,7 +128,7 @@ acceptance(
 
       await triggerEvent(".fk-d-tooltip__trigger", "mousemove");
       assert.equal(
-        query(".fk-d-tooltip").innerText,
+        query(".fk-d-tooltip__inner-content").textContent.trim(),
         I18n.t("discourse_activity_pub.banner.public_first_post"),
         "shows the right category banner tip"
       );

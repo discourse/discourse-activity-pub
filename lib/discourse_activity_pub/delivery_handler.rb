@@ -61,7 +61,7 @@ module DiscourseActivityPub
     end
 
     def schedule_delivery(send_to: nil, delay: nil)
-      return unless send_to.present?
+      return if send_to.blank?
 
       if !Rails.env.test? && ENV["DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY"].present?
         delay = ENV["DISCOURSE_ACTIVITY_PUB_DELIVERY_DELAY"].to_i

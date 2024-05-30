@@ -182,12 +182,12 @@ module DiscourseActivityPub
 
     def find_actor
       @actor = DiscourseActivityPubActor.find_by_id(params.require(:actor_id))
-      render_actor_error("actor_not_found", 404) unless @actor.present?
+      render_actor_error("actor_not_found", 404) if @actor.blank?
     end
 
     def find_target_actor
       @target_actor = DiscourseActivityPubActor.find_by_id(params[:target_actor_id])
-      render_actor_error("target_actor_not_found", 404) unless @target_actor.present?
+      render_actor_error("target_actor_not_found", 404) if @target_actor.blank?
     end
 
     def ensure_user_api

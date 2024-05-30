@@ -575,6 +575,50 @@ after_initialize do
   add_to_class(:user, :activity_pub_allowed?) { self.human? }
   add_to_class(:user, :activity_pub_url) { full_url }
   add_to_class(:user, :activity_pub_icon_url) { avatar_template_url.gsub("{size}", "96") }
+  add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
+    return unless domain && access_token
+    tokens = activity_pub_access_tokens
+    tokens[domain] = access_token
+    custom_fields["activity_pub_access_tokens"] = tokens
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_save_actor_id) do |domain, actor_id|
+    return unless domain && actor_id
+    actor_ids = activity_pub_actor_ids
+    actor_ids[actor_id] = domain
+    custom_fields["activity_pub_actor_ids"] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_remove_actor_id) do |actor_id|
+    return unless actor_id
+    actor_ids = activity_pub_actor_ids
+    return if actor_ids[actor_id].blank?
+    actor_ids.delete(actor_id)
+    custom_fields["activity_pub_actor_ids"] = actor_ids
+    save_custom_fields(true)
+  end
+  add_to_class(:user, :activity_pub_access_tokens) do
+    if custom_fields["activity_pub_access_tokens"]
+      JSON.parse(custom_fields["activity_pub_access_tokens"])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_actor_ids) do
+    if custom_fields["activity_pub_actor_ids"]
+      JSON.parse(custom_fields["activity_pub_actor_ids"])
+    else
+      {}
+    end
+  end
+  add_to_class(:user, :activity_pub_authorizations) do
+    tokens = activity_pub_access_tokens
+    activity_pub_actor_ids.map do |actor_id, domain|
+      DiscourseActivityPub::Auth::Authorization.new(
+        { actor_id: actor_id, domain: domain, access_token: tokens[domain] },
+      )
+    end
+  end
   add_to_class(:user, :activity_pub_shared_inbox) { DiscourseActivityPub.users_shared_inbox }
   add_to_class(:user, :activity_pub_username) { username }
   add_to_class(:user, :activity_pub_name) { name }

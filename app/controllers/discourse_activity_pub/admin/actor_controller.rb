@@ -132,7 +132,7 @@ module DiscourseActivityPub
             id: params[:actor_id],
             model_type: DiscourseActivityPubActor::ACTIVE_MODELS,
           )
-        return render_error("actor_not_found", 404) unless @actor.present?
+        return render_error("actor_not_found", 404) if @actor.blank?
         @model = @actor.model
       end
 
