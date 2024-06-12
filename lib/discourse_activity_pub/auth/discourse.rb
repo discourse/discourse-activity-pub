@@ -7,7 +7,9 @@ module DiscourseActivityPub
       FIND_ACTOR_BY_USER_PATH = "ap/local/actor/find-by-user"
 
       def verify
-        auth_error("failed_to_verify_redirect") unless verify_redirect
+        unless verify_redirect
+          auth_error("failed_to_verify_redirect", auth_redirect: auth_redirect, domain: domain)
+        end
       end
 
       def nonce

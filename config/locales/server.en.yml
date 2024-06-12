@@ -149,7 +149,7 @@ en:
         session_expired: "Auth session expired"
         failed_to_authorize: "Failed to authorize"
         failed_to_get_actor: "Failed to get actor"
-        failed_to_verify_redirect: "Redirect has not been added to allowed user api auth redirects"
+        failed_to_verify_redirect: "%{auth_redirect} has not been added to allowed user api auth redirects on %{domain}"
         failed_to_create_app: "Failed to create app on domain"
         failed_to_find_app: "Failed to find app for domain"
         failed_to_get_token: "Failed to get token"
