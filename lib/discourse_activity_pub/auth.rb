@@ -55,8 +55,8 @@ module DiscourseActivityPub
 
     protected
 
-    def auth_error(key)
-      add_error(I18n.t("discourse_activity_pub.auth.error.#{key}"))
+    def auth_error(key, opts = {})
+      add_error(I18n.t("discourse_activity_pub.auth.error.#{key}", opts))
       nil
     end
 
