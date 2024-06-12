@@ -155,7 +155,11 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
             post "/ap/auth/verify", params: { domain: domain1, auth_type: "discourse" }
             expect(response.status).to eq(422)
             expect(response.parsed_body["errors"].first).to eq(
-              I18n.t("discourse_activity_pub.auth.error.failed_to_verify_redirect"),
+              I18n.t(
+                "discourse_activity_pub.auth.error.failed_to_verify_redirect",
+                auth_redirect: auth_redirect,
+                domain: domain1,
+              ),
             )
           end
         end
