@@ -108,6 +108,13 @@ export default class ActivityPubAuthorize extends Component {
   }
 
   @action
+  onDomainKeyDown(event) {
+    if (event.key === "Enter") {
+      this.verifyDomain();
+    }
+  }
+
+  @action
   authorizeDomain() {
     window.open(getURL(`/ap/auth/authorize/${this.authType}`), "_self");
   }
