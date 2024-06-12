@@ -28,6 +28,7 @@
         disabled={{this.verifyingDomain}}
         placeholder={{this.placeholder}}
         id="user_activity_pub_authorize_domain"
+        {{on "keydown" this.onDomainKeyDown}}
       />
     {{/if}}
     <DButton
