@@ -1,4 +1,4 @@
-import { click, fillIn, render } from "@ember/test-helpers";
+import { click, fillIn, render, triggerKeyEvent } from "@ember/test-helpers";
 import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import sinon from "sinon";
@@ -52,6 +52,37 @@ module(
         exists("#user_activity_pub_authorize_authorize_domain"),
         "displays the authorize domain button"
       );
+    });
+
+    test("pressing Enter in input triggers domain verification", async function (assert) {
+      let domain = "test.com";
+      let authType = "discourse";
+      let requests = 0;
+
+      pretender.post("/ap/auth/verify.json", (request) => {
+        ++requests;
+        assert.strictEqual(
+          request.requestBody,
+          `domain=${domain}&auth_type=${authType}`,
+          "it sets correct request parameters"
+        );
+        return response({ success: true });
+      });
+
+      await render(template);
+
+      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
+      await authTypes.expand();
+      await authTypes.selectRowByValue("discourse");
+
+      await fillIn("#user_activity_pub_authorize_domain", domain);
+      await triggerKeyEvent(
+        "#user_activity_pub_authorize_domain",
+        "keydown",
+        "Enter"
+      );
+
+      assert.strictEqual(requests, 1, "performs one request");
     });
 
     test("clears a verified domain", async function (assert) {
