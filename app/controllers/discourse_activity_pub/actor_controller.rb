@@ -9,12 +9,13 @@ module DiscourseActivityPub
 
     include DiscourseActivityPub::EnabledVerification
 
-    before_action :ensure_admin, only: %i[follow unfollow find_by_handle]
+    before_action :ensure_admin, only: %i[follow unfollow reject find_by_handle]
     before_action :ensure_site_enabled
-    before_action :find_actor
-    before_action :ensure_model_enabled
-    before_action :ensure_can_access
-    before_action :find_target_actor, only: %i[follow unfollow]
+    before_action :ensure_user_api, only: %i[find_by_user]
+    before_action :find_actor, except: %i[find_by_user]
+    before_action :ensure_model_enabled, except: %i[find_by_user]
+    before_action :ensure_can_access, except: %i[find_by_user]
+    before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
       render_serialized(@actor, DiscourseActivityPub::ActorSerializer, include_model: true)
@@ -44,6 +45,34 @@ module DiscourseActivityPub
       end
     end
 
+    def follows
+      guardian.ensure_can_admin!(@actor)
+
+      actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
+
+      render_actors
+    end
+
+    def followers
+      guardian.ensure_can_see!(@actor.model)
+
+      actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
+
+      render_actors
+    end
+
+    def reject
+      # Currently, we only process rejections of existing follows.
+      # See further https://github.com/mastodon/mastodon/issues/5708
+      return render_actor_error("not_following_actor", 404) if !@target_actor.following?(@actor)
+
+      if FollowHandler.reject(@actor.id, @target_actor.id)
+        render json: success_json
+      else
+        render json: failed_json
+      end
+    end
+
     def find_by_handle
       params.require(:handle)
 
@@ -59,20 +88,12 @@ module DiscourseActivityPub
       end
     end
 
-    def follows
-      guardian.ensure_can_admin!(@actor)
-
-      actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
-
-      render_actors
-    end
-
-    def followers
-      guardian.ensure_can_see!(@actor.model)
-
-      actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
-
-      render_actors
+    def find_by_user
+      if current_user.present? && current_user.activity_pub_actor.present?
+        render json: current_user.activity_pub_actor.ap.json
+      else
+        render json: failed_json, status: 404
+      end
     end
 
     protected
@@ -145,7 +166,7 @@ module DiscourseActivityPub
     def load_more_url(page)
       load_more_params = params.slice(:order, :asc).permit!
       load_more_params[:page] = page + 1
-      load_more_uri = ::URI.parse("/ap/actor/#{params[:actor_id]}/followers.json")
+      load_more_uri = ::URI.parse("/ap/local/actor/#{params[:actor_id]}/followers.json")
       load_more_uri.query = ::URI.encode_www_form(load_more_params.to_h)
       load_more_uri.to_s
     end
@@ -167,6 +188,10 @@ module DiscourseActivityPub
     def find_target_actor
       @target_actor = DiscourseActivityPubActor.find_by_id(params[:target_actor_id])
       render_actor_error("target_actor_not_found", 404) if @target_actor.blank?
+    end
+
+    def ensure_user_api
+      render_actor_error("user_not_authorized", 403) unless is_user_api?
     end
 
     def render_actor_error(key, status)

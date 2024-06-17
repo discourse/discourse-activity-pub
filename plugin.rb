@@ -33,9 +33,9 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/bulk/publish_result"
   require_relative "lib/discourse_activity_pub/bulk/publish"
   require_relative "lib/discourse_activity_pub/auth"
-  require_relative "lib/discourse_activity_pub/auth/oauth"
-  require_relative "lib/discourse_activity_pub/auth/oauth/app"
-  require_relative "lib/discourse_activity_pub/auth/authorization"
+  require_relative "lib/discourse_activity_pub/auth/discourse"
+  require_relative "lib/discourse_activity_pub/auth/mastodon"
+  require_relative "lib/discourse_activity_pub/auth/mastodon/app"
   require_relative "lib/discourse_activity_pub/webfinger/handle"
   require_relative "lib/discourse_activity_pub/activity_forwarder"
   require_relative "lib/discourse_activity_pub/logger"
@@ -74,6 +74,7 @@ after_initialize do
   require_relative "app/models/concerns/discourse_activity_pub/webfinger_actor_attributes"
   require_relative "app/models/discourse_activity_pub_actor"
   require_relative "app/models/discourse_activity_pub_activity"
+  require_relative "app/models/discourse_activity_pub_authorization"
   require_relative "app/models/discourse_activity_pub_follow"
   require_relative "app/models/discourse_activity_pub_object"
   require_relative "app/models/discourse_activity_pub_collection"
@@ -92,11 +93,9 @@ after_initialize do
   require_relative "app/controllers/discourse_activity_pub/ap/shared_inboxes_controller"
   require_relative "app/controllers/discourse_activity_pub/webfinger_controller"
   require_relative "app/controllers/discourse_activity_pub/webfinger/handle_controller"
-  require_relative "app/controllers/discourse_activity_pub/auth_controller"
-  require_relative "app/controllers/discourse_activity_pub/auth/oauth_controller"
-  require_relative "app/controllers/discourse_activity_pub/auth/authorization_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/admin_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/actor_controller"
+  require_relative "app/controllers/discourse_activity_pub/authorization_controller"
   require_relative "app/controllers/discourse_activity_pub/post_controller"
   require_relative "app/controllers/discourse_activity_pub/actor_controller"
   require_relative "app/serializers/discourse_activity_pub/ap/object_serializer"
@@ -123,7 +122,7 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/webfinger_serializer"
   require_relative "app/serializers/discourse_activity_pub/basic_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/actor_serializer"
-  require_relative "app/serializers/discourse_activity_pub/auth/authorization_serializer"
+  require_relative "app/serializers/discourse_activity_pub/authorization_serializer"
   require_relative "app/serializers/discourse_activity_pub/admin/actor_serializer"
   require_relative "config/routes"
   require_relative "extensions/discourse_activity_pub_guardian_extension"
@@ -564,6 +563,9 @@ after_initialize do
                class_name: "DiscourseActivityPubActor",
                as: :model,
                dependent: :destroy
+  User.has_many :activity_pub_authorizations,
+                -> { active },
+                class_name: "DiscourseActivityPubAuthorization"
 
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
@@ -620,16 +622,6 @@ after_initialize do
   add_to_class(:user, :activity_pub_shared_inbox) { DiscourseActivityPub.users_shared_inbox }
   add_to_class(:user, :activity_pub_username) { username }
   add_to_class(:user, :activity_pub_name) { name }
-
-  add_to_serializer(
-    :user,
-    :activity_pub_authorizations,
-    include_condition: -> { DiscourseActivityPub.enabled },
-  ) do
-    object.activity_pub_authorizations.map do |authorization|
-      DiscourseActivityPub::Auth::AuthorizationSerializer.new(authorization, root: false).as_json
-    end
-  end
 
   # TODO (future): discourse/discourse needs to cook earlier for validators.
   # See also discourse/discourse/plugins/poll/lib/poll.rb.
@@ -879,6 +871,18 @@ after_initialize do
     end
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:reject, :perform) do |activity|
+    case activity.object.type
+    when DiscourseActivityPub::AP::Activity::Follow.type
+      DiscourseActivityPubFollow.where(
+        follower_id: activity.object.actor.stored.id,
+        followed_id: activity.actor.stored.id,
+      ).destroy_all
+    else
+      false
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:announce, :perform) do |activity|
     DiscourseActivityPub::AP::Activity.apply_handlers(activity, :create, :perform)
   end
@@ -977,6 +981,8 @@ after_initialize do
       elsif activity&.follow?
         DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
       elsif activity&.undo?
+        DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+      elsif activity&.reject?
         DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
       elsif activity&.response?
         DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])

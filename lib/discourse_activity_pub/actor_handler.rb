@@ -96,20 +96,6 @@ module DiscourseActivityPub
         .first
     end
 
-    def self.find_user_by_authorized_actor_id(actor_id)
-      return nil unless actor_id
-
-      User
-        .joins(:user_custom_fields)
-        .where(
-          "
-          user_custom_fields.name = 'activity_pub_actor_ids' AND
-          user_custom_fields.value::jsonb ? :actor_id",
-          actor_id: actor_id.to_s,
-        )
-        .first
-    end
-
     protected
 
     def update_avatar_from_icon
@@ -132,7 +118,7 @@ module DiscourseActivityPub
     end
 
     def find_or_create_user
-      @model = self.class.find_user_by_authorized_actor_id(actor.ap_id)
+      @model = actor.authorized_user
 
       unless model
         begin

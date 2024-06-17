@@ -95,12 +95,21 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def after_deliver(delivered = true)
-    return self.destroy! if !delivered && local? && ap.follow?
+    return unless local?
+    return self.destroy! if !delivered && ap.follow?
 
-    if delivered && local? && ap.undo? && object.ap.follow?
+    if delivered && ap.undo_follow?
       DiscourseActivityPubFollow.where(
         follower_id: actor_id,
         followed_id: object.object.id,
+      ).destroy_all
+    end
+
+    # We destroy our local follow whether or not our follow rejection was delivered.
+    if ap.reject_follow?
+      DiscourseActivityPubFollow.where(
+        follower_id: object.actor.id,
+        followed_id: actor_id,
       ).destroy_all
     end
   end
