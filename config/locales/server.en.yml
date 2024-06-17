@@ -131,6 +131,7 @@ en:
         cant_follow_target_actor: "Actor cant follow the target actor"
         username_required: An ActivityPub username is required to create an actor.
         full_topic_must_be_public: "Full topic publication requires public publication."
+        user_not_authorized: "User not authorized"
       warning:
         cant_create_model_for_actor_type: "Cannot create a model for %{actor_type} %{actor_id}"
         cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
@@ -141,10 +142,20 @@ en:
         username_taken: "That username is already taken on this server."
     auth:
       error:
-        invalid_oauth_domain: "Invalid ActivityPub OAuth domain"
-        oauth_session_expired: "ActivityPub OAuth session expired"
-        failed_to_authorize: "ActivityPub OAuth failed to authorize"
-        failed_to_get_actor: "ActivityPub OAuth failed to get actor"
+        not_enabled: "Auth is not enabled"
+        invalid_domain: "Invalid ActivityPub domain"
+        invalid_auth_redirect: "Invalid auth redirect"
+        invalid_redirect_params: "Invalid redirect params"
+        authorization_required: "Authorization record is required"
+        session_expired: "Auth session expired"
+        failed_to_authorize: "Failed to authorize"
+        failed_to_get_actor: "Failed to get actor"
+        failed_to_verify_redirect: "%{auth_redirect} has not been added to allowed user api auth redirects on %{domain}"
+        failed_to_create_app: "Failed to create app on domain"
+        failed_to_find_app: "Failed to find app for domain"
+        failed_to_get_token: "Failed to get token"
+        failed_to_decrypt_payload: "Failed to decrypt payload"
+        failed_to_verify_nonce: "Failed to verify nonce"
     deliver:
       warning:
         failed_to_schedule: "%{actor_id} failed to schedule %{object_id} for delivery: %{reason}"
