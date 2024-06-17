@@ -127,6 +127,7 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/admin/actor_serializer"
   require_relative "config/routes"
   require_relative "extensions/discourse_activity_pub_guardian_extension"
+  require_relative "extensions/discourse_activity_pub_user_extension"
 
   # DiscourseActivityPub.enabled is the single source of truth for whether
   # ActivityPub is enabled on the site level
@@ -567,6 +568,7 @@ after_initialize do
 
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
+  User.prepend DiscourseActivityPubUserExtension
 
   add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_class(:user, :activity_pub_ready?) { true }
