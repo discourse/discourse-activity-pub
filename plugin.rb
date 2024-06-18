@@ -127,7 +127,6 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/admin/actor_serializer"
   require_relative "config/routes"
   require_relative "extensions/discourse_activity_pub_guardian_extension"
-  require_relative "extensions/discourse_activity_pub_user_extension"
 
   # DiscourseActivityPub.enabled is the single source of truth for whether
   # ActivityPub is enabled on the site level
@@ -436,8 +435,6 @@ after_initialize do
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
-    DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user) if activity_pub_full_topic
-
     content = DiscourseActivityPub::ContentParser.get_content(self)
     visibility =
       (
@@ -561,14 +558,19 @@ after_initialize do
     activity && (activity.like? || activity.undo? && target_activity.like?)
   end
 
-  User.has_one :activity_pub_actor,
-               class_name: "DiscourseActivityPubActor",
-               as: :model,
-               dependent: :destroy
+  User.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
 
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
-  User.prepend DiscourseActivityPubUserExtension
+
+  add_model_callback(:user, :before_validation) do
+    if self.instance_variable_get(:@skip_email_validation).nil? && self.activity_pub_actor&.remote?
+      self.instance_variable_set(:@skip_email_validation, true)
+    end
+  end
+  add_model_callback(:user, :before_destroy) do
+    DiscourseActivityPubActor.where(model_id: self.id, model_type: "User").destroy_all
+  end
 
   add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_class(:user, :activity_pub_ready?) { true }
@@ -700,7 +702,6 @@ after_initialize do
 
     if post_action.activity_pub_enabled && post_action.activity_pub_full_topic &&
          reason != :activity_pub
-      DiscourseActivityPub::ActorHandler.update_or_create_actor(post_action.user)
       post_action.perform_activity_pub_activity(:like)
     end
   end
@@ -713,7 +714,7 @@ after_initialize do
     end
   end
   on(:merging_users) do |source_user, target_user|
-    if source_user.activity_pub_actor&.remote?
+    if source_user.reload.activity_pub_actor&.remote?
       DiscourseActivityPubActor.where(id: source_user.activity_pub_actor.id).update_all(
         model_id: nil,
         model_type: nil,
