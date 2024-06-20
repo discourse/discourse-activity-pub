@@ -93,7 +93,7 @@ RSpec.describe PostAction do
           end
 
           context "when the topic has remote contributors" do
-            before { post.activity_pub_actor.update(local: false) }
+            before { post.reload.activity_pub_actor.update(local: false) }
 
             it "sends to the remote contributors for delivery without delay" do
               expect_delivery(
@@ -165,7 +165,7 @@ RSpec.describe PostAction do
           end
 
           context "when the topic has remote contributors" do
-            before { post.activity_pub_actor.update(local: false) }
+            before { post.reload.activity_pub_actor.update(local: false) }
 
             it "sends to the remote contributors for delivery without delay" do
               expect_delivery(

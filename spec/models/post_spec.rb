@@ -700,21 +700,6 @@ RSpec.describe Post do
                   .exists?,
               ).to eq(true)
             end
-
-            it "doesn't create a activity with the acting user's actor" do
-              perform_update
-              expect(
-                staff
-                  .activity_pub_actor
-                  .activities
-                  .where(
-                    object_id: post.activity_pub_object.id,
-                    object_type: "DiscourseActivityPubObject",
-                    ap_type: "Update",
-                  )
-                  .exists?,
-              ).to eq(false)
-            end
           end
         end
 
@@ -1145,6 +1130,7 @@ RSpec.describe Post do
               perform_update
               expect(
                 staff
+                  .reload
                   .activity_pub_actor
                   .activities
                   .where(

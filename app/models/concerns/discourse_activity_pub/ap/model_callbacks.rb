@@ -25,6 +25,8 @@ module DiscourseActivityPub
           DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
         return unless valid_activity_pub_activity?
 
+        return false unless ensure_activity_pub_actor
+
         @performing_activity_object = get_performing_activity_object
         return unless performing_activity_object
 
@@ -50,9 +52,6 @@ module DiscourseActivityPub
 
         # We don't permit updates if object has been deleted.
         return false if self.activity_pub_deleted? && performing_activity.update?
-
-        # Can't have an activity without an actor.
-        return false unless self.activity_pub_actor
 
         true
       end
@@ -209,6 +208,11 @@ module DiscourseActivityPub
         else
           nil
         end
+      end
+
+      def ensure_activity_pub_actor
+        return self.activity_pub_actor.present? if self.activity_pub_first_post
+        DiscourseActivityPub::ActorHandler.update_or_create_actor(user)
       end
     end
   end
