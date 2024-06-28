@@ -22,14 +22,18 @@ module DiscourseActivityPub
             unless actor.stored.can_perform_activity?(type, object.type)
               return process_failed("activity_not_supported")
             end
-            return false unless perform_validate_activity
 
-            perform_transactions
+            perform_transactions(skip_process: true)
             forward_activity
           else
             # If the Announce wraps an activity we process the Activity and discard the Announce.
             # See https://codeberg.org/fediverse/fep/src/branch/main/fep/1b12/fep-1b12.md#the-announce-activity
-            return false unless perform_validate_activity
+            begin
+              apply_handlers(type, :validate, raise_errors: true)
+            rescue DiscourseActivityPub::AP::Handlers::Warning => warning
+              DiscourseActivityPub::Logger.warn(warning.message) if warning.message
+              return false
+            end
             object.parent = self
             object.delivered_to << delivered_to if delivered_to
             object.process
