@@ -43,5 +43,25 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
       expect(response.status).to eq(200)
       expect(parsed_body).to eq(collection.ap.json)
     end
+
+    context "when collection is for a topic with posts" do
+      let!(:collection) { Fabricate(:discourse_activity_pub_ordered_collection) }
+      let!(:post1) { Fabricate(:post, topic: collection.model) }
+      let!(:post2) { Fabricate(:post, topic: collection.model) }
+      let!(:note1) do
+        Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id)
+      end
+      let!(:note2) do
+        Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id)
+      end
+
+      it "returns collection json with items" do
+        get_object(collection)
+        expect(response.status).to eq(200)
+        expect(parsed_body["orderedItems"].size).to eq(2)
+        expect(parsed_body["orderedItems"].first["id"]).to eq(note2.ap_id)
+        expect(parsed_body["orderedItems"].last["id"]).to eq(note1.ap_id)
+      end
+    end
   end
 end
