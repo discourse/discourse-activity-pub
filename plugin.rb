@@ -265,7 +265,10 @@ after_initialize do
   add_to_class(:topic, :activity_pub_objects_collection) { activity_pub_object.objects_collection }
   add_to_class(:topic, :activity_pub_actor) { activity_pub_taxonomy&.activity_pub_actor }
   add_to_class(:topic, :activity_pub_name) { title }
-
+  add_to_class(:topic, :activity_pub_local?) do
+    !first_post&.activity_pub_object || first_post.activity_pub_object.local
+  end
+  add_to_class(:topic, :activity_pub_remote?) { !activity_pub_local? }
   Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
 
   Post.include DiscourseActivityPub::AP::ModelCallbacks
