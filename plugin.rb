@@ -865,7 +865,12 @@ after_initialize do
     post = activity.object.stored.model
 
     if user && post
-      PostActionCreator.new(user, post, PostActionType.types[:like], reason: :activity_pub).perform
+      PostActionCreator.new(
+        user,
+        post,
+        PostActionType::LIKE_POST_ACTION_ID,
+        reason: :activity_pub,
+      ).perform
     end
   end
 
