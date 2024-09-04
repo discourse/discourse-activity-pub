@@ -364,7 +364,7 @@ after_initialize do
 
     group_ids = [Group::AUTO_GROUPS[:staff]]
     if activity_pub_topic.activity_pub_taxonomy.is_a?(Category)
-      group_ids += [*activity_pub_topic.activity_pub_taxonomy.reviewable_by_group_id]
+      group_ids.push(*activity_pub_topic.activity_pub_taxonomy.moderating_groups.pluck(:id))
     end
 
     MessageBus.publish("/activity-pub", { model: model }, { group_ids: group_ids })
