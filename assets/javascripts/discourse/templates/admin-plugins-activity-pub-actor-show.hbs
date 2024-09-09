@@ -31,7 +31,8 @@
           <TagChooser
             @tags={{this.tags}}
             @onChange={{action "changeTag"}}
-            @options={{hash allowAny=false maximum=1 hasActor=false}}
+            @blockedTags={{this.blockedTagActorNames}}
+            @options={{hash allowAny=false maximum=1}}
           />
         {{/if}}
       </div>

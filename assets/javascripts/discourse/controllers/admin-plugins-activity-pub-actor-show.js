@@ -18,6 +18,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @tracked enabled = this.actor.enabled;
   @tracked saving = false;
   @tracked saveResponse = null;
+
   modelTypes = [
     {
       id: "category",
@@ -47,6 +48,15 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   get enabledLabel() {
     let key = this.enabled ? "enabled" : "disabled";
     return `admin.discourse_activity_pub.actor.${key}.label`;
+  }
+
+  get blockedTagActorNames() {
+    const tagActors = ActivityPubActor.tagActors();
+    return (tagActors || [])
+      .filter((actor) => actor.model_name)
+      .map((actor) => {
+        return actor.model_name;
+      });
   }
 
   @action

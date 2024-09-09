@@ -104,6 +104,16 @@ ActivityPubActor.reopenClass({
     });
   },
 
+  tagActors() {
+    const siteActors = Site.currentProp("activity_pub_actors");
+
+    if (!siteActors) {
+      return;
+    }
+
+    return siteActors["tag"];
+  },
+
   follow(actorId, targetActorId) {
     return ajax({
       url: `${actorClientPath}/${actorId}/follow`,
