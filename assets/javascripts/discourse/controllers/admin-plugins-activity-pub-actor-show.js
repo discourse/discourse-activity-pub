@@ -51,8 +51,8 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   }
 
   get blockedTagActorNames() {
-    const tagActors = ActivityPubActor.tagActors();
-    return (tagActors || [])
+    const tagActors = this.get("site.activity_pub_actors.tag") || [];
+    return tagActors
       .filter((actor) => actor.model_name)
       .map((actor) => {
         return actor.model_name;
