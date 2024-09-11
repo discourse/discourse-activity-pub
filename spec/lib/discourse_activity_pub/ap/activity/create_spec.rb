@@ -35,7 +35,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
       before do
         freeze_time
-        stub_stored_request(original_object.attributed_to)
+        stub_object_request(original_object.attributed_to)
         perform_process(reply_json)
       end
 
@@ -66,6 +66,86 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             domain: "external.com",
           ).size,
         ).to be(1)
+      end
+    end
+
+    context "with Note inReplyTo to a remote Note" do
+      let!(:original_object) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+      let!(:remote_reply_actor_json) { build_actor_json }
+      let!(:remote_reply_json) do
+        build_object_json(
+          in_reply_to: original_object.ap_id,
+          attributed_to: remote_reply_actor_json[:id],
+        )
+      end
+      let(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
+      let(:reply_actor_json) { build_actor_json }
+      let(:reply_json) do
+        build_activity_json(
+          actor: actor,
+          object:
+            build_object_json(
+              in_reply_to: remote_reply_json[:id],
+              url: reply_external_url,
+              attributed_to: reply_actor_json[:id],
+            ),
+          type: "Create",
+          to: [category.activity_pub_actor.ap_id],
+        )
+      end
+
+      before do
+        freeze_time
+        stub_object_request(remote_reply_actor_json)
+        stub_object_request(remote_reply_json)
+        stub_object_request(reply_actor_json)
+        perform_process(reply_json)
+      end
+
+      it "creates a post with the right fields" do
+        reply = Post.find_by(raw: reply_json[:object][:content])
+        expect(reply.present?).to be(true)
+        expect(reply.reply_to_post_number).to eq(2)
+        expect(reply.activity_pub_published_at.to_datetime.to_i).to eq_time(Time.now.utc.to_i)
+        expect(reply.activity_pub_url).to eq(reply_external_url)
+      end
+
+      it "creates a single activity" do
+        expect(
+          DiscourseActivityPubActivity.where(
+            ap_id: reply_json[:id],
+            ap_type: "Create",
+            actor_id: actor.id,
+          ).size,
+        ).to be(1)
+      end
+
+      it "creates the right objects" do
+        remote_reply_post =
+          Post.find_by(raw: remote_reply_json[:content], reply_to_post_number: post.post_number)
+        reply_post =
+          Post.find_by(
+            raw: reply_json[:object][:content],
+            reply_to_post_number: remote_reply_post.post_number,
+          )
+        expect(reply_post.present?).to be_truthy
+        expect(remote_reply_post.present?).to be_truthy
+        expect(
+          DiscourseActivityPubObject.where(
+            ap_type: "Note",
+            model_id: reply_post.id,
+            model_type: "Post",
+            reply_to_id: remote_reply_json[:id],
+          ).exists?,
+        ).to be_truthy
+        expect(
+          DiscourseActivityPubObject.where(
+            ap_type: "Note",
+            model_id: remote_reply_post.id,
+            model_type: "Post",
+            reply_to_id: original_object.ap_id,
+          ).exists?,
+        ).to be_truthy
       end
     end
 
@@ -151,7 +231,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         build_activity_json(actor: actor, object: object_json, type: "Create")
       end
 
-      before { stub_stored_request(actor) }
+      before { stub_object_request(actor) }
 
       context "when the target is following the create actor" do
         before do
@@ -282,7 +362,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         it "does not create a note" do
           expect(
             DiscourseActivityPubObject.exists?(ap_type: "Note", attributed_to_id: actor.ap_id),
-          ).to eq(true)
+          ).to eq(false)
         end
 
         it "does not create an activity" do
@@ -319,7 +399,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         build_activity_json(actor: actor, object: object_json, type: "Create")
       end
 
-      before { stub_stored_request(actor) }
+      before { stub_object_request(actor) }
 
       context "when the target is following the create actor" do
         before do

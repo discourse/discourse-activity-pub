@@ -3,9 +3,11 @@
 module DiscourseActivityPub
   module AP
     module Handlers
-      class Error < StandardError
-        class Validate < Error
+      class Warning < StandardError
+        class Validate < Warning
         end
+      end
+      class Error < StandardError
         class Perform < Error
         end
         class Store < Error
@@ -73,7 +75,8 @@ module DiscourseActivityPub
               begin
                 proc.call(activity, { parent: parent })
                 true
-              rescue DiscourseActivityPub::AP::Handlers::Error => error
+              rescue DiscourseActivityPub::AP::Handlers::Warning,
+                     DiscourseActivityPub::AP::Handlers::Error => error
                 activity.add_error(error)
                 raise_errors ? raise : false
               end

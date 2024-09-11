@@ -71,7 +71,6 @@ en:
         object_not_ready: "Object is not ready"
         activity_already_processed: "Activity has already been processed"
         activity_not_supported: "Activity is not supported for actor and object"
-        activity_not_valid: "Activity is not valid"
         invalid_create_actor: "Actor cannot create posts"
         cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
         undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
@@ -84,6 +83,7 @@ en:
         only_followed_actors_create_new_topics: "Only followed actors can create new topics."
         actor_already_following: "Actor is already following that object"
         invalid_collection_item: "Invalid item"
+        cannot_resolve_context: "Cannot resolve object context"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"
