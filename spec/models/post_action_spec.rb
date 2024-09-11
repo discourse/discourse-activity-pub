@@ -25,7 +25,7 @@ RSpec.describe PostAction do
       :post_action,
       user: user2,
       post: post,
-      post_action_type_id: PostActionType.types[:like],
+      post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
     )
   end
 
