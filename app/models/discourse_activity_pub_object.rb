@@ -53,9 +53,9 @@ class DiscourseActivityPubObject < ActiveRecord::Base
          DiscourseActivityPub::AP::Activity::Like.type,
          DiscourseActivityPub::AP::Activity::Undo.type,
          DiscourseActivityPub::AP::Activity::Announce.type
-      !!model && !model.trashed?
+      !model_trashed?
     when DiscourseActivityPub::AP::Activity::Delete.type
-      !model || model.trashed?
+      model_trashed?
     else
       false
     end
@@ -67,6 +67,14 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def public?
     !private?
+  end
+
+  def publish?
+    !model_trashed?
+  end
+
+  def model_trashed?
+    !model || model.trashed?
   end
 
   def post?
