@@ -264,7 +264,7 @@ def build_collection_page_json(
   _json.with_indifferent_access
 end
 
-def build_process_warning(key, object_id)
+def build_process_warning(key, object_id = "(object_id)")
   action = I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: object_id)
   message = I18n.t("discourse_activity_pub.process.warning.#{key}")
   prefix_log("#{action}: #{message}")
