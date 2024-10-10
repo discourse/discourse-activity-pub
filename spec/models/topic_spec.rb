@@ -46,19 +46,18 @@ RSpec.describe Topic do
 
     context "with an ap full_topic topic to a new ap full_topic topic" do
       before do
-        topic1.move_posts(
-          user1,
-          [post1.id, post3.id],
-          title: "New topic in ap category",
-          category_id: category1.id,
-        )
-        @new_topic = post3.reload.topic
-        @first_post = @new_topic.first_post
+        @new_topic =
+          topic1.move_posts(
+            user1,
+            [post1.id, post3.id],
+            title: "New topic in ap category",
+            category_id: category1.id,
+          )
       end
 
       it "moves the posts" do
         expect([topic1.id, topic2.id, topic3.id]).to_not include(@new_topic.id)
-        expect(@first_post.raw).to eq(post1.raw)
+        expect(@new_topic.first_post.raw).to eq(post1.raw)
         expect(post2.reload.topic.id).to eq(topic1.id)
       end
 
@@ -72,7 +71,7 @@ RSpec.describe Topic do
       end
 
       it "updates the note references" do
-        expect(note1.reload.model_id).to eq(@first_post.id)
+        expect(note1.reload.model_id).to eq(@new_topic.first_post.id)
         expect(note1.collection_id).to eq(@new_topic.activity_pub_object.id)
         expect(note2.reload.collection_id).to eq(collection1.id)
       end
