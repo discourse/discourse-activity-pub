@@ -44,10 +44,12 @@ module DiscourseActivityPub
     end
 
     def resolve_id(raw_object)
+      return unless raw_object
       raw_object.is_a?(String) ? raw_object : raw_object["id"]
     end
 
     def resolve_object(raw_object)
+      return unless raw_object
       raw_object.is_a?(String) ? request_object(raw_object) : raw_object
     end
 
