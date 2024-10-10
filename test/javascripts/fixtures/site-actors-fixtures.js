@@ -46,12 +46,12 @@ export default {
   tag: [
     {
       id: 4,
-      handle: "@tag1@test.local",
-      name: "Tag 1",
-      username: "tag_1",
+      handle: "@monkey@test.local",
+      name: "Monkey",
+      username: "monkey",
       model_type: "Tag",
       model_id: 1,
-      model_name: "tag_1",
+      model_name: "monkey",
       can_admin: true,
       default_visibility: "public",
       publication_type: "first_post",
