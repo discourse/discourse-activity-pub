@@ -12,7 +12,8 @@ module DiscourseActivityPub
         end
 
         def in_reply_to
-          stored&.reply_to_id
+          return stored.reply_to_id if stored
+          json["inReplyTo"] if json
         end
 
         def can_belong_to

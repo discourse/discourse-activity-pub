@@ -24,7 +24,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
 
   describe "#process" do
     before do
-      stub_stored_request(note.attributed_to)
+      stub_object_request(note.attributed_to)
       toggle_activity_pub(category, publication_type: "full_topic")
       topic.create_activity_pub_collection!
     end
@@ -49,8 +49,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         it "logs the right warning" do
           perform_process(json, activity_type)
           perform_process(json, activity_type)
-          expect(@fake_logger.warnings.first).to eq(
-            build_process_warning("activity_already_processed", json["id"]),
+          expect(@fake_logger.warnings.first).to match(
+            I18n.t("discourse_activity_pub.process.warning.activity_already_processed"),
           )
         end
       end
@@ -94,7 +94,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
     end
 
     context "with a valid activity" do
-      before { stub_stored_request(note.attributed_to) }
+      before { stub_object_request(note.attributed_to) }
 
       context "without activity pub enabled" do
         it "returns false" do

@@ -22,7 +22,8 @@ module DiscourseActivityPub
       end
 
       def id
-        stored&.ap_id
+        return stored.ap_id if stored
+        json["id"] if json
       end
 
       def type
@@ -181,7 +182,7 @@ module DiscourseActivityPub
         object
       end
 
-      def self.resolve(raw_object)
+      def self.resolve(raw_object, resolve_attribution: true)
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
         return process_failed(raw_object, "cant_resolve_object") if object_id.blank?
 
@@ -205,7 +206,7 @@ module DiscourseActivityPub
           return process_failed(resolved_object["id"], "object_not_supported")
         end
 
-        if object.json[:attributedTo]
+        if resolve_attribution && object.json[:attributedTo]
           attributed_to = Actor.resolve_and_store(object.json[:attributedTo])
           object.attributed_to = attributed_to if attributed_to.present?
         end

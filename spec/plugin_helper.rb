@@ -123,7 +123,7 @@ def build_actor_json(
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: "https://external.com/u/#{preferredUsername}",
+    id: "https://external.com/u/#{preferredUsername}/#{SecureRandom.hex(8)}",
     name: name,
     preferredUsername: preferredUsername,
     type: type,
@@ -142,7 +142,7 @@ def build_object_json(
   id: nil,
   type: "Note",
   name: nil,
-  content: "My cool note",
+  content: "My cool note #{SecureRandom.hex(8)}",
   in_reply_to: nil,
   published: nil,
   url: nil,
@@ -297,15 +297,15 @@ def expect_no_delivery
   DiscourseActivityPub::DeliveryHandler.expects(:perform).never
 end
 
-def stub_stored_request(object)
+def stub_object_request(object, body: nil, status: 200)
   object_id = object.respond_to?(:ap_id) ? object.ap_id : object[:id]
   object_json = object.respond_to?(:ap) ? object.ap.json : object
   stub_request(:get, object_id).to_return(
-    body: object_json.to_json,
+    body: body || object_json.to_json,
     headers: {
       "Content-Type" => "application/json",
     },
-    status: 200,
+    status: status,
   )
 end
 
