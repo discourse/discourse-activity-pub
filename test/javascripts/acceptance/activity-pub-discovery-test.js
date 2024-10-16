@@ -7,6 +7,7 @@ import {
   exists,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
+import selectKit from "discourse/tests/helpers/select-kit-helper";
 import I18n from "I18n";
 import { default as Actors } from "../fixtures/actors-fixtures";
 import { default as Followers } from "../fixtures/followers-fixtures";
@@ -74,6 +75,35 @@ acceptance(
       server.get(`${followersPath}.json`, () =>
         helper.response(Followers[followersPath])
       );
+      server.get("/tag/:tag_name/notifications", (request) => {
+        return helper.response({
+          tag_notification: {
+            id: request.params.tag_name,
+            notification_level: 1,
+          },
+        });
+      });
+      server.get("/tag/:tag_name/l/latest.json", (request) => {
+        return helper.response({
+          users: [],
+          primary_groups: [],
+          topic_list: {
+            can_create_topic: true,
+            draft: null,
+            draft_key: "new_topic",
+            draft_sequence: 1,
+            per_page: 30,
+            tags: [
+              {
+                id: 1,
+                name: request.params.tag_name,
+                topic_count: 1,
+              },
+            ],
+            topics: [],
+          },
+        });
+      });
     });
 
     test("with a non-category route", async function (assert) {
@@ -131,6 +161,50 @@ acceptance(
         query(".fk-d-tooltip__inner-content").textContent.trim(),
         I18n.t("discourse_activity_pub.banner.public_first_post"),
         "shows the right category banner tip"
+      );
+    });
+
+    test("when routing from a category with an actor to one without", async function (assert) {
+      const category = Category.findById(2);
+      Site.current().set("activity_pub_actors", SiteActors);
+
+      await visit(category.url);
+
+      assert.ok(
+        exists(".activity-pub-route-nav.visible"),
+        "the activitypub nav button is visible"
+      );
+
+      const categoryDrop = selectKit(".category-drop");
+      await categoryDrop.expand();
+      await categoryDrop.selectRowByValue(7);
+
+      assert.ok(
+        !exists(".activity-pub-route-nav.visible"),
+        "the activitypub nav button is not visible"
+      );
+    });
+
+    test("when routing from a tag with an actor to one without", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_actors: SiteActors,
+        top_tags: ["monkey", "dog"],
+      });
+
+      await visit("/tag/monkey");
+
+      assert.ok(
+        exists(".activity-pub-route-nav.visible"),
+        "the activitypub nav button is visible"
+      );
+
+      const tagDrop = selectKit(".tag-drop");
+      await tagDrop.expand();
+      await tagDrop.selectRowByName("dog");
+
+      assert.ok(
+        !exists(".activity-pub-route-nav.visible"),
+        "the activitypub nav button is not visible"
       );
     });
   }
