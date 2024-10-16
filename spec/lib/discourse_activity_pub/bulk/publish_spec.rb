@@ -57,10 +57,10 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right actors" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.user.activity_pub_actor.name).to eq(post1.user.name)
-          expect(post2.user.activity_pub_actor.name).to eq(post2.user.name)
-          expect(post3.user.activity_pub_actor.name).to eq(post3.user.name)
-          expect(post4.user.activity_pub_actor.name).to eq(post4.user.name)
+          expect(post1.reload.user.activity_pub_actor.name).to eq(post1.user.name)
+          expect(post2.reload.user.activity_pub_actor.name).to eq(post2.user.name)
+          expect(post3.reload.user.activity_pub_actor.name).to eq(post3.user.name)
+          expect(post4.reload.user.activity_pub_actor.name).to eq(post4.user.name)
           expect(post1.user.activity_pub_actor.username).to eq(post1.user.username)
           expect(post2.user.activity_pub_actor.username).to eq(post2.user.username)
           expect(post3.user.activity_pub_actor.username).to eq(post3.user.username)
@@ -69,10 +69,10 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right post objects" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.activity_pub_object.content).to eq(post1.cooked)
-          expect(post2.activity_pub_object.content).to eq(post2.cooked)
-          expect(post3.activity_pub_object.content).to eq(post3.cooked)
-          expect(post4.activity_pub_object.content).to eq(post4.cooked)
+          expect(post1.reload.activity_pub_object.content).to eq(post1.cooked)
+          expect(post2.reload.activity_pub_object.content).to eq(post2.cooked)
+          expect(post3.reload.activity_pub_object.content).to eq(post3.cooked)
+          expect(post4.reload.activity_pub_object.content).to eq(post4.cooked)
           expect(post2.activity_pub_object.reply_to_id).to eq(post1.activity_pub_object.ap_id)
           expect(post4.activity_pub_object.reply_to_id).to eq(post3.activity_pub_object.ap_id)
           expect(post1.activity_pub_object.collection_id).to eq(post1.topic.activity_pub_object.id)
@@ -119,10 +119,10 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right activities" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.activity_pub_object.activities.first.ap_type).to eq("Create")
-          expect(post2.activity_pub_object.activities.first.ap_type).to eq("Create")
-          expect(post3.activity_pub_object.activities.first.ap_type).to eq("Create")
-          expect(post4.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post1.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post2.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post3.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post4.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
           expect(post1.activity_pub_object.activities.first.actor.id).to eq(
             post1.user.activity_pub_actor.id,
           )
@@ -289,16 +289,16 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right actors" do
           described_class.perform(actor_id: actor.id)
-          expect(post2.user.activity_pub_actor.name).to eq(post2.user.name)
-          expect(post3.user.activity_pub_actor.name).to eq(post3.user.name)
+          expect(post2.reload.user.activity_pub_actor.name).to eq(post2.user.name)
+          expect(post3.reload.user.activity_pub_actor.name).to eq(post3.user.name)
           expect(post2.user.activity_pub_actor.username).to eq(post2.user.username)
           expect(post3.user.activity_pub_actor.username).to eq(post3.user.username)
         end
 
         it "creates the right post objects" do
           described_class.perform(actor_id: actor.id)
-          expect(post2.activity_pub_object.content).to eq(post2.cooked)
-          expect(post3.activity_pub_object.content).to eq(post3.cooked)
+          expect(post2.reload.activity_pub_object.content).to eq(post2.cooked)
+          expect(post3.reload.activity_pub_object.content).to eq(post3.cooked)
           expect(post2.activity_pub_object.reply_to_id).to eq(post1.activity_pub_object.ap_id)
           expect(post2.activity_pub_object.collection_id).to eq(post2.topic.activity_pub_object.id)
           expect(post3.activity_pub_object.collection_id).to eq(post3.topic.activity_pub_object.id)
@@ -324,8 +324,8 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right activities" do
           described_class.perform(actor_id: actor.id)
-          expect(post2.activity_pub_object.activities.first.ap_type).to eq("Create")
-          expect(post3.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post2.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post3.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
           expect(post2.activity_pub_object.activities.first.actor.id).to eq(
             post2.user.activity_pub_actor.id,
           )
@@ -429,20 +429,20 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
           it "creates the right actors" do
             described_class.perform(actor_id: actor.id)
-            expect(post3.user.activity_pub_actor.name).to eq(post3.user.name)
+            expect(post3.reload.user.activity_pub_actor.name).to eq(post3.user.name)
             expect(post3.user.activity_pub_actor.username).to eq(post3.user.username)
           end
 
           it "creates and publishes the right post objects" do
             described_class.perform(actor_id: actor.id)
-            expect(post3.activity_pub_object.content).to eq(post3.cooked)
+            expect(post3.reload.activity_pub_object.content).to eq(post3.cooked)
             expect(post3.activity_pub_object.collection_id).to eq(
               post3.topic.activity_pub_object.id,
             )
             expect(post3.activity_pub_object.attributed_to_id).to eq(
               post3.user.activity_pub_actor.ap_id,
             )
-            expect(post2.reload.activity_pub_object.published_at).to be_within_one_second_of(
+            expect(post2.reload.reload.activity_pub_object.published_at).to be_within_one_second_of(
               Time.now,
             )
             expect(post3.activity_pub_object.published_at).to be_within_one_second_of(Time.now)
@@ -458,7 +458,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
           it "creates and publishes the right activities" do
             described_class.perform(actor_id: actor.id)
-            expect(post3.activity_pub_object.activities.first.ap_type).to eq("Create")
+            expect(post3.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
             expect(post3.activity_pub_object.activities.first.actor.id).to eq(
               post3.user.activity_pub_actor.id,
             )
@@ -519,8 +519,8 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right actors" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.user.activity_pub_actor.name).to eq(post1.user.name)
-          expect(post3.user.activity_pub_actor.name).to eq(post3.user.name)
+          expect(post1.reload.user.activity_pub_actor.name).to eq(post1.user.name)
+          expect(post3.reload.user.activity_pub_actor.name).to eq(post3.user.name)
           expect(post1.user.activity_pub_actor.username).to eq(post1.user.username)
           expect(post3.user.activity_pub_actor.username).to eq(post3.user.username)
         end
@@ -543,8 +543,8 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
 
         it "creates the right activities" do
           described_class.perform(actor_id: actor.id)
-          expect(post1.activity_pub_object.activities.first.ap_type).to eq("Create")
-          expect(post3.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post1.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
+          expect(post3.reload.activity_pub_object.activities.first.ap_type).to eq("Create")
           expect(post1.activity_pub_object.activities.first.actor.id).to eq(
             post1.user.activity_pub_actor.id,
           )

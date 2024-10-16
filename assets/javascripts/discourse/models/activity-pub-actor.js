@@ -3,7 +3,6 @@ import { equal } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import Site from "discourse/models/site";
-
 export const newActor = {
   id: "new",
   default_visibility: "public",

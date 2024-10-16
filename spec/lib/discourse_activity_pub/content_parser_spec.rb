@@ -114,13 +114,17 @@ RSpec.describe DiscourseActivityPub::ContentParser do
 
           1. This is an ordered list item
 
-          ```
-          This is a code block
-          ```
+          ``This is a code block``
 
           **This is strong text**
 
           *This is emphasised text*
+
+          ```js
+          [] == ![]; // true
+           !!"false" == !!"true"; // true
+           NaN === NaN; // false
+          ```
 
           STRING
         let(:cooked_markdown) { <<~HTML }
@@ -139,9 +143,13 @@ RSpec.describe DiscourseActivityPub::ContentParser do
           <ol>
           <li>This is an ordered list item</li>
           </ol>
-          <code class="lang-auto">This is a code block</code>
+          <p><code>This is a code block</code></p>
           <p><strong>This is strong text</strong></p>
           <p><em>This is emphasised text</em></p>
+          <pre data-code-wrap="js"><code class="lang-js">[] == ![]; // true
+           !!"false" == !!"true"; // true
+           NaN === NaN; // false
+          </code></pre>
           HTML
         let!(:post) { Fabricate(:post, raw: raw_markdown) }
 
@@ -149,7 +157,7 @@ RSpec.describe DiscourseActivityPub::ContentParser do
 
         it "returns html" do
           expect(described_class.get_content(post)).to eq(
-            described_class.remove_newlines(cooked_markdown),
+            described_class.final_clean(cooked_markdown),
           )
         end
       end

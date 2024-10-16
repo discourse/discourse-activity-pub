@@ -47,7 +47,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
             :post_action,
             user: user,
             post: post,
-            post_action_type_id: PostActionType.types[:like],
+            post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
           )
         end
         let!(:person) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
@@ -64,7 +64,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Undo do
             PostAction.exists?(
               post_id: post.id,
               user_id: user.id,
-              post_action_type_id: PostActionType.types[:like],
+              post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
             ),
           ).to be(false)
         end

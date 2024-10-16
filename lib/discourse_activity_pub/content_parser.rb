@@ -35,7 +35,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     emphasis
   ]
 
-  PERMITTED_TAGS = %w[p a h1 h2 h3 h4 h5 ul ol li code blockquote em strong]
+  PERMITTED_TAGS = %w[p a h1 h2 h3 h4 h5 ul ol li code blockquote em strong pre]
 
   MAX_TITLE_LENGTH = 60
 
@@ -127,7 +127,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
         text,
         opts.merge(features_override: MARKDOWN_FEATURES, markdown_it_rules: MARKDOWN_IT_RULES),
       )
-    scrubbed_html(remove_newlines(html))
+    scrubbed_html(html)
   end
 
   def self.scrubbed_html(html)
@@ -179,10 +179,6 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     final_clean(content_parser.content.strip)
   end
 
-  def self.remove_newlines(html)
-    html.gsub("\n", "").squeeze(" ")
-  end
-
   def self.final_clean(html)
     fragment = Nokogiri::HTML5.fragment(html)
     fragment.traverse do |node|
@@ -190,7 +186,8 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
         node.remove
         next
       end
+      node.content = node.content.gsub(/\n/, "").squeeze(" ") if node.text?
     end
-    fragment.to_html
+    fragment.serialize(save_options: 0)
   end
 end

@@ -13,11 +13,12 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @service router;
   @service site;
   @tracked categoryId = null;
-  @tracked tag = null;
+  @tracked tags = [];
   @tracked showForm = false;
   @tracked enabled = this.actor.enabled;
   @tracked saving = false;
   @tracked saveResponse = null;
+
   modelTypes = [
     {
       id: "category",
@@ -47,6 +48,15 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   get enabledLabel() {
     let key = this.enabled ? "enabled" : "disabled";
     return `admin.discourse_activity_pub.actor.${key}.label`;
+  }
+
+  get blockedTagActorNames() {
+    const tagActors = this.get("site.activity_pub_actors.tag") || [];
+    return tagActors
+      .filter((actor) => actor.model_name)
+      .map((actor) => {
+        return actor.model_name;
+      });
   }
 
   @action
@@ -107,12 +117,16 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   }
 
   @action
-  changeTag(tag) {
-    if (tag) {
-      this.tag = tag;
-      this.actor.model_type = "Tag";
-      this.actor.model_name = tag;
-      this.showForm = true;
+  changeTag(tags) {
+    this.tags = tags;
+
+    if (tags.length === 0) {
+      this.showForm = false;
+      return;
     }
+
+    this.actor.model_type = "Tag";
+    this.actor.model_name = tags[0];
+    this.showForm = true;
   }
 }

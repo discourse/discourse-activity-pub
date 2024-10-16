@@ -46,7 +46,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
             PostAction.exists?(
               post_id: post.id,
               user_id: @user.id,
-              post_action_type_id: PostActionType.types[:like],
+              post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
             ),
           ).to be(true)
         end
@@ -84,7 +84,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
             PostAction.exists?(
               post_id: post.id,
               user_id: @user.id,
-              post_action_type_id: PostActionType.types[:like],
+              post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
             ),
           ).to be(true)
         end
