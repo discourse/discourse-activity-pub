@@ -183,6 +183,29 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
         end
       end
 
+      context "without an actor" do
+        before do
+          @json = build_activity_json(object: actor, type: activity_type)
+          @json["actor"] = nil
+        end
+
+        it "returns false" do
+          expect(perform_process(@json, activity_type)).to eq(false)
+        end
+
+        context "with verbose logging enabled" do
+          before { setup_logging }
+          after { teardown_logging }
+
+          it "logs a warning" do
+            perform_process(@json, activity_type)
+            expect(@fake_logger.warnings.first).to match(
+              build_process_warning("cant_resolve_actor"),
+            )
+          end
+        end
+      end
+
       context "with an invalid object" do
         before { @json = build_activity_json }
 
