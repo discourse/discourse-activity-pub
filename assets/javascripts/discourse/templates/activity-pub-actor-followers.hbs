@@ -28,9 +28,13 @@
           @asc={{this.asc}}
         />
         {{#if this.currentUser.admin}}
-          <th
-            class="activity-pub-follow-table-actions directory-table__column-header"
-          ></th>
+          <div
+            class="directory-table__column-header activity-pub-follow-table-actions"
+          >
+            <span class="text">{{i18n
+                "discourse_activity_pub.follow_table.actions"
+              }}</span>
+          </div>
         {{/if}}
       </:header>
       <:body>
