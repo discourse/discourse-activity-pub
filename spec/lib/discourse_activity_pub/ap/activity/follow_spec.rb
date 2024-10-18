@@ -151,7 +151,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
             json = build_activity_json(object: category.activity_pub_actor)
             json["actor"]["id"] = existing_activity.actor.ap_id
             json["object"] = existing_activity.object.ap_id
-            stub_stored_request(existing_activity.object)
+            stub_object_request(existing_activity.object)
             perform_process(json)
             @new_activity = DiscourseActivityPubActivity.find_by(ap_id: json["id"])
           end

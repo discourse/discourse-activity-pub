@@ -39,6 +39,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/webfinger/handle"
   require_relative "lib/discourse_activity_pub/activity_forwarder"
   require_relative "lib/discourse_activity_pub/logger"
+  require_relative "lib/discourse_activity_pub/context_resolver"
   require_relative "lib/discourse_activity_pub/ap"
   require_relative "lib/discourse_activity_pub/ap/handlers"
   require_relative "lib/discourse_activity_pub/ap/object"
@@ -264,7 +265,10 @@ after_initialize do
   add_to_class(:topic, :activity_pub_objects_collection) { activity_pub_object.objects_collection }
   add_to_class(:topic, :activity_pub_actor) { activity_pub_taxonomy&.activity_pub_actor }
   add_to_class(:topic, :activity_pub_name) { title }
-
+  add_to_class(:topic, :activity_pub_local?) do
+    !first_post&.activity_pub_object || first_post.activity_pub_object.local
+  end
+  add_to_class(:topic, :activity_pub_remote?) { !activity_pub_local? }
   Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
 
   Post.include DiscourseActivityPub::AP::ModelCallbacks
@@ -360,7 +364,7 @@ after_initialize do
 
     group_ids = [Group::AUTO_GROUPS[:staff]]
     if activity_pub_topic.activity_pub_taxonomy.is_a?(Category)
-      group_ids += [*activity_pub_topic.activity_pub_taxonomy.reviewable_by_group_id]
+      group_ids.push(*activity_pub_topic.activity_pub_taxonomy.moderating_groups.pluck(:id))
     end
 
     MessageBus.publish("/activity-pub", { model: model }, { group_ids: group_ids })
@@ -433,8 +437,6 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
-
-    DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user) if activity_pub_full_topic
 
     content = DiscourseActivityPub::ContentParser.get_content(self)
     visibility =
@@ -570,6 +572,15 @@ after_initialize do
   # TODO: This should just be part of discourse/discourse.
   User.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
 
+  add_model_callback(:user, :before_validation) do
+    if self.instance_variable_get(:@skip_email_validation).nil? && self.activity_pub_actor&.remote?
+      self.instance_variable_set(:@skip_email_validation, true)
+    end
+  end
+  add_model_callback(:user, :before_destroy) do
+    DiscourseActivityPubActor.where(model_id: self.id, model_type: "User").destroy_all
+  end
+
   add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_class(:user, :activity_pub_ready?) { true }
   add_to_class(:user, :activity_pub_allowed?) { self.human? }
@@ -690,7 +701,6 @@ after_initialize do
 
     if post_action.activity_pub_enabled && post_action.activity_pub_full_topic &&
          reason != :activity_pub
-      DiscourseActivityPub::ActorHandler.update_or_create_actor(post_action.user)
       post_action.perform_activity_pub_activity(:like)
     end
   end
@@ -703,7 +713,7 @@ after_initialize do
     end
   end
   on(:merging_users) do |source_user, target_user|
-    if source_user.activity_pub_actor&.remote?
+    if source_user.reload.activity_pub_actor&.remote?
       DiscourseActivityPubActor.where(id: source_user.activity_pub_actor.id).update_all(
         model_id: nil,
         model_type: nil,
@@ -713,21 +723,28 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:activity, :validate) do |activity|
     if DiscourseActivityPubActivity.exists?(ap_id: activity.json[:id])
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
             I18n.t("discourse_activity_pub.process.warning.activity_already_processed")
     end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:create, :validate) do |activity|
-    reply_to_post = activity.object.stored.in_reply_to_post
+    context_resolver = DiscourseActivityPub::ContextResolver.new(activity.object.stored)
+    context_resolver.perform
+    unless context_resolver.success?
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+            context_resolver.errors.full_messages.join(", ")
+    end
+
+    reply_to_post = activity.object.stored.reload.in_reply_to_post
 
     if reply_to_post
       if reply_to_post.trashed?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.cannot_reply_to_deleted_post")
       end
       unless reply_to_post.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
       end
     else
@@ -745,7 +762,7 @@ after_initialize do
       end
 
       if delivered_to_actors.blank?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.actor_does_not_accept_new_topics")
       end
 
@@ -753,7 +770,7 @@ after_initialize do
                actor.following?(activity.actor.stored) ||
                  actor.following?(activity.parent&.actor&.stored)
              }
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t(
                 "discourse_activity_pub.process.warning.only_followed_actors_create_new_topics",
               )
@@ -762,7 +779,7 @@ after_initialize do
       delivered_to_model = delivered_to_actors.first.model
 
       if !delivered_to_model.activity_pub_ready?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.object_not_ready")
       end
 
@@ -787,7 +804,7 @@ after_initialize do
 
   DiscourseActivityPub::AP::Activity.add_handler(:announce, :validate) do |activity|
     unless DiscourseActivityPub::JsonLd.publicly_addressed?(activity.json)
-      raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
             I18n.t("discourse_activity_pub.process.warning.announce_not_publicly_addressed")
     end
 
@@ -851,7 +868,12 @@ after_initialize do
     post = activity.object.stored.model
 
     if user && post
-      PostActionCreator.new(user, post, PostActionType.types[:like], reason: :activity_pub).perform
+      PostActionCreator.new(
+        user,
+        post,
+        PostActionType::LIKE_POST_ACTION_ID,
+        reason: :activity_pub,
+      ).perform
     end
   end
 

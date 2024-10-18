@@ -68,8 +68,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
             end
 
             before do
-              stub_stored_request(object_json)
-              stub_stored_request(note_actor)
+              stub_object_request(object_json)
+              stub_object_request(note_actor)
               perform_process(announce_json, category.activity_pub_actor.ap_id)
             end
 

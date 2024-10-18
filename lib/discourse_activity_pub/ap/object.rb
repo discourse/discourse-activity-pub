@@ -22,7 +22,8 @@ module DiscourseActivityPub
       end
 
       def id
-        stored&.ap_id
+        return stored.ap_id if stored
+        json["id"] if json
       end
 
       def type
@@ -128,8 +129,9 @@ module DiscourseActivityPub
       end
 
       def process_failed(warning_key)
+        object_id = json[:id] || "(object_id)"
         action =
-          I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: json[:id])
+          I18n.t("discourse_activity_pub.process.warning.failed_to_process", object_id: object_id)
         if errors.any?
           message = errors.map { |e| e.full_message }.join(",")
         else
@@ -181,9 +183,9 @@ module DiscourseActivityPub
         object
       end
 
-      def self.resolve(raw_object)
+      def self.resolve(raw_object, resolve_attribution: true)
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
-        return process_failed(raw_object, "cant_resolve_object") if object_id.blank?
+        return process_failed(raw_object, "cant_resolve_#{base_type.downcase}") if object_id.blank?
 
         if DiscourseActivityPub::URI.local?(object_id)
           object =
@@ -196,16 +198,20 @@ module DiscourseActivityPub
         end
 
         resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object)
-        return process_failed(raw_object, "cant_resolve_object") if resolved_object.blank?
+        if resolved_object.blank?
+          return process_failed(raw_object, "cant_resolve_#{base_type.downcase}")
+        end
 
         object = factory(resolved_object)
-        return process_failed(resolved_object["id"], "cant_resolve_object") if object.blank?
+        if object.blank?
+          return process_failed(resolved_object["id"], "cant_resolve_#{base_type.downcase}")
+        end
 
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
           return process_failed(resolved_object["id"], "object_not_supported")
         end
 
-        if object.json[:attributedTo]
+        if resolve_attribution && object.json[:attributedTo]
           attributed_to = Actor.resolve_and_store(object.json[:attributedTo])
           object.attributed_to = attributed_to if attributed_to.present?
         end

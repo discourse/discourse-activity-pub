@@ -52,6 +52,22 @@ RSpec.describe Guardian do
   end
 
   describe "can_change_post_owner?" do
+    shared_examples "returns true for admins" do
+      it "returns true for admins" do
+        expect(Guardian.new(admin, request).can_change_post_owner?).to be_truthy
+        expect(Guardian.new(user, request).can_change_post_owner?).to be_falsey
+        expect(Guardian.new(another_user, request).can_change_post_owner?).to be_falsey
+      end
+    end
+
+    shared_examples "returns false for all users" do
+      it "returns false for all users" do
+        expect(Guardian.new(admin, request).can_change_post_owner?).to be_falsey
+        expect(Guardian.new(user, request).can_change_post_owner?).to be_falsey
+        expect(Guardian.new(another_user, request).can_change_post_owner?).to be_falsey
+      end
+    end
+
     describe "a Post" do
       context "with a change owner request" do
         let!(:request) do
@@ -74,19 +90,30 @@ RSpec.describe Guardian do
         context "with activity pub enabled" do
           before { toggle_activity_pub(category) }
 
-          it "returns false for all users" do
-            expect(Guardian.new(admin, request).can_change_post_owner?).to be_falsey
-            expect(Guardian.new(user, request).can_change_post_owner?).to be_falsey
-            expect(Guardian.new(another_user, request).can_change_post_owner?).to be_falsey
+          context "when the topic is not published" do
+            include_examples "returns true for admins"
+          end
+
+          context "when the topic is published" do
+            before do
+              post.custom_fields["activity_pub_published_at"] = Time.now
+              post.save_custom_fields(true)
+            end
+
+            include_examples "returns false for all users"
+          end
+
+          context "when the topic is remote" do
+            fab!(:note) do
+              Fabricate(:discourse_activity_pub_object_note, model: post, local: false)
+            end
+
+            include_examples "returns false for all users"
           end
         end
 
         context "with activity pub disabled" do
-          it "returns true for the right users" do
-            expect(Guardian.new(admin, request).can_change_post_owner?).to be_truthy
-            expect(Guardian.new(user, request).can_change_post_owner?).to be_falsey
-            expect(Guardian.new(another_user, request).can_change_post_owner?).to be_falsey
-          end
+          include_examples "returns true for admins"
         end
       end
     end

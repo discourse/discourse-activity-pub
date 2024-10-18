@@ -28,10 +28,11 @@
           />
         {{/if}}
         {{#if (eq this.actor.model_type "tag")}}
-          <ActivityPubTagChooser
-            @tagId={{this.tag}}
+          <TagChooser
+            @tags={{this.tags}}
             @onChange={{action "changeTag"}}
-            @options={{hash hasActor=false}}
+            @blockedTags={{this.blockedTagActorNames}}
+            @options={{hash allowAny=false maximum=1}}
           />
         {{/if}}
       </div>

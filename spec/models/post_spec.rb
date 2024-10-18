@@ -110,8 +110,7 @@ RSpec.describe Post do
 
   describe "#activity_pub_publish_state" do
     let(:group) { Fabricate(:group) }
-
-    before { category.update(reviewable_by_group_id: group.id) }
+    let!(:category_moderation_group) { Fabricate(:category_moderation_group, group:, category:) }
 
     context "with activity pub ready on category" do
       before { toggle_activity_pub(category) }
@@ -119,9 +118,7 @@ RSpec.describe Post do
       it "publishes status only to staff and category moderators" do
         message =
           MessageBus.track_publish("/activity-pub") { post.activity_pub_publish_state }.first
-        expect(message.group_ids).to eq(
-          [Group::AUTO_GROUPS[:staff], category.reviewable_by_group_id],
-        )
+        expect(message.group_ids).to eq([Group::AUTO_GROUPS[:staff], group.id])
       end
 
       context "with status changes" do
@@ -727,21 +724,6 @@ RSpec.describe Post do
                   .exists?,
               ).to eq(true)
             end
-
-            it "doesn't create a activity with the acting user's actor" do
-              perform_update
-              expect(
-                staff
-                  .activity_pub_actor
-                  .activities
-                  .where(
-                    object_id: post.activity_pub_object.id,
-                    object_type: "DiscourseActivityPubObject",
-                    ap_type: "Update",
-                  )
-                  .exists?,
-              ).to eq(false)
-            end
           end
         end
 
@@ -1172,6 +1154,7 @@ RSpec.describe Post do
               perform_update
               expect(
                 staff
+                  .reload
                   .activity_pub_actor
                   .activities
                   .where(

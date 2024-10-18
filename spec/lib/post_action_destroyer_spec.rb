@@ -16,7 +16,7 @@ RSpec.describe PostActionDestroyer do
       :post_action,
       user: user2,
       post: post,
-      post_action_type_id: PostActionType.types[:like],
+      post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
     )
   end
   let!(:post_action2) do
@@ -24,7 +24,7 @@ RSpec.describe PostActionDestroyer do
       :post_action,
       user: user3,
       post: post,
-      post_action_type_id: PostActionType.types[:like],
+      post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
     )
   end
   let!(:like1) { Fabricate(:discourse_activity_pub_activity_like, actor: actor2, object: note) }
