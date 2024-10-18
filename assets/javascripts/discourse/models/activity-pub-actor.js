@@ -129,7 +129,7 @@ ActivityPubActor.reopenClass({
 
   reject(actorId, targetActorId) {
     return ajax({
-      url: `/ap/actor/${actorId}/reject`,
+      url: `${actorClientPath}/${actorId}/reject`,
       type: "POST",
       data: {
         target_actor_id: targetActorId,
