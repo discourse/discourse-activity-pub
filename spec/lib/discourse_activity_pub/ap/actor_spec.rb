@@ -23,7 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       expect(actor.name).to eq(json["name"])
     end
 
-    it "updates an actor if optional attributes have changed" do
+    it "updates name if name has changed" do
       perform
 
       actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
@@ -35,7 +35,19 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       expect(actor.name).to eq("Bob McLeod")
     end
 
-    it "creates a new actor if required attributes have changed" do
+    it "updates username if preferredUsername has changed" do
+      perform
+
+      actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
+      expect(actor.username).to eq("angus")
+
+      perform(preferredUsername: "bob")
+
+      actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
+      expect(actor.username).to eq("bob")
+    end
+
+    it "creates a new actor if id has changed" do
       perform
 
       original_id = json["id"]
