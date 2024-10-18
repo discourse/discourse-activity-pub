@@ -22,7 +22,7 @@ DiscourseActivityPub::Engine.routes.draw do
       get ":actor_id/follows" => "actor#follows"
       post ":actor_id/follow" => "actor#follow", :defaults => { format: :json }
       delete ":actor_id/follow" => "actor#unfollow", :defaults => { format: :json }
-      post ":actor_id/reject" => "actor#reject"
+      post ":actor_id/reject" => "actor#reject", :defaults => { format: :json }
       get ":actor_id/find-by-handle" => "actor#find_by_handle", :defaults => { format: :json }
     end
   end

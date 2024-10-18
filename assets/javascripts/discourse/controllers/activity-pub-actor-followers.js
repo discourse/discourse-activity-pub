@@ -14,9 +14,9 @@ export default class ActivityPubActorFollowers extends Controller {
   @notEmpty("actors") hasActors;
 
   get tableClass() {
-    let result = 'activity-pub-follow-table followers';
+    let result = "activity-pub-follow-table followers";
     if (this.currentUser.admin) {
-      result += ' show-controls';
+      result += " show-controls";
     }
     return result;
   }
