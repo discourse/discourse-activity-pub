@@ -88,7 +88,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
     when :likes
       @items
     else
-      []
+      objects
     end
   end
 
