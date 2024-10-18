@@ -32,7 +32,7 @@ function setCategory(context) {
 
 function setTag(context) {
   const store = getOwner(context).lookup("service:store");
-  const tag = store.createRecord("tag", { id: 1, name: "tag_1" });
+  const tag = store.createRecord("tag", { id: 1, name: "monkey" });
   context.set("tag", tag);
 }
 

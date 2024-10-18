@@ -30,8 +30,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
         end
 
         before do
-          stub_stored_request(note)
-          stub_stored_request(note.attributed_to)
+          stub_object_request(note)
+          stub_object_request(note.attributed_to)
           perform_process(activity_json)
           @user =
             User.joins(:activity_pub_actor).where(activity_pub_actor: { ap_id: person.ap_id }).first
@@ -46,7 +46,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
             PostAction.exists?(
               post_id: post.id,
               user_id: @user.id,
-              post_action_type_id: PostActionType.types[:like],
+              post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
             ),
           ).to be(true)
         end
@@ -68,8 +68,8 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
         end
 
         before do
-          stub_stored_request(note)
-          stub_stored_request(note.attributed_to)
+          stub_object_request(note)
+          stub_object_request(note.attributed_to)
           perform_process(activity_json)
           @user =
             User.joins(:activity_pub_actor).where(activity_pub_actor: { ap_id: person.ap_id }).first
@@ -84,7 +84,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Like do
             PostAction.exists?(
               post_id: post.id,
               user_id: @user.id,
-              post_action_type_id: PostActionType.types[:like],
+              post_action_type_id: PostActionType::LIKE_POST_ACTION_ID,
             ),
           ).to be(true)
         end

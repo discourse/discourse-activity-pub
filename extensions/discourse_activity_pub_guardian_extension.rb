@@ -10,14 +10,14 @@ module DiscourseActivityPubGuardianExtension
   end
 
   def can_change_post_owner?
-    return false if activity_pub_enabled_topic?
+    return false if activity_pub_change_owner_restricted?
     super
   end
 
-  def activity_pub_enabled_topic?
+  def activity_pub_change_owner_restricted?
     return false unless DiscourseActivityPub.enabled && request&.params&.[]("topic_id")
     topic = Topic.find_by(id: request.params["topic_id"].to_i)
-    topic&.activity_pub_enabled
+    topic && (topic.activity_pub_remote? || topic.activity_pub_published?)
   end
 
   def can_admin?(actor)

@@ -16,7 +16,7 @@ module DiscourseActivityPub
       import_mode: false
     )
       if !user || !object || object.model_id ||
-           (!object.in_reply_to_post && !category_id && !tag_id)
+           (!object.in_reply_to_post && !category_id && !tag_id && !topic_id)
         return nil
       end
 
@@ -28,7 +28,7 @@ module DiscourseActivityPub
 
       new_topic = !object.reply_to_id && !topic_id && (category || tag)
       reply_to = object.in_reply_to_post
-      return nil if !import_mode && !new_topic && !reply_to
+      return nil if !import_mode && !new_topic && !reply_to && !topic_id
 
       params = {
         raw: object.content,
@@ -86,7 +86,7 @@ module DiscourseActivityPub
           object.update(
             model_type: "Post",
             model_id: post.id,
-            collection_id: post.topic.activity_pub_object.id,
+            collection_id: post.topic.activity_pub_object&.id,
           )
         end
       end
@@ -116,17 +116,17 @@ module DiscourseActivityPub
       post = activity.object.stored.model
 
       unless post
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.cant_find_post")
       end
 
       if post.trashed?
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.post_is_deleted")
       end
 
       unless post.activity_pub_full_topic
-        raise DiscourseActivityPub::AP::Handlers::Error::Validate,
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
               I18n.t("discourse_activity_pub.process.warning.full_topic_not_enabled")
       end
     end
