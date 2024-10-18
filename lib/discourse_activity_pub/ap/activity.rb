@@ -112,6 +112,10 @@ module DiscourseActivityPub
         type == Follow.type
       end
 
+      def reject?
+        type == Reject.type
+      end
+
       def announce?
         type == Announce.type
       end

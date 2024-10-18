@@ -898,6 +898,18 @@ after_initialize do
     end
   end
 
+  DiscourseActivityPub::AP::Activity.add_handler(:reject, :perform) do |activity|
+    case activity.object.type
+    when DiscourseActivityPub::AP::Activity::Follow.type
+      DiscourseActivityPubFollow.where(
+        follower_id: activity.object.actor.stored.id,
+        followed_id: activity.actor.stored.id,
+      ).destroy_all
+    else
+      false
+    end
+  end
+
   DiscourseActivityPub::AP::Activity.add_handler(:announce, :perform) do |activity|
     DiscourseActivityPub::AP::Activity.apply_handlers(activity, :create, :perform)
   end
@@ -996,6 +1008,8 @@ after_initialize do
       elsif activity&.follow?
         DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
       elsif activity&.undo?
+        DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
+      elsif activity&.reject?
         DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
       elsif activity&.response?
         DiscourseActivityPubActivity.find_by(ap_id: object.json[:id])
