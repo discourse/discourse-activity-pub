@@ -15,7 +15,7 @@ module DiscourseActivityPub
     end
 
     def _object
-      object.object.json
+      object.object&.json
     end
   end
 end
