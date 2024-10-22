@@ -658,6 +658,7 @@ module DiscourseActivityPub
               reply_to_id
               url
               attributed_to_id
+              collection_id
             ],
             returning: Arel.sql("*, (xmax = '0') as inserted"),
           )
