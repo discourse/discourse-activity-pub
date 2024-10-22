@@ -487,6 +487,18 @@ RSpec.describe Post do
           expect(post.reload.activity_pub_object.present?).to eq(false)
         end
       end
+
+      context "with a whisper" do
+        before do
+          post.post_type = Post.types[:whisper]
+          post.save!
+        end
+
+        it "does nothing" do
+          expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+          expect(post.reload.activity_pub_object.present?).to eq(false)
+        end
+      end
     end
 
     context "with first_post enabled on the category" do
