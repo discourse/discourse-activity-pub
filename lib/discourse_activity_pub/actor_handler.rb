@@ -192,11 +192,6 @@ module DiscourseActivityPub
       DiscourseActivityPubActor.username_unique?(username, model_id: model.id)
     end
 
-    def username_changed?
-      (opts[:username].present? && actor && actor.username.present?) &&
-        actor.username != opts[:username]
-    end
-
     def valid_actor?
       if !actor&.ap&.can_belong_to&.include?(model_type.downcase.to_sym)
         add_error(
@@ -240,7 +235,6 @@ module DiscourseActivityPub
       return invalid_opt("no_options") if opts.blank?
 
       if opts[:username].present?
-        return invalid_opt("no_change_when_set") if username_changed?
         return invalid_opt("invalid_username") if !valid_actor_username?(opts[:username])
         return invalid_opt("username_taken") if !unique_actor_username?(opts[:username])
       end
@@ -249,7 +243,12 @@ module DiscourseActivityPub
     end
 
     def invalid_opt(key)
-      add_error(I18n.t("discourse_activity_pub.actor.warning.#{key}"))
+      opts = {}
+      if key == "invalid_username"
+        opts[:min_length] = SiteSetting.min_username_length
+        opts[:max_length] = SiteSetting.max_username_length
+      end
+      add_error(I18n.t("discourse_activity_pub.actor.warning.#{key}", opts))
       false
     end
 
