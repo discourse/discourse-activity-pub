@@ -56,7 +56,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def audience
-    base_object.ap.object? && base_object.audience
+    base_object&.ap&.object? && base_object.audience
   end
 
   def to

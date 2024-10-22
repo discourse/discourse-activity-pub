@@ -11,7 +11,7 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
   describe "#json" do
     context "when AP object has storage" do
-      let(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow) }
+      let!(:follow_activity) { Fabricate(:discourse_activity_pub_activity_follow) }
 
       it "generates json from storage" do
         ap = DiscourseActivityPub::AP::Activity::Follow.new(stored: follow_activity)
@@ -29,6 +29,21 @@ RSpec.describe DiscourseActivityPub::AP::Object do
           ap = DiscourseActivityPub::AP::Activity::Create.new(stored: create_activity)
           expect(ap.json["object"]["to"]).to eq(create_activity.to)
           expect(ap.json["object"]["cc"]).to eq(create_activity.cc)
+        end
+      end
+
+      context "when activity has no object" do
+        before do
+          follow_activity.object.destroy!
+          follow_activity.reload
+        end
+
+        it "does not raise an exception" do
+          ap = DiscourseActivityPub::AP::Activity::Follow.new(stored: follow_activity)
+          expect(ap.json["id"]).to eq(follow_activity.ap_id)
+          expect(ap.json["actor"]["id"]).to eq(follow_activity.actor.ap_id)
+          expect(ap.json["object"]).to eq(nil)
+          expect(ap.json["audience"]).to eq(nil)
         end
       end
     end
