@@ -193,6 +193,15 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
       end
     end
 
+    context "with a non-human user" do
+      let!(:user) { Discourse.system_user }
+
+      it "creates an actor" do
+        actor = described_class.update_or_create_actor(user)
+        expect(actor.reload.model_id).to eq(user.id)
+      end
+    end
+
     context "with a category" do
       let!(:category) { Fabricate(:category) }
 

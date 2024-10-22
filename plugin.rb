@@ -578,7 +578,7 @@ after_initialize do
 
   add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
   add_to_class(:user, :activity_pub_ready?) { true }
-  add_to_class(:user, :activity_pub_allowed?) { self.human? }
+  add_to_class(:user, :activity_pub_allowed?) { true }
   add_to_class(:user, :activity_pub_url) { full_url }
   add_to_class(:user, :activity_pub_icon_url) { avatar_template_url.gsub("{size}", "96") }
   add_to_class(:user, :activity_pub_save_access_token) do |domain, access_token|
