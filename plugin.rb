@@ -436,6 +436,7 @@ after_initialize do
       activity_pub_topic.first_post.activity_pub_visibility
     end
   end
+  add_to_class(:post, :activity_pub_publish?) { !whisper? }
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
@@ -546,6 +547,7 @@ after_initialize do
   PostAction.include DiscourseActivityPub::AP::ModelCallbacks
 
   add_to_class(:post_action, :activity_pub_enabled) { post.activity_pub_enabled }
+  add_to_class(:post_action, :activity_pub_publish?) { true }
   add_to_class(:post_action, :activity_pub_deleted?) { nil }
   add_to_class(:post_action, :activity_pub_published?) { !!post.activity_pub_published_at }
   add_to_class(:post_action, :activity_pub_visibility) { "public" }

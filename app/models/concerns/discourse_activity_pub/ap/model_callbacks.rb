@@ -12,7 +12,7 @@ module DiscourseActivityPub
       end
 
       def perform_activity_pub_activity(activity_type, target_activity_type = nil)
-        return nil unless DiscourseActivityPub.publishing_enabled
+        return nil unless DiscourseActivityPub.publishing_enabled && activity_pub_publish?
 
         @performing_activity = DiscourseActivityPub::AP::Object.from_type(activity_type)
 
