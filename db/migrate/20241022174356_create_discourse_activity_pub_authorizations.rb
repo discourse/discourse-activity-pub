@@ -1,9 +1,9 @@
 # frozen_string_literal: true
-class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.0]
+class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.1]
   def up
     create_table :discourse_activity_pub_authorizations do |t|
       t.integer :user_id, null: false
-      t.integer :actor_id
+      t.bigint :actor_id
       t.string :domain
       t.integer :auth_type
       t.string :token
