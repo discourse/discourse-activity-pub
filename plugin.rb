@@ -436,9 +436,7 @@ after_initialize do
       activity_pub_topic.first_post.activity_pub_visibility
     end
   end
-  add_to_class(:post, :activity_pub_publish?) do
-    !whisper?
-  end
+  add_to_class(:post, :activity_pub_publish?) { !whisper? }
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
