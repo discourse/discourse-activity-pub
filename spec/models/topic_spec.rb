@@ -41,6 +41,13 @@ RSpec.describe Topic do
     end
   end
 
+  describe "#destroy!" do
+    it "destroys associated collections" do
+      topic1.destroy!
+      expect(DiscourseActivityPubCollection.exists?(collection1.id)).to eq(false)
+    end
+  end
+
   describe "move_posts" do
     before { toggle_activity_pub(category1, publication_type: "full_topic") }
 

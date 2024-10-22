@@ -225,7 +225,10 @@ after_initialize do
     actors.as_json
   end
 
-  Topic.has_one :activity_pub_object, class_name: "DiscourseActivityPubCollection", as: :model
+  Topic.has_one :activity_pub_object,
+                class_name: "DiscourseActivityPubCollection",
+                as: :model,
+                dependent: :destroy
   Topic.include DiscourseActivityPub::AP::ModelHelpers
 
   add_to_class(:topic, :activity_pub_taxonomies) do
