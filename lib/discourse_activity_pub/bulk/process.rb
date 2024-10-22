@@ -262,9 +262,9 @@ module DiscourseActivityPub
         end
 
         if update_actors.any?
-          DiscourseActivityPubActor.upsert_all(
+          unique_upsert_all(
+            DiscourseActivityPubActor,
             update_actors,
-            unique_by: %i[ap_id],
             update_only: %i[model_type model_id],
           )
         end
@@ -475,9 +475,9 @@ module DiscourseActivityPub
         end
 
         if update_objects.any?
-          DiscourseActivityPubObject.upsert_all(
+          unique_upsert_all(
+            DiscourseActivityPubObject,
             update_objects,
-            unique_by: %i[ap_id],
             update_only: %i[model_type model_id],
           )
         end
@@ -517,9 +517,9 @@ module DiscourseActivityPub
           end
 
           if update_collections.any?
-            DiscourseActivityPubCollection.upsert_all(
+            unique_upsert_all(
+              DiscourseActivityPubCollection,
               update_collections,
-              unique_by: %i[ap_id],
               update_only: %i[model_type model_id],
             )
           end
@@ -626,9 +626,9 @@ module DiscourseActivityPub
         return {} if actor_attrs.blank?
 
         stored =
-          DiscourseActivityPubActor.upsert_all(
+          unique_upsert_all(
+            DiscourseActivityPubActor,
             actor_attrs,
-            unique_by: %i[ap_id],
             update_only: %i[domain username inbox outbox name icon_url public_key],
             returning: Arel.sql("*, (xmax = '0') as inserted"),
           )
@@ -645,9 +645,9 @@ module DiscourseActivityPub
         return {} if object_attrs.blank?
 
         stored =
-          DiscourseActivityPubObject.upsert_all(
+          unique_upsert_all(
+            DiscourseActivityPubObject,
             object_attrs,
-            unique_by: %i[ap_id],
             update_only: %i[
               content
               domain
@@ -674,9 +674,9 @@ module DiscourseActivityPub
         return {} if activity_attrs.blank?
 
         stored =
-          DiscourseActivityPubActivity.upsert_all(
+          unique_upsert_all(
+            DiscourseActivityPubActivity,
             activity_attrs,
-            unique_by: %i[ap_id],
             update_only: %i[visibility],
             returning: Arel.sql("*, (xmax = '0') as inserted"),
           )
@@ -693,9 +693,9 @@ module DiscourseActivityPub
         return {} if collection_attrs.blank?
 
         stored =
-          DiscourseActivityPubCollection.upsert_all(
+          unique_upsert_all(
+            DiscourseActivityPubCollection,
             collection_attrs,
-            unique_by: %i[ap_id],
             update_only: %i[name],
             returning: Arel.sql("*, (xmax = '0') as inserted"),
           )
@@ -753,6 +753,11 @@ module DiscourseActivityPub
         DiscourseActivityPub::Logger.info(
           I18n.t("discourse_activity_pub.bulk.process.info.#{action}_#{type}", count: count),
         )
+      end
+
+      def unique_upsert_all(klass, objects, **args)
+        objects.uniq! { |o| o[:ap_id] }
+        klass.upsert_all(objects, **args.merge(unique_by: %i[ap_id]))
       end
     end
   end
