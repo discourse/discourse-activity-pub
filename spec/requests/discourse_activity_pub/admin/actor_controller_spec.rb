@@ -296,7 +296,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
       end
 
       context "with a new username" do
-        it "returns an udpated actor" do
+        it "returns an updated actor" do
           put "/admin/plugins/ap/actor/#{actor.id}.json",
               params: {
                 actor: {
