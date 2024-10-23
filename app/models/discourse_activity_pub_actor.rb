@@ -43,6 +43,13 @@ class DiscourseActivityPubActor < ActiveRecord::Base
              foreign_key: "model_id",
              optional: true
 
+  has_one :authorization, class_name: "DiscourseActivityPubAuthorization", foreign_key: "actor_id"
+  has_one :authorized_user,
+          through: :authorization,
+          source: :user,
+          foreign_key: "user_id",
+          class_name: "User"
+
   has_many :activities,
            class_name: "DiscourseActivityPubActivity",
            foreign_key: "actor_id",

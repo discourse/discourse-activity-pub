@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module DiscourseActivityPub
-  module Auth
-    class OAuth
+  class Auth
+    class Mastodon
       class App
         attr_reader :domain, :client_id, :client_secret
 
         def initialize(domain, data)
+          return unless data.present? && data.is_a?(Hash)
           data.with_indifferent_access
 
           @domain = domain
