@@ -12,7 +12,7 @@ export default class ActivityPubActorReject extends Component {
   @action
   reject() {
     const model = this.args.model;
-    model.reject(model.actor, model.followingActor);
+    model.reject(model.actor, model.follower);
     this.args.closeModal();
   }
 }

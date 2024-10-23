@@ -136,7 +136,7 @@ en:
         label: Reject
         title: Reject follow of %{actor} via ActivityPub
         modal_title: Confirm Reject Follow
-        confirm: Are you sure you want to reject %{actor} from following %{followed_actor}?
+        confirm: Are you sure you want to reject %{follower} from following %{actor}?
       follow_table:
         actor: Actor
         user: User
