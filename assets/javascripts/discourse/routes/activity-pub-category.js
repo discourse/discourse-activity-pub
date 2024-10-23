@@ -1,19 +1,19 @@
 import { action } from "@ember/object";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import Category from "discourse/models/category";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default DiscourseRoute.extend({
-  router: service(),
+export default class ActivityPubCategory extends DiscourseRoute {
+  @service router;
 
   model(params) {
     return Category.findById(params.category_id);
-  },
+  }
 
   setupController(controller, model) {
     controller.setProperties({ model });
-  },
+  }
 
   @action
   follow(actor, followActor) {
@@ -23,7 +23,7 @@ export default DiscourseRoute.extend({
       ).model.actors.unshiftObject(followActor);
       return result;
     });
-  },
+  }
 
   @action
   unfollow(actor, followedActor) {
@@ -35,7 +35,7 @@ export default DiscourseRoute.extend({
         return result;
       }
     );
-  },
+  }
 
   @action
   reject(actor, followingActor) {
@@ -47,5 +47,5 @@ export default DiscourseRoute.extend({
         return result;
       }
     );
-  },
-});
+  }
+}
