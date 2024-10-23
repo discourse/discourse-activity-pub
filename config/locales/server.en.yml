@@ -131,6 +131,7 @@ en:
         cant_follow_target_actor: "Actor cant follow the target actor"
         username_required: An ActivityPub username is required to create an actor.
         full_topic_must_be_public: "Full topic publication requires public publication."
+        not_following_actor: "Target actor is not following the actor"
       warning:
         cant_create_model_for_actor_type: "Cannot create a model for %{actor_type} %{actor_id}"
         cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
@@ -138,6 +139,7 @@ en:
         no_options: "No options passed to ActorHandler"
         invalid_username: "Username must be %{min_length} to %{max_length} letters, numbers, dashes or underscores."
         username_taken: "That username is already taken on this server."
+        user_not_authorized: "User not authorized"
     auth:
       error:
         invalid_oauth_domain: "Invalid ActivityPub OAuth domain"

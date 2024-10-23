@@ -3,14 +3,14 @@ import { inject as service } from "@ember/service";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default DiscourseRoute.extend({
-  router: service(),
-  site: service(),
-  store: service(),
+export default class ActivityPubActorRoute extends DiscourseRoute {
+  @service router;
+  @service site;
+  @service store;
 
   model(params) {
     return ActivityPubActor.find(params.actor_id);
-  },
+  }
 
   setupController(controller, model) {
     const actor = model;
@@ -34,7 +34,7 @@ export default DiscourseRoute.extend({
       props.canCreateTopicOnTag = !actor.model.staff || this.currentUser?.staff;
     }
     controller.setProperties(props);
-  },
+  }
 
   @action
   follow(actor, followActor) {
@@ -44,7 +44,7 @@ export default DiscourseRoute.extend({
       );
       return result;
     });
-  },
+  }
 
   @action
   unfollow(actor, followedActor) {
@@ -56,5 +56,15 @@ export default DiscourseRoute.extend({
         return result;
       }
     );
-  },
-});
+  }
+
+  @action
+  reject(actor, follower) {
+    return ActivityPubActor.reject(actor.id, follower.id).then((result) => {
+      this.controllerFor(this.router.currentRouteName).actors.removeObject(
+        follower
+      );
+      return result;
+    });
+  }
+}

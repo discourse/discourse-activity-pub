@@ -35,13 +35,15 @@ Fabricator(:discourse_activity_pub_activity_reject, from: :discourse_activity_pu
 
   before_create do |activity|
     actor = self.actor || Fabricate(:discourse_activity_pub_actor_group)
+    object =
+      self.object ||
+        Fabricate(
+          :discourse_activity_pub_activity_follow,
+          actor: Fabricate(:discourse_activity_pub_actor_person),
+          object: actor,
+        )
     self.actor = actor
-    self.object =
-      Fabricate(
-        :discourse_activity_pub_activity_follow,
-        actor: Fabricate(:discourse_activity_pub_actor_person),
-        object: actor,
-      )
+    self.object = object
   end
 end
 

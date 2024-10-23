@@ -1,0 +1,24 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-actor-reject-modal"
+>
+  <:body>
+    <div class="activity-pub-actor-reject">
+      {{i18n
+        "discourse_activity_pub.actor_reject.confirm"
+        actor=@model.actor.name
+        follower=@model.follower.handle
+      }}
+    </div>
+  </:body>
+
+  <:footer>
+    <DButton
+      @action={{action "reject"}}
+      @label="discourse_activity_pub.actor_reject.label"
+      class="btn-primary"
+    />
+    <DModalCancel @close={{@closeModal}} />
+  </:footer>
+</DModal>

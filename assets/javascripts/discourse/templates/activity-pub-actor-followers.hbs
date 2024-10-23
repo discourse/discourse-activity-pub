@@ -4,7 +4,7 @@
   class="activity-pub-followers-container"
 >
   {{#if this.hasActors}}
-    <ResponsiveTable @className="activity-pub-follow-table followers">
+    <ResponsiveTable @className={{this.tableClass}}>
       <:header>
         <TableHeaderToggle
           @field="actor"
@@ -27,29 +27,50 @@
           @order={{this.order}}
           @asc={{this.asc}}
         />
+        {{#if this.currentUser.admin}}
+          <div
+            class="directory-table__column-header activity-pub-follow-table-actions"
+          >
+            <span class="text">{{i18n
+                "discourse_activity_pub.follow_table.actions"
+              }}</span>
+          </div>
+        {{/if}}
       </:header>
       <:body>
-        {{#each this.actors as |actor|}}
+        {{#each this.actors as |follower|}}
           <div class="directory-table__row activity-pub-follow-table-row">
             <div class="directory-table__cell activity-pub-follow-table-actor">
-              <ActivityPubActor @actor={{actor}} />
+              <ActivityPubActor @actor={{follower}} />
             </div>
             <div class="directory-table__cell activity-pub-follow-table-user">
-              {{#if actor.model}}
+              {{#if follower.model}}
                 <a
                   class="avatar"
-                  href={{concat "/u/" actor.model.username}}
-                  data-user-card={{actor.model.username}}
+                  href={{concat "/u/" follower.model.username}}
+                  data-user-card={{follower.model.username}}
                 >
-                  {{avatar actor.model imageSize="small"}}
+                  {{avatar follower.model imageSize="small"}}
                 </a>
               {{/if}}
             </div>
             <div
               class="directory-table__cell activity-pub-follow-table-followed-at"
             >
-              {{bound-date actor.followed_at}}
+              {{bound-date follower.followed_at}}
             </div>
+            {{#if this.currentUser.admin}}
+              <div
+                class="directory-table__cell activity-pub-follow-table-actions"
+              >
+                <ActivityPubFollowBtn
+                  @actor={{actor}}
+                  @follower={{follower}}
+                  @reject={{route-action "reject"}}
+                  @type="actor_reject"
+                />
+              </div>
+            {{/if}}
           </div>
         {{/each}}
       </:body>
