@@ -14,8 +14,8 @@ end
 # Table name: discourse_activity_pub_follows
 #
 #  id          :bigint           not null, primary key
-#  follower_id :integer          not null
-#  followed_id :integer          not null
+#  follower_id :bigint           not null
+#  followed_id :bigint           not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
