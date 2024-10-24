@@ -184,7 +184,7 @@ end
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  reply_to_id      :string
-#  collection_id    :integer
+#  collection_id    :bigint
 #  published_at     :datetime
 #  url              :string
 #  domain           :string

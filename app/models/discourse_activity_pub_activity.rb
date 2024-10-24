@@ -164,8 +164,8 @@ end
 #  ap_key       :string
 #  ap_type      :string           not null
 #  local        :boolean
-#  actor_id     :integer          not null
-#  object_id    :integer
+#  actor_id     :bigint           not null
+#  object_id    :bigint
 #  object_type  :string
 #  summary      :string
 #  published_at :datetime
