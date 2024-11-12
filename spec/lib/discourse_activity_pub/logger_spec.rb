@@ -4,17 +4,17 @@ RSpec.describe DiscourseActivityPub::Logger do
   describe "#log" do
     let!(:default_message) { "log message" }
     let!(:prefixed_message) { "#{described_class::PREFIX} #{default_message}" }
+    let(:fake_logger) { FakeLogger.new }
 
     before do
-      @orig_rails_logger = Rails.logger
       @orig_ap_logger = DiscourseActivityPub::AP.logger
-      Rails.logger = @rails_logger = FakeLogger.new
+      Rails.logger.broadcast_to(fake_logger)
       DiscourseActivityPub::AP.logger = @ap_logger = FakeLogger.new
       freeze_time
     end
 
     after do
-      Rails.logger = @orig_rails_logger
+      Rails.logger.stop_broadcasting_to(fake_logger)
       DiscourseActivityPub::AP.logger = @orig_ap_logger
     end
 
@@ -27,7 +27,7 @@ RSpec.describe DiscourseActivityPub::Logger do
 
       it "does not log anything" do
         expect(perform).to eq(nil)
-        expect(@rails_logger.errors.present?).to eq(false)
+        expect(fake_logger.errors.present?).to eq(false)
         expect(@ap_logger.errors.present?).to eq(false)
       end
     end
@@ -41,7 +41,7 @@ RSpec.describe DiscourseActivityPub::Logger do
 
       it "logs a prefixed message in rails" do
         perform
-        expect(@rails_logger.errors.first).to eq(prefixed_message)
+        expect(fake_logger.errors.first).to eq(prefixed_message)
       end
 
       it "does not log anything in activitypub" do
@@ -62,7 +62,7 @@ RSpec.describe DiscourseActivityPub::Logger do
 
           it "does not add anything to the rails log" do
             perform(json: json)
-            expect(@rails_logger.errors.first).to eq(prefixed_message)
+            expect(fake_logger.errors.first).to eq(prefixed_message)
           end
 
           it "adds a YAML representation of the JSON to the activitypub log" do
@@ -83,14 +83,14 @@ RSpec.describe DiscourseActivityPub::Logger do
 
             it "does not add anything to the rails log" do
               perform(json: json)
-              expect(@rails_logger.errors.first).to eq(prefixed_message)
+              expect(fake_logger.errors.first).to eq(prefixed_message)
             end
           end
 
           context "when not in a development environment" do
             it "adds a YAML representation of the JSON to the rails log" do
               perform(json: json)
-              expect(@rails_logger.errors.first).to eq("#{prefixed_message}\n#{json.to_yaml}")
+              expect(fake_logger.errors.first).to eq("#{prefixed_message}\n#{json.to_yaml}")
             end
           end
         end
