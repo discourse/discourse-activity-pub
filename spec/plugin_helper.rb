@@ -343,13 +343,13 @@ def expect_post(returns: true)
 end
 
 def setup_logging
+  @fake_logger = FakeLogger.new
   SiteSetting.activity_pub_verbose_logging = true
-  @orig_logger = Rails.logger
-  Rails.logger = @fake_logger = FakeLogger.new
+  Rails.logger.broadcast_to(@fake_logger)
 end
 
 def teardown_logging
-  Rails.logger = @orig_logger
+  Rails.logger.stop_broadcasting_to(@fake_logger)
   SiteSetting.activity_pub_verbose_logging = false
 end
 
