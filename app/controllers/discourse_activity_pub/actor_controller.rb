@@ -15,7 +15,7 @@ module DiscourseActivityPub
     before_action :find_actor, except: %i[find_by_user]
     before_action :ensure_model_enabled, except: %i[find_by_user]
     before_action :ensure_can_access, except: %i[find_by_user]
-    before_action :find_target_actor, only: %i[follow unfollow]
+    before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
       render_serialized(@actor, DiscourseActivityPub::ActorSerializer, include_model: true)
@@ -45,20 +45,16 @@ module DiscourseActivityPub
       end
     end
 
-    def follows
-      guardian.ensure_can_admin!(@actor)
+    def reject
+      # Currently, we only process rejections of existing follows.
+      # See further https://github.com/mastodon/mastodon/issues/5708
+      return render_actor_error("not_following_actor", 404) if !@target_actor.following?(@actor)
 
-      actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
-
-      render_actors
-    end
-
-    def followers
-      guardian.ensure_can_see!(@actor.model)
-
-      actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
-
-      render_actors
+      if FollowHandler.reject(@actor.id, @target_actor.id)
+        render json: success_json
+      else
+        render json: failed_json
+      end
     end
 
     def find_by_handle
@@ -82,6 +78,22 @@ module DiscourseActivityPub
       else
         render json: failed_json, status: 404
       end
+    end
+
+    def follows
+      guardian.ensure_can_admin!(@actor)
+
+      actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
+
+      render_actors
+    end
+
+    def followers
+      guardian.ensure_can_see!(@actor.model)
+
+      actors.each { |actor| actor.followed_at = actor.follow_follows&.first&.followed_at }
+
+      render_actors
     end
 
     protected

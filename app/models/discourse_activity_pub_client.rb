@@ -5,7 +5,7 @@ class DiscourseActivityPubClient < ActiveRecord::Base
 
   ALLOWED_CREDENTIAL_KEYS = {
     discourse: %w[public_key private_key],
-    mastodon: %w[client_id client_secret]
+    mastodon: %w[client_id client_secret],
   }
 
   DISCOURSE_SCOPE = "discourse-activity-pub:read"
@@ -63,16 +63,24 @@ class DiscourseActivityPubClient < ActiveRecord::Base
   protected
 
   def verify_credentials
-    return errors.add(:credentials, I18n.t(
-      "activerecord.errors.models.discourse_activity_pub_client.attributes.credentials.required",
-    )) if !self.credentials
+    if !self.credentials
+      return(
+        errors.add(
+          :credentials,
+          I18n.t(
+            "activerecord.errors.models.discourse_activity_pub_client.attributes.credentials.required",
+          ),
+        )
+      )
+    end
 
-    if self.credentials.keys.any? { |key|
-      ALLOWED_CREDENTIAL_KEYS[auth_type_name].exclude?(key)
-    }
-      errors.add(:credentials, I18n.t(
-        "activerecord.errors.models.discourse_activity_pub_client.attributes.credentials.invalid",
-      ))
+    if self.credentials.keys.any? { |key| ALLOWED_CREDENTIAL_KEYS[auth_type_name].exclude?(key) }
+      errors.add(
+        :credentials,
+        I18n.t(
+          "activerecord.errors.models.discourse_activity_pub_client.attributes.credentials.invalid",
+        ),
+      )
     end
     true
   end

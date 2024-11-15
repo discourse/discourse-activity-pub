@@ -31,22 +31,19 @@ class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.1]
         end
       end
 
-    clients_by_domain = DiscourseActivityPubClient
-      .where(auth_type: DiscourseActivityPubClient.auth_types[:mastodon])
-      .each_with_object({}) do |client, result|
-        result[client.domain] = client
-      end
+    clients_by_domain =
+      DiscourseActivityPubClient
+        .where(auth_type: DiscourseActivityPubClient.auth_types[:mastodon])
+        .each_with_object({}) { |client, result| result[client.domain] = client }
 
-    authorizations = DiscourseActivityPubActor
-      .where(ap_id: custom_fields_by_ap_id.keys)
-      .each_with_object([]) do |actor, result|
-        attrs = custom_fields_by_ap_id[actor.ap_id]
-        client = clients_by_domain[attrs.delete(:domain)]
-        result << attrs.merge(
-          actor_id: actor.id,
-          client_id: client.id,
-        )
-      end
+    authorizations =
+      DiscourseActivityPubActor
+        .where(ap_id: custom_fields_by_ap_id.keys)
+        .each_with_object([]) do |actor, result|
+          attrs = custom_fields_by_ap_id[actor.ap_id]
+          client = clients_by_domain[attrs.delete(:domain)]
+          result << attrs.merge(actor_id: actor.id, client_id: client.id)
+        end
 
     DiscourseActivityPubAuthorization.insert_all(authorizations) if authorizations.present?
   end

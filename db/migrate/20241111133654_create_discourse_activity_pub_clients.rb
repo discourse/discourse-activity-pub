@@ -8,7 +8,7 @@ class CreateDiscourseActivityPubClients < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
- 
+
     execute <<~SQL
       INSERT INTO discourse_activity_pub_clients(auth_type, domain, credentials)
       SELECT #{DiscourseActivityPubClient.auth_types[:mastodon]}, key, value::json
@@ -17,8 +17,8 @@ class CreateDiscourseActivityPubClients < ActiveRecord::Migration[7.1]
     SQL
 
     add_index :discourse_activity_pub_clients,
-      %i[auth_type domain],
-      unique: true,
-      name: "unique_activity_pub_client_auth_domains"
+              %i[auth_type domain],
+              unique: true,
+              name: "unique_activity_pub_client_auth_domains"
   end
 end
