@@ -35,7 +35,6 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/auth"
   require_relative "lib/discourse_activity_pub/auth/discourse"
   require_relative "lib/discourse_activity_pub/auth/mastodon"
-  require_relative "lib/discourse_activity_pub/auth/mastodon/app"
   require_relative "lib/discourse_activity_pub/webfinger/handle"
   require_relative "lib/discourse_activity_pub/activity_forwarder"
   require_relative "lib/discourse_activity_pub/logger"
@@ -76,6 +75,7 @@ after_initialize do
   require_relative "app/models/discourse_activity_pub_actor"
   require_relative "app/models/discourse_activity_pub_activity"
   require_relative "app/models/discourse_activity_pub_authorization"
+  require_relative "app/models/discourse_activity_pub_client"
   require_relative "app/models/discourse_activity_pub_follow"
   require_relative "app/models/discourse_activity_pub_object"
   require_relative "app/models/discourse_activity_pub_collection"
@@ -1107,4 +1107,8 @@ after_initialize do
       end
     end
   end
+
+  add_user_api_key_scope(:read, methods: :get, actions: "discourse_activity_pub/actor#find_by_user")
+  DiscourseActivityPubClient.update_scope_settings
+  on_enabled_change { DiscourseActivityPubClient.update_scope_settings }
 end

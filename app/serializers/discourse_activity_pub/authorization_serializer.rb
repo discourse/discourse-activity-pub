@@ -7,7 +7,7 @@ module DiscourseActivityPub
     has_one :actor, serializer: BasicActorSerializer, embed: :objects
 
     def auth_type
-      DiscourseActivityPubAuthorization.auth_types[object.auth_type].to_s
+      DiscourseActivityPubClient.auth_types[object.client.auth_type].to_s
     end
   end
 end

@@ -4,23 +4,16 @@ class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.1]
     create_table :discourse_activity_pub_authorizations do |t|
       t.integer :user_id, null: false
       t.bigint :actor_id
-      t.string :domain
-      t.integer :auth_type
+      t.bigint :client_id
       t.string :token
-      t.text :private_key
-      t.text :public_key
 
       t.timestamps
     end
 
-    add_foreign_key :discourse_activity_pub_authorizations, :users, column: :user_id
-    add_foreign_key :discourse_activity_pub_authorizations,
-                    :discourse_activity_pub_actors,
-                    column: :actor_id
     add_index :discourse_activity_pub_authorizations,
-              %i[actor_id],
+              %i[user_id actor_id],
               unique: true,
-              name: "unique_activity_pub_authorization_actors"
+              name: "unique_activity_pub_authorization_user_actors"
 
     users =
       User.joins("INNER JOIN user_custom_fields ucf ON ucf.user_id = users.id").where(
@@ -38,13 +31,20 @@ class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.1]
         end
       end
 
-    authorizations = []
-    DiscourseActivityPubActor
+    clients_by_domain = DiscourseActivityPubClient
+      .where(auth_type: DiscourseActivityPubClient.auth_types[:mastodon])
+      .each_with_object({}) do |client, result|
+        result[client.domain] = client
+      end
+
+    authorizations = DiscourseActivityPubActor
       .where(ap_id: custom_fields_by_ap_id.keys)
-      .each do |actor|
-        authorizations << custom_fields_by_ap_id[actor.ap_id].merge(
+      .each_with_object([]) do |actor, result|
+        attrs = custom_fields_by_ap_id[actor.ap_id]
+        client = clients_by_domain[attrs.delete(:domain)]
+        result << attrs.merge(
           actor_id: actor.id,
-          auth_type: DiscourseActivityPubAuthorization.auth_types[:mastodon],
+          client_id: client.id,
         )
       end
 

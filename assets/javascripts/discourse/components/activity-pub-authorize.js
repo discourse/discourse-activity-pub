@@ -90,7 +90,7 @@ export default class ActivityPubAuthorize extends Component {
         domain: this.domain,
         auth_type: this.authType,
       },
-      type: "POST",
+      type: "post",
     })
       .then(() => {
         this.verifiedDomain = true;
