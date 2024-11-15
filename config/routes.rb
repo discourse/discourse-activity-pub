@@ -9,7 +9,6 @@ DiscourseActivityPub::Engine.routes.draw do
   get "/auth" => "authorization#index", :defaults => { format: :json }
   scope "/auth", defaults: { format: :json } do
     post "verify" => "authorization#verify"
-    get "verify-redirect" => "authorization#verify_redirect"
     get "authorize/:auth_type" => "authorization#authorize"
     get "redirect/:auth_type" => "authorization#redirect"
     delete "destroy/:auth_id" => "authorization#destroy"

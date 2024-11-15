@@ -3,13 +3,40 @@
 module DiscourseActivityPub
   class Auth
     class Discourse < Auth
-      SCOPE = "read"
       FIND_ACTOR_BY_USER_PATH = "ap/local/actor/find-by-user"
+      CLIENT_PATH = "user-api-key-client"
 
-      def verify
-        unless verify_redirect
-          auth_error("failed_to_verify_redirect", auth_redirect: auth_redirect, domain: domain)
-        end
+      def name
+        "discourse"
+      end
+
+      def check_client
+        request(
+          "#{CLIENT_PATH}?client_id=#{DiscourseActivityPubActor.application.ap_id}",
+          verb: :head,
+        )
+      end
+
+      def register_client
+        keypair = OpenSSL::PKey::RSA.new(2048)
+        private_key = keypair.to_pem
+        public_key = keypair.public_key.to_pem
+
+        response =
+          request(
+            CLIENT_PATH,
+            verb: :post,
+            body: {
+              public_key: public_key,
+              client_id: DiscourseActivityPubActor.application.ap_id,
+              application_name: SiteSetting.title,
+              auth_redirect: auth_redirect,
+              scopes: DiscourseActivityPubClient::DISCOURSE_SCOPE,
+            },
+          )
+        return nil unless response && response["success"]
+
+        { public_key: public_key, private_key: private_key }
       end
 
       def nonce
@@ -17,17 +44,14 @@ module DiscourseActivityPub
       end
 
       def get_authorize_url
-        return auth_error("authorization_required") unless authorization
-
         uri = DiscourseActivityPub::URI.parse("https://#{domain}/user-api-key/new")
-        rsa = OpenSSL::PKey::RSA.new(authorization.private_key)
         params = {
-          public_key: rsa.public_key,
+          public_key: client.credentials[:public_key],
           client_id: client_id,
           nonce: nonce,
           auth_redirect: auth_redirect,
           application_name: SiteSetting.title,
-          scopes: SCOPE,
+          scopes: DiscourseActivityPubClient::DISCOURSE_SCOPE,
         }
         uri.query = ::URI.encode_www_form(params)
         uri.to_s
@@ -51,14 +75,8 @@ module DiscourseActivityPub
 
       protected
 
-      def verify_redirect
-        params = { auth_redirect: auth_redirect }
-        path = "ap/auth/verify-redirect"
-        request(path, verb: :get, params: params)
-      end
-
       def client_id
-        @client_id ||= "#{DiscourseActivityPub.host}-activity-pub-#{secure_random_hex(16)}"
+        @client_id ||= DiscourseActivityPubActor.application.ap_id
       end
 
       def auth_redirect
@@ -66,7 +84,7 @@ module DiscourseActivityPub
       end
 
       def decrypt_payload(params = {})
-        rsa = OpenSSL::PKey::RSA.new(authorization.private_key)
+        rsa = OpenSSL::PKey::RSA.new(authorization.client.credentials["private_key"])
         decrypted_payload = rsa.private_decrypt(Base64.decode64(params[:payload]))
 
         return auth_error("failed_to_decrypt_payload") unless decrypted_payload

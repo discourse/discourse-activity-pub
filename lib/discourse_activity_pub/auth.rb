@@ -8,9 +8,31 @@ module DiscourseActivityPub
     attr_reader :domain
     attr_accessor :auth_id
 
-    def initialize(domain: nil, auth_id: nil)
+    def initialize(domain: nil)
       @domain = domain
-      @auth_id = auth_id
+    end
+
+    def verify_client
+      @client = create_client if !client
+      auth_error("failed_to_verify_client") unless check_client
+    end
+
+    def auth_type
+      DiscourseActivityPubClient.auth_types[name.to_sym]
+    end
+
+    def client
+      @client ||= DiscourseActivityPubClient.find_by(auth_type: auth_type, domain: domain)
+    end
+
+    def create_client
+      credentials = register_client
+      return nil unless credentials
+      DiscourseActivityPubClient.create!(
+        auth_type: auth_type,
+        domain: domain,
+        credentials: credentials,
+      )
     end
 
     def authorization
@@ -21,7 +43,7 @@ module DiscourseActivityPub
       errors.blank?
     end
 
-    def verify
+    def register_client
       raise NotImplementedError
     end
 
@@ -41,16 +63,16 @@ module DiscourseActivityPub
       new(domain: domain).verify
     end
 
-    def self.get_authorize_url(domain: nil, auth_id: nil)
-      new(domain: domain, auth_id: auth_id).get_authorize_url
+    def self.get_authorize_url(domain: nil)
+      new(domain: domain).get_authorize_url
     end
 
-    def self.get_token(domain: nil, auth_id: nil, params: {})
-      new(domain: domain, auth_id: auth_id).get_token(params)
+    def self.get_token(domain: nil, params: {})
+      new(domain: domain).get_token(params)
     end
 
-    def self.get_actor_ap_id(domain: nil, auth_id: nil, token: nil)
-      new(domain: domain, auth_id: auth_id).get_actor_ap_id(token)
+    def self.get_actor_ap_id(domain: nil, token: nil)
+      new(domain: domain).get_actor_ap_id(token)
     end
 
     protected
