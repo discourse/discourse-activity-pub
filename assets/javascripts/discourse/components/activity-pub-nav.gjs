@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import NavItem from "discourse/components/nav-item";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 
