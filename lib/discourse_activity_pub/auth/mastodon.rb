@@ -6,12 +6,23 @@ module DiscourseActivityPub
       REDIRECT_PATH = "ap/auth/redirect/mastodon"
       AUTHORIZE_PATH = "oauth/authorize"
       APP_PATH = "api/v1/apps"
+      APP_CHECK_PATH = "api/v1/apps/verify_credentials"
       TOKEN_PATH = "oauth/token"
       ACCOUNT_PATH = "api/v1/accounts/verify_credentials"
       SCOPES = "read:accounts"
 
       def name
         "mastodon"
+      end
+
+      def check_client
+        request(
+          APP_CHECK_PATH,
+          verb: :get,
+          headers: {
+            "Authorization" => "Bearer #{client.credentials["client_secret"]}",
+          },
+        )
       end
 
       def register_client

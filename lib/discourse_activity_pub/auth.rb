@@ -13,8 +13,8 @@ module DiscourseActivityPub
     end
 
     def verify_client
-      @client = create_client if !client
-      auth_error("failed_to_verify_client") unless check_client
+      create_client if !client
+      auth_error("failed_to_verify_client") unless client && check_client
     end
 
     def auth_type
@@ -28,11 +28,12 @@ module DiscourseActivityPub
     def create_client
       credentials = register_client
       return nil unless credentials
-      DiscourseActivityPubClient.create!(
-        auth_type: auth_type,
-        domain: domain,
-        credentials: credentials,
-      )
+      @client =
+        DiscourseActivityPubClient.create!(
+          auth_type: auth_type,
+          domain: domain,
+          credentials: credentials,
+        )
     end
 
     def authorization
@@ -41,6 +42,10 @@ module DiscourseActivityPub
 
     def success?
       errors.blank?
+    end
+
+    def check_client
+      raise NotImplementedError
     end
 
     def register_client

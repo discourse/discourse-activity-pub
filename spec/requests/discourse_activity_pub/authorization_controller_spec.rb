@@ -100,25 +100,34 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           )
         end
 
-        it "returns the domain" do
-          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
-          expect(response.status).to eq(200)
-          expect(response.parsed_body["domain"]).to eq(external_domain1)
-        end
+        context "when the domain verifies the app" do
+          before do
+            stub_request(
+              :get,
+              "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Mastodon::APP_CHECK_PATH}",
+            ).to_return(status: 200)
+          end
 
-        it "sets the domain as the verified domain in the session" do
-          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
-          expect(read_secure_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
-        end
+          it "returns the domain" do
+            post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
+            expect(response.status).to eq(200)
+            expect(response.parsed_body["domain"]).to eq(external_domain1)
+          end
 
-        it "creates a client" do
-          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
-          client =
-            DiscourseActivityPubClient.find_by(
-              domain: external_domain1,
-              auth_type: DiscourseActivityPubClient.auth_types[:mastodon],
-            )
-          expect(client.credentials["client_id"]).to eq(mastodon_client_id)
+          it "sets the domain as the verified domain in the session" do
+            post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
+            expect(read_secure_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
+          end
+
+          it "creates a client" do
+            post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
+            client =
+              DiscourseActivityPubClient.find_by(
+                domain: external_domain1,
+                auth_type: DiscourseActivityPubClient.auth_types[:mastodon],
+              )
+            expect(client.credentials["client_id"]).to eq(mastodon_client_id)
+          end
         end
       end
 
@@ -128,13 +137,17 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
             :post,
             "https://#{external_domain2}/#{DiscourseActivityPub::Auth::Mastodon::APP_PATH}",
           ).to_return(status: 400)
+          stub_request(
+            :get,
+            "https://#{external_domain2}/#{DiscourseActivityPub::Auth::Mastodon::APP_CHECK_PATH}",
+          ).to_return(status: 400)
         end
 
         it "returns an error" do
           post "/ap/auth/verify", params: { domain: external_domain2, auth_type: "mastodon" }
           expect(response.status).to eq(422)
           expect(response.parsed_body["errors"].first).to eq(
-            I18n.t("discourse_activity_pub.auth.error.failed_to_register_client"),
+            I18n.t("discourse_activity_pub.auth.error.failed_to_verify_client"),
           )
         end
 
@@ -157,9 +170,13 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
       context "with a successful client registration" do
         before do
           stub_request(
+            :head,
+            "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Discourse::CLIENT_PATH}?client_id=#{DiscourseActivityPubActor.application.ap_id}",
+          )
+          stub_request(
             :post,
             "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Discourse::CLIENT_PATH}",
-          ).to_return(status: 200)
+          ).to_return(body: { "success" => "OK" }.to_json, status: 200)
         end
 
         it "returns the domain" do
