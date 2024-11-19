@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import I18n from "I18n";
 import ActivityPubActor from "../../models/activity-pub-actor";
 import ActivityPubWebfinger from "../../models/activity-pub-webfinger";
