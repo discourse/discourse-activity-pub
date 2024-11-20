@@ -4,7 +4,7 @@
     {{i18n "user.discourse_activity_pub.authorize.description"}}
   </label>
   <div class="activity-pub-authorize-controls">
-    {{#if verifiedDomain}}
+    {{#if this.verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
         <a class="btn">{{this.domain}}</a>
         <DButton
