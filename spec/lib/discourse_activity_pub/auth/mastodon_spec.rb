@@ -55,11 +55,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
   end
   # https://docs.joinmastodon.org/methods/oauth/#200-ok-1
   let!(:client_token_response_body) do
-    {
-      access_token: client_access_token,
-      token_type: "Bearer",
-      created_at: 1_573_979_017,
-    }
+    { access_token: client_access_token, token_type: "Bearer", created_at: 1_573_979_017 }
   end
   let!(:token_response_body) do
     {
@@ -136,20 +132,21 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
 
         it "saves the client" do
           DiscourseActivityPub::Auth::Mastodon.create_client(domain1)
-          client = DiscourseActivityPubClient.find_by(
-            auth_type: DiscourseActivityPubClient.auth_types[:mastodon],
-            domain: domain1
-          )
+          client =
+            DiscourseActivityPubClient.find_by(
+              auth_type: DiscourseActivityPubClient.auth_types[:mastodon],
+              domain: domain1,
+            )
           expect(client).to be_present
-          expect(client.credentials['client_id']).to eq(client_id)
-          expect(client.credentials['client_secret']).to eq(client_secret)
-          expect(client.credentials['access_token']).to eq(client_access_token)
+          expect(client.credentials["client_id"]).to eq(client_id)
+          expect(client.credentials["client_secret"]).to eq(client_secret)
+          expect(client.credentials["access_token"]).to eq(client_access_token)
         end
 
         it "returns the client" do
-          expect(
-            DiscourseActivityPub::Auth::Mastodon.create_client(domain1)
-          ).to be_an_instance_of(DiscourseActivityPubClient)
+          expect(DiscourseActivityPub::Auth::Mastodon.create_client(domain1)).to be_an_instance_of(
+            DiscourseActivityPubClient,
+          )
         end
       end
 
@@ -164,9 +161,9 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
         end
 
         it "does not save a client" do
-          expect {
-            DiscourseActivityPub::Auth::Mastodon.create_client(domain1)
-          }.not_to change { DiscourseActivityPubClient.count }
+          expect { DiscourseActivityPub::Auth::Mastodon.create_client(domain1) }.not_to change {
+            DiscourseActivityPubClient.count
+          }
         end
 
         it "returns nil" do
@@ -194,9 +191,9 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       end
 
       it "does not save a client" do
-        expect {
-          DiscourseActivityPub::Auth::Mastodon.create_client(domain1)
-        }.not_to change { DiscourseActivityPubClient.count }
+        expect { DiscourseActivityPub::Auth::Mastodon.create_client(domain1) }.not_to change {
+          DiscourseActivityPubClient.count
+        }
       end
 
       it "returns nil" do
@@ -220,13 +217,14 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
 
     context "with a client for the domain" do
       let!(:client) do
-        Fabricate(:discourse_activity_pub_client_mastodon,
+        Fabricate(
+          :discourse_activity_pub_client_mastodon,
           domain: domain1,
           credentials: {
             client_id: client_id,
             client_secret: client_secret,
-            access_token: access_token
-          }.as_json
+            access_token: access_token,
+          }.as_json,
         )
       end
 
@@ -248,13 +246,14 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
 
     context "with a client for the domain" do
       let!(:client) do
-        Fabricate(:discourse_activity_pub_client_mastodon,
+        Fabricate(
+          :discourse_activity_pub_client_mastodon,
           domain: domain1,
           credentials: {
             client_id: client_id,
             client_secret: client_secret,
-            access_token: access_token
-          }.as_json
+            access_token: access_token,
+          }.as_json,
         )
       end
 
@@ -269,7 +268,9 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
         end
 
         it "returns an access token" do
-          expect(DiscourseActivityPub::Auth::Mastodon.get_token(domain1, { code: code })).to eq(access_token)
+          expect(DiscourseActivityPub::Auth::Mastodon.get_token(domain1, { code: code })).to eq(
+            access_token,
+          )
         end
       end
 
@@ -333,7 +334,9 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       end
 
       it "returns nil" do
-        expect(DiscourseActivityPub::Auth::Mastodon.get_actor_ap_id(domain1, access_token)).to eq(nil)
+        expect(DiscourseActivityPub::Auth::Mastodon.get_actor_ap_id(domain1, access_token)).to eq(
+          nil,
+        )
       end
 
       it "adds errors to the instance" do
