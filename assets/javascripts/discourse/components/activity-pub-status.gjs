@@ -1,6 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
 import icon from "discourse-common/helpers/d-icon";
 import { bind } from "discourse-common/utils/decorators";
@@ -33,6 +33,11 @@ export default class ActivityPubStatus extends Component {
     }
   }
 
+  willDestroy() {
+    super.willDestroy(...arguments);
+    this.messageBus.unsubscribe("/activity-pub", this.handleMessage);
+  }
+
   findActor() {
     const category = this.forComposer
       ? this.args.model.category
@@ -54,11 +59,6 @@ export default class ActivityPubStatus extends Component {
     }
 
     return actor;
-  }
-
-  willDestroy() {
-    super.willDestroy(...arguments);
-    this.messageBus.unsubscribe("/activity-pub", this.handleMessage);
   }
 
   @bind

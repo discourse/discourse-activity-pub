@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
 import icon from "discourse-common/helpers/d-icon";
 import getURL from "discourse-common/lib/get-url";

@@ -8,12 +8,12 @@
       <span class="activity-pub-state">{{d-icon
           this.stateIcon
         }}{{this.stateText}}</span>
-      {{#if showVisibility}}
+      {{#if this.showVisibility}}
         <span class="activity-pub-visibility">{{d-icon
             this.visibilityIcon
           }}{{this.visibilityText}}</span>
       {{/if}}
-      {{#if showUrl}}
+      {{#if this.showUrl}}
         <span class="activity-pub-url">
           <a
             href={{@model.post.activity_pub_url}}
@@ -25,7 +25,7 @@
           </a>
         </span>
       {{/if}}
-      {{#if showObjectId}}
+      {{#if this.showObjectId}}
         <span class="activity-pub-object-id">
           {{d-icon "link"}}
           <span>{{@model.post.activity_pub_object_id}}</span>

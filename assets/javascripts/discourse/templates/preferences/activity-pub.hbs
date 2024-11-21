@@ -1,4 +1,4 @@
-<DSection @pageClass="user-preferences-activity-pub" />
+{{body-class "user-preferences-activity-pub-page"}}
 
 <div class="control-group user-actors">
   <label class="control-label">{{i18n
@@ -10,7 +10,7 @@
   </div>
 </div>
 
-{{#if hasAuthorizations}}
+{{#if this.hasAuthorizations}}
   <div class="activity-pub-authorizations">
     <ResponsiveTable @className="activity-pub-actor-table authorizations">
       <:header>

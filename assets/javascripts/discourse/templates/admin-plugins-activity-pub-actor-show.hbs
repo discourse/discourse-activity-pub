@@ -1,6 +1,6 @@
 <div class={{this.containerClass}}>
   <div class="admin-title activity-pub-actor-title">
-    <h2>{{titleLabel}}</h2>
+    <h2>{{this.titleLabel}}</h2>
   </div>
 
   <div class="activity-pub-actor-header">
@@ -182,7 +182,7 @@
         @action={{action "saveActor"}}
         @label="admin.discourse_activity_pub.actor.save.label"
         @title="admin.discourse_activity_pub.actor.save.title"
-        @class="activity-pub-save-actor btn-primary"
+        class="activity-pub-save-actor btn-primary"
         @disabled={{not this.canSave}}
       />
     {{/if}}
