@@ -34,6 +34,10 @@ en:
       error:
         edit_after_publication: Edit of an ActivityPub note after publication is not currently supported.
 
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub" 
+
   discourse_activity_pub:
     not_enabled: "ActivityPub is not enabled"
     request:
