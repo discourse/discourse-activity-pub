@@ -11,6 +11,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
   let!(:mastodon_client_secret) { "ZEaFUFmF0umgBX1qKJDjaU99Q31lDkOU8NutzTOoliw" }
   let!(:mastodon_access_token) { "ZA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
   let!(:mastodon_code) { "123456" }
+  let!(:mastodon_client_access_token) { "BA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
   let!(:mastodon_app_json) do
     {
       id: "563419",
@@ -106,6 +107,10 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
               :get,
               "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Mastodon::APP_CHECK_PATH}",
             ).to_return(status: 200)
+            stub_request(
+              :post,
+              "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Mastodon::TOKEN_PATH}",
+            ).to_return(status: 200, body: { access_token: mastodon_client_access_token }.to_json)
           end
 
           it "returns the domain" do
@@ -237,7 +242,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           it "redirects to the authorize url for the app" do
             get "/ap/auth/authorize/mastodon", params: { domain: external_domain1 }
             expect(response).to redirect_to(
-              DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain: external_domain1),
+              DiscourseActivityPub::Auth::Mastodon.get_authorize_url(external_domain1),
             )
           end
         end
@@ -278,7 +283,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
         it "redirects to the authorize url for the app" do
           get "/ap/auth/authorize/discourse"
           expect(response).to redirect_to(
-            DiscourseActivityPub::Auth::Discourse.get_authorize_url(domain: external_domain1),
+            DiscourseActivityPub::Auth::Discourse.get_authorize_url(external_domain1),
           )
         end
       end
