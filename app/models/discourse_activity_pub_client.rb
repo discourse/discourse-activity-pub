@@ -5,7 +5,7 @@ class DiscourseActivityPubClient < ActiveRecord::Base
 
   ALLOWED_CREDENTIAL_KEYS = {
     discourse: %w[public_key private_key],
-    mastodon: %w[client_id client_secret],
+    mastodon: %w[client_id client_secret access_token],
   }
 
   DISCOURSE_SCOPE = "discourse-activity-pub:read"

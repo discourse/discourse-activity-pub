@@ -9,7 +9,7 @@ module DiscourseActivityPub
       APP_CHECK_PATH = "api/v1/apps/verify_credentials"
       TOKEN_PATH = "oauth/token"
       ACCOUNT_PATH = "api/v1/accounts/verify_credentials"
-      SCOPES = "read:accounts"
+      SCOPES = "read"
 
       def name
         "mastodon"
@@ -20,13 +20,13 @@ module DiscourseActivityPub
           APP_CHECK_PATH,
           verb: :get,
           headers: {
-            "Authorization" => "Bearer #{client.credentials["client_secret"]}",
+            "Authorization" => "Bearer #{client.credentials["access_token"]}",
           },
         )
       end
 
       def register_client
-        response =
+        client_response =
           request(
             APP_PATH,
             body: {
@@ -36,11 +36,28 @@ module DiscourseActivityPub
               website: DiscourseActivityPub.base_url,
             },
           )
-        return nil unless response
-        response.slice(:client_id, :client_secret)
+        return nil unless client_response
+        credentials = client_response.slice(:client_id, :client_secret)
+
+        token_response =
+          request(
+            TOKEN_PATH,
+            body: {
+              grant_type: "client_credentials",
+              client_id: credentials[:client_id],
+              client_secret: credentials[:client_secret],
+              scope: SCOPES,
+            },
+          )
+        return nil unless token_response
+        credentials[:access_token] = token_response[:access_token]
+
+        credentials
       end
 
       def get_authorize_url
+        return nil unless client
+
         uri = DiscourseActivityPub::URI.parse("https://#{domain}/#{AUTHORIZE_PATH}")
         uri.query =
           ::URI.encode_www_form(
@@ -54,6 +71,8 @@ module DiscourseActivityPub
       end
 
       def get_token(params = {})
+        return nil unless client
+
         code = params[:code]
         return auth_error("invalid_redirect_params") unless code
 

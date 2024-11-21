@@ -64,19 +64,19 @@ module DiscourseActivityPub
       raise NotImplementedError
     end
 
-    def self.verify(domain)
-      new(domain: domain).verify
+    def self.create_client(domain)
+      new(domain: domain).create_client
     end
 
-    def self.get_authorize_url(domain: nil)
+    def self.get_authorize_url(domain)
       new(domain: domain).get_authorize_url
     end
 
-    def self.get_token(domain: nil, params: {})
+    def self.get_token(domain, params = {})
       new(domain: domain).get_token(params)
     end
 
-    def self.get_actor_ap_id(domain: nil, token: nil)
+    def self.get_actor_ap_id(domain, token)
       new(domain: domain).get_actor_ap_id(token)
     end
 
