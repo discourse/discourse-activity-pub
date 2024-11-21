@@ -12,10 +12,15 @@ end
 #
 # Table name: discourse_activity_pub_authorizations
 #
-#  id          :bigint           not null, primary key
-#  user_id     :integer          not null
-#  actor_id    :integer
-#  token       :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :bigint           not null, primary key
+#  user_id    :integer          not null
+#  actor_id   :bigint
+#  client_id  :bigint
+#  token      :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  unique_activity_pub_authorization_user_actors  (user_id,actor_id) UNIQUE
 #

@@ -1,4 +1,4 @@
-<div class={{containerClass}}>
+<div class={{this.containerClass}}>
   <div class="controls">
     <ComboBox
       @id="user_activity_pub_authorize_auth_type"
@@ -11,7 +11,7 @@
         none="user.discourse_activity_pub.authorize.auth_type.none.label"
       }}
     />
-    {{#if verifiedDomain}}
+    {{#if this.verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
         <span>{{this.domain}}</span>
         <DButton

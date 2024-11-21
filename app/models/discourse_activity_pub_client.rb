@@ -88,13 +88,16 @@ end
 
 # == Schema Information
 #
-# Table name: discourse_activity_pub_authorization_clients
+# Table name: discourse_activity_pub_clients
 #
 #  id          :bigint           not null, primary key
-#  domain      :string
-#  auth_type   :integer
-#  private_key :text
-#  public_key  :text
+#  auth_type   :integer          not null
+#  domain      :string           not null
+#  credentials :json             not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#
+# Indexes
+#
+#  unique_activity_pub_client_auth_domains  (auth_type,domain) UNIQUE
 #
