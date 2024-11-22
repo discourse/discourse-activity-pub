@@ -8,7 +8,7 @@ RSpec.describe DiscourseActivityPub::Auth::Discourse do
   let!(:keypair) { OpenSSL::PKey::RSA.new(2048) }
   let!(:public_key) { keypair.public_key.to_pem }
   let!(:private_key) { keypair.to_pem }
-  let!(:client_request_body) {
+  let!(:client_request_body) do
     {
       public_key: public_key,
       client_id: DiscourseActivityPubActor.application.ap_id,
@@ -16,7 +16,7 @@ RSpec.describe DiscourseActivityPub::Auth::Discourse do
       auth_redirect: redirect_uri,
       scopes: DiscourseActivityPubClient::DISCOURSE_SCOPE,
     }
-  }
+  end
 
   def build_response(body: {}, status: 200)
     Excon::Response.new(body: body.to_json, status: status)
@@ -71,9 +71,7 @@ RSpec.describe DiscourseActivityPub::Auth::Discourse do
       end
 
       it "returns the client" do
-        expect(perform(domain1)).to be_an_instance_of(
-          DiscourseActivityPubClient,
-        )
+        expect(perform(domain1)).to be_an_instance_of(DiscourseActivityPubClient)
       end
     end
 
@@ -88,9 +86,7 @@ RSpec.describe DiscourseActivityPub::Auth::Discourse do
       end
 
       it "does not save a client" do
-        expect { perform(domain1) }.not_to change {
-          DiscourseActivityPubClient.count
-        }
+        expect { perform(domain1) }.not_to change { DiscourseActivityPubClient.count }
       end
 
       it "returns nil" do
