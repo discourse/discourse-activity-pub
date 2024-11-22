@@ -5,9 +5,16 @@ module DiscourseActivityPub
     class Discourse < Auth
       FIND_ACTOR_BY_USER_PATH = "ap/local/actor/find-by-user"
       CLIENT_PATH = "user-api-key-client"
+      REDIRECT_PATH = "ap/auth/redirect/discourse"
+
+      attr_writer :keypair
 
       def name
         "discourse"
+      end
+
+      def keypair
+        @keypair ||= OpenSSL::PKey::RSA.new(2048)
       end
 
       def check_client
@@ -18,16 +25,12 @@ module DiscourseActivityPub
       end
 
       def register_client
-        keypair = OpenSSL::PKey::RSA.new(2048)
-        private_key = keypair.to_pem
-        public_key = keypair.public_key.to_pem
-
         response =
           request(
             CLIENT_PATH,
             verb: :post,
             body: {
-              public_key: public_key,
+              public_key: keypair.public_key.to_pem,
               client_id: DiscourseActivityPubActor.application.ap_id,
               application_name: SiteSetting.title,
               auth_redirect: auth_redirect,
@@ -36,7 +39,7 @@ module DiscourseActivityPub
           )
         return nil unless response && response["success"]
 
-        { public_key: public_key, private_key: private_key }
+        { public_key: keypair.public_key.to_pem, private_key: keypair.to_pem }
       end
 
       def nonce
@@ -80,7 +83,7 @@ module DiscourseActivityPub
       end
 
       def auth_redirect
-        @auth_redirect ||= "#{DiscourseActivityPub.base_url}/ap/auth/redirect/discourse"
+        @auth_redirect ||= "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}"
       end
 
       def decrypt_payload(params = {})
