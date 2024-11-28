@@ -31,8 +31,8 @@ acceptance(
     test("with a non-category route", async function (assert) {
       await visit("/latest");
 
-      assert.ok(
-        !exists(".activity-pub-discovery"),
+      assert.notOk(
+        exists(".activity-pub-discovery"),
         "the discovery button is not visible"
       );
     });
@@ -42,8 +42,8 @@ acceptance(
 
       await visit(category.url);
 
-      assert.ok(
-        !exists(".activity-pub-category-nav.visible"),
+      assert.notOk(
+        exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -54,8 +54,8 @@ acceptance(
 
       await visit(category.url);
 
-      assert.ok(
-        !exists(".activity-pub-category-nav.visible"),
+      assert.notOk(
+        exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -111,8 +111,8 @@ acceptance(
 
       await visit("/latest");
 
-      assert.ok(
-        !exists(".activity-pub-category-nav.visible"),
+      assert.notOk(
+        exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -124,8 +124,8 @@ acceptance(
 
       await visit(category.url);
 
-      assert.ok(
-        !exists(".activity-pub-category-nav.visible"),
+      assert.notOk(
+        exists(".activity-pub-category-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -179,8 +179,8 @@ acceptance(
       await categoryDrop.expand();
       await categoryDrop.selectRowByValue(7);
 
-      assert.ok(
-        !exists(".activity-pub-route-nav.visible"),
+      assert.notOk(
+        exists(".activity-pub-route-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -202,8 +202,8 @@ acceptance(
       await tagDrop.expand();
       await tagDrop.selectRowByName("dog");
 
-      assert.ok(
-        !exists(".activity-pub-route-nav.visible"),
+      assert.notOk(
+        exists(".activity-pub-route-nav.visible"),
         "the activitypub nav button is not visible"
       );
     });
@@ -230,8 +230,8 @@ acceptance(
       await visit(category.url);
       await click(".activity-pub-route-nav");
 
-      assert.ok(
-        !exists(".activity-pub-banner"),
+      assert.notOk(
+        exists(".activity-pub-banner"),
         "the activitypub banner is not visible"
       );
     });
@@ -279,8 +279,8 @@ acceptance(
     test("with activity pub ready", async function (assert) {
       await visit(followersPath);
 
-      assert.ok(
-        !exists(".activity-pub-follow-table.followers"),
+      assert.notOk(
+        exists(".activity-pub-follow-table.followers"),
         "the activitypub followers table is not visible"
       );
       assert.equal(

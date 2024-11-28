@@ -24,8 +24,8 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     await visit("/");
     await click("#create-topic");
 
-    assert.ok(
-      !exists("#reply-control .activity-pub-status"),
+    assert.notOk(
+      exists("#reply-control .activity-pub-status"),
       "the status label is not visible"
     );
   });
@@ -69,8 +69,8 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     await categoryChooser.expand();
     await categoryChooser.selectRowByValue(2);
 
-    assert.ok(
-      !exists("#reply-control .activity-pub-status"),
+    assert.notOk(
+      exists("#reply-control .activity-pub-status"),
       "the status label is not visible"
     );
   });

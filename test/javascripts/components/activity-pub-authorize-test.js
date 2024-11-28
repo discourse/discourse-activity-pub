@@ -84,9 +84,8 @@ module(
       await click("#user_activity_pub_authorize_verify_domain");
       await click("#user_activity_pub_authorize_authorize_domain");
 
-      assert.strictEqual(
+      assert.true(
         openStub.calledWith("/ap/auth/oauth/authorize", "_self"),
-        true,
         "it loads the authorize route in the current tab"
       );
     });

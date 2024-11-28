@@ -76,9 +76,8 @@ module(
       const url = `https://${domain}/authorize_interaction?uri=${encodeURIComponent(
         "announcements@forum.local"
       )}`;
-      assert.strictEqual(
+      assert.true(
         openStub.calledWith(url, "_blank"),
-        true,
         "it loads the mastodon authorize interaction route in a new tab"
       );
     });
