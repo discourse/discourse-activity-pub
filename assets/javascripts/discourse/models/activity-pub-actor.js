@@ -13,8 +13,8 @@ export const actorModels = ["category"];
 export const actorAdminPath = "/admin/plugins/ap/actor";
 export const actorClientPath = "/ap/local/actor";
 
-const ActivityPubActor = EmberObject.extend({
-  isNew: equal("id", newActor.id),
+class ActivityPubActor extends EmberObject {
+  @equal("id", newActor.id) isNew;
 
   disable() {
     if (this.isNew) {
@@ -23,7 +23,7 @@ const ActivityPubActor = EmberObject.extend({
     return ajax(`${actorAdminPath}/${this.id}/disable`, {
       type: "POST",
     }).catch(popupAjaxError);
-  },
+  }
 
   enable() {
     if (this.isNew) {
@@ -32,7 +32,7 @@ const ActivityPubActor = EmberObject.extend({
     return ajax(`${actorAdminPath}/${this.id}/enable`, {
       type: "POST",
     }).catch(popupAjaxError);
-  },
+  }
 
   save() {
     let data = {
@@ -56,8 +56,8 @@ const ActivityPubActor = EmberObject.extend({
     }
 
     return ajax(path, { type, data }).catch(popupAjaxError);
-  },
-});
+  }
+}
 
 ActivityPubActor.reopenClass({
   find(actorId) {

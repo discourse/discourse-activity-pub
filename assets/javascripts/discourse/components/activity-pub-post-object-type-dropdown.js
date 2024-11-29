@@ -1,12 +1,14 @@
 import { computed } from "@ember/object";
+import { classNames } from "@ember-decorators/component";
 import I18n from "I18n";
 import ComboBoxComponent from "select-kit/components/combo-box";
 
-export default ComboBoxComponent.extend({
-  classNames: ["activity-pub-post-object-type-dropdown"],
-  nameProperty: "label",
+@classNames("activity-pub-post-object-type-dropdown")
+export default class ActivityPubPostObjectTypeDropdown extends ComboBoxComponent {
+  nameProperty = "label";
 
-  content: computed(function () {
+  @computed
+  get content() {
     return [
       {
         id: "Note",
@@ -23,11 +25,5 @@ export default ComboBoxComponent.extend({
         ),
       },
     ];
-  }),
-
-  actions: {
-    onChange(value) {
-      this.onChange?.(value);
-    },
-  },
-});
+  }
+}
