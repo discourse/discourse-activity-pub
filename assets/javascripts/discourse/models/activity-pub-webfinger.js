@@ -2,7 +2,7 @@ import EmberObject from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
-const ActivityPubWebfinger = EmberObject.extend({});
+class ActivityPubWebfinger extends EmberObject {}
 
 ActivityPubWebfinger.reopenClass({
   validateHandle(handle) {

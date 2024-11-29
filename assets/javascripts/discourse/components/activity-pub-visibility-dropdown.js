@@ -1,15 +1,18 @@
 import { computed } from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { schedule } from "@ember/runloop";
+import { classNames } from "@ember-decorators/component";
 import I18n from "I18n";
 import ComboBoxComponent from "select-kit/components/combo-box";
 
-export default ComboBoxComponent.extend({
-  classNames: ["activity-pub-visibility-dropdown"],
-  fullTopicPublication: equal("publicationType", "full_topic"),
-  nameProperty: "label",
+@classNames("activity-pub-visibility-dropdown")
+export default class ActivityPubVisibilityDropdown extends ComboBoxComponent {
+  @equal("publicationType", "full_topic") fullTopicPublication;
 
-  content: computed(function () {
+  nameProperty = "label";
+
+  @computed
+  get content() {
     return [
       {
         id: "private",
@@ -26,10 +29,10 @@ export default ComboBoxComponent.extend({
         }),
       },
     ];
-  }),
+  }
 
   didReceiveAttrs() {
-    this._super(...arguments);
+    super.didReceiveAttrs(...arguments);
 
     if (this.fullTopicPublication) {
       this.set("value", "public");
@@ -37,11 +40,5 @@ export default ComboBoxComponent.extend({
     schedule("afterRender", () => {
       this.set("selectKit.options.disabled", this.fullTopicPublication);
     });
-  },
-
-  actions: {
-    onChange(value) {
-      this.onChange?.(value);
-    },
-  },
-});
+  }
+}

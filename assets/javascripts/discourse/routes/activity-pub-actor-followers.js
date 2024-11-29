@@ -3,13 +3,13 @@ import { service } from "@ember/service";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default DiscourseRoute.extend({
-  site: service(),
+export default class ActivityPubActorFollowers extends DiscourseRoute {
+  @service site;
 
-  queryParams: {
+  queryParams = {
     order: { refreshModel: true },
     asc: { refreshModel: true },
-  },
+  };
 
   afterModel(_, transition) {
     const actor = this.modelFor("activityPub.actor");
@@ -24,7 +24,7 @@ export default DiscourseRoute.extend({
       transition.to.queryParams,
       "followers"
     ).then((response) => this.setProperties(response));
-  },
+  }
 
   setupController(controller) {
     controller.setProperties({
@@ -33,5 +33,5 @@ export default DiscourseRoute.extend({
       loadMoreUrl: this.meta?.load_more_url,
       total: this.meta?.total,
     });
-  },
-});
+  }
+}

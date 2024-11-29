@@ -3,11 +3,11 @@ import DiscourseRoute from "discourse/routes/discourse";
 import { bind } from "discourse-common/utils/decorators";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default DiscourseRoute.extend({
-  queryParams: {
+export default class ActivityPubActorFollows extends DiscourseRoute {
+  queryParams = {
     order: { refreshModel: true },
     asc: { refreshModel: true },
-  },
+  };
 
   afterModel(_, transition) {
     const actor = this.modelFor("activityPub.actor");
@@ -22,7 +22,7 @@ export default DiscourseRoute.extend({
       transition.to.queryParams,
       "follows"
     ).then((response) => this.setProperties(response));
-  },
+  }
 
   setupController(controller) {
     controller.setProperties({
@@ -31,15 +31,15 @@ export default DiscourseRoute.extend({
       loadMoreUrl: this.meta?.load_more_url,
       total: this.meta?.total,
     });
-  },
+  }
 
   activate() {
     this.messageBus.subscribe("/activity-pub", this.handleMessage);
-  },
+  }
 
   deactivate() {
     this.messageBus.unsubscribe("/activity-pub", this.handleMessage);
-  },
+  }
 
   @bind
   handleMessage(data) {
@@ -48,5 +48,5 @@ export default DiscourseRoute.extend({
     if (model && model.type === "category" && model.id === actor.id) {
       this.refresh();
     }
-  },
-});
+  }
+}

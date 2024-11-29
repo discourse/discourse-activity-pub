@@ -1,15 +1,15 @@
+import { classNames } from "@ember-decorators/component";
 import CategoryChooser from "select-kit/components/category-chooser";
+import { selectKitOptions } from "select-kit/components/select-kit";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default CategoryChooser.extend({
-  classNames: ["activity-pub-category-chooser"],
-
-  selectKitOptions: {
-    allowUncategorized: false,
-  },
-
+@selectKitOptions({
+  allowUncategorized: false,
+})
+@classNames("activity-pub-category-chooser")
+export default class ActivityPubCategoryChooser extends CategoryChooser {
   categoriesByScope() {
-    return this._super().filter((category) => {
+    return super.categoriesByScope().filter((category) => {
       if (category.read_restricted) {
         return false;
       }
@@ -20,5 +20,5 @@ export default CategoryChooser.extend({
         return !actor;
       }
     });
-  },
-});
+  }
+}
