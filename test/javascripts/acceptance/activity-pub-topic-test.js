@@ -52,8 +52,8 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(
-        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+      assert.notOk(
+        exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
         "is not visible"
       );
     });
@@ -79,8 +79,8 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(
-        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+      assert.notOk(
+        exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
         "the activity pub indicator is not visible"
       );
     });
@@ -207,8 +207,8 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(
-        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+      assert.notOk(
+        exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
         "the activity pub indicator is not visible"
       );
     });
@@ -309,8 +309,8 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(
-        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+      assert.notOk(
+        exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
         "the activity pub indicator is not visible"
       );
     });
@@ -391,8 +391,8 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(
-        !exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
+      assert.notOk(
+        exists(".topic-post:nth-of-type(1) .post-info.activity-pub"),
         "the activity pub indicator is not visible"
       );
     });

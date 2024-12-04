@@ -45,6 +45,10 @@ RSpec.describe DiscourseActivityPub::JsonLd do
         false,
       )
     end
+
+    it "does not validate empty accept headers" do
+      expect(described_class.valid_accept?(nil)).to eq(false)
+    end
   end
 
   describe "#address_json" do

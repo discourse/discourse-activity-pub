@@ -3,8 +3,8 @@ import { notEmpty } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
-const ActivityPubFollowers = EmberObject.extend({
-  hasFollowers: notEmpty("followers"),
+class ActivityPubFollowers extends EmberObject {
+  @notEmpty("followers") hasFollowers;
 
   loadMore() {
     if (!this.loadMoreUrl || this.total <= this.followers.length) {
@@ -24,8 +24,8 @@ const ActivityPubFollowers = EmberObject.extend({
         }
       })
       .catch(popupAjaxError);
-  },
-});
+  }
+}
 
 ActivityPubFollowers.reopenClass({
   load(category, params) {

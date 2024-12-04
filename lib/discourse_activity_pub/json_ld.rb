@@ -75,6 +75,7 @@ module DiscourseActivityPub
     end
 
     def valid_accept?(value)
+      return false if value.blank?
       value.split(",").compact.collect(&:strip).all? { |v| valid_content_type?(v) }
     end
 
