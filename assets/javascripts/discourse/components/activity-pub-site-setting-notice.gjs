@@ -42,7 +42,7 @@ export default class ActivityPubSiteSettingNotice extends Component {
   <template>
     <div class={{this.containerClass}} title={{this.title}}>
       <div class="activity-pub-site-setting-label">
-        <a href={{this.url}}>{{icon "cog"}}{{this.label}}</a>
+        <a href={{this.url}}>{{icon "gear"}}{{this.label}}</a>
       </div>
       <span>{{this.description}}</span>
     </div>

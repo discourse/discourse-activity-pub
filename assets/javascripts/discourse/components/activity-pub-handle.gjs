@@ -32,7 +32,7 @@ export default class ActivityPubHandle extends Component {
             target="_blank"
             rel="noopener noreferrer"
             class="btn btn-icon no-text"
-          >{{icon "external-link-alt"}}</a>
+          >{{icon "up-right-from-square"}}</a>
         {{/if}}
         {{#if this.copied}}
           <DButton @icon="copy" @label="ip_lookup.copied" class="btn-hover" />
