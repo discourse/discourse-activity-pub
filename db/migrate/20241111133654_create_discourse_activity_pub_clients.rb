@@ -3,7 +3,7 @@ class CreateDiscourseActivityPubClients < ActiveRecord::Migration[7.1]
   def up
     create_table :discourse_activity_pub_clients do |t|
       t.integer :auth_type, null: false
-      t.string :domain, null: false
+      t.string :domain, null: false, limit: 1000
       t.json :credentials, null: false
 
       t.timestamps

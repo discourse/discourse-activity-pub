@@ -5,7 +5,7 @@ class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.1]
       t.integer :user_id, null: false
       t.bigint :actor_id
       t.bigint :client_id
-      t.string :token
+      t.string :token, limit: 1000
 
       t.timestamps
     end
