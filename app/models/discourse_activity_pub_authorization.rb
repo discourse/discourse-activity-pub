@@ -16,7 +16,7 @@ end
 #  user_id    :integer          not null
 #  actor_id   :bigint
 #  client_id  :bigint
-#  token      :string
+#  token      :string(1000)
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

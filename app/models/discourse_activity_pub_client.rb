@@ -92,7 +92,7 @@ end
 #
 #  id          :bigint           not null, primary key
 #  auth_type   :integer          not null
-#  domain      :string           not null
+#  domain      :string(1000)     not null
 #  credentials :json             not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
