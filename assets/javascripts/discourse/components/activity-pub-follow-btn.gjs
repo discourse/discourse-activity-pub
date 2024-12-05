@@ -41,7 +41,7 @@ export default class ActivityPubFollowBtn extends Component {
   get icon() {
     switch (this.args.type) {
       case "follow":
-        return "external-link-alt";
+        return "up-right-from-square";
       case "actor_follow":
         return "plus";
       case "actor_unfollow":
