@@ -406,4 +406,40 @@ RSpec.describe DiscourseActivityPub::ActorController do
       end
     end
   end
+
+  describe "#find_by_user" do
+    let!(:user) { Fabricate(:user) }
+
+    context "with activity pub enabled" do
+      before { toggle_activity_pub(actor1.model) }
+
+      context "with a valid user api key" do
+        let!(:user_api_key) { Fabricate(:readonly_user_api_key, user: user) }
+
+        context "when the user does not have an actor" do
+          it "returns a not found error" do
+            get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
+            expect(response.status).to eq(404)
+          end
+        end
+
+        context "when the user has an actor" do
+          let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
+
+          it "returns the actor" do
+            get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
+            expect(response.status).to eq(200)
+            expect(response.parsed_body["id"]).to eq(actor.ap_id)
+          end
+        end
+      end
+
+      context "without a valid user api key" do
+        it "returns a not authorized error" do
+          get "/ap/local/actor/find-by-user"
+          expect(response.status).to eq(403)
+        end
+      end
+    end
+  end
 end

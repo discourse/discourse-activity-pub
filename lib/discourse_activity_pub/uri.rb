@@ -2,6 +2,7 @@
 module DiscourseActivityPub
   class URI
     SUPPORTED_SCHEMES = %w[http https]
+    DOMAIN_REGEX = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}$/
 
     def self.parse(uri)
       uri = "http://#{uri}" if Addressable::URI.parse(uri).scheme.nil?

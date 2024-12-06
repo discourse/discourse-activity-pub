@@ -7,11 +7,11 @@ export default class ActivityPubActorImage extends Component {
   }
 
   get url() {
-    return this.args.actor.icon_url || "/images/avatar.png";
+    return this.args.actor?.icon_url || "/images/avatar.png";
   }
 
   get title() {
-    return this.args.actor.handle;
+    return this.args.actor?.handle;
   }
 
   <template>

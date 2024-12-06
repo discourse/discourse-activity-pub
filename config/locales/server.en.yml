@@ -16,6 +16,11 @@ en:
               invalid: "is not valid"
             object_type:
               invalid: "is not valid"
+        discourse_activity_pub_client:
+          attributes:
+            credentials:
+              required: "are required"
+              invalid: "is not valid"
         discourse_activity_pub:
           attributes:
             model_type:
@@ -28,6 +33,10 @@ en:
     discourse_activity_pub:
       error:
         edit_after_publication: Edit of an ActivityPub note after publication is not currently supported.
+
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub" 
 
   discourse_activity_pub:
     not_enabled: "ActivityPub is not enabled"
@@ -131,6 +140,7 @@ en:
         cant_follow_target_actor: "Actor cant follow the target actor"
         username_required: An ActivityPub username is required to create an actor.
         full_topic_must_be_public: "Full topic publication requires public publication."
+        user_not_authorized: "User not authorized"
         not_following_actor: "Target actor is not following the actor"
       warning:
         cant_create_model_for_actor_type: "Cannot create a model for %{actor_type} %{actor_id}"
@@ -139,13 +149,20 @@ en:
         no_options: "No options passed to ActorHandler"
         invalid_username: "Username must be %{min_length} to %{max_length} letters, numbers, dashes or underscores."
         username_taken: "That username is already taken on this server."
-        user_not_authorized: "User not authorized"
     auth:
       error:
-        invalid_oauth_domain: "Invalid ActivityPub OAuth domain"
-        oauth_session_expired: "ActivityPub OAuth session expired"
-        failed_to_authorize: "ActivityPub OAuth failed to authorize"
-        failed_to_get_actor: "ActivityPub OAuth failed to get actor"
+        not_enabled: "Auth is not enabled"
+        invalid_domain: "Invalid ActivityPub domain"
+        invalid_auth_redirect: "Invalid auth redirect"
+        invalid_redirect_params: "Invalid redirect params"
+        authorization_required: "Authorization record is required"
+        session_expired: "Auth session expired"
+        failed_to_authorize: "Failed to authorize"
+        failed_to_get_actor: "Failed to get actor"
+        failed_to_verify_client: "Failed to verify client"
+        failed_to_get_token: "Failed to get token"
+        failed_to_decrypt_payload: "Failed to decrypt payload"
+        failed_to_verify_nonce: "Failed to verify nonce"
     deliver:
       warning:
         failed_to_schedule: "%{actor_id} failed to schedule %{object_id} for delivery: %{reason}"
