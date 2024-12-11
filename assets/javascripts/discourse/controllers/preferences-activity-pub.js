@@ -20,7 +20,6 @@ export default class PreferencesActivityPubController extends Controller {
 
   showError() {
     if (this.error) {
-      this.dialog.alert();
       this.dialog.alert({
         title: I18n.t("user.discourse_activity_pub.authorize_error.title"),
         message: this.error,
