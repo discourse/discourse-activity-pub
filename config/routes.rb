@@ -6,17 +6,17 @@ DiscourseActivityPub::Engine.routes.draw do
     delete "schedule/:post_id" => "post#unschedule"
   end
 
-  get "auth" => "auth#index", :defaults => { format: :json }
-  scope module: "auth", path: "auth", defaults: { format: :json } do
-    delete "authorization" => "authorization#destroy"
-
-    post "oauth/verify" => "o_auth#verify"
-    get "oauth/authorize" => "o_auth#authorize"
-    get "oauth/redirect" => "o_auth#redirect"
+  get "/auth" => "authorization#index", :defaults => { format: :json }
+  scope "/auth", defaults: { format: :json } do
+    post "verify" => "authorization#verify"
+    get "authorize/:auth_type" => "authorization#authorize"
+    get "redirect/:auth_type" => "authorization#redirect"
+    delete "destroy/:auth_id" => "authorization#destroy"
   end
 
   scope "/local" do
     scope "/actor" do
+      get "/find-by-user" => "actor#find_by_user", :defaults => { format: :json }
       get ":actor_id" => "actor#show"
       get ":actor_id/followers" => "actor#followers"
       get ":actor_id/follows" => "actor#follows"
