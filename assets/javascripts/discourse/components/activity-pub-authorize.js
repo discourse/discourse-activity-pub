@@ -110,6 +110,9 @@ export default class ActivityPubAuthorize extends Component {
   @action
   onDomainKeyDown(event) {
     if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.verifyDomain();
     }
   }
