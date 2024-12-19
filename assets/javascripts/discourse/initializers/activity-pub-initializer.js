@@ -13,44 +13,19 @@ export default {
     withPluginApi("1.6.0", (api) => {
       const currentUser = api.getCurrentUser();
 
-      api.includePostAttributes("activity_pub_enabled", "activity_pub_enabled");
-      api.includePostAttributes(
+      api.addTrackedPostProperties(
+        "activity_pub_enabled",
         "activity_pub_scheduled_at",
-        "activity_pub_scheduled_at"
-      );
-      api.includePostAttributes(
         "activity_pub_published_at",
-        "activity_pub_published_at"
-      );
-      api.includePostAttributes(
         "activity_pub_deleted_at",
-        "activity_pub_deleted_at"
-      );
-      api.includePostAttributes(
         "activity_pub_updated_at",
-        "activity_pub_updated_at"
-      );
-      api.includePostAttributes(
         "activity_pub_visibility",
-        "activity_pub_visibility"
-      );
-      api.includePostAttributes("activity_pub_local", "activity_pub_local");
-      api.includePostAttributes("activity_pub_url", "activity_pub_url");
-      api.includePostAttributes(
+        "activity_pub_local",
+        "activity_pub_url",
         "activity_pub_object_type",
-        "activity_pub_object_type"
-      );
-      api.includePostAttributes("activity_pub_domain", "activity_pub_domain");
-      api.includePostAttributes(
+        "activity_pub_domain",
         "activity_pub_first_post",
-        "activity_pub_first_post"
-      );
-      api.includePostAttributes(
         "activity_pub_is_first_post",
-        "activity_pub_is_first_post"
-      );
-      api.includePostAttributes(
-        "activity_pub_object_id",
         "activity_pub_object_id"
       );
       api.serializeOnCreate("activity_pub_visibility");
