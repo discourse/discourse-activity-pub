@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::URI do
+  describe "#DOMAIN_REGEX" do
+    it "handles mastodon.social" do
+      expect(DiscourseActivityPub::URI::DOMAIN_REGEX.match?("mastodon.social")).to eq(true)
+    end
+  end
+
   describe "#local?" do
     before do
       Rails.application.config.hosts = [IPAddr.new("0.0.0.0/0"), IPAddr.new("::/0"), "localhost"]

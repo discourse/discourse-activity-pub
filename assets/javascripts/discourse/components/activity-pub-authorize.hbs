@@ -1,12 +1,19 @@
-<div class="activity-pub-authorize">
-  <h4>{{i18n "user.discourse_activity_pub.authorize.title"}}</h4>
-  <label class="activity-pub-authorize-description">
-    {{i18n "user.discourse_activity_pub.authorize.description"}}
-  </label>
-  <div class="activity-pub-authorize-controls">
+<div class={{this.containerClass}}>
+  <div class="controls">
+    <ComboBox
+      @id="user_activity_pub_authorize_auth_type"
+      class="activity-pub-authorize-auth-type"
+      @content={{this.authTypes}}
+      @value={{this.authType}}
+      @onChange={{fn (mut this.authType)}}
+      @disabled={{this.verifiedDomain}}
+      @options={{hash
+        none="user.discourse_activity_pub.authorize.auth_type.none.label"
+      }}
+    />
     {{#if this.verifiedDomain}}
       <span class="activity-pub-authorize-verified-domain">
-        <a class="btn">{{this.domain}}</a>
+        <span>{{this.domain}}</span>
         <DButton
           @icon="xmark"
           @action={{action "clearDomain"}}
@@ -15,33 +22,32 @@
           class="activity-pub-authorize-clear-domain"
         />
       </span>
-      <DButton
-        @icon="fingerprint"
-        @action={{action "authorizeDomain"}}
-        @label="user.discourse_activity_pub.authorize_button.label"
-        @title="user.discourse_activity_pub.authorize_button.title"
-        id="user_activity_pub_authorize_authorize_domain"
-        class="activity-pub-authorize-domain"
-      />
     {{else}}
       <Input
         @value={{this.domain}}
         disabled={{this.verifyingDomain}}
-        placeholder={{i18n "user.discourse_activity_pub.authorize.placeholder"}}
+        placeholder={{this.placeholder}}
         id="user_activity_pub_authorize_domain"
-      />
-      <DButton
-        @icon="check"
-        @action={{action "verifyDomain"}}
-        @label="user.discourse_activity_pub.verify_domain_button.label"
-        @title="user.discourse_activity_pub.verify_domain_button.title"
-        @disabled={{this.verifyingDomain}}
-        id="user_activity_pub_authorize_verify_domain"
-        class="activity-pub-authorize-verify-domain"
+        {{on "keydown" this.onDomainKeyDown}}
       />
     {{/if}}
+    <DButton
+      @icon="check"
+      @action={{action "verifyDomain"}}
+      @label="user.discourse_activity_pub.verify_domain_button.label"
+      @title="user.discourse_activity_pub.verify_domain_button.title"
+      @disabled={{this.verifyDisabled}}
+      id="user_activity_pub_authorize_verify_domain"
+      class={{this.verifyBtnClass}}
+    />
+    <DButton
+      @icon="fingerprint"
+      @action={{action "authorizeDomain"}}
+      @label="user.discourse_activity_pub.authorize_button.label"
+      @title="user.discourse_activity_pub.authorize_button.title"
+      @disabled={{this.authorizeDisabled}}
+      id="user_activity_pub_authorize_authorize_domain"
+      class={{this.authorizeBtnClass}}
+    />
   </div>
-  <span class="control-instructions">
-    {{i18n "user.discourse_activity_pub.authorize.instructions"}}
-  </span>
 </div>

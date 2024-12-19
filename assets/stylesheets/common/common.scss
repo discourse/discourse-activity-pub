@@ -229,37 +229,43 @@ section.activity-pub-actor-setting {
 body.user-preferences-activity-pub-page {
   .form-vertical {
     width: 100%;
+
+    .control-group {
+      margin-bottom: 1em;
+    }
+
+    .activity-pub-authorizations {
+      margin-bottom: 2em;
+    }
   }
 }
 
-.activity-pub-authorize-controls {
-  display: flex;
-  gap: 0.5em;
+.activity-pub-authorize {
+  .controls {
+    display: inline-flex;
+    gap: 0.5em;
+  }
+
+  input {
+    min-width: 300px;
+  }
+}
+
+.activity-pub-authorize-auth-type {
+  min-width: 150px;
 }
 
 .activity-pub-authorize-verified-domain {
+  min-width: 300px;
+  background: var(--primary-low);
   display: flex;
+  align-items: center;
+  gap: 0.5em;
+  justify-content: space-between;
+  box-sizing: border-box;
 
-  a {
-    cursor: unset;
-  }
-}
-
-.activity-pub-authorizations {
-  margin-top: 1em;
-
-  ul {
-    list-style: none;
-    margin: 0;
-
-    li {
-      margin: 1em 0;
-    }
-  }
-
-  .activity-pub-authorization {
-    display: inline-flex;
-    align-items: center;
+  span {
+    padding: 0 0.75em;
   }
 }
 
@@ -325,6 +331,7 @@ body.user-preferences-activity-pub-page {
     margin-left: 1em;
     display: flex;
     flex-flow: column;
+    justify-content: center;
   }
 }
 
@@ -440,7 +447,7 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-actor-table {
-  grid-template-columns: minmax(13em, 3fr) minmax(13em, 3fr) repeat(1, 200px);
+  grid-template-columns: minmax(13em, 3fr) 150px 150px;
 }
 
 .activity-pub-actor-table-actor {

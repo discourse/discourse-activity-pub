@@ -4,16 +4,18 @@ import {
   acceptance,
   exists,
   loggedInUser,
+  query,
 } from "discourse/tests/helpers/qunit-helpers";
+import { default as Authorizations } from "../fixtures/authorization-fixtures";
 
 acceptance("Discourse Activity Pub | Preferences", function (needs) {
-  needs.user({
-    activity_pub_authorizations: [
-      { actor_id: "https://external1.com/user/1" },
-      { actor_id: "https://external2.com/user/1" },
-    ],
-  });
+  needs.user();
   needs.site({ activity_pub_enabled: true });
+  needs.pretender((server, helper) => {
+    server.get("/ap/auth.json", () =>
+      helper.response(Authorizations["/ap/auth.json"])
+    );
+  });
 
   test("displays account authorization section", async function (assert) {
     await visit(`/u/${loggedInUser().username}/preferences/activity-pub`);
@@ -23,16 +25,28 @@ acceptance("Discourse Activity Pub | Preferences", function (needs) {
   test("displays account authorizations", async function (assert) {
     await visit(`/u/${loggedInUser().username}/preferences/activity-pub`);
 
-    assert.ok(exists(".activity-pub-authorizations"));
     assert.ok(
-      exists(
-        "a.activity-pub-authorization-link[href='https://external1.com/user/1']"
-      )
+      exists(".activity-pub-authorizations .activity-pub-actor-table"),
+      "the authorizations table is visible"
+    );
+    assert.strictEqual(
+      document.querySelectorAll(".activity-pub-actor-table-row").length,
+      2,
+      "authorized actors are visible"
     );
     assert.ok(
-      exists(
-        "a.activity-pub-authorization-link[href='https://external2.com/user/1']"
-      )
+      query(".activity-pub-actor-image img").src.includes("/images/avatar.png"),
+      "authorized actor image is visible"
+    );
+    assert.equal(
+      query(".activity-pub-actor-name").innerText,
+      "Angus",
+      "authorized actor name is visible"
+    );
+    assert.equal(
+      query(".activity-pub-actor-handle").innerText,
+      "@angus_ap@test.local",
+      "authorized actor handle is visible"
     );
   });
 });

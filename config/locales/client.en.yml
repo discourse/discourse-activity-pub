@@ -47,6 +47,7 @@ en:
           table:
             actor: Actor
             model: Model
+            auth_type: Type
             actions: Actions
           category:
             label: Categories
@@ -185,21 +186,34 @@ en:
     user:
       discourse_activity_pub:
         title: ActivityPub
+        actors:
+          title: Linked Actors
+          description: Posts associated with a linked actor will be attributed to your account.
         authorize:
-          title: Authorize
-          description: Authorize an account on another domain to associate its activities with your user.
-          placeholder: Enter a domain
-          instructions: "e.g. mastodon.social"
+          auth_type:
+            none: 
+              label: Select a type...
+              placeholder: "enter a domain"
+            mastodon:
+              title: Mastodon
+              placeholder: e.g. mastodon.social
+            discourse:
+              title: Discourse
+              placeholder: e.g. meta.discourse.org
         clear_domain_button:
-          title: Clear domain.
+          title: Clear the verified domain.
         verify_domain_button:
           label: Verify
-          title: Verify the domain where you will authorize an account.
+          title: Verify the domain is supported.
         authorize_button:
           label: Authorize
-          title: Authorize an account on the domain.
+          title: Authorize an actor on the domain.
+        authorize_error:
+          title: Failed to Authorize
         authorizations:
-          title: Authorizations
-          description: Activities of these accounts will be associated with your user.
+          title: Linked Actors
         authorization:
-          confirm_remove: Are you sure you want to remove the authorization for %{actor_id}?
+          confirm_remove: Are you sure you want to remove the link with %{handle}?
+        remove_authorization_button:
+          title: Remove authorization
+          label: Remove
