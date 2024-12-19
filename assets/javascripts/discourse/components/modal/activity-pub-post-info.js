@@ -38,7 +38,7 @@ export default class ActivityPubPostInfo extends Component {
 
   get stateIcon() {
     if (this.args.model.state === "not_published") {
-      return "far-dot-circle";
+      return "far-circle-dot";
     } else {
       return this.args.model.post.activity_pub_local
         ? "arrow-up"
@@ -57,7 +57,7 @@ export default class ActivityPubPostInfo extends Component {
 
   get visibilityIcon() {
     return this.args.model.post.activity_pub_visibility === "public"
-      ? "globe-americas"
+      ? "earth-americas"
       : "lock";
   }
 
