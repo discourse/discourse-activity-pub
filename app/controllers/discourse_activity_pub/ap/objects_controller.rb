@@ -16,13 +16,18 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :rate_limit
   before_action :ensure_site_enabled
   before_action :ensure_request_permitted
-  before_action :validate_headers
+  before_action :validate_headers, unless: :browser_request?
   before_action :ensure_domain_allowed
   before_action :ensure_object_exists, if: :is_object_controller
+  before_action :ensure_model_exists, if: -> { is_object_controller && browser_request? }
   before_action :set_raw_body
 
   def show
-    render_activity_json(@object.ap.json)
+    if browser_request?
+      redirect_to @object.model.activity_pub_url
+    else
+      render_activity_json(@object.ap.json)
+    end
   end
 
   protected
@@ -53,6 +58,10 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
       log_request_error(I18n.t("discourse_activity_pub.not_enabled"), 403)
       render_not_enabled
     end
+  end
+
+  def browser_request?
+    @browser_request ||= BrowserDetection.browser(request.user_agent) != :unknown
   end
 
   def validate_headers
@@ -95,6 +104,10 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
     unless @object = DiscourseActivityPubObject.find_by(ap_key: params[:key])
       render_activity_pub_error("not_found", 404)
     end
+  end
+
+  def ensure_model_exists
+    raise Discourse::NotFound if @object.model_trashed?
   end
 
   def render_activity_json(json)

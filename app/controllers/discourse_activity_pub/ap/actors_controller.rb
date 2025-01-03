@@ -7,7 +7,11 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   before_action :ensure_actor_ready
 
   def show
-    render_activity_json(@actor.ap.json)
+    if browser_request?
+      redirect_to @actor.model.activity_pub_url
+    else
+      render_activity_json(@actor.ap.json)
+    end
   end
 
   protected
