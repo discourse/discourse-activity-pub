@@ -417,9 +417,10 @@ RSpec.describe DiscourseActivityPub::ActorController do
         let!(:user_api_key) { Fabricate(:readonly_user_api_key, user: user) }
 
         context "when the user does not have an actor" do
-          it "returns a not found error" do
+          it "creates and returns the actor" do
             get "/ap/local/actor/find-by-user", headers: { HTTP_USER_API_KEY: user_api_key.key }
-            expect(response.status).to eq(404)
+            expect(response.status).to eq(200)
+            expect(response.parsed_body["preferredUsername"]).to eq(user.username)
           end
         end
 

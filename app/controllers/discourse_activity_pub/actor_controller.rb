@@ -73,8 +73,10 @@ module DiscourseActivityPub
     end
 
     def find_by_user
-      if current_user.present? && current_user.activity_pub_actor.present?
-        render json: current_user.activity_pub_actor.ap.json
+      actor = DiscourseActivityPub::ActorHandler.update_or_create_actor(current_user)
+
+      if actor
+        render json: actor.ap.json
       else
         render json: failed_json, status: 404
       end
