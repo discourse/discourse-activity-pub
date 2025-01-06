@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 Fabricator(:discourse_activity_pub_actor) do
+  transient :actor_domain
   ap_type { "Actor" }
   domain { DiscourseActivityPub.host }
   username { sequence(:username) { |i| "username#{i}" } }
 
-  before_create do
-    self.domain = "remote.com" unless local
+  before_create do |actor, transient|
+    self.domain = (transient[:actor_domain] || "remote.com") unless local
     self.ap_id = "https://#{self.domain}/actor/#{SecureRandom.hex(16)}" unless self.ap_id || local
   end
 

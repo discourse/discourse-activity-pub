@@ -23,7 +23,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
       build_headers(
         **opts.except(:headers).merge(
           object: group,
-          actor: person,
+          actor: opts[:actor] || person,
           keypair: keypair,
           headers: headers,
           verb: "post",
@@ -227,6 +227,58 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           it "succeeds" do
             post_to_inbox(group, body: post_body, headers: headers)
             expect(response.status).to eq(202)
+          end
+
+          context "with an actor from an allowed domain" do
+            before { SiteSetting.activity_pub_allowed_request_origins = "remote.com" }
+
+            it "allows allowed domains" do
+              actor =
+                Fabricate(
+                  :discourse_activity_pub_actor_person,
+                  public_key: keypair.public_key.to_pem,
+                  actor_domain: "remote.com",
+                )
+              post_to_inbox(group, body: post_body, headers: build_post_headers(actor: actor))
+              expect(response.status).to eq(202)
+            end
+
+            it "blocks not allowed domains" do
+              actor =
+                Fabricate(
+                  :discourse_activity_pub_actor_person,
+                  public_key: keypair.public_key.to_pem,
+                  actor_domain: "another-remote.com",
+                )
+              post_to_inbox(group, body: post_body, headers: build_post_headers(actor: actor))
+              expect(response.status).to eq(403)
+            end
+          end
+
+          context "with blocked domains" do
+            before { SiteSetting.activity_pub_blocked_request_origins = "remote.com" }
+
+            it "blocks blocked domains" do
+              actor =
+                Fabricate(
+                  :discourse_activity_pub_actor_person,
+                  public_key: keypair.public_key.to_pem,
+                  actor_domain: "remote.com",
+                )
+              post_to_inbox(group, body: post_body, headers: build_post_headers(actor: actor))
+              expect(response.status).to eq(403)
+            end
+
+            it "allows unblocked domains" do
+              actor =
+                Fabricate(
+                  :discourse_activity_pub_actor_person,
+                  public_key: keypair.public_key.to_pem,
+                  actor_domain: "another-remote.com",
+                )
+              post_to_inbox(group, body: post_body, headers: build_post_headers(actor: actor))
+              expect(response.status).to eq(202)
+            end
           end
         end
 

@@ -92,41 +92,6 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
     end
   end
 
-  context "with allowed domains" do
-    before do
-      SiteSetting.activity_pub_allowed_request_origins = "allowed.com"
-      setup_logging
-    end
-
-    it "allows allowed domains" do
-      get_object(object, headers: { ORIGIN: "https://allowed.com" })
-      expect(response.status).to eq(200)
-    end
-
-    it "blocks not allowed domains" do
-      get_object(object, headers: { ORIGIN: "https://notallowed.com" })
-      expect_request_error(response, "forbidden", 403)
-    end
-  end
-
-  context "with blocked domains" do
-    before do
-      SiteSetting.activity_pub_blocked_request_origins = "notallowed.com"
-      setup_logging
-    end
-    after { teardown_logging }
-
-    it "blocks blocked domains" do
-      get_object(object, headers: { ORIGIN: "https://notallowed.com" })
-      expect_request_error(response, "forbidden", 403)
-    end
-
-    it "allows unblocked domains" do
-      get_object(object, headers: { ORIGIN: "https://allowed.com" })
-      expect(response.status).to eq(200)
-    end
-  end
-
   describe "#show" do
     context "when not requested from a browser" do
       it "returns object json with addressing" do
