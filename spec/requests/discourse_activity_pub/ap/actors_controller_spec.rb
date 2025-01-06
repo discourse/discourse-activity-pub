@@ -81,5 +81,18 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
       expect(response.status).to eq(200)
       expect(parsed_body).to eq(group.reload.ap.json)
     end
+
+    context "when requested from a browser" do
+      let(:browser_user_agent) do
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edg/75.10240"
+      end
+
+      context "with a group actor" do
+        it "redirects to the group model url" do
+          get_object(group, headers: { "HTTP_USER_AGENT" => browser_user_agent })
+          expect(response).to redirect_to(group.model.url)
+        end
+      end
+    end
   end
 end

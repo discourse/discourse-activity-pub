@@ -128,12 +128,35 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
   end
 
   describe "#show" do
-    it "returns object json with addressing" do
-      get_object(object)
-      expect(response.status).to eq(200)
-      expect(parsed_body).to eq(object.ap.json)
-      expect(parsed_body["to"]).to eq(group&.ap_id)
-      expect(parsed_body["cc"]).to eq([public_collection_id])
+    context "when not requested from a browser" do
+      it "returns object json with addressing" do
+        get_object(object)
+        expect(response.status).to eq(200)
+        expect(parsed_body).to eq(object.ap.json)
+        expect(parsed_body["to"]).to eq(group&.ap_id)
+        expect(parsed_body["cc"]).to eq([public_collection_id])
+      end
+    end
+
+    context "when requested from a browser" do
+      let(:browser_user_agent) do
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edg/75.10240"
+      end
+
+      it "redirects to the object's model url" do
+        get_object(object, headers: { "HTTP_USER_AGENT" => browser_user_agent })
+        expect(response).to redirect_to(first_post.url)
+      end
+
+      context "when object's model is trashed" do
+        before { first_post.trash! }
+
+        it "renders a 404 page" do
+          get_object(object, headers: { "HTTP_USER_AGENT" => browser_user_agent })
+          expect(response.status).to eq(404)
+          expect(response.body).to include(I18n.t("page_not_found.title"))
+        end
+      end
     end
   end
 end
