@@ -16,10 +16,12 @@ discourse_activity_pub:
     default: ""
     type: host_list
     list_type: simple
+    validator: "ActivityPubSignedRequestsValidator"
   activity_pub_blocked_request_origins:
     default: ""
     type: host_list
     list_type: simple
+    validator: "ActivityPubSignedRequestsValidator"
   activity_pub_delivery_delay_minutes:
     default: 5
     min: 1

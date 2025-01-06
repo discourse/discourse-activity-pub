@@ -13,6 +13,8 @@ register_svg_icon "user-check"
 
 add_admin_route "admin.discourse_activity_pub.label", "activityPub"
 
+require_relative "validators/activity_pub_signed_requests_validator.rb"
+
 after_initialize do
   require_relative "lib/discourse_activity_pub/engine"
   require_relative "lib/discourse_activity_pub/json_ld"

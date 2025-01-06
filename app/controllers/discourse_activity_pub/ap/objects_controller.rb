@@ -17,7 +17,6 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :ensure_site_enabled
   before_action :ensure_request_permitted
   before_action :validate_headers, unless: :browser_request?
-  before_action :ensure_domain_allowed
   before_action :ensure_object_exists, if: :is_object_controller
   before_action :ensure_model_exists, if: -> { is_object_controller && browser_request? }
   before_action :set_raw_body
