@@ -6,7 +6,7 @@ class ActivityPubSignedRequestsValidator
   end
 
   def valid_value?(val)
-    return true if val == "f"
+    return true if val.blank?
     SiteSetting.activity_pub_require_signed_requests
   end
 
