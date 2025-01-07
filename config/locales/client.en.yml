@@ -189,6 +189,9 @@ en:
         actors:
           title: Linked Actors
           description: Posts associated with a linked actor will be attributed to your account.
+        actor: Actor
+        auth_type: Type
+        actions: Actions
         authorize:
           auth_type:
             none: 
