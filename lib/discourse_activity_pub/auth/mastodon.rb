@@ -55,6 +55,10 @@ module DiscourseActivityPub
         credentials
       end
 
+      def on_verify_client_failure
+        client.destroy!
+      end
+
       def get_authorize_url
         return nil unless client
 
