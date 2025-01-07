@@ -152,7 +152,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           post "/ap/auth/verify", params: { domain: external_domain2, auth_type: "mastodon" }
           expect(response.status).to eq(422)
           expect(response.parsed_body["errors"].first).to eq(
-            I18n.t("discourse_activity_pub.auth.error.failed_to_verify_client"),
+            I18n.t("discourse_activity_pub.auth.error.failed_to_create_client"),
           )
         end
 
@@ -165,6 +165,25 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           expect {
             post "/ap/auth/verify", params: { domain: external_domain2, auth_type: "mastodon" }
           }.not_to change { DiscourseActivityPubClient.count }
+        end
+      end
+
+      context "when the domain does not verify an existing client" do
+        let!(:client) do
+          Fabricate(:discourse_activity_pub_client_mastodon, domain: external_domain1)
+        end
+
+        before do
+          stub_request(
+            :get,
+            "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Mastodon::APP_CHECK_PATH}",
+          ).to_return(status: 400)
+        end
+
+        it "destroys the client" do
+          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
+          expect(response.status).to eq(422)
+          expect(DiscourseActivityPubClient.exists?(client.id)).to eq(false)
         end
       end
     end

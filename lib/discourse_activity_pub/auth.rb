@@ -14,7 +14,10 @@ module DiscourseActivityPub
 
     def verify_client
       create_client if !client
-      auth_error("failed_to_verify_client") unless client && check_client
+      return auth_error("failed_to_create_client") if !client
+      return true if check_client
+      on_verify_client_failure
+      auth_error("failed_to_verify_client")
     end
 
     def auth_type
@@ -50,6 +53,9 @@ module DiscourseActivityPub
 
     def register_client
       raise NotImplementedError
+    end
+
+    def on_verify_client_failure
     end
 
     def get_authorize_url
