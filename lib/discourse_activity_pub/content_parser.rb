@@ -174,7 +174,7 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
 
   def self.parse(html, length, opts = {})
     content_parser = self.new(length, opts)
-    sax_parser = Nokogiri::HTML::SAX::Parser.new(content_parser)
+    sax_parser = Nokogiri::HTML::SAX::Parser.new(content_parser, Encoding::UTF_8)
     catch(:done) { sax_parser.parse(html) }
     final_clean(content_parser.content.strip)
   end
