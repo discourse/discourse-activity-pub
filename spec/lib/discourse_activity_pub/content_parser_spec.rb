@@ -161,6 +161,14 @@ RSpec.describe DiscourseActivityPub::ContentParser do
           )
         end
       end
+
+      context "with unicode in raw" do
+        let!(:post) { Fabricate(:post, raw: "fürry österreich") }
+
+        it "returns unicode content" do
+          expect(described_class.get_content(post)).to eq("<p>fürry österreich</p>")
+        end
+      end
     end
   end
 
