@@ -98,8 +98,8 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         get_object(object)
         expect(response.status).to eq(200)
         expect(parsed_body).to eq(object.ap.json)
-        expect(parsed_body["to"]).to eq(group&.ap_id)
-        expect(parsed_body["cc"]).to eq([public_collection_id])
+        expect(parsed_body["to"]).to eq([public_collection_id, group&.ap_id])
+        expect(parsed_body["cc"]).to eq(nil)
       end
     end
 

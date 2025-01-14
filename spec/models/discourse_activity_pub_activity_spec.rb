@@ -67,6 +67,32 @@ RSpec.describe DiscourseActivityPubActivity do
     end
   end
 
+  describe "#to" do
+    let!(:topic) { Fabricate(:topic, category: category) }
+    let!(:post) { Fabricate(:post, topic: topic) }
+    let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post) }
+
+    context "with a first_post actor" do
+      before { toggle_activity_pub(category, publication_type: "first_post") }
+
+      context "with a public activity" do
+        let!(:activity) do
+          Fabricate(
+            :discourse_activity_pub_activity_create,
+            object: note,
+            visibility: DiscourseActivityPubActivity.visibilities[:public],
+          )
+        end
+
+        it "returns the public collection and the group actor id" do
+          expect(activity.to).to match_array(
+            [DiscourseActivityPub::JsonLd.public_collection_id, actor.ap_id],
+          )
+        end
+      end
+    end
+  end
+
   describe "#after_scheduled" do
     let!(:activity) { Fabricate(:discourse_activity_pub_activity_update, actor: actor) }
 
