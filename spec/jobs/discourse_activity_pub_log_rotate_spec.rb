@@ -9,9 +9,7 @@ RSpec.describe Jobs::DiscourseActivityPubLogRotate do
     before { SiteSetting.activity_pub_enabled = false }
 
     it "does not destroy logs" do
-      expect { described_class.new.execute({})  }.not_to change {
-        DiscourseActivityPubLog.count
-      }
+      expect { described_class.new.execute({}) }.not_to change { DiscourseActivityPubLog.count }
     end
   end
 
