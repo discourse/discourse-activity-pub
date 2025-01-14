@@ -11,6 +11,7 @@ import {
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
+import { default as Logs } from "../fixtures/logs-fixtures";
 
 const categoryActors =
   AdminActors["/admin/plugins/ap/actor?model_type=category"];
@@ -295,5 +296,48 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     });
 
     await click(".activity-pub-save-actor");
+  });
+});
+
+acceptance("Discourse Activity Pub | Admin | Logs", function (needs) {
+  needs.user({ admin: true });
+  needs.site({
+    activity_pub_enabled: true,
+  });
+  needs.pretender((server, helper) => {
+    server.get("/admin/plugins/ap/log.json", () =>
+      helper.response(Logs["/admin/plugins/ap/log.json"])
+    );
+  });
+
+  test("displays logs", async function (assert) {
+    await visit("/admin/plugins/ap/log");
+
+    assert.ok(exists(".activity-pub-log-table"), "log table is visible");
+    assert.strictEqual(
+      document.querySelectorAll(".activity-pub-log-row").length,
+      2,
+      "logs are visible"
+    );
+    assert.ok(
+      exists(
+        ".activity-pub-log-row:nth-of-type(1) .activity-pub-log-show-json-btn"
+      ),
+      "shows show json button if log has json"
+    );
+    assert.notOk(
+      exists(
+        ".activity-pub-log-row:nth-of-type(2) .activity-pub-log-show-json-btn"
+      ),
+      "does not show json button if log does not have json"
+    );
+
+    await click(
+      ".activity-pub-log-row:nth-of-type(1) .activity-pub-log-show-json-btn"
+    );
+    assert.ok(
+      exists(".modal.activity-pub-json-modal"),
+      "it shows the log json modal"
+    );
   });
 });

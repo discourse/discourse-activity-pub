@@ -267,5 +267,6 @@ en:
     activity_pub_verbose_logging: "Enable verbose ActivityPub logs."
     activity_pub_object_logging: "Print all incoming and outgoing ActivityPub objects in the logs (requires verbose logging)."
     activity_pub_post_status_visibility_groups: "Groups who can see ActivityPub post statuses."
+    activity_pub_logs_max_days_old: "How many days ActivityPub logs are kept for."
     errors:
       signed_requests_required: Signed requests are required for this setting.

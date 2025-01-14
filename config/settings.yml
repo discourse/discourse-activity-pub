@@ -36,3 +36,7 @@ discourse_activity_pub:
     default: false
   activity_pub_object_logging:
     default: false
+  activity_pub_logs_max_days_old:
+    default: 60
+    min: 7
+    max: 36500

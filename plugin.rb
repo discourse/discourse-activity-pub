@@ -79,6 +79,7 @@ after_initialize do
   require_relative "app/models/discourse_activity_pub_authorization"
   require_relative "app/models/discourse_activity_pub_client"
   require_relative "app/models/discourse_activity_pub_follow"
+  require_relative "app/models/discourse_activity_pub_log"
   require_relative "app/models/discourse_activity_pub_object"
   require_relative "app/models/discourse_activity_pub_collection"
   require_relative "app/jobs/discourse_activity_pub_process"
@@ -98,6 +99,7 @@ after_initialize do
   require_relative "app/controllers/discourse_activity_pub/webfinger/handle_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/admin_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/actor_controller"
+  require_relative "app/controllers/discourse_activity_pub/admin/log_controller"
   require_relative "app/controllers/discourse_activity_pub/authorization_controller"
   require_relative "app/controllers/discourse_activity_pub/post_controller"
   require_relative "app/controllers/discourse_activity_pub/actor_controller"
@@ -127,6 +129,7 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/authorization_serializer"
   require_relative "app/serializers/discourse_activity_pub/admin/actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/admin/log_serializer"
   require_relative "config/routes"
   require_relative "extensions/discourse_activity_pub_guardian_extension"
 
@@ -1122,6 +1125,7 @@ after_initialize do
         put "ap/actor/:actor_id" => "admin/actor#update", :constraints => { format: :json }
         post "ap/actor/:actor_id/enable" => "admin/actor#enable"
         post "ap/actor/:actor_id/disable" => "admin/actor#disable"
+        get "ap/log" => "admin/log#index"
       end
     end
   end

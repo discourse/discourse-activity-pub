@@ -1,0 +1,35 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{i18n "admin.discourse_activity_pub.log.json.title"}}
+  class="activity-pub-json-modal"
+>
+  <:body>
+    <div class="activity-pub-json-modal-header">
+      <div class="activity-pub-json-modal-title">
+        {{htmlSafe
+          (i18n
+            "admin.discourse_activity_pub.log.json.logged_at"
+            logged_at=(formatDate
+              @model.log.created_at format="medium" leaveAgo="true"
+            )
+          )
+        }}
+      </div>
+      <div class="activity-pub-json-modal-buttons">
+        {{#if this.copied}}
+          <span class="activity-pub-json-copy-status success">
+            {{i18n "admin.discourse_activity_pub.log.json.copy.success"}}
+          </span>
+        {{/if}}
+        <DButton
+          @action={{this.copyToClipboard}}
+          @icon="copy"
+          @label="admin.discourse_activity_pub.log.json.copy.label"
+          @title="admin.discourse_activity_pub.log.json.copy.title"
+          class="activity-pub-json-copy-btn btn-default"
+        />
+      </div>
+    </div>
+    <pre class="activity-pub-json-display">{{this.jsonDisplay}}</pre>
+  </:body>
+</DModal>
