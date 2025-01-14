@@ -3,10 +3,7 @@
 module DiscourseActivityPub
   module Admin
     class LogController < DiscourseActivityPub::Admin::AdminController
-
-      ORDER_BY = {
-        "level" => "level"
-      }
+      ORDER_BY = { "level" => "level" }
 
       def index
         logs = DiscourseActivityPubLog.all

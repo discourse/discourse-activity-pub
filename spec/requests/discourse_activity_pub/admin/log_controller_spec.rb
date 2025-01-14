@@ -26,7 +26,7 @@ RSpec.describe DiscourseActivityPub::Admin::LogController do
       expect(response.parsed_body["logs"][0]["id"]).to eq(log2.id)
       expect(response.parsed_body["meta"]["total"]).to eq(2)
       expect(response.parsed_body["meta"]["load_more_url"]).to eq(
-        "/admin/plugins/ap/log.json?offset=1"
+        "/admin/plugins/ap/log.json?offset=1",
       )
 
       get "/admin/plugins/ap/log.json?offset=1"
