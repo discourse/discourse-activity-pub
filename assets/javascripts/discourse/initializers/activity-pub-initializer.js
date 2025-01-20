@@ -17,6 +17,7 @@ export default {
         "activity_pub_enabled",
         "activity_pub_scheduled_at",
         "activity_pub_published_at",
+        "activity_pub_delivered_at",
         "activity_pub_deleted_at",
         "activity_pub_updated_at",
         "activity_pub_visibility",
@@ -274,6 +275,7 @@ export default {
               activity_pub_published_at: data.model.published_at,
               activity_pub_deleted_at: data.model.deleted_at,
               activity_pub_updated_at: data.model.updated_at,
+              activity_pub_delivered_at: data.model.delivered_at,
             };
             postStream
               .triggerActivityPubStateChange(data.model.id, stateProps)

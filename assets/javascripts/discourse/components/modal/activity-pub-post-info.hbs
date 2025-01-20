@@ -48,6 +48,11 @@
           {{/if}}
         </span>
       {{/if}}
+      {{#if this.showDelivered}}
+        <span class="activity-pub-delivered">{{d-icon
+            "envelope"
+          }}{{this.deliveredText}}</span>
+      {{/if}}
     </div>
   </:body>
 </DModal>

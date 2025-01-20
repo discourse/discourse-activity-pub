@@ -367,5 +367,18 @@ RSpec.describe DiscourseActivityPubActivity do
         end
       end
     end
+
+    context "with create activity" do
+      let(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
+
+      it "calls activity_pub_after_deliver with correct arguments" do
+        Post
+          .any_instance
+          .expects(:activity_pub_after_deliver)
+          .with({ delivered_at: Time.now.utc.iso8601 })
+          .once
+        activity.after_deliver(Time.now.utc.iso8601)
+      end
+    end
   end
 end

@@ -85,4 +85,20 @@ export default class ActivityPubPostInfo extends Component {
       this.args.model.post.activity_pub_object_id
     );
   }
+
+  get showDelivered() {
+    return !!this.args.model.post.activity_pub_delivered_at;
+  }
+
+  get deliveredText() {
+    let opts = {
+      object_type: this.args.model.post.activity_pub_object_type,
+    };
+    if (this.args.model.post.activity_pub_delivered_at) {
+      opts.time = moment(this.args.model.post.activity_pub_delivered_at).format(
+        "h:mm a, MMM D"
+      );
+    }
+    return I18n.t("post.discourse_activity_pub.title.delivered", opts);
+  }
 }

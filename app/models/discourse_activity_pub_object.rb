@@ -3,6 +3,7 @@
 class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
+  include DiscourseActivityPub::AP::ObjectHelpers
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
   belongs_to :collection, class_name: "DiscourseActivityPubCollection", foreign_key: "collection_id"
@@ -90,10 +91,14 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def before_deliver
-    after_published(Time.now.utc.iso8601)
+    after_published(get_published_at)
   end
 
   def after_deliver(delivered = true)
+    if delivered
+      args = { delivered_at: get_delivered_at }
+      model.activity_pub_after_deliver(args)
+    end
   end
 
   def after_scheduled(scheduled_at, activity = nil)

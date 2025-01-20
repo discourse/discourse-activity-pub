@@ -73,6 +73,7 @@ after_initialize do
   require_relative "app/models/concerns/discourse_activity_pub/ap/model_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/model_callbacks"
   require_relative "app/models/concerns/discourse_activity_pub/ap/model_helpers"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/object_helpers"
   require_relative "app/models/concerns/discourse_activity_pub/webfinger_actor_attributes"
   require_relative "app/models/discourse_activity_pub_actor"
   require_relative "app/models/discourse_activity_pub_activity"
@@ -286,7 +287,14 @@ after_initialize do
   Post.include DiscourseActivityPub::AP::ModelHelpers
   Guardian.prepend DiscourseActivityPubGuardianExtension
 
-  activity_pub_post_custom_fields = %i[scheduled_at published_at deleted_at updated_at visibility]
+  activity_pub_post_custom_fields = %i[
+    delivered_at
+    scheduled_at
+    published_at
+    deleted_at
+    updated_at
+    visibility
+  ]
   activity_pub_post_custom_field_names =
     activity_pub_post_custom_fields.map { |field_name| "activity_pub_#{field_name}" }
   activity_pub_post_custom_field_names.each do |field_name|
@@ -345,6 +353,9 @@ after_initialize do
     activity_pub_update_custom_fields(args)
   end
   add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
+    activity_pub_update_custom_fields(args)
+  end
+  add_to_class(:post, :activity_pub_after_deliver) do |args = {}|
     activity_pub_update_custom_fields(args)
   end
   activity_pub_post_custom_field_names.each do |field_name|

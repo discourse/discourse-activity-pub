@@ -189,6 +189,7 @@ en:
           updated: "%{object_type} was updated via ActivityPub at %{time}."
           published_remote: "%{object_type} was published via ActivityPub from %{domain} at %{time}."
           not_published: "%{object_type} was not published via ActivityPub."
+          delivered: "%{object_type} was delivered via ActivityPub from this site at %{time}."
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.
