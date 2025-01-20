@@ -9,9 +9,18 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
     before_action :ensure_staff
     before_action :find_post
-    before_action :ensure_first_post, only: %i[schedule unschedule]
+    before_action :ensure_first_post, only: %i[schedule unschedule deliver]
+    before_action :ensure_can_deliver, only: [:deliver]
     before_action :ensure_can_schedule, only: [:schedule]
     before_action :ensure_can_unschedule, only: [:unschedule]
+
+    def deliver
+      if @post.activity_pub_deliver!
+        render json: success_json
+      else
+        render json: failed_json, status: 422
+      end
+    end
 
     def schedule
       if @post.activity_pub_schedule!
@@ -33,6 +42,10 @@ module DiscourseActivityPub
 
     def ensure_first_post
       render_post_error("not_first_post", 422) unless @post.activity_pub_is_first_post?
+    end
+
+    def ensure_can_deliver
+      render_post_error("cant_deliver_post", 422) if !@post.activity_pub_published?
     end
 
     def ensure_can_schedule

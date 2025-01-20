@@ -5,55 +5,84 @@ module DiscourseActivityPub
     class Publish
       include JsonLd
 
-      attr_reader :actor
+      attr_reader :actor, :topic
       attr_accessor :published_at, :result
 
-      SUPPORTED_MODEL_TYPES = %w[category]
+      ACTOR_MODEL_TYPES = %w[category tag]
 
-      def initialize(actor_id: nil)
-        @actor = DiscourseActivityPubActor.find_by(id: actor_id)
+      def initialize(actor_id: nil, topic_id: nil)
+        @topic = Topic.find_by(id: topic_id)
+        @actor = topic ? topic.activity_pub_actor : DiscourseActivityPubActor.find_by(id: actor_id)
       end
 
       def perform
+        log_started
+
+        return log_publish_failed("actor_not_found") if !actor
         return log_publish_failed("actor_not_ready") if !actor&.ready?
-        model_type = actor.model_type.downcase
-        if !SUPPORTED_MODEL_TYPES.include?(model_type)
+        if !ACTOR_MODEL_TYPES.include?(actor.model_type.downcase)
           return log_publish_failed("actor_model_not_supported")
         end
-
-        log_started
 
         @published_at = Time.now.utc.iso8601(3)
         @result = PublishResult.new
 
-        self.send("publish_#{model_type}")
-
-        log_finished
-
-        result.finished = true
-
-        result
-      end
-
-      def self.perform(actor_id: nil)
-        new(actor_id: actor_id).perform
-      end
-
-      protected
-
-      def publish_category
-        create_collections_from_topics if actor.model.activity_pub_full_topic
+        create_collections_from_topics if full_topic?
         create_actors_from_users
         create_objects_from_posts
         create_activities_from_posts
         announce_activities
+
+        log_finished
+
+        result.finished = true
+        result
+      end
+
+      def self.perform(actor_id: nil, topic_id: nil)
+        new(actor_id: actor_id, topic_id: topic_id).perform
+      end
+
+      protected
+
+      def category_actor?
+        actor.model_type.downcase == "category"
+      end
+
+      def tag_actor?
+        actor.model_type.downcase == "tag"
+      end
+
+      def first_post?
+        @first_post ||= actor.model.activity_pub_first_post
+      end
+
+      def full_topic?
+        @full_topic ||= actor.model.activity_pub_full_topic
       end
 
       def create_collections_from_topics
+        topics = Topic
+
+        if category_actor?
+          topics =
+            topics
+              .where("topics.category_id = ?", actor.model.id)
+              .where.not("topics.id = ?", actor.model.topic_id.to_i)
+        end
+
+        if tag_actor?
+          topics =
+            topics.where(
+              "topics.id IN (SELECT topic_id FROM topic_tags WHERE topic_tags.tag_id = ?)",
+              actor.model.id,
+            )
+        end
+
+        topics = topics.where("topics.id = ?", topic.id) if topic
+
         topics =
-          Topic
-            .where("topics.category_id = ?", actor.model.id)
-            .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          topics
             .joins(
               "LEFT JOIN discourse_activity_pub_collections c ON c.model_type = 'Topic' AND topics.id = c.model_id",
             )
@@ -67,19 +96,33 @@ module DiscourseActivityPub
       end
 
       def create_actors_from_users
+        users = User.real.joins(posts: :topic)
+
+        if category_actor?
+          users =
+            users
+              .where("topics.category_id = ?", actor.model.id)
+              .where.not("topics.id = ?", actor.model.topic_id.to_i)
+        end
+
+        if tag_actor?
+          users =
+            users.where(
+              "topics.id IN (SELECT topic_id FROM topic_tags WHERE topic_tags.tag_id = ?)",
+              actor.model.id,
+            )
+        end
+
+        users = users.where("topics.id = ?", topic.id) if topic
+        users = users.where("posts.post_number = 1") if first_post?
+
         users =
-          User
-            .real
-            .joins(posts: :topic)
-            .where("topics.category_id = ?", actor.model.id)
-            .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          users
             .joins(
               "LEFT JOIN discourse_activity_pub_actors a ON a.model_type = 'User' AND users.id = a.model_id",
             )
             .where("a.id IS NULL")
             .distinct
-
-        users = users.where("posts.post_number = 1") if actor.model.activity_pub_first_post
 
         if users.any?
           actors = build_actors(users)
@@ -88,20 +131,34 @@ module DiscourseActivityPub
       end
 
       def create_objects_from_posts
+        posts = Post.joins(:topic)
+
+        if category_actor?
+          posts =
+            posts
+              .where("topics.category_id = ?", actor.model.id)
+              .where.not("topics.id = ?", actor.model.topic_id.to_i)
+        end
+
+        if tag_actor?
+          posts =
+            posts.where(
+              "topics.id IN (SELECT topic_id FROM topic_tags WHERE topic_tags.tag_id = ?)",
+              actor.model.id,
+            )
+        end
+
+        posts = posts.where("topics.id = ?", topic.id) if topic
+        posts = posts.where("posts.post_number = 1") if first_post?
+
         posts =
-          Post
-            .joins(:topic)
-            .where("topics.category_id = ?", actor.model.id)
-            .where.not("topics.id = ?", actor.model.topic_id.to_i)
+          posts
             .joins(
               "LEFT JOIN discourse_activity_pub_objects o ON o.model_type = 'Post' AND posts.id = o.model_id",
             )
             .where("o.id IS NULL OR o.published_at IS NULL")
             .distinct
-
-        posts = posts.where("posts.post_number = 1") if actor.model.activity_pub_first_post
-
-        posts = posts.order("posts.topic_id, posts.post_number")
+            .order("posts.topic_id, posts.post_number")
 
         if posts.any?
           objects, post_custom_fields = build_objects_and_post_custom_fields(posts)
@@ -111,17 +168,28 @@ module DiscourseActivityPub
       end
 
       def create_activities_from_posts
+        posts = Post.joins(:topic)
+
+        if category_actor?
+          posts =
+            posts
+              .where("topics.category_id = ?", actor.model.id)
+              .where.not("topics.id = ?", actor.model.topic_id.to_i)
+        end
+
+        if tag_actor?
+          posts =
+            posts.where(
+              "topics.id IN (SELECT topic_id FROM topic_tags WHERE topic_tags.tag_id = ?)",
+              actor.model.id,
+            )
+        end
+
+        posts = posts.where("topics.id = ?", topic.id) if topic
+        posts = posts.where("posts.post_number = 1") if first_post?
+
         posts =
-          Post
-            .joins(:topic)
-            .where("topics.category_id = ?", actor.model.id)
-            .where.not("topics.id = ?", actor.model.topic_id.to_i)
-            .includes(:activity_pub_object)
-            .distinct
-
-        posts = posts.where("posts.post_number = 1") if actor.model.activity_pub_first_post
-
-        posts = posts.order("posts.topic_id, posts.post_number")
+          posts.includes(:activity_pub_object).distinct.order("posts.topic_id, posts.post_number")
 
         if posts.any?
           activities = build_activities(posts)
@@ -137,13 +205,26 @@ module DiscourseActivityPub
             )
             .joins("JOIN posts ON o.model_type = 'Post' AND o.model_id = posts.id")
             .joins("JOIN topics ON topics.id = posts.topic_id")
-            .where("topics.category_id = ?", actor.model.id)
-            .where.not("topics.id = ?", actor.model.topic_id.to_i)
-            .distinct
 
-        if actor.model.activity_pub_first_post
-          activities = activities.where("posts.post_number = 1")
+        if category_actor?
+          activities =
+            activities
+              .where("topics.category_id = ?", actor.model.id)
+              .where.not("topics.id = ?", actor.model.topic_id.to_i)
         end
+
+        if tag_actor?
+          activities =
+            activities.where(
+              "topics.id IN (SELECT topic_id FROM topic_tags WHERE topic_tags.tag_id = ?)",
+              actor.model.id,
+            )
+        end
+
+        activities = activities.where("topics.id = ?", topic.id) if topic
+        activities = activities.where("posts.post_number = 1") if first_post?
+
+        activities = activities.distinct
 
         if activities.any?
           announcements = build_announcements(activities)
@@ -205,7 +286,7 @@ module DiscourseActivityPub
               post.activity_pub_reply_to_object&.ap_id
           end
 
-          if actor.model.activity_pub_full_topic
+          if full_topic?
             object[:collection_id] = post.topic.activity_pub_object.id
             object[:attributed_to_id] = post.activity_pub_actor.ap_id
           end
@@ -368,26 +449,30 @@ module DiscourseActivityPub
         @published_at = (@published_at.to_time + 1 / 1000.0).iso8601(3)
       end
 
+      def log_target
+        @log_target ||= topic ? topic.title : actor.handle
+      end
+
       def log_publish_failed(key)
         message =
           I18n.t(
             "discourse_activity_pub.bulk.publish.warning.publish_did_not_start",
-            actor: actor.handle,
+            target: log_target,
           )
         message +=
-          ": " + I18n.t("discourse_activity_pub.bulk.publish.warning.#{key}", actor: actor.handle)
+          ": " + I18n.t("discourse_activity_pub.bulk.publish.warning.#{key}", target: log_target)
         DiscourseActivityPub::Logger.warn(message)
       end
 
       def log_started
         DiscourseActivityPub::Logger.info(
-          I18n.t("discourse_activity_pub.bulk.publish.info.started", actor: actor.handle),
+          I18n.t("discourse_activity_pub.bulk.publish.info.started", target: log_target),
         )
       end
 
       def log_finished
         DiscourseActivityPub::Logger.info(
-          I18n.t("discourse_activity_pub.bulk.publish.info.finished", actor: actor.handle),
+          I18n.t("discourse_activity_pub.bulk.publish.info.finished", target: log_target),
         )
       end
 

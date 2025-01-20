@@ -261,4 +261,73 @@ RSpec.describe DiscourseActivityPub::PostController do
       end
     end
   end
+
+  describe "#deliver" do
+    context "without activity pub enabled" do
+      before { SiteSetting.activity_pub_enabled = false }
+
+      it "returns a not enabled error" do
+        post "/ap/post/deliver/#{post1.id}"
+        expect_not_enabled(response)
+      end
+    end
+
+    context "with activity pub enabled" do
+      before do
+        SiteSetting.activity_pub_enabled = true
+        toggle_activity_pub(category, publication_type: "full_topic")
+      end
+
+      context "with signed in staff" do
+        let!(:user) { Fabricate(:user, moderator: true) }
+
+        before { sign_in(user) }
+
+        context "without a valid post id" do
+          it "returns a post not found error" do
+            post "/ap/post/deliver/#{post1.id + 1}"
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("post_not_found"))
+          end
+        end
+
+        context "with a valid post id" do
+          context "when the post is published" do
+            let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
+            let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+            before do
+              post1.custom_fields["activity_pub_published_at"] = Time.now
+              post1.save_custom_fields(true)
+            end
+
+            it "schedules the create activity for delivery immediately" do
+              expect_delivery(actor: topic.activity_pub_actor, object_type: "Create", delay: nil)
+              post "/ap/post/deliver/#{post1.id}"
+              expect(response.status).to eq(200)
+            end
+          end
+
+          context "when the post is not published" do
+            it "returns a can't deliver post error" do
+              post "/ap/post/deliver/#{post1.id}"
+              expect(response.status).to eq(422)
+              expect(response.parsed_body).to eq(build_error("cant_deliver_post"))
+            end
+          end
+        end
+      end
+
+      context "without signed in staff" do
+        let!(:user) { Fabricate(:user) }
+
+        before { sign_in(user) }
+
+        it "returns an invalid access error" do
+          post "/ap/post/deliver/#{post1.id}"
+          expect(response.status).to eq(403)
+        end
+      end
+    end
+  end
 end

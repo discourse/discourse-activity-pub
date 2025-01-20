@@ -16,7 +16,7 @@ const scheduledAt = moment().subtract(2, "days");
 const publishedAt = moment().subtract(1, "days");
 const deletedAt = moment();
 
-const setupServer = (needs, attrs = {}) => {
+const setupServer = (needs, attrs = {}, topicAttrs = {}) => {
   needs.pretender((server, helper) => {
     const topicResponse = cloneJSON(topicFixtures["/t/280/1.json"]);
     const firstPost = topicResponse.post_stream.posts[0];
@@ -29,6 +29,9 @@ const setupServer = (needs, attrs = {}) => {
     firstPost.activity_pub_is_first_post = true;
     Object.keys(attrs).forEach((attr) => {
       firstPost[attr] = attrs[attr];
+    });
+    Object.keys(topicAttrs).forEach((topicAttr) => {
+      topicResponse[topicAttr] = topicAttrs[topicAttr];
     });
     server.get("/t/280.json", () => helper.response(topicResponse));
   });
@@ -109,7 +112,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Scheduled ActivityPub topic as staff",
+  "Discourse Activity Pub | Scheduled ActivityPub first post as staff",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs);
@@ -146,7 +149,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Unscheduled ActivityPub topic as staff with First Post enabled",
+  "Discourse Activity Pub | Unscheduled ActivityPub first post as staff with First Post enabled",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
@@ -168,7 +171,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Unscheduled ActivityPub topic as staff with Full Topic enabled",
+  "Discourse Activity Pub | Unscheduled ActivityPub first post as staff with Full Topic enabled",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(needs, {
@@ -184,6 +187,41 @@ acceptance(
       assert.ok(
         exists(".fk-d-menu .activity-pub-schedule"),
         "The schedule button was rendered"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Unpublished ActivityPub topic as staff with Full Topic enabled",
+  function (needs) {
+    needs.user({ moderator: true, admin: false });
+    setupServer(
+      needs,
+      {},
+      {
+        activity_pub_enabled: true,
+        activity_pub_full_topic: true,
+        activity_pub_published: false,
+      }
+    );
+
+    test("Topic admin menu", async function (assert) {
+      await visit("/t/280");
+      await click(".topic-admin-menu-trigger");
+
+      assert.ok(
+        exists(".fk-d-menu .activity-pub-publish-topic"),
+        "The publish topic button was rendered"
+      );
+
+      await click(".activity-pub-publish-topic");
+
+      assert.ok(exists("#dialog-holder"), "The confirm dialog appears");
+      assert.strictEqual(
+        query("#dialog-holder .dialog-body p").innerText.trim(),
+        I18n.t("topic.discourse_activity_pub.publish.confirm"),
+        "shows the right dialog content"
       );
     });
   }

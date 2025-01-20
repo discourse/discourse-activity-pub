@@ -173,34 +173,42 @@ RSpec.describe Post do
       end
 
       context "with full_topic enabled on category" do
-        before do
-          toggle_activity_pub(category, publication_type: "full_topic")
-          post.topic.create_activity_pub_collection!
+        before { toggle_activity_pub(category, publication_type: "full_topic") }
+
+        context "with a topic collection" do
+          before { post.topic.create_activity_pub_collection! }
+
+          it "attemps to create a post user actor" do
+            DiscourseActivityPub::ActorHandler.expects(:update_or_create_actor).once
+            post.activity_pub_publish!
+          end
+
+          it "sets the post content" do
+            post.activity_pub_publish!
+            expect(post.reload.activity_pub_content).to eq(post.cooked)
+          end
+
+          it "sets the post visibility" do
+            post.activity_pub_publish!
+            expect(post.reload.activity_pub_visibility).to eq("public")
+          end
+
+          it "attempts a create activity" do
+            post.expects(:perform_activity_pub_activity).with(:create).once
+            post.activity_pub_publish!
+          end
+
+          it "returns the outcome of the create activity" do
+            post.stubs(:perform_activity_pub_activity).with(:create).returns(true)
+            expect(post.activity_pub_publish!).to eq(true)
+          end
         end
 
-        it "attemps to create a post user actor" do
-          DiscourseActivityPub::ActorHandler.expects(:update_or_create_actor).once
-          post.activity_pub_publish!
-        end
-
-        it "sets the post content" do
-          post.activity_pub_publish!
-          expect(post.reload.activity_pub_content).to eq(post.cooked)
-        end
-
-        it "sets the post visibility" do
-          post.activity_pub_publish!
-          expect(post.reload.activity_pub_visibility).to eq("public")
-        end
-
-        it "attempts a create activity" do
-          post.expects(:perform_activity_pub_activity).with(:create).once
-          post.activity_pub_publish!
-        end
-
-        it "returns the outcome of the create activity" do
-          post.stubs(:perform_activity_pub_activity).with(:create).returns(true)
-          expect(post.activity_pub_publish!).to eq(true)
+        context "without a topic collection" do
+          it "creates the topic collections" do
+            post.activity_pub_publish!
+            expect(post.topic.activity_pub_object).to be_present
+          end
         end
       end
 

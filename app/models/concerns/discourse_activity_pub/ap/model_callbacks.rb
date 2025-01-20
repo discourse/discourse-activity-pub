@@ -44,6 +44,22 @@ module DiscourseActivityPub
         true
       end
 
+      def activity_pub_deliver_create
+        return unless activity_pub_object
+
+        @performing_activity =
+          DiscourseActivityPub::AP::Activity::Create.new(
+            stored: activity_pub_object.create_activity,
+          )
+        @performing_activity_object = activity_pub_object
+        @performing_activity_actor = activity_pub_actor
+
+        activity_pub_deliver_activity
+        perform_activity_pub_activity_cleanup
+
+        true
+      end
+
       protected
 
       def valid_activity_pub_activity?
@@ -68,6 +84,7 @@ module DiscourseActivityPub
             attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
           end
           if self.activity_pub_full_topic
+            return nil unless self.topic.activity_pub_object
             attrs[:collection_id] = self.topic.activity_pub_object.id
             attrs[:attributed_to_id] = self.activity_pub_actor.ap_id
           end

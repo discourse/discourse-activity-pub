@@ -136,6 +136,33 @@ export default {
             };
           }
         });
+
+        api.addPostAdminMenuButton((attrs) => {
+          if (!attrs.activity_pub_enabled) {
+            return;
+          }
+
+          const canDeliver =
+            currentUser?.staff &&
+            attrs.activity_pub_is_first_post &&
+            attrs.activity_pub_published_at;
+
+          if (canDeliver) {
+            return {
+              secondaryAction: "closeAdminMenu",
+              icon: "discourse-activity-pub",
+              className: "activity-pub-deliver",
+              title: "post.discourse_activity_pub.deliver.title",
+              label: "post.discourse_activity_pub.deliver.label",
+              position: "second-last-hidden",
+              action: async (post) => {
+                ajax(`/ap/post/deliver/${post.id}`, {
+                  type: "POST",
+                }).catch(popupAjaxError);
+              },
+            };
+          }
+        });
       } else {
         // TODO: remove support for older Discourse versions in December 2023
         api.reopenWidget("post-admin-menu", {
@@ -186,6 +213,37 @@ export default {
           },
         });
       }
+
+      const dialog = api._lookupContainer("service:dialog");
+      api.addTopicAdminMenuButton((topic) => {
+        if (!topic.activity_pub_enabled) {
+          return;
+        }
+
+        const canPublish =
+          currentUser?.staff &&
+          topic.activity_pub_full_topic &&
+          !topic.activity_pub_published;
+
+        if (canPublish) {
+          return {
+            icon: "discourse-activity-pub",
+            className: "activity-pub-publish-topic",
+            title: "topic.discourse_activity_pub.publish.title",
+            label: "topic.discourse_activity_pub.publish.label",
+            action: async () => {
+              dialog.yesNoConfirm({
+                message: I18n.t("topic.discourse_activity_pub.publish.confirm"),
+                didConfirm: async () => {
+                  await ajax(`/ap/topic/publish/${topic.id}`, {
+                    type: "POST",
+                  }).catch(popupAjaxError);
+                },
+              });
+            },
+          };
+        }
+      });
 
       api.modifyClass("model:post-stream", {
         pluginId: "discourse-activity-pub",

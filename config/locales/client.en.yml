@@ -198,6 +198,17 @@ en:
         unschedule:
           label: Unschedule Publish
           title: Unschedule post to be published via ActivityPub.
+        deliver:
+          label: Deliver Post
+          title: Deliver post to ActivityPub followers.
+
+    topic:
+      discourse_activity_pub:
+        publish:
+          label: Publish Topic
+          title: Publish topic via ActivityPub
+          confirm: Are you sure you want to publish all posts in this topic via ActivityPub?
+
     user:
       discourse_activity_pub:
         title: ActivityPub
