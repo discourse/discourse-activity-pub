@@ -182,14 +182,14 @@ en:
     post:
       discourse_activity_pub:
         title:
-          published: "%{object_type} was published via ActivityPub from this site at %{time}."
-          scheduled: "%{object_type} is scheduled to be published via ActivityPub from this site at %{time}."
-          scheduled_past: "%{object_type} was scheduled to be published via ActivityPub from this site at %{time}."
-          deleted: "%{object_type} was deleted via ActivityPub at %{time}."
-          updated: "%{object_type} was updated via ActivityPub at %{time}."
-          published_remote: "%{object_type} was published via ActivityPub from %{domain} at %{time}."
-          not_published: "%{object_type} was not published via ActivityPub."
-          delivered: "%{object_type} was delivered via ActivityPub from this site at %{time}."
+          published: "%{object_type} was published from this site at %{time}."
+          scheduled: "%{object_type} is scheduled to be published from this site at %{time}."
+          scheduled_past: "%{object_type} was scheduled to be published from this site at %{time}."
+          deleted: "%{object_type} was deleted at %{time}."
+          updated: "%{object_type} was updated at %{time}."
+          published_remote: "%{object_type} was published from %{domain} at %{time}."
+          not_published: "%{object_type} was not published."
+          delivered: "%{object_type} was delivered from this site at %{time}."
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.

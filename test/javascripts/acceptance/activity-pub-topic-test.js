@@ -127,7 +127,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was scheduled to be published via ActivityPub from this site at ${scheduledAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was scheduled to be published from this site at ${scheduledAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -261,7 +261,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published via ActivityPub from this site at ${publishedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published from this site at ${publishedAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -289,7 +289,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was deleted via ActivityPub at ${deletedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was deleted at ${deletedAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -311,7 +311,7 @@ acceptance(
         query(
           ".activity-pub-post-info-modal .activity-pub-state"
         ).innerText.trim(),
-        `Note was published via ActivityPub from this site at ${publishedAt.format(
+        `Note was published from this site at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
         "shows the right state text"
@@ -363,7 +363,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published via ActivityPub from external.com at ${publishedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published from external.com at ${publishedAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -385,7 +385,7 @@ acceptance(
         query(
           ".activity-pub-post-info-modal .activity-pub-state"
         ).innerText.trim(),
-        `Note was published via ActivityPub from external.com at ${publishedAt.format(
+        `Note was published from external.com at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
         "shows the right state text"
@@ -445,7 +445,7 @@ acceptance(
 
       assert.ok(
         exists(
-          ".topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was not published via ActivityPub.']"
+          ".topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was not published.']"
         ),
         "shows the right title"
       );
@@ -471,7 +471,7 @@ acceptance(
         query(
           ".activity-pub-post-info-modal .activity-pub-state"
         ).innerText.trim(),
-        "Note was not published via ActivityPub.",
+        "Note was not published.",
         "shows the right state text"
       );
     });

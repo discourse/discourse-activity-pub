@@ -80,10 +80,7 @@ export default class ActivityPubPostInfo extends Component {
   }
 
   get showObjectId() {
-    return (
-      this.args.model.post.activity_pub_local &&
-      this.args.model.post.activity_pub_object_id
-    );
+    return this.args.model.post.activity_pub_object_id;
   }
 
   get copyObjectIdTitle() {

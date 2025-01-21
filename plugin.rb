@@ -514,7 +514,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_topic_trashed) do
     @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
-  add_to_class(:post, :activity_pub_object_id) { activity_pub_local? && activity_pub_object&.ap_id }
+  add_to_class(:post, :activity_pub_object_id) { activity_pub_object&.ap_id }
 
   add_model_callback(:post, :after_destroy) do
     # We need these to create a Delete activity when the post is actually destroyed
