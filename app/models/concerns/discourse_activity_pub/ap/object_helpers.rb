@@ -5,9 +5,7 @@ module DiscourseActivityPub
       extend ActiveSupport::Concern
 
       def get_published_at
-        self.published_at ?
-          self.published_at.to_time.utc.iso8601 :
-          Time.now.utc.iso8601
+        self.published_at ? self.published_at.to_time.utc.iso8601 : Time.now.utc.iso8601
       end
 
       def get_delivered_at

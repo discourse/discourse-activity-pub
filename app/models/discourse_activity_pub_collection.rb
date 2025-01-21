@@ -53,7 +53,6 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   def after_published(published_at, activity = nil)
     self.update(published_at: published_at)
-    send_to_collection("after_published", published_at)
   end
 
   def actor

@@ -173,13 +173,17 @@ module DiscourseActivityPub
           )
         end
 
-        deliveries.each do |delivery|
-          DiscourseActivityPub::DeliveryHandler.perform(
-            actor: delivery.actor,
-            object: delivery.object,
-            recipient_ids: delivery.recipient_ids,
-            delay: delivery.delay,
-          )
+        if all_recipient_ids.any?
+          deliveries.each do |delivery|
+            DiscourseActivityPub::DeliveryHandler.perform(
+              actor: delivery.actor,
+              object: delivery.object,
+              recipient_ids: delivery.recipient_ids,
+              delay: delivery.delay,
+            )
+          end
+        else
+          @performing_activity.stored.publish!
         end
       end
 
@@ -207,12 +211,7 @@ module DiscourseActivityPub
       end
 
       def activity_pub_delivery_actors
-        if performing_activity.create? || performing_activity.like? ||
-             performing_activity.undo_like?
-          activity_pub_group_actors
-        else
-          [performing_activity_actor]
-        end
+        activity_pub_group_actors
       end
 
       def activity_pub_delivery_object

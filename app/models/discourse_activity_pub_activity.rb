@@ -94,9 +94,14 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     )
   end
 
+  def publish!
+    _published_at = get_published_at
+    self.update(published_at: _published_at) if !self.published_at
+    after_published(_published_at, self)
+  end
+
   def before_deliver
-    # We have to set "published" on the JSON we deliver
-    after_published(get_published_at, self)
+    publish!
   end
 
   def after_deliver(delivered = true)
@@ -134,7 +139,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def after_published(published_at, _activity = nil)
-    self.update(published_at: published_at) if !self.published_at
     object.after_published(published_at, self) if object.respond_to?(:after_published)
   end
 

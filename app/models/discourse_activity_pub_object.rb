@@ -91,11 +91,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def before_deliver
-    after_published(get_published_at)
   end
 
   def after_deliver(delivered = true)
-    if delivered
+    if delivered && model.respond_to?(:activity_pub_after_deliver)
       args = { delivered_at: get_delivered_at }
       model.activity_pub_after_deliver(args)
     end

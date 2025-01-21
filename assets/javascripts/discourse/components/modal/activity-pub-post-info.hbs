@@ -25,29 +25,6 @@
           </a>
         </span>
       {{/if}}
-      {{#if this.showObjectId}}
-        <span class="activity-pub-object-id">
-          {{d-icon "link"}}
-          <span>{{@model.post.activity_pub_object_id}}</span>
-          {{#if this.copiedObjectId}}
-            <DButton
-              @icon="check"
-              @title="ip_lookup.copied"
-              class="activity-pub-object-id-copy success"
-            >
-              <div class="activity-pub-object-id-copy-text">
-                {{i18n "post.controls.link_copied"}}
-              </div>
-            </DButton>
-          {{else}}
-            <DButton
-              @action={{this.copyObjectId}}
-              @icon="copy"
-              class="no-text activity-pub-object-id-copy"
-            />
-          {{/if}}
-        </span>
-      {{/if}}
       {{#if this.showDelivered}}
         <span class="activity-pub-delivered">{{d-icon
             "envelope"
@@ -55,4 +32,22 @@
       {{/if}}
     </div>
   </:body>
+
+  <:footer>
+    {{#if this.showObjectId}}
+      <DButton
+        @icon="link"
+        @action={{this.copyObjectId}}
+        @translatedTitle={{this.copyObjectIdTitle}}
+        @translatedLabel={{this.copyObjectIdLabel}}
+        class="activity-pub-object-id-copy"
+      >
+        {{#if this.copiedObjectId}}
+          <div class="activity-pub-object-id-copy-text">
+            {{i18n "post.discourse_activity_pub.info.copy_uri.copied"}}
+          </div>
+        {{/if}}
+      </DButton>
+    {{/if}}
+  </:footer>
 </DModal>

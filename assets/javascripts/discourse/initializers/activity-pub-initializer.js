@@ -224,6 +224,7 @@ export default {
         const canPublish =
           currentUser?.staff &&
           topic.activity_pub_full_topic &&
+          !topic.activity_pub_scheduled &&
           !topic.activity_pub_published;
 
         if (canPublish) {

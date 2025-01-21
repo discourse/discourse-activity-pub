@@ -86,6 +86,16 @@ export default class ActivityPubPostInfo extends Component {
     );
   }
 
+  get copyObjectIdTitle() {
+    return I18n.t("post.discourse_activity_pub.info.copy_uri.title", {
+      object_type: this.args.model.post.activity_pub_object_type,
+    });
+  }
+
+  get copyObjectIdLabel() {
+    return I18n.t("post.discourse_activity_pub.info.copy_uri.label");
+  }
+
   get showDelivered() {
     return !!this.args.model.post.activity_pub_delivered_at;
   }

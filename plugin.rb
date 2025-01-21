@@ -255,6 +255,12 @@ after_initialize do
     first_post = posts.with_deleted.find_by(post_number: 1)
     first_post&.activity_pub_published?
   end
+  add_to_class(:topic, :activity_pub_scheduled?) do
+    return false unless activity_pub_enabled
+
+    first_post = posts.with_deleted.find_by(post_number: 1)
+    first_post&.activity_pub_scheduled?
+  end
   add_to_class(:topic, :activity_pub_first_post) { activity_pub_taxonomy&.activity_pub_first_post }
   add_to_class(:topic, :activity_pub_full_topic) { activity_pub_taxonomy&.activity_pub_full_topic }
   add_to_class(:topic, :activity_pub_full_topic_enabled) do
@@ -374,6 +380,7 @@ after_initialize do
   add_to_class(:post, :activity_pub_published?) { !!activity_pub_published_at }
   add_to_class(:post, :activity_pub_deleted?) { !!activity_pub_deleted_at }
   add_to_class(:post, :activity_pub_scheduled?) { !!activity_pub_scheduled_at }
+  add_to_class(:post, :activity_pub_delivered?) { !!activity_pub_delivered_at }
   add_to_class(:post, :activity_pub_publish_state) do
     return false unless activity_pub_enabled
     return false unless activity_pub_topic
@@ -565,6 +572,7 @@ after_initialize do
 
   add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
   add_to_serializer(:topic_view, :activity_pub_published) { object.topic.activity_pub_published? }
+  add_to_serializer(:topic_view, :activity_pub_scheduled) { object.topic.activity_pub_scheduled? }
   add_to_serializer(:topic_view, :activity_pub_full_topic) { object.topic.activity_pub_full_topic }
 
   TopicView.on_preload do |topic_view|

@@ -460,11 +460,6 @@ RSpec.describe Post do
         perform_delete
         expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
       end
-
-      it "sends the activity as the post actor for delivery without delay" do
-        expect_delivery(actor: post.activity_pub_actor, object_type: "Delete")
-        perform_delete
-      end
     end
 
     context "without activty pub enabled on the category" do
@@ -546,6 +541,19 @@ RSpec.describe Post do
               )
               .exists?,
           ).to eq(true)
+        end
+
+        context "when post category has no followers" do
+          it "publishes the post's ap objects" do
+            freeze_time
+            published_at = Time.now.utc.iso8601
+            perform_create
+            expect(post.activity_pub_published?).to eq(true)
+            expect(post.activity_pub_published_at).to eq(published_at) # rubocop:disable Discourse/TimeEqMatcher stored as a string
+            expect(post.activity_pub_object.published_at).to eq(published_at) # rubocop:disable Discourse/TimeEqMatcher stored as a string
+            expect(post.activity_pub_object.create_activity.published_at).to eq(published_at) # rubocop:disable Discourse/TimeEqMatcher stored as a string
+            unfreeze_time
+          end
         end
 
         context "when post category has followers" do
@@ -665,36 +673,40 @@ RSpec.describe Post do
             ).to eq(true)
           end
 
-          it "doesn't create multiple unpublished activities" do
-            perform_update
-            perform_update
-            expect(
-              post
-                .activity_pub_actor
-                .activities
-                .where(
-                  object_id: post.activity_pub_object.id,
-                  object_type: "DiscourseActivityPubObject",
-                  ap_type: "Update",
-                )
-                .size,
-            ).to eq(1)
+          context "when the category has no followers" do
+            it "creates multiple published activities" do
+              perform_update
+              perform_update
+              attrs = {
+                object_id: post.activity_pub_object.id,
+                object_type: "DiscourseActivityPubObject",
+                ap_type: "Update",
+              }
+              expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
+            end
           end
 
-          it "creates multiple published activities" do
-            perform_update
-            perform_update
+          context "when the category has followers" do
+            let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+            let!(:follow1) do
+              Fabricate(
+                :discourse_activity_pub_follow,
+                follower: follower1,
+                followed: category.activity_pub_actor,
+              )
+            end
 
-            attrs = {
-              object_id: post.activity_pub_object.id,
-              object_type: "DiscourseActivityPubObject",
-              ap_type: "Update",
-            }
-            post.activity_pub_actor.activities.where(attrs).update_all(published_at: Time.now)
-
-            perform_update
-
-            expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
+            it "does not create multiple unpublished activities" do
+              perform_update
+              perform_update
+              attrs = {
+                object_id: post.activity_pub_object.id,
+                object_type: "DiscourseActivityPubObject",
+                ap_type: "Update",
+                published_at: nil,
+              }
+              expect(post.activity_pub_actor.activities.where(attrs).size).to eq(1)
+            end
           end
 
           context "when the acting user is different from the post user" do
@@ -1090,36 +1102,40 @@ RSpec.describe Post do
             ).to eq(true)
           end
 
-          it "doesn't create multiple unpublished activities" do
-            perform_update
-            perform_update
-            expect(
-              post
-                .activity_pub_actor
-                .activities
-                .where(
-                  object_id: post.activity_pub_object.id,
-                  object_type: "DiscourseActivityPubObject",
-                  ap_type: "Update",
-                )
-                .size,
-            ).to eq(1)
+          context "when the tag has no followers" do
+            it "creates multiple published activities" do
+              perform_update
+              perform_update
+              attrs = {
+                object_id: post.activity_pub_object.id,
+                object_type: "DiscourseActivityPubObject",
+                ap_type: "Update",
+              }
+              expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
+            end
           end
 
-          it "creates multiple published activities" do
-            perform_update
-            perform_update
+          context "when the tag has followers" do
+            let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+            let!(:follow1) do
+              Fabricate(
+                :discourse_activity_pub_follow,
+                follower: follower1,
+                followed: tag.activity_pub_actor,
+              )
+            end
 
-            attrs = {
-              object_id: post.activity_pub_object.id,
-              object_type: "DiscourseActivityPubObject",
-              ap_type: "Update",
-            }
-            post.activity_pub_actor.activities.where(attrs).update_all(published_at: Time.now)
-
-            perform_update
-
-            expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
+            it "doe not create multiple unpublished activities" do
+              perform_update
+              perform_update
+              attrs = {
+                object_id: post.activity_pub_object.id,
+                object_type: "DiscourseActivityPubObject",
+                ap_type: "Update",
+                published_at: nil,
+              }
+              expect(post.activity_pub_actor.activities.where(attrs).size).to eq(1)
+            end
           end
 
           context "when the acting user is different from the post user" do
@@ -1561,13 +1577,24 @@ RSpec.describe Post do
               )
             end
 
-            it "sends the activity for delayed delivery" do
-              expect_delivery(
-                actor: topic.activity_pub_actor,
-                object_type: "Create",
-                delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
-              )
-              perform_create
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: category.activity_pub_actor,
+                )
+              end
+
+              it "sends the activity for delayed delivery" do
+                expect_delivery(
+                  actor: topic.activity_pub_actor,
+                  object_type: "Create",
+                  delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
+                )
+                perform_create
+              end
             end
           end
 
@@ -1673,39 +1700,45 @@ RSpec.describe Post do
                 ).to eq(true)
               end
 
-              it "doesn't create multiple unpublished activities" do
-                perform_update
-                expect(
-                  post
-                    .activity_pub_actor
-                    .activities
-                    .where(
-                      object_id: post.activity_pub_object.id,
-                      object_type: "DiscourseActivityPubObject",
-                      ap_type: "Update",
-                    )
-                    .size,
-                ).to eq(1)
+              context "with no followers" do
+                it "creates multiple published activities" do
+                  perform_update
+                  perform_update
+                  attrs = {
+                    object_id: post.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                  }
+                  expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
+                end
               end
 
-              it "creates multiple published activities" do
-                perform_update
+              context "with followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: category.activity_pub_actor,
+                  )
+                end
 
-                attrs = {
-                  object_id: post.activity_pub_object.id,
-                  object_type: "DiscourseActivityPubObject",
-                  ap_type: "Update",
-                }
-                post.activity_pub_actor.activities.where(attrs).update_all(published_at: Time.now)
+                it "does not create multiple unpublished activities" do
+                  perform_update
+                  perform_update
+                  attrs = {
+                    object_id: post.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                    published_at: nil,
+                  }
+                  expect(post.activity_pub_actor.activities.where(attrs).size).to eq(1)
+                end
 
-                perform_update
-
-                expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
-              end
-
-              it "sends the activity as the post actor for delivery without delay" do
-                expect_delivery(actor: post.activity_pub_actor, object_type: "Update")
-                perform_update
+                it "sends the activity as the category actor for delivery without delay" do
+                  expect_delivery(actor: category.activity_pub_actor, object_type: "Update")
+                  perform_update
+                end
               end
 
               context "when the acting user is different from the post user" do
@@ -1785,14 +1818,25 @@ RSpec.describe Post do
               ).to eq(true)
             end
 
-            context "while not published" do
-              it "sends the activity for delayed delivery" do
-                expect_delivery(
-                  actor: topic.activity_pub_actor,
-                  object_type: "Create",
-                  delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
-                )
-                perform_create
+            context "with topic publication" do
+              context "when the category has followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: category.activity_pub_actor,
+                  )
+                end
+
+                it "sends the activity for delayed delivery" do
+                  expect_delivery(
+                    actor: topic.activity_pub_actor,
+                    object_type: "Create",
+                    delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
+                  )
+                  perform_create
+                end
               end
             end
 
@@ -1923,9 +1967,20 @@ RSpec.describe Post do
                 expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
               end
 
-              it "sends the activity as the post actor for delivery without delay" do
-                expect_delivery(actor: reply.activity_pub_actor, object_type: "Update")
-                perform_update
+              context "with followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: category.activity_pub_actor,
+                  )
+                end
+
+                it "sends the activity as the category actor for delivery without delay" do
+                  expect_delivery(actor: category.activity_pub_actor, object_type: "Update")
+                  perform_update
+                end
               end
             end
           end
@@ -2009,9 +2064,20 @@ RSpec.describe Post do
                 expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
               end
 
-              it "sends the activity as the post actor for delivery without delay" do
-                expect_delivery(actor: reply.activity_pub_actor, object_type: "Delete")
-                perform_delete
+              context "with followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: category.activity_pub_actor,
+                  )
+                end
+
+                it "sends the activity as the category actor for delivery without delay" do
+                  expect_delivery(actor: category.activity_pub_actor, object_type: "Delete")
+                  perform_delete
+                end
               end
             end
           end
@@ -2101,13 +2167,24 @@ RSpec.describe Post do
               )
             end
 
-            it "sends activity as the topic actor for delayed delivery" do
-              expect_delivery(
-                actor: topic.activity_pub_actor,
-                object_type: "Create",
-                delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
-              )
-              perform_create
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: tag.activity_pub_actor,
+                )
+              end
+
+              it "sends activity as the topic actor for delayed delivery" do
+                expect_delivery(
+                  actor: topic.activity_pub_actor,
+                  object_type: "Create",
+                  delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
+                )
+                perform_create
+              end
             end
           end
 
@@ -2219,39 +2296,45 @@ RSpec.describe Post do
                 ).to eq(true)
               end
 
-              it "doesn't create multiple unpublished activities" do
-                perform_update
-                expect(
-                  post
-                    .activity_pub_actor
-                    .activities
-                    .where(
-                      object_id: post.activity_pub_object.id,
-                      object_type: "DiscourseActivityPubObject",
-                      ap_type: "Update",
-                    )
-                    .size,
-                ).to eq(1)
+              context "when the tag has no followers" do
+                it "creates multiple published activities" do
+                  perform_update
+                  perform_update
+                  attrs = {
+                    object_id: post.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                  }
+                  expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
+                end
               end
 
-              it "creates multiple published activities" do
-                perform_update
+              context "when the tag has followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: tag.activity_pub_actor,
+                  )
+                end
 
-                attrs = {
-                  object_id: post.activity_pub_object.id,
-                  object_type: "DiscourseActivityPubObject",
-                  ap_type: "Update",
-                }
-                post.activity_pub_actor.activities.where(attrs).update_all(published_at: Time.now)
+                it "does not create multiple unpublished activities" do
+                  perform_update
+                  perform_update
+                  attrs = {
+                    object_id: post.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                    published_at: nil,
+                  }
+                  expect(post.activity_pub_actor.activities.where(attrs).size).to eq(1)
+                end
 
-                perform_update
-
-                expect(post.activity_pub_actor.activities.where(attrs).size).to eq(2)
-              end
-
-              it "sends the activity as the post actor for delivery without delay" do
-                expect_delivery(actor: post.activity_pub_actor, object_type: "Update")
-                perform_update
+                it "sends the activity as the tag actor for delivery without delay" do
+                  expect_delivery(actor: tag.activity_pub_actor, object_type: "Update")
+                  perform_update
+                end
               end
 
               context "when the acting user is different from the post user" do
@@ -2331,10 +2414,21 @@ RSpec.describe Post do
               ).to eq(true)
             end
 
-            context "while not published" do
-              it "enqueues the activity for delivery" do
-                expect_delivery(actor: topic.activity_pub_actor, object_type: "Create")
-                perform_create
+            context "with topic publication" do
+              context "when the tag has followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: tag.activity_pub_actor,
+                  )
+                end
+
+                it "enqueues the activity for delivery" do
+                  expect_delivery(actor: topic.activity_pub_actor, object_type: "Create")
+                  perform_create
+                end
               end
             end
 
@@ -2435,39 +2529,45 @@ RSpec.describe Post do
                 ).to eq(true)
               end
 
-              it "doesn't create multiple unpublished activities" do
-                perform_update
-                expect(
-                  reply
-                    .activity_pub_actor
-                    .activities
-                    .where(
-                      object_id: reply.activity_pub_object.id,
-                      object_type: "DiscourseActivityPubObject",
-                      ap_type: "Update",
-                    )
-                    .size,
-                ).to eq(1)
+              context "with no followers" do
+                it "creates multiple published activities" do
+                  perform_update
+                  perform_update
+                  attrs = {
+                    object_id: reply.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                  }
+                  expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
+                end
               end
 
-              it "creates multiple published activities" do
-                perform_update
+              context "with followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: tag.activity_pub_actor,
+                  )
+                end
 
-                attrs = {
-                  object_id: reply.activity_pub_object.id,
-                  object_type: "DiscourseActivityPubObject",
-                  ap_type: "Update",
-                }
-                reply.activity_pub_actor.activities.where(attrs).update_all(published_at: Time.now)
+                it "does not create multiple unpublished activities" do
+                  perform_update
+                  perform_update
+                  attrs = {
+                    object_id: reply.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                    published_at: nil,
+                  }
+                  expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(1)
+                end
 
-                perform_update
-
-                expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
-              end
-
-              it "sends the activity as the post actor for delivery without delay" do
-                expect_delivery(actor: reply.activity_pub_actor, object_type: "Update")
-                perform_update
+                it "sends the activity as the tag actor for delivery without delay" do
+                  expect_delivery(actor: tag.activity_pub_actor, object_type: "Update")
+                  perform_update
+                end
               end
             end
           end
@@ -2551,9 +2651,20 @@ RSpec.describe Post do
                 expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
               end
 
-              it "sends the activity as the post actor for delivery without delay" do
-                expect_delivery(actor: reply.activity_pub_actor, object_type: "Delete")
-                perform_delete
+              context "when the tag has followers" do
+                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                let!(:follow1) do
+                  Fabricate(
+                    :discourse_activity_pub_follow,
+                    follower: follower1,
+                    followed: tag.activity_pub_actor,
+                  )
+                end
+
+                it "sends the activity as the post actor for delivery without delay" do
+                  expect_delivery(actor: tag.activity_pub_actor, object_type: "Delete")
+                  perform_delete
+                end
               end
             end
           end

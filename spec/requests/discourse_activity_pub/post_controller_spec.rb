@@ -301,10 +301,21 @@ RSpec.describe DiscourseActivityPub::PostController do
               post1.save_custom_fields(true)
             end
 
-            it "schedules the create activity for delivery immediately" do
-              expect_delivery(actor: topic.activity_pub_actor, object_type: "Create", delay: nil)
-              post "/ap/post/deliver/#{post1.id}"
-              expect(response.status).to eq(200)
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: category.activity_pub_actor,
+                )
+              end
+
+              it "schedules the create activity for delivery immediately" do
+                expect_delivery(actor: topic.activity_pub_actor, object_type: "Create", delay: nil)
+                post "/ap/post/deliver/#{post1.id}"
+                expect(response.status).to eq(200)
+              end
             end
           end
 

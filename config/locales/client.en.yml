@@ -193,6 +193,10 @@ en:
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.
+          copy_uri:
+            label: Copy URI
+            title: Copy %{object_type} URI
+            copied: URI Copied!
         schedule:
           label: Schedule Publish
           title: Schedule post to be published via ActivityPub.
