@@ -549,9 +549,11 @@ RSpec.describe Post do
             published_at = Time.now.utc.iso8601
             perform_create
             expect(post.activity_pub_published?).to eq(true)
-            expect(post.activity_pub_published_at).to eq(published_at) # rubocop:disable Discourse/TimeEqMatcher stored as a string
-            expect(post.activity_pub_object.published_at).to eq(published_at) # rubocop:disable Discourse/TimeEqMatcher stored as a string
-            expect(post.activity_pub_object.create_activity.published_at).to eq(published_at) # rubocop:disable Discourse/TimeEqMatcher stored as a string
+            # rubocop:disable Discourse/TimeEqMatcher
+            expect(post.activity_pub_published_at).to eq(published_at)
+            expect(post.activity_pub_object.published_at).to eq(published_at)
+            expect(post.activity_pub_object.create_activity.published_at).to eq(published_at)
+            # rubocop:enable Discourse/TimeEqMatcher
             unfreeze_time
           end
         end
