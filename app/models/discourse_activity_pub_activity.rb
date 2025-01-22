@@ -61,14 +61,18 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
 
   def to
     return nil unless local?
-    return audience if audience
-    base_object.ap_id if base_object&.ap&.actor?
+    return base_object.ap_id if base_object&.ap&.actor?
+
+    result = []
+    result << DiscourseActivityPub::JsonLd.public_collection_id if public?
+    result << audience if audience
+
+    result.present? ? result : nil
   end
 
   def cc
     return nil unless local?
     result = []
-    result << DiscourseActivityPub::JsonLd.public_collection_id if public?
 
     if base_object&.ap&.object?
       reply_to_audience = base_object.reply_to&.audience
