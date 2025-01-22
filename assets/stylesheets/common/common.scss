@@ -463,7 +463,37 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-actor-title {
+.activity-pub-log-table {
+  grid-template-columns: 120px 100px minmax(8em, 2fr) 120px;
+}
+
+.activity-pub-log-created-at {
+  justify-content: flex-start;
+}
+
+.activity-pub-json-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activity-pub-json-modal-buttons {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.activity-pub-json-display {
+  max-width: 100%;
+  max-height: 400px;
+  font-size: 0.8em;
+  background-color: var(--primary-100);
+  padding: 0.5em;
+  overflow: scroll;
+}
+
+.activity-pub-actor-title,
+.activity-pub-log-title {
   align-items: center;
   gap: 1em;
   margin-top: 1em;
@@ -502,7 +532,8 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-actor-save-response {
+.activity-pub-actor-save-response,
+.activity-pub-json-copy-status {
   &.success {
     color: var(--success);
   }

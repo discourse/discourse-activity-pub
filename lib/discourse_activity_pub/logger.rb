@@ -13,7 +13,11 @@ module DiscourseActivityPub
     end
 
     def log(message, json: nil)
+      return if self.class.log_types.exclude?(type)
+
       puts formatted_message(message) if print_to_stdout?
+
+      DiscourseActivityPubLog.create(level: type, message: message, json: json)
 
       return unless SiteSetting.activity_pub_verbose_logging
       rails_args = {}

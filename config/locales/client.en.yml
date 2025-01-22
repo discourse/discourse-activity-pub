@@ -63,6 +63,21 @@ en:
             tag: Tag
         log:
           label: Logs
+          title: Logs
+          created_at: Created At
+          level: Level
+          message: Message
+          json:
+            label: JSON
+            title: Activity JSON
+            show:
+              label: JSON
+              title: Show Activity JSON
+            copy:
+              label: Copy
+              title: Copy JSON to clipboard.
+              success: Copied!
+            logged_at: Logged %{logged_at}
   js:   
     discourse_activity_pub:
       status:
