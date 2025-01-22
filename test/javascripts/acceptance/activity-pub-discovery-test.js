@@ -156,7 +156,7 @@ acceptance(
         "shows the right banner text"
       );
 
-      await triggerEvent(".fk-d-tooltip__trigger", "mousemove");
+      await triggerEvent(".fk-d-tooltip__trigger", "pointermove");
       assert.equal(
         query(".fk-d-tooltip__inner-content").textContent.trim(),
         I18n.t("discourse_activity_pub.banner.public_first_post"),
