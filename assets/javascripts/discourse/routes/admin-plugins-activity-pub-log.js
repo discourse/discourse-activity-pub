@@ -14,6 +14,8 @@ export default class AdminPluginsActivityPubLogRoute extends DiscourseRoute {
 
   setupController(controller, model) {
     controller.setProperties({
+      loadMoreUrl: model.meta.load_more_url,
+      total: model.meta.total,
       logs: A(
         (model.logs || []).map((actor) => {
           return ActivityPubLog.create(actor);
