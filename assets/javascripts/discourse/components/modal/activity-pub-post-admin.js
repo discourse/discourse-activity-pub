@@ -46,8 +46,10 @@ export default class ActivityPubPostAdmin extends Component {
 
   get noFollowers() {
     return (
-      this.actors.reduce((total, actor) => actor.follower_count + total, 0) ===
-      0
+      this.actors.reduce(
+        (total, actor) => (actor.follower_count || 0) + total,
+        0
+      ) === 0
     );
   }
 

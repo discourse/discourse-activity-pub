@@ -10,6 +10,7 @@ import {
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
+import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 const createdAt = moment().subtract(2, "days");
 const scheduledAt = moment().subtract(2, "days");
@@ -136,13 +137,44 @@ acceptance(
     });
 
     test("Post admin menu", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_actors: cloneJSON(SiteActors),
+      });
+
       await visit("/t/280");
       await click(".show-more-actions");
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(".fk-d-menu .show-activity-pub-post-admin"),
+        exists(".show-activity-pub-post-admin"),
         "The ActivityPub post admin button was rendered"
+      );
+
+      await click(".show-activity-pub-post-admin");
+
+      assert.ok(
+        exists(".activity-pub-post-admin-modal"),
+        "The ActivityPub post admin modal was rendered"
+      );
+      assert.strictEqual(
+        document.querySelectorAll(
+          ".activity-pub-post-admin-modal .actors .activity-pub-handle"
+        ).length,
+        1,
+        "topic actors are visible"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-admin-modal .status .controls"
+        ).innerText.trim(),
+        `Note was scheduled to be published on this site at ${scheduledAt.format(
+          "h:mm a, MMM D"
+        )}.`,
+        "shows the right status text"
+      );
+      assert.ok(
+        exists(".activity-pub-post-admin-modal .actions .btn.unschedule"),
+        "shows the unschedule action"
       );
     });
   }
@@ -158,14 +190,46 @@ acceptance(
     });
 
     test("Post admin menu", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_actors: cloneJSON(SiteActors),
+      });
+
       await visit("/t/280");
       await click(".show-more-actions");
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(".fk-d-menu .show-activity-pub-post-admin"),
+        exists(".show-activity-pub-post-admin"),
         "The ActivityPub post admin button was rendered"
       );
+
+      await click(".show-activity-pub-post-admin");
+
+      assert.ok(
+        exists(".activity-pub-post-admin-modal"),
+        "The ActivityPub post admin modal was rendered"
+      );
+      assert.strictEqual(
+        document.querySelectorAll(
+          ".activity-pub-post-admin-modal .actors .activity-pub-handle"
+        ).length,
+        1,
+        "topic actors are visible"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-admin-modal .status .controls"
+        ).innerText.trim(),
+        `Note is not published.`,
+        "shows the right status text"
+      );
+      assert.ok(
+        exists(".activity-pub-post-admin-modal .actions .btn.publish"),
+        "shows the publish action"
+      );
+      assert
+        .dom(".activity-pub-post-admin-modal .actions .btn.schedule")
+        .isDisabled();
     });
   }
 );
@@ -180,14 +244,46 @@ acceptance(
     });
 
     test("Post admin menu", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_actors: cloneJSON(SiteActors),
+      });
+
       await visit("/t/280");
       await click(".show-more-actions");
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(".fk-d-menu .show-activity-pub-post-admin"),
+        exists(".show-activity-pub-post-admin"),
         "The ActivityPub post admin button was rendered"
       );
+
+      await click(".show-activity-pub-post-admin");
+
+      assert.ok(
+        exists(".activity-pub-post-admin-modal"),
+        "The ActivityPub post admin modal was rendered"
+      );
+      assert.strictEqual(
+        document.querySelectorAll(
+          ".activity-pub-post-admin-modal .actors .activity-pub-handle"
+        ).length,
+        1,
+        "topic actors are visible"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-admin-modal .status .controls"
+        ).innerText.trim(),
+        `Note is not published.`,
+        "shows the right status text"
+      );
+      assert.ok(
+        exists(".activity-pub-post-admin-modal .actions .btn.publish"),
+        "shows the publish action"
+      );
+      assert
+        .dom(".activity-pub-post-admin-modal .actions .btn.schedule")
+        .isDisabled();
     });
   }
 );
@@ -207,6 +303,10 @@ acceptance(
     );
 
     test("Topic admin menu", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_actors: cloneJSON(SiteActors),
+      });
+
       await visit("/t/280");
       await click(".topic-admin-menu-trigger");
 
@@ -220,6 +320,24 @@ acceptance(
       assert.ok(
         exists(".activity-pub-topic-admin-modal"),
         "The topic admin modal appears"
+      );
+      assert.strictEqual(
+        document.querySelectorAll(
+          ".activity-pub-topic-admin-modal .actors .activity-pub-handle"
+        ).length,
+        1,
+        "topic actors are visible"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-topic-admin-modal .status .controls"
+        ).innerText.trim(),
+        "No posts in this topic are published.",
+        "shows the right status text"
+      );
+      assert.ok(
+        exists(".activity-pub-topic-admin-modal .actions .btn.publish"),
+        "shows the publish action"
       );
     });
   }
@@ -313,7 +431,7 @@ acceptance(
         `Note was published on this site at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
-        "shows the right state text"
+        "shows the right status text"
       );
       assert.strictEqual(
         query(
@@ -387,7 +505,7 @@ acceptance(
         `Note was published on external.com at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
-        "shows the right state text"
+        "shows the right status text"
       );
       assert.strictEqual(
         query(
@@ -471,7 +589,7 @@ acceptance(
           ".activity-pub-post-info-modal .activity-pub-status"
         ).innerText.trim(),
         "Note is not published.",
-        "shows the right state text"
+        "shows the right status text"
       );
     });
   }

@@ -34,6 +34,7 @@
                 @label="post.discourse_activity_pub.deliver.label"
                 @action={{this.deliver}}
                 @disabled={{this.noFollowers}}
+                class="deliver"
               />
             </div>
             <div class="action-description">
@@ -51,6 +52,7 @@
               <DButton
                 @label="post.discourse_activity_pub.publish.label"
                 @action={{this.publish}}
+                class="publish"
               />
             </div>
             <div class="action-description">
@@ -65,6 +67,7 @@
                 @translatedLabel={{this.scheduleLabel}}
                 @action={{action this.scheduleAction}}
                 @disabled={{this.noFollowers}}
+                class={{this.scheduleAction}}
               />
             </div>
             <div class="action-description">
