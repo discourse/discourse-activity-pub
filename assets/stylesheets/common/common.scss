@@ -572,3 +572,40 @@ body.user-preferences-activity-pub-page {
     color: var(--primary-high);
   }
 }
+
+.activity-pub-admin-modal {
+  .d-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .control-group {
+    .control-label {
+      margin-bottom: 0.5em;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+
+    &.actions {
+      .controls {
+        flex-direction: column;
+      }
+
+      .action {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        width: 100%;
+
+        .action-button .d-button-label {
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}

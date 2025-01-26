@@ -1,6 +1,4 @@
 import { Promise } from "rsvp";
-import { ajax } from "discourse/lib/ajax";
-import { popupAjaxError } from "discourse/lib/ajax-error";
 import { AUTO_GROUPS } from "discourse/lib/constants";
 import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
@@ -12,6 +10,7 @@ export default {
 
     withPluginApi("1.6.0", (api) => {
       const currentUser = api.getCurrentUser();
+      const modal = api._lookupContainer("service:modal");
 
       api.addTrackedPostProperties(
         "activity_pub_enabled",
@@ -59,30 +58,8 @@ export default {
             attrs.activity_pub_enabled &&
             this.showStatusToUser(this.currentUser)
           ) {
-            let time;
-            let state;
-
-            if (attrs.activity_pub_deleted_at) {
-              time = moment(attrs.activity_pub_deleted_at);
-              state = "deleted";
-            } else if (attrs.activity_pub_updated_at) {
-              time = moment(attrs.activity_pub_updated_at);
-              state = "updated";
-            } else if (attrs.activity_pub_published_at) {
-              time = moment(attrs.activity_pub_published_at);
-              state = attrs.activity_pub_local
-                ? "published"
-                : "published_remote";
-            } else if (attrs.activity_pub_scheduled_at) {
-              time = moment(attrs.activity_pub_scheduled_at);
-              state = moment().isAfter(moment(time))
-                ? "scheduled_past"
-                : "scheduled";
-            } else {
-              state = "not_published";
-            }
-
-            if (state) {
+            const status = activityPubPostStatus(attrs);
+            if (status) {
               let replyToTabIndex = postStatuses.findIndex((postStatus) => {
                 return postStatus.name === "reply-to-tab";
               });
@@ -91,8 +68,7 @@ export default {
                 0,
                 this.attach("post-activity-pub-indicator", {
                   post: attrs,
-                  time,
-                  state,
+                  status,
                 })
               );
             }
@@ -102,144 +78,40 @@ export default {
         },
       });
 
-      if (api.addPostAdminMenuButton) {
-        api.addPostAdminMenuButton((attrs) => {
-          if (!attrs.activity_pub_enabled) {
-            return;
-          }
-
-          const canSchedule =
-            currentUser?.staff &&
-            attrs.activity_pub_is_first_post &&
-            !attrs.activity_pub_published_at;
-
-          if (canSchedule) {
-            const scheduled = !!attrs.activity_pub_scheduled_at;
-            const type = scheduled ? "unschedule" : "schedule";
-            return {
-              secondaryAction: "closeAdminMenu",
-              icon: "discourse-activity-pub",
-              className: `activity-pub-${type}`,
-              title: `post.discourse_activity_pub.${type}.title`,
-              label: `post.discourse_activity_pub.${type}.label`,
-              position: "second-last-hidden",
-              action: async (post) => {
-                if (scheduled) {
-                  ajax(`/ap/post/schedule/${post.id}`, {
-                    type: "DELETE",
-                  }).catch(popupAjaxError);
-                } else {
-                  ajax(`/ap/post/schedule/${post.id}`, {
-                    type: "POST",
-                  }).catch(popupAjaxError);
-                }
-              },
-            };
-          }
-        });
-
-        api.addPostAdminMenuButton((attrs) => {
-          if (!attrs.activity_pub_enabled) {
-            return;
-          }
-
-          const canDeliver =
-            currentUser?.staff &&
-            attrs.activity_pub_is_first_post &&
-            attrs.activity_pub_published_at;
-
-          if (canDeliver) {
-            return {
-              secondaryAction: "closeAdminMenu",
-              icon: "discourse-activity-pub",
-              className: "activity-pub-deliver",
-              title: "post.discourse_activity_pub.deliver.title",
-              label: "post.discourse_activity_pub.deliver.label",
-              position: "second-last-hidden",
-              action: async (post) => {
-                ajax(`/ap/post/deliver/${post.id}`, {
-                  type: "POST",
-                }).catch(popupAjaxError);
-              },
-            };
-          }
-        });
-      } else {
-        // TODO: remove support for older Discourse versions in December 2023
-        api.reopenWidget("post-admin-menu", {
-          pluginId: "discourse-activity-pub",
-
-          html(attrs) {
-            let result = this._super(attrs);
-
-            if (attrs.activity_pub_enabled) {
-              const buttons = result.children.filter(
-                (widget) => widget.attrs.action !== "changePostOwner"
-              );
-              const canSchedule =
-                currentUser?.staff &&
-                attrs.activity_pub_first_post &&
-                attrs.activity_pub_is_first_post &&
-                !attrs.activity_pub_published_at;
-
-              if (canSchedule) {
-                const scheduled = !!attrs.activity_pub_scheduled_at;
-                const type = scheduled ? "unschedule" : "schedule";
-                const button = {
-                  action: `${type}ActivityPublication`,
-                  secondaryAction: "closeAdminMenu",
-                  icon: "discourse-activity-pub",
-                  className: `activity-pub-${type}`,
-                  title: `post.discourse_activity_pub.${type}.title`,
-                  label: `post.discourse_activity_pub.${type}.label`,
-                  position: "second-last-hidden",
-                };
-                buttons.push(this.attach("post-admin-menu-button", button));
-              }
-              result.children = buttons;
-            }
-            return result;
-          },
-
-          scheduleActivityPublication() {
-            ajax(`/ap/post/schedule/${this.attrs.id}`, {
-              type: "POST",
-            }).catch(popupAjaxError);
-          },
-
-          unscheduleActivityPublication() {
-            ajax(`/ap/post/schedule/${this.attrs.id}`, {
-              type: "DELETE",
-            }).catch(popupAjaxError);
-          },
-        });
-      }
-
-      const dialog = api._lookupContainer("service:dialog");
-      api.addTopicAdminMenuButton((topic) => {
-        if (!topic.activity_pub_enabled) {
-          return;
-        }
-
-        const canPublish =
+      api.addPostAdminMenuButton((attrs) => {
+        if (
+          attrs.activity_pub_enabled &&
           currentUser?.staff &&
-          topic.activity_pub_full_topic &&
-          !topic.activity_pub_scheduled &&
-          !topic.activity_pub_published;
+          attrs.activity_pub_is_first_post
+        ) {
+          return {
+            secondaryAction: "closeAdminMenu",
+            icon: "discourse-activity-pub",
+            className: "show-activity-pub-post-admin",
+            label: "post.discourse_activity_pub.admin.label",
+            position: "second-last-hidden",
+            action: async (post) => {
+              modal.show(ActivityPubPostAdmin, {
+                model: {
+                  post,
+                },
+              });
+            },
+          };
+        }
+      });
 
-        if (canPublish) {
+      api.addTopicAdminMenuButton((topic) => {
+        if (topic.activity_pub_enabled && currentUser?.staff) {
           return {
             icon: "discourse-activity-pub",
-            className: "activity-pub-publish-topic",
-            title: "topic.discourse_activity_pub.publish.title",
-            label: "topic.discourse_activity_pub.publish.label",
+            className: "show-activity-pub-topic-admin",
+            title: "topic.discourse_activity_pub.admin.title",
+            label: "topic.discourse_activity_pub.admin.label",
             action: async () => {
-              dialog.yesNoConfirm({
-                message: I18n.t("topic.discourse_activity_pub.publish.confirm"),
-                didConfirm: async () => {
-                  await ajax(`/ap/topic/publish/${topic.id}`, {
-                    type: "POST",
-                  }).catch(popupAjaxError);
+              modal.show(ActivityPubTopicAdmin, {
+                model: {
+                  topic,
                 },
               });
             },
@@ -268,7 +140,8 @@ export default {
 
         @bind
         handleActivityPubMessage(data) {
-          const postStream = this.get("model.postStream");
+          const topic = this.get("model");
+          const postStream = topic.get("postStream");
 
           if (data.model.type === "post" && postStream) {
             let stateProps = {
@@ -285,6 +158,19 @@ export default {
                   id: data.model.id,
                 })
               );
+          }
+
+          if (data.model.type === "topic" && topic) {
+            let topicProps = {
+              activity_pub_published: data.model.published,
+              activity_pub_published_post_count:
+                data.model.published_post_count,
+              activity_pub_total_post_count: data.model.total_post_count,
+              activity_pub_first_post_scheduled:
+                data.model.first_post_scheduled,
+            };
+            topic.setProperties(topicProps);
+            postStream.refresh();
           }
         },
 

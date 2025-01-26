@@ -19,7 +19,8 @@ module DiscourseActivityPub
     protected
 
     def ensure_can_publish
-      if @topic.activity_pub_published? || !@topic.activity_pub_full_topic
+      if !@topic.activity_pub_full_topic || @topic.activity_pub_published? ||
+           @topic.activity_pub_first_post_scheduled?
         render_topic_error("cant_publish_topic", 422)
       end
     end

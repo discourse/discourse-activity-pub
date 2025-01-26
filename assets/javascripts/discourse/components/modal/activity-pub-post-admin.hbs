@@ -1,0 +1,78 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-admin-modal activity-pub-post-admin-modal"
+>
+  <:body>
+    <div class="control-group actors">
+      <label class="control-label">
+        {{i18n "topic.discourse_activity_pub.actors.label"}}
+      </label>
+      <div class="controls">
+        {{#each this.actors as |actor|}}
+          <ActivityPubHandle @actor={{actor}} @hideCopy="true" />
+        {{/each}}
+      </div>
+    </div>
+    <div class="control-group status">
+      <label class="control-label">
+        {{i18n "post.discourse_activity_pub.status.label"}}
+      </label>
+      <div class="controls">
+        {{this.postStatusText}}
+      </div>
+    </div>
+    <div class="control-group actions">
+      <label class="control-label">
+        {{i18n "post.discourse_activity_pub.actions.label"}}
+      </label>
+      <div class="controls">
+        {{#if this.showDeliver}}
+          <div class="action">
+            <div class="action-button">
+              <DButton
+                @label="post.discourse_activity_pub.deliver.label"
+                @action={{this.deliver}}
+                @disabled={{this.noFollowers}}
+              />
+            </div>
+            <div class="action-description">
+              {{#if this.noFollowers}}
+                {{i18n "post.discourse_activity_pub.deliver.no_followers"}}
+              {{else}}
+                {{i18n "post.discourse_activity_pub.deliver.description"}}
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+        {{#if this.showPublish}}
+          <div class="action">
+            <div class="action-button">
+              <DButton
+                @label="post.discourse_activity_pub.publish.label"
+                @action={{this.publish}}
+              />
+            </div>
+            <div class="action-description">
+              {{i18n "post.discourse_activity_pub.publish.description"}}
+            </div>
+          </div>
+        {{/if}}
+        {{#if this.showSchedule}}
+          <div class="action">
+            <div class="action-button">
+              <DButton
+                @translatedLabel={{this.scheduleLabel}}
+                @action={{action this.scheduleAction}}
+                @disabled={{this.noFollowers}}
+              />
+            </div>
+            <div class="action-description">
+              {{this.scheduleDescription}}
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </:body>
+</DModal>

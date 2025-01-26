@@ -103,21 +103,17 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   def after_scheduled(scheduled_at, activity = nil)
     if model.respond_to?(:activity_pub_after_scheduled)
       args = { scheduled_at: scheduled_at }
-      if activity&.ap&.create?
-        args[:published_at] = nil
-        args[:deleted_at] = nil
-        args[:updated_at] = nil
-      end
       model.activity_pub_after_scheduled(args)
     end
   end
 
   def after_published(published_at, activity = nil)
-    self.update(published_at: published_at)
+    self.update(published_at: published_at) if !self.published_at.present?
 
     if model.respond_to?(:activity_pub_after_publish)
       args = {}
-      args[:published_at] = published_at if activity&.ap&.create?
+      args[:published_at] = published_at if activity&.ap&.create? &&
+        model.activity_pub_published_at.blank?
       args[:deleted_at] = published_at if activity&.ap&.delete?
       args[:updated_at] = published_at if activity&.ap&.update?
       model.activity_pub_after_publish(args)

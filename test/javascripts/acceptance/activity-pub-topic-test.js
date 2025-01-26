@@ -127,7 +127,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was scheduled to be published from this site at ${scheduledAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was scheduled to be published on this site at ${scheduledAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -141,8 +141,8 @@ acceptance(
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(".fk-d-menu .activity-pub-unschedule"),
-        "The unschedule button was rendered"
+        exists(".fk-d-menu .show-activity-pub-post-admin"),
+        "The ActivityPub post admin button was rendered"
       );
     });
   }
@@ -163,8 +163,8 @@ acceptance(
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(".fk-d-menu .activity-pub-schedule"),
-        "The schedule button was rendered"
+        exists(".fk-d-menu .show-activity-pub-post-admin"),
+        "The ActivityPub post admin button was rendered"
       );
     });
   }
@@ -185,8 +185,8 @@ acceptance(
       await click(".show-post-admin-menu");
 
       assert.ok(
-        exists(".fk-d-menu .activity-pub-schedule"),
-        "The schedule button was rendered"
+        exists(".fk-d-menu .show-activity-pub-post-admin"),
+        "The ActivityPub post admin button was rendered"
       );
     });
   }
@@ -211,17 +211,15 @@ acceptance(
       await click(".topic-admin-menu-trigger");
 
       assert.ok(
-        exists(".fk-d-menu .activity-pub-publish-topic"),
+        exists(".show-activity-pub-topic-admin"),
         "The publish topic button was rendered"
       );
 
-      await click(".activity-pub-publish-topic");
+      await click(".show-activity-pub-topic-admin");
 
-      assert.ok(exists("#dialog-holder"), "The confirm dialog appears");
-      assert.strictEqual(
-        query("#dialog-holder .dialog-body p").innerText.trim(),
-        I18n.t("topic.discourse_activity_pub.publish.confirm"),
-        "shows the right dialog content"
+      assert.ok(
+        exists(".activity-pub-topic-admin-modal"),
+        "The topic admin modal appears"
       );
     });
   }
@@ -261,7 +259,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published from this site at ${publishedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published on this site at ${publishedAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -307,11 +305,12 @@ acceptance(
 
       await click(".topic-post:nth-of-type(1) .post-info.activity-pub");
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
+
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-state"
+          ".activity-pub-post-info-modal .activity-pub-status"
         ).innerText.trim(),
-        `Note was published from this site at ${publishedAt.format(
+        `Note was published on this site at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
         "shows the right state text"
@@ -363,7 +362,7 @@ acceptance(
 
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published from external.com at ${publishedAt.format(
+          `.topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was published on external.com at ${publishedAt.format(
             "h:mm a, MMM D"
           )}.']`
         ),
@@ -383,9 +382,9 @@ acceptance(
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-state"
+          ".activity-pub-post-info-modal .activity-pub-status"
         ).innerText.trim(),
-        `Note was published from external.com at ${publishedAt.format(
+        `Note was published on external.com at ${publishedAt.format(
           "h:mm a, MMM D"
         )}.`,
         "shows the right state text"
@@ -445,7 +444,7 @@ acceptance(
 
       assert.ok(
         exists(
-          ".topic-post:nth-of-type(1) .post-info.activity-pub[title='Note was not published.']"
+          ".topic-post:nth-of-type(1) .post-info.activity-pub[title='Note is not published.']"
         ),
         "shows the right title"
       );
@@ -469,9 +468,9 @@ acceptance(
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-state"
+          ".activity-pub-post-info-modal .activity-pub-status"
         ).innerText.trim(),
-        "Note was not published.",
+        "Note is not published.",
         "shows the right state text"
       );
     });

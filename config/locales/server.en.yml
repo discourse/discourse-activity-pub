@@ -117,6 +117,7 @@ en:
       error:
         post_not_found: "Post not found"
         cant_deliver_post: "Can't deliver post"
+        cant_publish_post: "Can't publish post"
         cant_schedule_post: "Can't schedule post"
         cant_unschedule_post: "Can't unschedule post"
         not_first_post: "Post is not the first post"

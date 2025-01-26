@@ -114,14 +114,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_scheduled)
-          .with(
-            {
-              scheduled_at: Time.now.utc.iso8601,
-              published_at: nil,
-              deleted_at: nil,
-              updated_at: nil,
-            },
-          )
+          .with({ scheduled_at: Time.now.utc.iso8601 })
           .once
         activity.after_scheduled(Time.now.utc.iso8601)
       end
@@ -139,14 +132,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_scheduled)
-          .with(
-            {
-              scheduled_at: Time.now.utc.iso8601,
-              published_at: nil,
-              deleted_at: nil,
-              updated_at: nil,
-            },
-          )
+          .with({ scheduled_at: Time.now.utc.iso8601 })
           .once
         collection.after_scheduled(Time.now.utc.iso8601)
       end

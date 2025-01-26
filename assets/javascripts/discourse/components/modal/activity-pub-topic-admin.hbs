@@ -1,0 +1,47 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-admin-modal activity-pub-topic-admin-modal"
+>
+  <:body>
+    <div class="control-group actors">
+      <label class="control-label">
+        {{i18n "topic.discourse_activity_pub.actors.label"}}
+      </label>
+      <div class="controls">
+        {{#each this.actors as |actor|}}
+          <ActivityPubHandle @actor={{actor}} @hideCopy="true" />
+        {{/each}}
+      </div>
+    </div>
+    <div class="control-group status">
+      <label class="control-label">
+        {{i18n "topic.discourse_activity_pub.status.label"}}
+      </label>
+      <div class="controls">
+        {{this.statusText}}
+      </div>
+    </div>
+    {{#if this.canPublish}}
+      <div class="control-group actions">
+        <label class="control-label">
+          {{i18n "topic.discourse_activity_pub.actions.label"}}
+        </label>
+        <div class="controls">
+          <div class="action">
+            <div class="action-button">
+              <DButton
+                @translatedLabel={{this.publishLabel}}
+                @action={{this.publish}}
+                @disabled={{this.topic.activity_pub_first_post_scheduled}}
+              />
+            </div>
+            <div class="action-description">
+              {{i18n "topic.discourse_activity_pub.publish.description"}}
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/if}}
+  </:body>
+</DModal>

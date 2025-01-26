@@ -3,6 +3,7 @@ import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { clipboardCopy } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
+import { activityPubPostStatusText } from "../../lib/activity-pub-utilities";
 
 export default class ActivityPubPostInfo extends Component {
   @tracked copiedObjectId = false;
@@ -22,22 +23,12 @@ export default class ActivityPubPostInfo extends Component {
     });
   }
 
-  get stateText() {
-    let opts = {
-      domain: this.args.model.post.activity_pub_domain,
-      object_type: this.args.model.post.activity_pub_object_type,
-    };
-    if (this.args.model.time) {
-      opts.time = this.args.model.time.format("h:mm a, MMM D");
-    }
-    return i18n(
-      `post.discourse_activity_pub.title.${this.args.model.state}`,
-      opts
-    );
+  get statusText() {
+    return activityPubPostStatusText(this.args.model.post);
   }
 
-  get stateIcon() {
-    if (this.args.model.state === "not_published") {
+  get statusIcon() {
+    if (this.args.model.status === "not_published") {
       return "far-circle-dot";
     } else {
       return this.args.model.post.activity_pub_local
@@ -62,7 +53,7 @@ export default class ActivityPubPostInfo extends Component {
   }
 
   get showVisibility() {
-    return this.args.model.state !== "not_published";
+    return this.args.model.status !== "not_published";
   }
 
   get urlText() {
@@ -106,6 +97,6 @@ export default class ActivityPubPostInfo extends Component {
         "h:mm a, MMM D"
       );
     }
-    return I18n.t("post.discourse_activity_pub.title.delivered", opts);
+    return I18n.t("post.discourse_activity_pub.status.delivered", opts);
   }
 }

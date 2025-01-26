@@ -52,12 +52,39 @@ RSpec.describe DiscourseActivityPub::TopicController do
           context "with a full_topic activity pub category" do
             before { toggle_activity_pub(category, publication_type: "full_topic") }
 
-            it "publishes the topic" do
+            it "publishes all the posts in the topic" do
               post "/ap/topic/publish/#{topic.id}"
               expect(response.status).to eq(200)
-              expect(topic.reload.activity_pub_published?).to eq(true)
               expect(post1.reload.activity_pub_published?).to eq(true)
               expect(post2.reload.activity_pub_published?).to eq(true)
+            end
+
+            context "when first post is scheduled" do
+              before do
+                post1.custom_fields["activity_pub_scheduled_at"] = Time.now
+                post1.save_custom_fields(true)
+              end
+
+              it "returns a can't publish topic error" do
+                post "/ap/topic/publish/#{topic.id}"
+                expect(response.status).to eq(422)
+                expect(response.parsed_body).to eq(build_error("cant_publish_topic"))
+              end
+            end
+
+            context "when all posts are published" do
+              before do
+                post1.custom_fields["activity_pub_published_at"] = Time.now
+                post1.save_custom_fields(true)
+                post2.custom_fields["activity_pub_published_at"] = Time.now
+                post2.save_custom_fields(true)
+              end
+
+              it "returns a can't publish topic error" do
+                post "/ap/topic/publish/#{topic.id}"
+                expect(response.status).to eq(422)
+                expect(response.parsed_body).to eq(build_error("cant_publish_topic"))
+              end
             end
           end
         end

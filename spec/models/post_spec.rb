@@ -342,14 +342,25 @@ RSpec.describe Post do
     end
 
     context "with a unscheduled unpublished post" do
-      it "attempts to publish" do
-        post.expects(:activity_pub_publish!).once
-        post.activity_pub_schedule!
-      end
+      context "with followers" do
+        let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+        let!(:follow1) do
+          Fabricate(
+            :discourse_activity_pub_follow,
+            follower: follower1,
+            followed: category.activity_pub_actor,
+          )
+        end
 
-      it "returns the outcome of the publish attempt" do
-        post.stubs(:activity_pub_publish!).returns(false)
-        expect(post.activity_pub_schedule!).to eq(false)
+        it "attempts to publish" do
+          post.expects(:activity_pub_publish!).once
+          post.activity_pub_schedule!
+        end
+
+        it "returns the outcome of the publish attempt" do
+          post.stubs(:activity_pub_publish!).returns(false)
+          expect(post.activity_pub_schedule!).to eq(false)
+        end
       end
     end
   end

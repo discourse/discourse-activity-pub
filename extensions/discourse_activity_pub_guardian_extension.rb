@@ -17,7 +17,7 @@ module DiscourseActivityPubGuardianExtension
   def activity_pub_change_owner_restricted?
     return false unless DiscourseActivityPub.enabled && request&.params&.[]("topic_id")
     topic = Topic.find_by(id: request.params["topic_id"].to_i)
-    topic && (topic.activity_pub_remote? || topic.activity_pub_published?)
+    topic && (topic.activity_pub_remote? || topic.activity_pub_first_post_published?)
   end
 
   def can_admin?(actor)

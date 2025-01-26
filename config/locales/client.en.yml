@@ -181,14 +181,15 @@ en:
 
     post:
       discourse_activity_pub:
-        title:
-          published: "%{object_type} was published from this site at %{time}."
-          scheduled: "%{object_type} is scheduled to be published from this site at %{time}."
-          scheduled_past: "%{object_type} was scheduled to be published from this site at %{time}."
+        status:
+          label: Post Status
+          published: "%{object_type} was published on this site at %{time}."
+          scheduled: "%{object_type} is scheduled to be published on this site at %{time}."
+          scheduled_past: "%{object_type} was scheduled to be published on this site at %{time}."
           deleted: "%{object_type} was deleted at %{time}."
           updated: "%{object_type} was updated at %{time}."
-          published_remote: "%{object_type} was published from %{domain} at %{time}."
-          not_published: "%{object_type} was not published."
+          published_remote: "%{object_type} was published on %{domain} at %{time}."
+          not_published: "%{object_type} is not published."
           delivered: "%{object_type} was delivered from this site at %{time}."
         info:
           title: "ActivityPub for Post #%{post_number}"
@@ -197,22 +198,45 @@ en:
             label: Copy URI
             title: Copy %{object_type} URI
             copied: URI Copied!
-        schedule:
-          label: Schedule Publish
-          title: Schedule post to be published via ActivityPub.
-        unschedule:
-          label: Unschedule Publish
-          title: Unschedule post to be published via ActivityPub.
+        admin:
+          title: "ActivityPub Admin for Post #%{post_number}"
+          label: Post Admin...
+        actions:
+          label: Post Actions
+        publish:
+          description: "Publish this post."
+          label: Publish Post
         deliver:
+          description: "Deliver this post to the followers of the topic actors."
+          no_followers: "The topic actors have no followers to deliver to."
           label: Deliver Post
-          title: Deliver post to ActivityPub followers.
+        schedule:
+          description: "Publish this post in %{minutes} minutes."
+          no_followers: "Topic actors must have followers to schedule a post."
+          label: Schedule Post
+        unschedule:
+          description: Unschedule publication of this post.
+          label: Unschedule Post
 
     topic:
       discourse_activity_pub:
+        status:
+          label: Topic Status
+          published: All posts in this topic are published.
+          scheduled: The first post in this topic is scheduled to be published.
+          some_published: "%{count} of %{total} posts in this topic are published."
+          none_published: No posts in this topic are published.
+        admin:
+          title: "ActivityPub Admin for Topic #%{topic_id}"
+          label: Topic Admin...
+        actions:
+          label: Topic Actions
+        actors:
+          label: Topic Actors
         publish:
-          label: Publish Topic
-          title: Publish topic via ActivityPub
-          confirm: Are you sure you want to publish all posts in this topic via ActivityPub?
+          label: Publish Posts
+          description: Unpublished posts will be published, but not delivered.
+          first_post_scheduled: Posts cannot be published when the first post is scheduled to be published.
 
     user:
       discourse_activity_pub:
