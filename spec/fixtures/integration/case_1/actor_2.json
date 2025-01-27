@@ -1,0 +1,20 @@
+{
+  "@context": [
+    "https://join-lemmy.org/context.json",
+    "https://www.w3.org/ns/activitystreams"
+  ],
+  "type": "Person",
+  "id": "https://programming.dev/u/Tramort",
+  "preferredUsername": "Tramort",
+  "inbox": "https://programming.dev/u/Tramort/inbox",
+  "outbox": "https://programming.dev/u/Tramort/outbox",
+  "publicKey": {
+    "id": "https://programming.dev/u/Tramort#main-key",
+    "owner": "https://programming.dev/u/Tramort",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmZ82oKPnH06991BsAOxO\nF0nyHEaG3y+vs9Oqqupn9uFDofchTJDZV7Z8O5iwpLdAXUPxTrbGKxxEHPANgj/H\nfvo01uY7MxxTZEv9Od4+2vQoceiFBJHscF7zDp/PZENw05M0v9V5YDyl6AwB3XJA\nAPLXaeLjQ63hf0HOwmz63/WEb3atGn9juvt+vzUnUE5HuZItQ3U9IioaoBgIQcYI\nRmges2J6/xWKdO/a4IVvKz3TdWR5wGghLKn0Wm8zudkUyo0o/VzFlkzrJ45dAH36\nYG4nosb+c6cUOGI76U3siRyo1nhUADvkYvlSfW4S9IRS3Q8Jp6/y3qu04XBHCHB3\nnQIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "endpoints": {
+    "sharedInbox": "https://programming.dev/inbox"
+  },
+  "published": "2024-02-01T21:20:23.632274Z"
+}

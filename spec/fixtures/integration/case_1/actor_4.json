@@ -1,0 +1,31 @@
+{
+  "@context": [
+    "https://join-lemmy.org/context.json",
+    "https://www.w3.org/ns/activitystreams"
+  ],
+  "type": "Person",
+  "id": "https://feddit.org/u/Blaze",
+  "preferredUsername": "Blaze",
+  "inbox": "https://feddit.org/u/Blaze/inbox",
+  "outbox": "https://feddit.org/u/Blaze/outbox",
+  "publicKey": {
+    "id": "https://feddit.org/u/Blaze#main-key",
+    "owner": "https://feddit.org/u/Blaze",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoI6IC8sLqqn1HxtK/Ezc\nv3cu7xFIoL8buRghD8ctCAerYAWIB4QhCjksxzasdEdKrkhaxPY689Bh0U1fO2j8\nPVHzlO+Clo4ftrnW9Rhfo0jGUkKB8SDERYNKS8YND1zJ6sGW1p0AcJsxFvugljRH\n2KIr5FeF+tkstOQoE//LSUqunm6X/nmnEAx177+DeMMEXiepXLBUfZwSv1mKbzso\nmgsiIir27VIJcZa5sB/UlRuNzP/fY+mm/ujA+rjrPgqJ+Ompd76JlNY5AtaBD56N\nxg3gmqGVkl0Sst5g9T/PktTDnIBuFuzElha/vIa7oMtdEOkIF6rB2vQ5Efl3Q2Ei\n5wIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "name": "Blaze (he/him)",
+  "summary": "<p>Other accounts:</p>\n<ul>\n<li><a href=\"https://lemmy.cafe/u/Blaze\" rel=\"nofollow\">@Blaze@lemmy.cafe</a></li>\n<li><a href=\"https://sopuli.xyz/u/Blaze\" rel=\"nofollow\">@Blaze@sopuli.xyz</a></li>\n<li><a href=\"https://lemmy.zip/u/Blaze\" rel=\"nofollow\">@Blaze@lemmy.zip</a></li>\n</ul>\n",
+  "source": {
+    "content": "Other accounts: \n- [@Blaze@lemmy.cafe](https://lemmy.cafe/u/Blaze) \n- [@Blaze@sopuli.xyz](https://sopuli.xyz/u/Blaze) \n- [@Blaze@lemmy.zip](https://lemmy.zip/u/Blaze) ",
+    "mediaType": "text/markdown"
+  },
+  "icon": {
+    "type": "Image",
+    "url": "https://feddit.org/pictrs/image/73461770-0ae7-47b2-af28-727e1c0601da.jpeg"
+  },
+  "matrixUserId": "@blaze:tchncs.de",
+  "endpoints": {
+    "sharedInbox": "https://feddit.org/inbox"
+  },
+  "published": "2024-08-28T16:20:27.940273Z"
+}

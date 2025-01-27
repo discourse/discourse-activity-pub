@@ -117,17 +117,24 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
 
         context "when the user does not have a custom avatar" do
           it "downloads and sets the icon as the user's avatar" do
-            described_class.update_or_create_user(actor)
+            handler = described_class.new(actor: actor)
+            handler.skip_avatar_update = false
+            handler.update_or_create_user
             expect(user.user_avatar.custom_upload.origin).to eq("#{external_origin}/logo.png")
           end
 
           it "updates user's avatar if the icon changes" do
-            described_class.update_or_create_user(actor)
+            handler = described_class.new(actor: actor)
+            handler.skip_avatar_update = false
+            handler.update_or_create_user
 
             FileHelper.stubs(:download).returns(file_from_fixtures("logo-dev.png"))
             actor.icon_url = "#{external_origin}/logo-dev.png"
             actor.save
-            described_class.update_or_create_user(actor)
+
+            handler = described_class.new(actor: actor)
+            handler.skip_avatar_update = false
+            handler.update_or_create_user
             expect(user.user_avatar.custom_upload.origin).to eq("#{external_origin}/logo-dev.png")
           end
         end
@@ -135,7 +142,9 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
 
       context "when the actor does not have a user" do
         it "downloads and sets the icon as the user's avatar" do
-          user = described_class.update_or_create_user(actor)
+          handler = described_class.new(actor: actor)
+          handler.skip_avatar_update = false
+          user = handler.update_or_create_user
           expect(user.user_avatar.custom_upload.origin).to eq("#{external_origin}/logo.png")
         end
       end
