@@ -1,0 +1,43 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1"
+  ],
+  "id": "https://community.nodebb.org/uid/14929",
+  "url": "https://community.nodebb.org/user/frankm",
+  "followers": "https://community.nodebb.org/uid/14929/followers",
+  "following": "https://community.nodebb.org/uid/14929/following",
+  "inbox": "https://community.nodebb.org/uid/14929/inbox",
+  "outbox": "https://community.nodebb.org/uid/14929/outbox",
+  "type": "Person",
+  "name": "FrankM",
+  "preferredUsername": "frankm",
+  "summary": "<p dir=\"auto\"><a href=\"https://linux-nerds.org\" rel=\"nofollow ugc\">https://linux-nerds.org</a></p>\n",
+  "icon": {
+    "type": "Image",
+    "mediaType": "image/png",
+    "url": "https://community.nodebb.org/assets/uploads/profile/uid-14929/14929-profileavatar-1619513263893.png"
+  },
+  "image": null,
+  "published": "2018-05-02T17:51:38.730Z",
+  "attachment": [
+    {
+      "type": "Note",
+      "name": "Location",
+      "content": "Duesseldorf &#x2F; Germany"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Location",
+      "value": "Duesseldorf &#x2F; Germany"
+    }
+  ],
+  "publicKey": {
+    "id": "https://community.nodebb.org/uid/14929#key",
+    "owner": "https://community.nodebb.org/uid/14929",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4Yc4VHRZor67SvYu1tQz\n+X8qITCYrY6pLwD9gSsNm8Zs2OwgqX/ndjQ8Q6xG65CC1nJbJZP7chyPWryt9Iw6\nnnLkTFEJGFbvqvqn/9n2HNwBBSPY3LDJsbMeKsOqYdEhR7sV+o7vUsXrdIVtYG/j\naUqoHnC5jf/A2i7hZhToXWC+ed0NWtmLRQL+tpSDQsTgtw/qKMcjBSB2nb4nElbT\ncQYK/cgqZFSpH2NzD881wRe1lESviYSti4uafsVIuybV039k7BvwxreEnYctrv65\nIYG6tRWxm0nqEj2UDgo+yPrlpDATYCHHX0gzw+2SbpJdU7hEAzB+U9JCAGwtjy4d\n2QIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "endpoints": {
+    "sharedInbox": "https://community.nodebb.org/inbox"
+  }
+}

@@ -6,6 +6,7 @@ module DiscourseActivityPub
     MODEL_TYPES = %w[User Category Tag]
 
     attr_accessor :opts
+    attr_writer :skip_avatar_update
 
     def initialize(actor: nil, model: nil)
       @actor = actor
@@ -99,18 +100,19 @@ module DiscourseActivityPub
     protected
 
     def update_avatar_from_icon
-      if update_avatar?
-        icon_upload = Upload.find_by(user_id: model.id, origin: actor.icon_url)
+      return if !update_avatar?
 
-        if !icon_upload
-          UserAvatar.import_url_for_user(actor.icon_url, model)
-        elsif model.uploaded_avatar_id != icon_upload.id
-          model.update!(uploaded_avatar_id: icon_upload.id)
-        end
+      icon_upload = Upload.find_by(user_id: model.id, origin: actor.icon_url)
+
+      if !icon_upload
+        UserAvatar.import_url_for_user(actor.icon_url, model)
+      elsif model.uploaded_avatar_id != icon_upload.id
+        model.update!(uploaded_avatar_id: icon_upload.id)
       end
     end
 
     def update_avatar?
+      return false if skip_avatar_update?
       return false unless actor.icon_url
       return true if !model || model.uploaded_avatar.blank?
 
@@ -245,6 +247,10 @@ module DiscourseActivityPub
 
     def log_errors
       errors.each { |error| DiscourseActivityPub::Logger.warn(error.message) }
+    end
+
+    def skip_avatar_update?
+      @skip_avatar_update.nil? ? Rails.env.test? : @skip_avatar_update
     end
   end
 end

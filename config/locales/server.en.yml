@@ -93,6 +93,7 @@ en:
         actor_already_following: "Actor is already following that object"
         invalid_collection_item: "Invalid item"
         cannot_resolve_context: "Cannot resolve object context"
+        cant_resolve_collection: "Cannot resolve collection"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"

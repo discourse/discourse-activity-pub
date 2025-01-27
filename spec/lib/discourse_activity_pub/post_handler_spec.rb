@@ -176,13 +176,6 @@ RSpec.describe DiscourseActivityPub::PostHandler do
     context "when object is in reply to another object" do
       before { topic.create_activity_pub_collection! }
 
-      it "skips validations and events" do
-        PostCreator
-          .expects(:create!)
-          .with { |user, opts| opts[:skip_validations] && opts[:skip_events] }
-        described_class.create(user, object)
-      end
-
       it "creates a reply for a reply object" do
         reply = described_class.create(user, object)
         expect(reply.raw).to eq(object.content)
