@@ -37,10 +37,6 @@ RSpec.describe "integration cases" do
       stub_object_request(read_json("case_1", "actor_4"))
       stub_object_request(read_json("case_1", "actor_5"))
       stub_object_request(read_json("case_1", "context_1"))
-      stub_request(
-        :get,
-        "https://community.nodebb.org/assets/uploads/profile/uid-14929/14929-profileavatar-1619513263893.png",
-      )
 
       post_to_inbox(actor, body: read_json("case_1", "received_1"))
       post_to_inbox(actor, body: read_json("case_1", "received_2"))
@@ -54,10 +50,25 @@ RSpec.describe "integration cases" do
       post_to_inbox(actor, body: read_json("case_1", "received_10"))
     end
 
-    it "creates a single topic and post" do
-      expect(DiscourseActivityPubObject.count).to eq(1)
-      expect(Post.count).to eq(1)
-      expect(Topic.count).to eq(1)
+    it "creates the right Discourse objects" do
+      user = User.find_by(name: "FrankM")
+      post = Post.find_by("raw LIKE ?", "%I thought that if I entered a Fediverse address here%")
+      topic = Topic.find_by(title: "Is ActivityPub too complicated?")
+      expect(post.present?).to eq(true)
+      expect(topic.present?).to eq(true)
+      expect(post.topic_id).to eq(topic.id)
+      expect(topic.category_id).to eq(actor.model.id)
+      expect(post.like_count).to eq(4)
+    end
+
+    it "creates the right AP objects" do
+      post = Post.find_by("raw LIKE ?", "%I thought that if I entered a Fediverse address here%")
+      topic = Topic.find_by(title: "Is ActivityPub too complicated?")
+      expect(DiscourseActivityPubCollection.where(model_id: topic.id).count).to eq(1)
+      expect(DiscourseActivityPubObject.where(model_id: post.id).count).to eq(1)
+      expect(DiscourseActivityPubActor.where(ap_type: "Person").count).to eq(5)
+      expect(DiscourseActivityPubActivity.where(ap_type: "Announce").count).to eq(5)
+      expect(DiscourseActivityPubActivity.where(ap_type: "Like").count).to eq(4)
     end
   end
 end
