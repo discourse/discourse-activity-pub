@@ -1,0 +1,29 @@
+{
+  "@context": [
+    "https://join-lemmy.org/context.json",
+    "https://www.w3.org/ns/activitystreams"
+  ],
+  "type": "Person",
+  "id": "https://lazysoci.al/u/sabreW4K3",
+  "preferredUsername": "sabreW4K3",
+  "inbox": "https://lazysoci.al/u/sabreW4K3/inbox",
+  "outbox": "https://lazysoci.al/u/sabreW4K3/outbox",
+  "publicKey": {
+    "id": "https://lazysoci.al/u/sabreW4K3#main-key",
+    "owner": "https://lazysoci.al/u/sabreW4K3",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvVVT2UHnC8TeP0LwUXP8\nzMZWz5pbThXPx+uYttkTG4TQU3X/hlsjH9AbN4XevN2RmeGDPMfU8Xr5a+fTejtd\nZuxEtenA970TH93IG1nje+dzd5ygwgtfdI59ycjVyewz7vPHkhrd6kgm3F33VvIs\nFJWnD2ohmDgN1oM1iAdCU05/3mrSJXw0pJMA/ik3K23ZnTjOUutVnlfGmp5zyQKv\nLvn9KnIvIxe3DH7i2iINUv1TQ0cWajGNAOhn1bY5p2asPLTVg5NSwi/ng3XgsXlN\n6Ze7Kv33P/UksLe5uuCX9gf3lNc2hoMcvHiMR6t8T1bsFe+ezWPKIDL3cpcRFnP6\njQIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "summary": "<p>Born and raised in London. Just a normal guy with a moral compass.</p>\n",
+  "source": {
+    "content": "Born and raised in London. Just a normal guy with a moral compass.",
+    "mediaType": "text/markdown"
+  },
+  "icon": {
+    "type": "Image",
+    "url": "https://lazysoci.al/pictrs/image/37036e45-dc46-4976-a62a-10fd47f0f395.jpeg"
+  },
+  "endpoints": {
+    "sharedInbox": "https://lazysoci.al/inbox"
+  },
+  "published": "2024-03-16T20:07:17.964292Z"
+}

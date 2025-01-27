@@ -1,0 +1,30 @@
+{
+  "@context": [
+    "https:\/\/www.w3.org\/ns\/activitystreams",
+    "https:\/\/fedia.io\/contexts"
+  ],
+  "id": "https:\/\/fedia.io\/u\/Fitik",
+  "type": "Person",
+  "name": "Fitik",
+  "preferredUsername": "Fitik",
+  "inbox": "https:\/\/fedia.io\/u\/Fitik\/inbox",
+  "outbox": "https:\/\/fedia.io\/u\/Fitik\/outbox",
+  "url": "https:\/\/fedia.io\/u\/Fitik",
+  "manuallyApprovesFollowers": false,
+  "published": "2023-10-18T21:01:54+00:00",
+  "following": "https:\/\/fedia.io\/u\/Fitik\/following",
+  "followers": "https:\/\/fedia.io\/u\/Fitik\/followers",
+  "publicKey": {
+    "owner": "https:\/\/fedia.io\/u\/Fitik",
+    "id": "https:\/\/fedia.io\/u\/Fitik#main-key",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\r\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA9iAxlYxJi\/hNZ0MKQ\/3P\r\natbGhbwwRKgD+2Whl7jfIlHjcWSUvpps8zMkZJCDqgANxJIq83UHEadDOZyqDuwq\r\naECvSJKZvJmZ7C9Q6fAd9THF\/Xnrcp1VozvXFXvSwR\/blJY\/197fKmkQGPDAq6hM\r\nvepKfGgt+D3qYlYqiC42yqXv48dG+tmWyrwCvp7AtbiK5+U1rht+Brgne+yxVt\/J\r\n\/z3K3ziPOO2NydZaOEiyF91K+106tsYsLzcfXvZEjuKbpFAhTuik2y5Uk6RI9DO1\r\nvY5BM0yY0DA2qz29wcCtBY1+WiJNFzsk03fRTpRgeydmfEjeNXxxcjfrQn6FgkMr\r\n9k7JNIHW2nrWrjXYQ3AzTZ8IVrfSz9hLBjgjQM6vCmqQNkaYZBWVvDqxBncPuEkS\r\nwppIBhODMfdenLk9MorMwRtOMzwqxa3Eef95UUKU0e0bzyBH3DX+yMLhjok4WPPQ\r\nzSHuY0vjCbAQM\/PRxWtySPEp2ytJGSu1NT7O4gjTAVlH6BTwuc3oPF0K2d0HzJSV\r\nD43aVoENpdqYRx6tlO1Et1GN\/AmY1Yy2VESG6eUYbvDHfynBcXyHdC9XNafpU0gv\r\nGiuLXGMmusn+hzEK\/FQ6pC2R37AHJkN75IL9fVxZGUXwHXvciPWmq3wbL4uSYWmG\r\nr\/yS8unUm+3uOHo1W3y60AECAwEAAQ==\r\n-----END PUBLIC KEY-----"
+  },
+  "endpoints": {
+    "sharedInbox": "https:\/\/fedia.io\/f\/inbox"
+  },
+  "summary": "\u003Cp\u003EHello! That\u0027s my main mbin account, my alt is \u003Ca href=\u0022https:\/\/kbin.earth\/u\/Fitik\u0022\u003E@Fitik\u003C\/a\u003E, I also have a furry\/personal account at \u003Ca href=\u0022https:\/\/kitty.social\/@fitik\u0022\u003E@fitik\u003C\/a\u003E\u003C\/p\u003E\n\u003Cp\u003EI\u0027m just a regular person from Israel\ud83c\uddee\ud83c\uddf1, a queer, and a \u003Ca href=\u0022https:\/\/fedia.io\/tag\/Fediverse\u0022\u003E#Fediverse\u003C\/a\u003E enthusiast! I\u0027m a liberal\u003C\/p\u003E\n\u003Cp\u003EI don\u0027t post much stuff, but when I do I usually post about \u003Ca href=\u0022https:\/\/fedia.io\/tag\/tech\u0022\u003E#tech\u003C\/a\u003E\u003C\/p\u003E\n",
+  "icon": {
+    "type": "Image",
+    "url": "https:\/\/fedia.io\/media\/59\/cf\/59cfbce2bb7aa175539d1d9ffa10bcb50b936490a868aea7bf639b36a961ead3.png"
+  }
+}

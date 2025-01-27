@@ -1,0 +1,9 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "id": "https://community.nodebb.org/topic/18563",
+  "url": "https://community.nodebb.org/topic/18563/is-activitypub-too-complicated",
+  "type": "Conversation",
+  "name": "Is ActivityPub too complicated?",
+  "attributedTo": "https://community.nodebb.org/category/30",
+  "posts": "https://community.nodebb.org/topic/18563/posts"
+}

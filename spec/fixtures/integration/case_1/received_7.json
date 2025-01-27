@@ -1,0 +1,72 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "actor": "https://community.nodebb.org/category/30",
+  "id": "https://community.nodebb.org/post/https%3A%2F%2Fcommunity.nodebb.org%2Fpost%2F102840#activity/announce/1737632063244",
+  "type": "Announce",
+  "to": [
+    "https://community.nodebb.org/category/30/followers"
+  ],
+  "cc": [
+    "https://fedia.io/u/Fitik",
+    "https://www.w3.org/ns/activitystreams#Public"
+  ],
+  "object": {
+    "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      {
+        "toot": "http://joinmastodon.org/ns#",
+        "Emoji": "toot:Emoji"
+      }
+    ],
+    "id": "https://community.nodebb.org/post/102840",
+    "type": "Note",
+    "to": [
+      "https://www.w3.org/ns/activitystreams#Public"
+    ],
+    "cc": [
+      "https://community.nodebb.org/uid/14929/followers",
+      "https://nrw.social/users/FrankM"
+    ],
+    "inReplyTo": null,
+    "published": "2025-01-23T07:19:47.680Z",
+    "updated": null,
+    "url": "https://community.nodebb.org/post/102840",
+    "attributedTo": "https://community.nodebb.org/uid/14929",
+    "context": "https://community.nodebb.org/topic/18563",
+    "audience": "https://community.nodebb.org/category/30",
+    "summary": null,
+    "name": "Is ActivityPub too complicated?",
+    "content": "<p><img /></p>\n<p>I thought that if I entered a Fediverse address here, like '<a href=\"https://nrw.social/@FrankM\">@FrankM@nrw.social</a>,' it would follow that user, and their posts would then appear in the corresponding category.</p>\n<p>But that's not happening. There's also no meaningful error message. The actor you see in the image probably appears because I entered an incorrect address.</p>\n<p>Does this feature need to be enabled on the Fediverse instance 'nrw.social'?</p>\n<p>Who can help?</p>\n",
+    "source": {
+      "content": "![767e2ed4-8089-40ab-92a8-7fb2204b20bd-image.png](/assets/uploads/files/1737616265042-767e2ed4-8089-40ab-92a8-7fb2204b20bd-image.png)\n\nI thought that if I entered a Fediverse address here, like '@FrankM@nrw.social,' it would follow that user, and their posts would then appear in the corresponding category.\n\nBut that's not happening. There's also no meaningful error message. The actor you see in the image probably appears because I entered an incorrect address.\n\nDoes this feature need to be enabled on the Fediverse instance 'nrw.social'?\n\nWho can help?",
+      "mediaType": "text/markdown"
+    },
+    "tag": [
+      {
+        "type": "Hashtag",
+        "href": "https://community.nodebb.org/tags/activitypub",
+        "name": "#activitypub"
+      },
+      {
+        "type": "Hashtag",
+        "href": "https://community.nodebb.org/tags/nodebb%204.0",
+        "name": "#nodebb 4.0"
+      },
+      {
+        "type": "Mention",
+        "href": "https://nrw.social/users/FrankM",
+        "name": "@FrankM@nrw.social"
+      }
+    ],
+    "attachment": [
+      {
+        "type": "Image",
+        "mediaType": "image/png",
+        "url": "https://community.nodebb.org/assets/uploads/files/1737616265042-767e2ed4-8089-40ab-92a8-7fb2204b20bd-image.png",
+        "width": 1196,
+        "height": 745
+      }
+    ],
+    "replies": "https://community.nodebb.org/post/102840/replies"
+  }
+}

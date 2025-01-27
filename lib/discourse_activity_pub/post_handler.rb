@@ -34,6 +34,7 @@ module DiscourseActivityPub
         raw: object.content,
         skip_events: true,
         skip_validations: true,
+        skip_jobs: true,
         custom_fields: {
         },
         import_mode: import_mode,
@@ -63,26 +64,36 @@ module DiscourseActivityPub
 
       post = nil
 
-      ActiveRecord::Base.transaction do
-        begin
-          post = PostCreator.create!(user, params)
-          create_collection(post) if new_topic && !import_mode
-        rescue PG::UniqueViolation,
-               ActiveRecord::RecordNotUnique,
-               ActiveRecord::RecordInvalid,
-               ActiveRecord::RecordNotSaved,
-               DiscourseActivityPub::AP::Handlers => e
+      ActiveRecord::Base.transaction(requires_new: true) do
+        post_creator = PostCreator.new(user, params)
+        post = post_creator.create
+
+        if !post || post_creator.errors.full_messages.present?
           DiscourseActivityPub::Logger.error(
             I18n.t(
               "discourse_activity_pub.post.error.failed_to_create",
               object_id: object.ap_id,
-              message: e.message,
+              message: post_creator.full_messages.join(", "),
             ),
           )
           raise ActiveRecord::Rollback
         end
 
-        if post && !import_mode
+        collection = create_collection(post) if new_topic && !import_mode
+        if !collection
+          DiscourseActivityPub::Logger.error(
+            I18n.t(
+              "discourse_activity_pub.post.error.failed_to_create",
+              object_id: object.ap_id,
+              message: "Failed to create collection"
+            ),
+          )
+          raise ActiveRecord::Rollback
+        end
+
+        post_creator.enqueue_jobs
+
+        if !import_mode
           object.update(
             model_type: "Post",
             model_id: post.id,
@@ -141,22 +152,25 @@ module DiscourseActivityPub
       # See https://codeberg.org/fediverse/fep/src/branch/main/fep/400e/fep-400e.md
       # See https://socialhub.activitypub.rocks/t/standardizing-on-activitypub-groups/1984
       raw_collection = object.context || object.target
+      collection = nil
 
       if raw_collection
         collection = DiscourseActivityPub::AP::Collection.resolve_and_store(raw_collection)
 
         if collection
           collection.stored.update(model_type: "Topic", model_id: post.topic.id)
+          return collection
         else
-          raise DiscourseActivityPub::AP::Handlers::Error::Store,
-                I18n.t(
-                  "discourse_activity_pub.process.error.failed_to_save_collection",
-                  collection_id: DiscourseActivityPub::JsonLd.resolve_id(raw_collection),
-                )
+          DiscourseActivityPub::Logger.error(
+            I18n.t(
+              "discourse_activity_pub.process.error.failed_to_save_collection",
+              collection_id: DiscourseActivityPub::JsonLd.resolve_id(raw_collection),
+            )
+          )
         end
-      else
-        post.topic.create_activity_pub_collection!
       end
+
+      collection || post.topic.create_activity_pub_collection!
     end
   end
 end
