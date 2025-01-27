@@ -1,9 +1,17 @@
+# frozen_string_literal: true
 RSpec.describe "integration cases" do
   def read_json(case_name, file_name)
     JSON.parse(
       File.open(
-        File.join(File.expand_path("../..", __dir__), "spec", "fixtures", "integration", case_name, "#{file_name}.json"),
-      ).read
+        File.join(
+          File.expand_path("../..", __dir__),
+          "spec",
+          "fixtures",
+          "integration",
+          case_name,
+          "#{file_name}.json",
+        ),
+      ).read,
     ).with_indifferent_access
   end
 
@@ -14,11 +22,7 @@ RSpec.describe "integration cases" do
       Fabricate(:discourse_activity_pub_actor_group, ap_id: json[:id], local: false)
     end
     let!(:follow) do
-      Fabricate(
-        :discourse_activity_pub_follow,
-        follower: actor,
-        followed: remote_actor,
-      )
+      Fabricate(:discourse_activity_pub_follow, follower: actor, followed: remote_actor)
     end
 
     before do
@@ -33,7 +37,10 @@ RSpec.describe "integration cases" do
       stub_object_request(read_json("case_1", "actor_4"))
       stub_object_request(read_json("case_1", "actor_5"))
       stub_object_request(read_json("case_1", "context_1"))
-      stub_request(:get, "https://community.nodebb.org/assets/uploads/profile/uid-14929/14929-profileavatar-1619513263893.png")
+      stub_request(
+        :get,
+        "https://community.nodebb.org/assets/uploads/profile/uid-14929/14929-profileavatar-1619513263893.png",
+      )
 
       post_to_inbox(actor, body: read_json("case_1", "received_1"))
       post_to_inbox(actor, body: read_json("case_1", "received_2"))

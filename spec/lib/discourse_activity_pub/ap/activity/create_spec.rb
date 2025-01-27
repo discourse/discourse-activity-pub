@@ -295,7 +295,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             message = "Something went wrong"
 
             # See explicit raise in discourse/discourse/lib/post_creator.rb#create!
-            PostCreator.stubs(:create!).raises(ActiveRecord::RecordNotSaved.new(message)).once
+            PostCreator
+              .any_instance
+              .stubs(:create!)
+              .raises(ActiveRecord::RecordNotSaved.new(message))
+              .once
 
             perform_process(new_post_json, delivered_to)
 

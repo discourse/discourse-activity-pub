@@ -65,30 +65,35 @@ module DiscourseActivityPub
       post = nil
 
       ActiveRecord::Base.transaction(requires_new: true) do
-        post_creator = PostCreator.new(user, params)
-        post = post_creator.create
-
-        if !post || post_creator.errors.full_messages.present?
+        begin
+          post_creator = PostCreator.new(user, params)
+          post = post_creator.create!
+        rescue PG::UniqueViolation,
+               ActiveRecord::RecordNotUnique,
+               ActiveRecord::RecordInvalid,
+               ActiveRecord::RecordNotSaved => e
           DiscourseActivityPub::Logger.error(
             I18n.t(
               "discourse_activity_pub.post.error.failed_to_create",
               object_id: object.ap_id,
-              message: post_creator.full_messages.join(", "),
+              message: e.message,
             ),
           )
           raise ActiveRecord::Rollback
         end
 
-        collection = create_collection(post) if new_topic && !import_mode
-        if !collection
-          DiscourseActivityPub::Logger.error(
-            I18n.t(
-              "discourse_activity_pub.post.error.failed_to_create",
-              object_id: object.ap_id,
-              message: "Failed to create collection"
-            ),
-          )
-          raise ActiveRecord::Rollback
+        if new_topic && !import_mode
+          collection = create_collection(post)
+          if !collection
+            DiscourseActivityPub::Logger.error(
+              I18n.t(
+                "discourse_activity_pub.post.error.failed_to_create",
+                object_id: object.ap_id,
+                message: "Failed to create collection",
+              ),
+            )
+            raise ActiveRecord::Rollback
+          end
         end
 
         post_creator.enqueue_jobs
@@ -165,7 +170,7 @@ module DiscourseActivityPub
             I18n.t(
               "discourse_activity_pub.process.error.failed_to_save_collection",
               collection_id: DiscourseActivityPub::JsonLd.resolve_id(raw_collection),
-            )
+            ),
           )
         end
       end
