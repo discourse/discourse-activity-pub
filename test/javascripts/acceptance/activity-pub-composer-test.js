@@ -25,7 +25,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     await click("#create-topic");
 
     assert.notOk(
-      exists("#reply-control .activity-pub-status"),
+      exists("#reply-control .activity-pub-actor-status"),
       "the status label is not visible"
     );
   });
@@ -45,11 +45,11 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     await categoryChooser.selectRowByValue(2);
 
     assert.ok(
-      exists("#reply-control .activity-pub-status"),
+      exists("#reply-control .activity-pub-actor-status"),
       "the status label is visible"
     );
     assert.strictEqual(
-      query("#reply-control .activity-pub-status .label").innerText.trim(),
+      query("#reply-control .activity-pub-actor-status .label").innerText.trim(),
       i18n("discourse_activity_pub.visibility.label.public"),
       "the status label has the right text"
     );
@@ -70,7 +70,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     await categoryChooser.selectRowByValue(2);
 
     assert.notOk(
-      exists("#reply-control .activity-pub-status"),
+      exists("#reply-control .activity-pub-actor-status"),
       "the status label is not visible"
     );
   });

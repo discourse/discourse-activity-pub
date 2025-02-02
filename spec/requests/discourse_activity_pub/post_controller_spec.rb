@@ -305,7 +305,7 @@ RSpec.describe DiscourseActivityPub::PostController do
           end
         end
 
-        context "with a valid post id" do
+        context "with the first post" do
           context "when the post is published" do
             let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
             let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
@@ -346,6 +346,59 @@ RSpec.describe DiscourseActivityPub::PostController do
               post "/ap/post/deliver/#{post1.id}"
               expect(response.status).to eq(422)
               expect(response.parsed_body).to eq(build_error("cant_deliver_post"))
+            end
+          end
+        end
+
+        context "with a reply" do
+          let!(:post2) { Fabricate(:post, topic: topic) }
+
+          context "when the reply is published" do
+            let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2) }
+            let!(:create2) { Fabricate(:discourse_activity_pub_activity_create, object: note2) }
+
+            before do
+              post2.custom_fields["activity_pub_published_at"] = Time.now
+              post2.save_custom_fields(true)
+            end
+
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: category.activity_pub_actor,
+                )
+              end
+
+              context "when the first post is not published" do
+                it "returns a can't deliver post error" do
+                  post "/ap/post/deliver/#{post1.id}"
+                  expect(response.status).to eq(422)
+                  expect(response.parsed_body).to eq(build_error("cant_deliver_post"))
+                end
+              end
+
+              context "when the first post is published" do
+                let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
+                let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+                before do
+                  post1.custom_fields["activity_pub_published_at"] = Time.now
+                  post1.save_custom_fields(true)
+                end
+
+                it "schedules the create activity for delivery immediately" do
+                  expect_delivery(
+                    actor: topic.activity_pub_actor,
+                    object_type: "Create",
+                    delay: nil,
+                  )
+                  post "/ap/post/deliver/#{post1.id}"
+                  expect(response.status).to eq(200)
+                end
+              end
             end
           end
         end

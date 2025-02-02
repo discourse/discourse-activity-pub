@@ -178,65 +178,105 @@ en:
         description:
           first_post: First post of every topic in this %{model_type} is published via ActivityPub.
           full_topic: Every post of every topic in this %{model_type} is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
+      copy_uri:
+        label: "%{object_type} URI"
+        copied: URI Copied!
 
     post:
       discourse_activity_pub:
-        status:
-          label: Post Status
-          published: "%{object_type} was published on this site at %{time}."
-          scheduled: "%{object_type} is scheduled to be published on this site at %{time}."
-          scheduled_past: "%{object_type} was scheduled to be published on this site at %{time}."
-          deleted: "%{object_type} was deleted at %{time}."
-          updated: "%{object_type} was updated at %{time}."
-          published_remote: "%{object_type} was published on %{domain} at %{time}."
-          not_published: "%{object_type} is not published."
-          delivered: "%{object_type} was delivered from this site at %{time}."
         info:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.
-          copy_uri:
-            label: Copy URI
-            title: Copy %{object_type} URI
-            copied: URI Copied!
+          label: "Post Info"
+        status:
+          label: "Post Status"
+          published: "Post was published via ActivityPub at %{time}."
+          scheduled: "Post is scheduled to be published via ActivityPub at %{time}."
+          scheduled_past: "Post was scheduled to be published via ActivityPub  at %{time}."
+          deleted: "Post was deleted via ActivityPub at %{time}."
+          updated: "Post was updated via ActivityPub at %{time}."
+          published_remote: "Post was published via ActivityPub by %{actor} at %{time}."
+          not_published: "Post is not published via ActivityPub."
+          delivered: "Post was delivered via ActivityPub at %{time}."
+        object_status:
+          label: "%{object_type} Status"
+          published: "%{object_type} was published at %{time}."
+          scheduled: "%{object_type} is scheduled to be published at %{time}."
+          scheduled_past: "%{object_type} was scheduled to be published on at %{time}."
+          deleted: "%{object_type} was deleted at %{time}."
+          updated: "%{object_type} was updated at %{time}."
+          published_remote: "%{object_type} was published by %{actor} at %{time}."
+          not_published: "%{object_type} is not published."
+          delivered: "%{object_type} was delivered at %{time}."
         admin:
           title: "ActivityPub Admin for Post #%{post_number}"
-          label: Post Admin...
+          label: Post Admin
+          menu_label: ActivityPub Post Admin...
         actions:
-          label: Post Actions
-        publish:
-          description: "Publish this post."
-          label: Publish Post
-        deliver:
-          description: "Deliver this post to the followers of the topic actors."
-          no_followers: "The topic actors have no followers to deliver to."
-          label: Deliver Post
-        schedule:
-          description: "Publish this post in %{minutes} minutes."
-          no_followers: "Topic actors must have followers to schedule a post."
-          label: Schedule Post
-        unschedule:
-          description: Unschedule publication of this post.
-          label: Unschedule Post
+          publish:
+            label: "Publish Post #%{post_number}"
+            description:
+              followers: "Publish Post #%{post_number} and deliver it to the followers of %{actors}."
+              no_followers: "Publish Post #%{post_number} without delivering it. There are no followers to deliver to."
+              topic_not_published: "Publishing is disabled for Post #%{post_number}. Topic #%{topic_id} is not published."
+          deliver:
+            label: "Deliver Post #%{post_number}"
+            description:
+              followers: "Deliver Post #%{post_number} to the followers of %{actors}."
+              no_followers: "Delivery is disabled for Post #%{post_number}. There are no followers to deliver to."
+              topic_not_delivered: "Delivery is disabled for Post #%{post_number}. Topic #%{topic_id} has not been delivered."
+              delivered: "Post #%{post_number} was just delivered to the followers of %{actors}."
+          schedule:
+            label: "Schedule Post #%{post_number}"
+            description:
+              followers: "Publish Post #%{post_number} and deliver it to the followers of %{actors} in %{minutes} minutes."
+              no_followers: "Scheduling is disabled for Post #%{post_number}. There are no followers to deliver to."
+          unschedule:
+            label: "Unschedule Post #%{post_number}"
+            description: "Unschedule publication of Post #%{post_number}."
 
     topic:
       discourse_activity_pub:
+        info:
+          title: "ActivityPub for Topic #%{topic_id}"
+          label: Topic Info
+        first_post:
+          actions:
+            label: First Post Actions
         status:
-          label: Topic Status
+          scheduled: Topic is scheduled to be published via ActivityPub at %{time}.
+          scheduled_past: Topic was scheduled to be published via ActivityPub at %{time}.
+          published: Topic was published via ActivityPub at %{time}.
+          published_remote: Topic was received from %{actor} via ActivityPub at %{time}.
+          deleted: Topic was deleted via ActivityPub at %{time}.
+          not_published: Topic is not published via ActivityPub.
+        object_status:
+          scheduled: "%{object_type} is scheduled to be published at %{time}."
+          scheduled_past: "%{object_type} was scheduled to be published at %{time}."
+          published: "%{object_type} was published at %{time}."
+          published_remote: "%{object_type} was received from %{actor} at %{time}."
+          deleted: "%{object_type} was deleted at %{time}."
+          not_published: "%{object_type} is not published."
+        posts_status:
+          label: Posts Status
           published: All posts in this topic are published.
-          scheduled: The first post in this topic is scheduled to be published.
           some_published: "%{count} of %{total} posts in this topic are published."
           none_published: No posts in this topic are published.
+          scheduled: This topic is scheduled to be published.
         admin:
           title: "ActivityPub Admin for Topic #%{topic_id}"
-          label: Topic Admin...
+          label: Topic Admin
+          menu_label: ActivityPub Topic Admin...
         actions:
           label: Topic Actions
         actors:
           label: Topic Actors
         publish:
-          label: Publish Posts
-          description: Unpublished posts will be published, but not delivered.
-          first_post_scheduled: Posts cannot be published when the first post is scheduled to be published.
+          label: Publish All Posts
+          description:
+            unpublished: "Publish %{count} unpublished posts in Topic #%{topic_id}. Posts will not be delivered to the followers of %{actors}."
+            published: "Publishing all posts is disabled. All posts in Topic #%{topic_id} are already published."
+            scheduled: "Publishing all posts is disabled. Topic #%{topic_id} is scheduled to be published."
 
     user:
       discourse_activity_pub:

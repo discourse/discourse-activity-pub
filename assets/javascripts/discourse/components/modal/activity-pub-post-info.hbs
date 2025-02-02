@@ -1,53 +1,20 @@
 <DModal
   @closeModal={{@closeModal}}
   @title={{this.title}}
-  class="activity-pub-post-info-modal"
+  class="activity-pub-info-modal activity-pub-post-info-modal"
 >
   <:body>
-    <div class="activity-pub-post-info-list">
-      <span class="activity-pub-status">{{d-icon
-          this.statusIcon
-        }}{{this.statusText}}</span>
-      {{#if this.showVisibility}}
-        <span class="activity-pub-visibility">{{d-icon
-            this.visibilityIcon
-          }}{{this.visibilityText}}</span>
-      {{/if}}
-      {{#if this.showUrl}}
-        <span class="activity-pub-url">
-          <a
-            href={{@model.post.activity_pub_url}}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {{d-icon "up-right-from-square"}}
-            {{this.urlText}}
-          </a>
-        </span>
-      {{/if}}
-      {{#if this.showDelivered}}
-        <span class="activity-pub-delivered">{{d-icon
-            "envelope"
-          }}{{this.deliveredText}}</span>
-      {{/if}}
-    </div>
+    <ActivityPubPostInfo @post={{this.post}} @showObjectType={{true}} />
   </:body>
-
   <:footer>
-    {{#if this.showObjectId}}
+    <ActivityPubObjectCopyBtn @object={{this.post}} />
+    {{#if this.canAdmin}}
       <DButton
-        @icon="link"
-        @action={{this.copyObjectId}}
-        @translatedTitle={{this.copyObjectIdTitle}}
-        @translatedLabel={{this.copyObjectIdLabel}}
-        class="activity-pub-object-id-copy"
-      >
-        {{#if this.copiedObjectId}}
-          <div class="activity-pub-object-id-copy-text">
-            {{i18n "post.discourse_activity_pub.info.copy_uri.copied"}}
-          </div>
-        {{/if}}
-      </DButton>
+        @icon="gear"
+        @label="post.discourse_activity_pub.admin.label"
+        @action={{this.showAdmin}}
+        class="show-admin"
+      />
     {{/if}}
   </:footer>
 </DModal>

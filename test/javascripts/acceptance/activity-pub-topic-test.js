@@ -426,7 +426,7 @@ acceptance(
 
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-status"
+          ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
         `Note was published on this site at ${publishedAt.format(
           "h:mm a, MMM D"
@@ -500,7 +500,7 @@ acceptance(
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-status"
+          ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
         `Note was published on external.com at ${publishedAt.format(
           "h:mm a, MMM D"
@@ -586,7 +586,7 @@ acceptance(
       assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-status"
+          ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
         "Note is not published.",
         "shows the right status text"

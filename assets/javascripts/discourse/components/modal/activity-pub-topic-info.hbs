@@ -1,0 +1,23 @@
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{this.title}}
+  class="activity-pub-info-modal activity-pub-topic-info-modal"
+>
+  <:body>
+    <ActivityPubTopicInfo @topic={{this.topic}} @showObjectType={{true}} />
+    <ActivityPubPostInfo @post={{this.firstPost}} @showObjectType={{true}} />
+  </:body>
+
+  <:footer>
+    <ActivityPubObjectCopyBtn @object={{this.topic}} />
+    <ActivityPubObjectCopyBtn @object={{this.firstPost}} />
+    {{#if this.canAdmin}}
+      <DButton
+        @icon="gear"
+        @label="topic.discourse_activity_pub.admin.label"
+        @action={{this.showAdmin}}
+        class="show-admin"
+      />
+    {{/if}}
+  </:footer>
+</DModal>

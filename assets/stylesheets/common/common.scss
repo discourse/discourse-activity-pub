@@ -6,7 +6,7 @@
   line-height: var(--line-height-large);
 }
 
-div.activity-pub-status {
+div.activity-pub-actor-status {
   padding: 2px 8px;
   border-radius: var(--d-border-radius);
   line-height: 0.9em;
@@ -152,14 +152,15 @@ section.activity-pub-actor-setting {
   }
 }
 
-#reply-control .activity-pub-status {
+#reply-control .activity-pub-actor-status {
   margin-left: 1em;
 }
 
-.post-info.activity-pub {
+.activity-pub-topic-status,
+.activity-pub-post-status {
   display: flex;
   align-items: center;
-  gap: 0.3em;
+  gap: 0.5em;
   cursor: pointer;
 
   .d-icon {
@@ -176,13 +177,10 @@ section.activity-pub-actor-setting {
   &.published-remote .d-icon-discourse-activity-pub {
     color: var(--tertiary);
   }
-
-  .activity-pub-visibility .d-icon {
-    font-size: 0.85em;
-  }
 }
 
-.activity-pub-post-info-list {
+.activity-pub-post-info,
+.activity-pub-topic-info {
   display: flex;
   flex-direction: column;
   gap: 0.25em;
@@ -490,7 +488,7 @@ body.user-preferences-activity-pub-page {
   gap: 1em;
 
   .activity-pub-actor-model,
-  .activity-pub-status {
+  .activity-pub-actor-status {
     min-height: 34px;
     box-sizing: border-box;
     display: flex;
@@ -503,7 +501,7 @@ body.user-preferences-activity-pub-page {
     padding: 0 0.5em;
   }
 
-  .activity-pub-status {
+  .activity-pub-actor-status {
     padding: 0 0.7em;
   }
 
@@ -573,39 +571,53 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-admin-modal {
+.activity-pub-topic-admin-modal {
   .d-modal__body {
     display: flex;
     flex-direction: column;
     gap: 1em;
   }
+}
 
-  .control-group {
-    .control-label {
-      margin-bottom: 0.5em;
-    }
+.d-modal {
+  .activity-pub-topic-status,
+  .activity-pub-post-status {
+    cursor: unset;
+  }
+}
 
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 1em;
-    }
+.activity-pub-topic-actions,
+.activity-pub-post-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 
-    &.actions {
-      .controls {
-        flex-direction: column;
+  .action {
+    display: flex;
+    gap: 1em;
+    width: 100%;
+
+    .action-button {
+      .d-button-label {
+        white-space: nowrap;
       }
+    }
 
-      .action {
-        display: flex;
-        align-items: center;
-        gap: 0.5em;
-        width: 100%;
-
-        .action-button .d-button-label {
-          white-space: nowrap;
-        }
+    .action-description {
+      .activity-pub-handle {
+        background-color: var(--primary-100);
+        border-radius: 4px;
+        font-size: var(--font-down-1);
+        padding: 0.15em 0.3em;
       }
     }
   }
+}
+
+.topic-map__activity-pub {
+  margin-top: 1em;
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  color: var(--primary-700);
 }

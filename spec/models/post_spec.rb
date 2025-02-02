@@ -294,9 +294,21 @@ RSpec.describe Post do
     context "with a post with a local Note" do
       let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post, local: true) }
 
+      before do
+        post.custom_fields["activity_pub_scheduled_at"] = Time.now
+        post.custom_fields["activity_pub_published_at"] = Time.now
+        post.save_custom_fields(true)
+      end
+
       it "attempts a delete activity" do
         post.expects(:perform_activity_pub_activity).with(:delete).once
         post.activity_pub_delete!
+      end
+
+      it "removes published_at and scheduled_at timestamps" do
+        post.activity_pub_delete!
+        expect(post.reload.activity_pub_scheduled_at).to eq(nil)
+        expect(post.activity_pub_published_at).to eq(nil)
       end
 
       it "returns the outcome of the delete activity" do
@@ -632,6 +644,28 @@ RSpec.describe Post do
             expect(reply.activity_pub_content).to eq(nil)
             expect(reply.activity_pub_object).to eq(nil)
             expect(reply.activity_pub_actor).to eq(nil)
+          end
+        end
+
+        context "when post is deleted" do
+          before do
+            post.custom_fields["activity_pub_deleted_at"] = Time.now
+            post.save_custom_fields(true)
+            post.trash!
+          end
+
+          it "publishes the post's ap objects" do
+            freeze_time
+            published_at = Time.now.utc.to_i
+            perform_create
+            expect(post.activity_pub_published?).to eq(true)
+            expect(post.activity_pub_published_at.to_datetime.to_i).to eq_time(published_at)
+            expect(post.activity_pub_deleted_at).to eq(nil)
+            expect(post.activity_pub_object.published_at.to_datetime.to_i).to eq_time(published_at)
+            expect(
+              post.activity_pub_object.create_activity.published_at.to_datetime.to_i,
+            ).to eq_time(published_at)
+            unfreeze_time
           end
         end
       end

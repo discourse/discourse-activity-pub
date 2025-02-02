@@ -112,10 +112,17 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
     if model.respond_to?(:activity_pub_after_publish)
       args = {}
-      args[:published_at] = published_at if activity&.ap&.create? &&
-        model.activity_pub_published_at.blank?
-      args[:deleted_at] = published_at if activity&.ap&.delete?
+      if activity&.ap&.create? && model.activity_pub_published_at.blank?
+        args[:published_at] = published_at
+        args[:deleted_at] = nil
+      end
       args[:updated_at] = published_at if activity&.ap&.update?
+      if activity&.ap&.delete?
+        args[:published_at] = nil
+        args[:updated_at] = nil
+        args[:scheduled_at] = nil
+        args[:deleted_at] = published_at
+      end
       model.activity_pub_after_publish(args)
     end
   end
@@ -145,7 +152,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def attributed_to
-    if model&.activity_pub_first_post
+    if local? && model&.activity_pub_first_post
       topic_actor
     else
       super

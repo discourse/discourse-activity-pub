@@ -241,7 +241,7 @@ module DiscourseActivityPub
       def performing_activity_delivery_delay
         @performing_activity_delivery_delay ||=
           begin
-            if !self.destroyed? && !activity_pub_first_post_published?
+            if !self.destroyed? && !activity_pub_topic_published?
               SiteSetting.activity_pub_delivery_delay_minutes.to_i
             else
               nil

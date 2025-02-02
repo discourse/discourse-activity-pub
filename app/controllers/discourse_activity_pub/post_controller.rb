@@ -9,10 +9,12 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
     before_action :ensure_staff
     before_action :find_post
-    before_action :ensure_first_post
+    before_action :ensure_first_post, only: %i[schedule unschedule]
 
     def deliver
-      if !@post.activity_pub_published? || @post.activity_pub_taxonomy_followers.empty?
+      if !@post.activity_pub_published? || !@post.topic.activity_pub_published? ||
+           @post.activity_pub_taxonomy_followers.empty? ||
+           (!@post.topic.activity_pub_delivered? && !@post.activity_pub_is_first_post?)
         return render_post_error("cant_deliver_post", 422)
       end
 
@@ -24,7 +26,8 @@ module DiscourseActivityPub
     end
 
     def publish
-      if @post.activity_pub_published? || @post.activity_pub_scheduled?
+      if @post.activity_pub_published? || @post.activity_pub_scheduled? ||
+           (!@post.topic.activity_pub_published? && !@post.activity_pub_is_first_post?)
         return render_post_error("cant_publish_post", 422)
       end
 

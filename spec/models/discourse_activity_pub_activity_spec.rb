@@ -162,7 +162,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_publish)
-          .with({ published_at: Time.now.utc.iso8601 })
+          .with({ published_at: Time.now.utc.iso8601, deleted_at: nil })
           .once
         create_activity.before_deliver
       end
@@ -175,7 +175,14 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_publish)
-          .with({ deleted_at: Time.now.utc.iso8601 })
+          .with(
+            {
+              deleted_at: Time.now.utc.iso8601,
+              published_at: nil,
+              updated_at: nil,
+              scheduled_at: nil,
+            },
+          )
           .once
         delete_activity.before_deliver
       end
@@ -218,7 +225,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_publish)
-          .with({ published_at: Time.now.utc.iso8601 })
+          .with({ published_at: Time.now.utc.iso8601, deleted_at: nil })
           .once
         activity.before_deliver
       end

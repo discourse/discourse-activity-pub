@@ -1,16 +1,21 @@
+import { hbs } from "ember-cli-htmlbars";
 import { Promise } from "rsvp";
 import { AUTO_GROUPS } from "discourse/lib/constants";
 import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
+import RenderGlimmer from "discourse/widgets/render-glimmer";
+import ActivityPubPostAdmin from "../components/modal/activity-pub-post-admin";
+import ActivityPubTopicAdmin from "../components/modal/activity-pub-topic-admin";
+import { activityPubPostStatus } from "../lib/activity-pub-utilities";
 
 export default {
   name: "activity-pub",
   initialize(container) {
     const site = container.lookup("service:site");
+    const modal = container.lookup("service:modal");
 
     withPluginApi("1.6.0", (api) => {
       const currentUser = api.getCurrentUser();
-      const modal = api._lookupContainer("service:modal");
 
       api.addTrackedPostProperties(
         "activity_pub_enabled",
@@ -56,6 +61,7 @@ export default {
           if (
             site.activity_pub_enabled &&
             attrs.activity_pub_enabled &&
+            attrs.post_number !== 1 &&
             this.showStatusToUser(this.currentUser)
           ) {
             const status = activityPubPostStatus(attrs);
@@ -63,13 +69,18 @@ export default {
               let replyToTabIndex = postStatuses.findIndex((postStatus) => {
                 return postStatus.name === "reply-to-tab";
               });
+              const post = this.findAncestorModel();
               postStatuses.splice(
                 replyToTabIndex !== -1 ? replyToTabIndex + 1 : 0,
                 0,
-                this.attach("post-activity-pub-indicator", {
-                  post: attrs,
-                  status,
-                })
+                new RenderGlimmer(
+                  this,
+                  "div.post-info.activity-pub",
+                  hbs`<ActivityPubPostStatus @post={{@data.post}} />`,
+                  {
+                    post,
+                  }
+                )
               );
             }
           }
@@ -82,13 +93,13 @@ export default {
         if (
           attrs.activity_pub_enabled &&
           currentUser?.staff &&
-          attrs.activity_pub_is_first_post
+          !attrs.activity_pub_is_first_post
         ) {
           return {
             secondaryAction: "closeAdminMenu",
             icon: "discourse-activity-pub",
             className: "show-activity-pub-post-admin",
-            label: "post.discourse_activity_pub.admin.label",
+            label: "post.discourse_activity_pub.admin.menu_label",
             position: "second-last-hidden",
             action: async (post) => {
               modal.show(ActivityPubPostAdmin, {
@@ -103,15 +114,19 @@ export default {
 
       api.addTopicAdminMenuButton((topic) => {
         if (topic.activity_pub_enabled && currentUser?.staff) {
+          const firstPost = topic
+            .get("postStream.posts")
+            .findBy("post_number", 1);
           return {
             icon: "discourse-activity-pub",
             className: "show-activity-pub-topic-admin",
             title: "topic.discourse_activity_pub.admin.title",
-            label: "topic.discourse_activity_pub.admin.label",
+            label: "topic.discourse_activity_pub.admin.menu_label",
             action: async () => {
               modal.show(ActivityPubTopicAdmin, {
                 model: {
                   topic,
+                  firstPost,
                 },
               });
             },
@@ -144,20 +159,26 @@ export default {
           const postStream = topic.get("postStream");
 
           if (data.model.type === "post" && postStream) {
-            let stateProps = {
+            let postProps = {
               activity_pub_scheduled_at: data.model.scheduled_at,
               activity_pub_published_at: data.model.published_at,
               activity_pub_deleted_at: data.model.deleted_at,
               activity_pub_updated_at: data.model.updated_at,
               activity_pub_delivered_at: data.model.delivered_at,
             };
+
             postStream
-              .triggerActivityPubStateChange(data.model.id, stateProps)
+              .triggerActivityPubStateChange(data.model.id, postProps)
               .then(() =>
                 this.appEvents.trigger("post-stream:refresh", {
                   id: data.model.id,
                 })
               );
+            this.appEvents.trigger(
+              "activity-pub:post-updated",
+              data.model.id,
+              postProps
+            );
           }
 
           if (data.model.type === "topic" && topic) {
@@ -166,11 +187,17 @@ export default {
               activity_pub_published_post_count:
                 data.model.published_post_count,
               activity_pub_total_post_count: data.model.total_post_count,
-              activity_pub_first_post_scheduled:
-                data.model.first_post_scheduled,
+              activity_pub_scheduled_at: data.model.scheduled_at,
+              activity_pub_published_at: data.model.published_at,
+              activity_pub_deleted_at: data.model.deleted_at,
             };
             topic.setProperties(topicProps);
             postStream.refresh();
+            this.appEvents.trigger(
+              "activity-pub:topic-updated",
+              data.model.id,
+              topicProps
+            );
           }
         },
 
