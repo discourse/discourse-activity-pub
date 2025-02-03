@@ -42,9 +42,11 @@ export default class ActivityPubTopicActions extends Component {
   }
 
   get actorsString() {
-    return this.actors.map(
-      (actor) => `<span class="activity-pub-handle">${actor.handle}</span>`
-    );
+    return this.actors
+      .map(
+        (actor) => `<span class="activity-pub-handle">${actor.handle}</span>`
+      )
+      .join(", ");
   }
 
   get publishDisabled() {
@@ -84,7 +86,7 @@ export default class ActivityPubTopicActions extends Component {
   <template>
     {{#if this.showPublish}}
       <div class="activity-pub-topic-actions">
-        <div class="action">
+        <div class="action publish-all">
           <div class="action-button">
             <DButton
               @label="topic.discourse_activity_pub.publish.label"

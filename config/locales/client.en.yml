@@ -195,7 +195,7 @@ en:
           scheduled_past: "Post was scheduled to be published via ActivityPub  at %{time}."
           deleted: "Post was deleted via ActivityPub at %{time}."
           updated: "Post was updated via ActivityPub at %{time}."
-          published_remote: "Post was published via ActivityPub by %{actor} at %{time}."
+          published_remote: "Post was published via ActivityPub on %{domain} at %{time}."
           not_published: "Post is not published via ActivityPub."
           delivered: "Post was delivered via ActivityPub at %{time}."
         object_status:
@@ -205,7 +205,7 @@ en:
           scheduled_past: "%{object_type} was scheduled to be published on at %{time}."
           deleted: "%{object_type} was deleted at %{time}."
           updated: "%{object_type} was updated at %{time}."
-          published_remote: "%{object_type} was published by %{actor} at %{time}."
+          published_remote: "%{object_type} was published on %{domain} at %{time}."
           not_published: "%{object_type} is not published."
           delivered: "%{object_type} was delivered at %{time}."
         admin:
@@ -247,14 +247,14 @@ en:
           scheduled: Topic is scheduled to be published via ActivityPub at %{time}.
           scheduled_past: Topic was scheduled to be published via ActivityPub at %{time}.
           published: Topic was published via ActivityPub at %{time}.
-          published_remote: Topic was received from %{actor} via ActivityPub at %{time}.
+          published_remote: Topic was published via ActivityPub by %{actor} at %{time}.
           deleted: Topic was deleted via ActivityPub at %{time}.
           not_published: Topic is not published via ActivityPub.
         object_status:
           scheduled: "%{object_type} is scheduled to be published at %{time}."
           scheduled_past: "%{object_type} was scheduled to be published at %{time}."
           published: "%{object_type} was published at %{time}."
-          published_remote: "%{object_type} was received from %{actor} at %{time}."
+          published_remote: "%{object_type} was published by %{actor} at %{time}."
           deleted: "%{object_type} was deleted at %{time}."
           not_published: "%{object_type} is not published."
         posts_status:

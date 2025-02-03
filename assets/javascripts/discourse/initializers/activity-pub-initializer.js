@@ -1,17 +1,20 @@
 import { hbs } from "ember-cli-htmlbars";
 import { Promise } from "rsvp";
-import { AUTO_GROUPS } from "discourse/lib/constants";
 import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import RenderGlimmer from "discourse/widgets/render-glimmer";
 import ActivityPubPostAdmin from "../components/modal/activity-pub-post-admin";
 import ActivityPubTopicAdmin from "../components/modal/activity-pub-topic-admin";
-import { activityPubPostStatus } from "../lib/activity-pub-utilities";
+import {
+  activityPubPostStatus,
+  showStatusToUser,
+} from "../lib/activity-pub-utilities";
 
 export default {
   name: "activity-pub",
   initialize(container) {
     const site = container.lookup("service:site");
+    const siteSettings = container.lookup("service:site-settings");
     const modal = container.lookup("service:modal");
 
     withPluginApi("1.6.0", (api) => {
@@ -37,21 +40,6 @@ export default {
 
       // TODO (future): PR discourse/discourse to add post infos via api
       api.reopenWidget("post-meta-data", {
-        showStatusToUser(user) {
-          if (!user) {
-            return false;
-          }
-          const groupIds =
-            this.siteSettings.activity_pub_post_status_visibility_groups
-              .split("|")
-              .map(Number);
-          return user.groups.some(
-            (group) =>
-              groupIds.includes(AUTO_GROUPS.everyone.id) ||
-              groupIds.includes(group.id)
-          );
-        },
-
         html(attrs) {
           const result = this._super(attrs);
           let postStatuses = result[result.length - 1].children;
@@ -62,7 +50,7 @@ export default {
             site.activity_pub_enabled &&
             attrs.activity_pub_enabled &&
             attrs.post_number !== 1 &&
-            this.showStatusToUser(this.currentUser)
+            showStatusToUser(currentUser, siteSettings)
           ) {
             const status = activityPubPostStatus(attrs);
             if (status) {

@@ -1,3 +1,4 @@
+import { AUTO_GROUPS } from "discourse/lib/constants";
 import I18n from "I18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
@@ -9,6 +10,19 @@ export function buildHandle({ actor, model, site }) {
     const domain = actor ? actor.domain : site.activity_pub_host;
     return `@${username}@${domain}`;
   }
+}
+
+export function showStatusToUser(user, siteSettings) {
+  if (!user || !siteSettings) {
+    return false;
+  }
+  const groupIds = siteSettings.activity_pub_post_status_visibility_groups
+    .split("|")
+    .map(Number);
+  return user.groups.some(
+    (group) =>
+      groupIds.includes(AUTO_GROUPS.everyone.id) || groupIds.includes(group.id)
+  );
 }
 
 export function activityPubPostStatus(post) {
@@ -35,13 +49,11 @@ export function activityPubPostStatusText(post, opts = {}) {
   const status = activityPubPostStatus(post);
 
   let i18nKey;
-  let i18nOpts = {
-    domain: post.activity_pub_domain,
-    object_type: post.activity_pub_object_type,
-  };
+  let i18nOpts = {};
 
   if (opts.showObjectType && post.activity_pub_object_type) {
     i18nKey = "object_status";
+    i18nOpts.object_type = post.activity_pub_object_type;
   } else {
     i18nKey = "status";
   }
@@ -51,8 +63,11 @@ export function activityPubPostStatusText(post, opts = {}) {
     time = moment(post.activity_pub_deleted_at);
   } else if (status === "updated") {
     time = moment(post.activity_pub_updated_at);
-  } else if (status.includes("published")) {
+  } else if (status === "published") {
     time = moment(post.activity_pub_published_at);
+  } else if (status === "published_remote") {
+    time = moment(post.activity_pub_published_at);
+    i18nOpts.domain = post.activity_pub_domain;
   } else if (status.includes("scheduled")) {
     time = moment(post.activity_pub_scheduled_at);
   }
@@ -85,26 +100,22 @@ export function activityPubTopicStatus(topic) {
 export function activityPubTopicStatusText(topic, opts = {}) {
   const status = activityPubTopicStatus(topic);
 
-  let i18nKey;
-  let i18nOpts;
+  let i18nKey = "status";
+  let i18nOpts = {};
 
   if (opts.showObjectType) {
     i18nKey = "object_status";
-    i18nOpts = {
-      object_type: topic.activity_pub_object_type || "Collection",
-    };
-  } else {
-    i18nKey = "status";
-    i18nOpts = {
-      actor: topic.activity_pub_actor.handle,
-    };
+    i18nOpts.object_type = topic.activity_pub_object_type || "Collection";
   }
 
   let time;
   if (status === "deleted") {
     time = moment(topic.activity_pub_deleted_at);
-  } else if (status.includes("published")) {
+  } else if (status === "published") {
     time = moment(topic.activity_pub_published_at);
+  } else if (status === "published_remote") {
+    time = moment(topic.activity_pub_published_at);
+    i18nOpts.actor = topic.activity_pub_actor.handle;
   } else if (status.includes("scheduled")) {
     time = moment(topic.activity_pub_scheduled_at);
   }
@@ -118,8 +129,11 @@ export function activityPubTopicStatusText(topic, opts = {}) {
 
 export function activityPubTopicActors(topic) {
   let result = [];
-  if (topic.category) {
-    let actor = ActivityPubActor.findByModel(topic.category, "category");
+  if (topic.category_id) {
+    let actor = ActivityPubActor.findByModel(
+      { id: topic.category_id },
+      "category"
+    );
     if (actor) {
       result.push(actor);
     }

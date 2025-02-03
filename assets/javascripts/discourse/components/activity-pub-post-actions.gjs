@@ -254,7 +254,7 @@ export default class ActivityPubPostActions extends Component {
     {{#if this.showActions}}
       <div class="activity-pub-post-actions">
         {{#if this.showDeliver}}
-          <div class="action">
+          <div class="action deliver">
             <div class="action-button">
               <DButton
                 @translatedLabel={{this.deliverLabel}}
@@ -269,7 +269,7 @@ export default class ActivityPubPostActions extends Component {
           </div>
         {{/if}}
         {{#if this.showPublish}}
-          <div class="action">
+          <div class="action publish">
             <div class="action-button">
               <DButton
                 @translatedLabel={{this.publishLabel}}
@@ -284,7 +284,7 @@ export default class ActivityPubPostActions extends Component {
           </div>
         {{/if}}
         {{#if this.showSchedule}}
-          <div class="action">
+          <div class="action schedule">
             <div class="action-button">
               <DButton
                 @translatedLabel={{this.scheduleLabel}}

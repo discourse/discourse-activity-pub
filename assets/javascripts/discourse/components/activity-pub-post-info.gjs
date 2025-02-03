@@ -55,7 +55,7 @@ export default class ActivityPubPostInfo extends Component {
   get urlText() {
     return i18n("post.discourse_activity_pub.info.url", {
       object_type: this.post.activity_pub_object_type,
-      actor: this.post.activity_pub_domain,
+      domain: this.post.activity_pub_domain,
     });
   }
 
