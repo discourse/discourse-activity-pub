@@ -4,6 +4,11 @@
   class="activity-pub-post-admin-modal"
 >
   <:body>
+    <ActivityPubAdminInfo
+      @post={{this.post}}
+      @topic={{this.topic}}
+      @context="post"
+    />
     <ActivityPubPostActions @post={{this.post}} />
   </:body>
   <:footer>

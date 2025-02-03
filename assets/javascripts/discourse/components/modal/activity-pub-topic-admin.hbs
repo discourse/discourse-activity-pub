@@ -4,6 +4,7 @@
   class="activity-pub-topic-admin-modal"
 >
   <:body>
+    <ActivityPubAdminInfo @topic={{this.topic}} @context="topic" />
     <ActivityPubTopicActions @topic={{this.topic}} />
     <ActivityPubPostActions @post={{this.firstPost}} />
   </:body>

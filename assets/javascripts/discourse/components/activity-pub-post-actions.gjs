@@ -50,9 +50,11 @@ export default class ActivityPubPostActions extends Component {
   }
 
   get actorsString() {
-    return this.actors.map(
-      (actor) => `<span class="activity-pub-handle">${actor.handle}</span>`
-    );
+    return this.actors
+      .map(
+        (actor) => `<span class="activity-pub-handle">${actor.handle}</span>`
+      )
+      .join(" ");
   }
 
   get noFollowers() {
@@ -75,7 +77,6 @@ export default class ActivityPubPostActions extends Component {
   get deliverLabel() {
     return i18n(`post.discourse_activity_pub.actions.deliver.label`, {
       post_number: this.post.post_number,
-      actors: this.actorsString,
     });
   }
 
@@ -86,7 +87,6 @@ export default class ActivityPubPostActions extends Component {
     let i18nKey;
 
     if (this.status === "delivered") {
-      args.actors = this.actorsString;
       i18nKey = "delivered";
     } else if (
       this.post.post_number !== 1 &&
@@ -97,7 +97,6 @@ export default class ActivityPubPostActions extends Component {
     } else if (this.noFollowers) {
       i18nKey = "no_followers";
     } else {
-      args.actors = this.actorsString;
       i18nKey = "followers";
     }
 
@@ -180,20 +179,21 @@ export default class ActivityPubPostActions extends Component {
     let args = {
       post_number: this.post.post_number,
     };
-    let i18nKey;
+    let i18nKey = "description";
 
     if (this.scheduleAction === "schedule") {
       args.minutes = this.siteSettings.activity_pub_delivery_delay_minutes;
-    }
-    if (this.noFollowers) {
-      i18nKey = "no_followers";
-    } else {
-      args.actors = this.actorsString;
-      i18nKey = "followers";
+
+      if (this.noFollowers) {
+        i18nKey += ".no_followers";
+      } else {
+        args.actors = this.actorsString;
+        i18nKey += ".followers";
+      }
     }
 
     return i18n(
-      `post.discourse_activity_pub.actions.${this.scheduleAction}.description.${i18nKey}`,
+      `post.discourse_activity_pub.actions.${this.scheduleAction}.${i18nKey}`,
       args
     );
   }

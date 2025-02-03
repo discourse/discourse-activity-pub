@@ -46,7 +46,7 @@ export default class ActivityPubTopicActions extends Component {
       .map(
         (actor) => `<span class="activity-pub-handle">${actor.handle}</span>`
       )
-      .join(", ");
+      .join(" ");
   }
 
   get publishDisabled() {

@@ -17,6 +17,10 @@ export default class ActivityPubPostAdmin extends Component {
     return this.args.model.post;
   }
 
+  get topic() {
+    return this.post.topic;
+  }
+
   @action
   showInfo() {
     this.modal.show(ActivityPubPostInfo, {

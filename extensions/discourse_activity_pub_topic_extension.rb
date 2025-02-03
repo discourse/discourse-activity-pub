@@ -28,13 +28,17 @@ module DiscourseActivityPubTopicExtension
     @activity_pub_published_post_count ||= activity_pub_published_posts.count
   end
 
-  def activity_pub_published?
+  def activity_pub_all_posts_published?
     activity_pub_total_post_count == activity_pub_published_post_count
   end
 
   # The break with the naming convention is due to the 'activity_pub_first_post' publication type.
   def ap_first_post
     @ap_first_post ||= posts.with_deleted.find_by(post_number: 1)
+  end
+
+  def activity_pub_published?
+    activity_pub_published_at.present?
   end
 
   def activity_pub_published_at

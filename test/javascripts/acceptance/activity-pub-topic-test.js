@@ -309,7 +309,7 @@ acceptance(
         query(
           ".activity-pub-topic-admin-modal .activity-pub-topic-actions .action.publish-all .action-description"
         ).innerText.trim(),
-        `Publish 18 unpublished posts in Topic #280. Posts will not be delivered to the followers of @cat_2@test.local.`,
+        `Publish 18 unpublished posts in Topic #280. Posts will not be delivered to the followers of the actors.`,
         "shows the right publish all description"
       );
       assert.ok(
