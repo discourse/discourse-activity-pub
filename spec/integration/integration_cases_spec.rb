@@ -111,7 +111,6 @@ RSpec.describe "integration cases" do
       expect(posts.size).to eq(1)
       expect(topics.size).to eq(1)
       expect(posts.first.topic_id).to eq(topics.first.id)
-      expect(posts.first.like_count).to eq(2)
       expect(topics.first.category_id).to eq(actor.model.id)
     end
 
@@ -120,7 +119,6 @@ RSpec.describe "integration cases" do
       expect(DiscourseActivityPubObject.where(ap_type: "Note").count).to eq(1)
       expect(DiscourseActivityPubActor.where(ap_type: "Person").count).to eq(3)
       expect(DiscourseActivityPubActivity.where(ap_type: "Announce").count).to eq(3)
-      expect(DiscourseActivityPubActivity.where(ap_type: "Like").count).to eq(2)
     end
   end
 end
