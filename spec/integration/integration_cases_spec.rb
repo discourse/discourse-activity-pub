@@ -71,4 +71,56 @@ RSpec.describe "integration cases" do
       expect(DiscourseActivityPubActivity.where(ap_type: "Like").count).to eq(4)
     end
   end
+
+  describe "#case 2" do
+    let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+    let!(:remote_actor) do
+      json = read_json("case_2", "group_actor")
+      Fabricate(:discourse_activity_pub_actor_group, ap_id: json[:id], local: false)
+    end
+    let!(:follow) do
+      Fabricate(:discourse_activity_pub_follow, follower: actor, followed: remote_actor)
+    end
+
+    before do
+      toggle_activity_pub(actor.model, publication_type: "full_topic")
+      Jobs.run_immediately!
+      SiteSetting.activity_pub_require_signed_requests = false
+
+      stub_object_request(read_json("case_2", "group_actor"))
+      stub_object_request(read_json("case_2", "actor_1"))
+      stub_object_request(read_json("case_2", "actor_2"))
+      stub_object_request(read_json("case_2", "actor_3"))
+      stub_object_request(read_json("case_2", "context_1"))
+
+      threads = []
+      results = []
+      6.times do |index|
+        threads << Thread.new do
+          post_to_inbox(actor, body: read_json("case_2", "received_#{index + 1}"))
+          results << response
+          sleep 0.01
+        end
+      end
+      threads.each(&:join)
+    end
+
+    it "creates the right Discourse objects" do
+      posts = Post.all
+      topics = Topic.all
+      expect(posts.size).to eq(1)
+      expect(topics.size).to eq(1)
+      expect(posts.first.topic_id).to eq(topics.first.id)
+      expect(posts.first.like_count).to eq(2)
+      expect(topics.first.category_id).to eq(actor.model.id)
+    end
+
+    it "creates the right AP objects" do
+      expect(DiscourseActivityPubCollection.where(ap_type: "OrderedCollection").count).to eq(1)
+      expect(DiscourseActivityPubObject.where(ap_type: "Note").count).to eq(1)
+      expect(DiscourseActivityPubActor.where(ap_type: "Person").count).to eq(3)
+      expect(DiscourseActivityPubActivity.where(ap_type: "Announce").count).to eq(3)
+      expect(DiscourseActivityPubActivity.where(ap_type: "Like").count).to eq(2)
+    end
+  end
 end
