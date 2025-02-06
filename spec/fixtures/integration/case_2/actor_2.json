@@ -1,0 +1,114 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1",
+    {
+      "manuallyApprovesFollowers": "as:manuallyApprovesFollowers",
+      "toot": "http://joinmastodon.org/ns#",
+      "featured": {
+        "@id": "toot:featured",
+        "@type": "@id"
+      },
+      "featuredTags": {
+        "@id": "toot:featuredTags",
+        "@type": "@id"
+      },
+      "alsoKnownAs": {
+        "@id": "as:alsoKnownAs",
+        "@type": "@id"
+      },
+      "movedTo": {
+        "@id": "as:movedTo",
+        "@type": "@id"
+      },
+      "schema": "http://schema.org#",
+      "PropertyValue": "schema:PropertyValue",
+      "value": "schema:value",
+      "discoverable": "toot:discoverable",
+      "suspended": "toot:suspended",
+      "memorial": "toot:memorial",
+      "indexable": "toot:indexable",
+      "attributionDomains": {
+        "@id": "toot:attributionDomains",
+        "@type": "@id"
+      },
+      "Hashtag": "as:Hashtag",
+      "focalPoint": {
+        "@container": "@list",
+        "@id": "toot:focalPoint"
+      }
+    }
+  ],
+  "id": "https://fietkau.social/users/julian",
+  "type": "Person",
+  "following": "https://fietkau.social/users/julian/following",
+  "followers": "https://fietkau.social/users/julian/followers",
+  "inbox": "https://fietkau.social/users/julian/inbox",
+  "outbox": "https://fietkau.social/users/julian/outbox",
+  "featured": "https://fietkau.social/users/julian/collections/featured",
+  "featuredTags": "https://fietkau.social/users/julian/collections/tags",
+  "preferredUsername": "julian",
+  "name": "Julian Fietkau",
+  "summary": "\u003cp\u003eHuman-computer interaction \u003ca href=\"https://fietkau.social/tags/HCI\" class=\"mention hashtag\" rel=\"tag\"\u003e#\u003cspan\u003eHCI\u003c/span\u003e\u003c/a\u003e, computer science \u0026amp; programming, home server \u0026amp; self-hosting, games and other fun stuff.\u003c/p\u003e\u003cp\u003eIncreasingly into making tools for the fediverse: FediRoster, Pinhole, more to come(?). See \u003ca href=\"https://fietkau.software/tag/fediverse\" target=\"_blank\" rel=\"nofollow noopener noreferrer\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003efietkau.software/tag/fediverse\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e for project info and downloads. If you do HCI-related research, check out \u003ca href=\"https://directory.hci.social\" target=\"_blank\" rel=\"nofollow noopener noreferrer\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003edirectory.hci.social\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e.\u003c/p\u003e\u003cp\u003eHe/him. Posting mostly in English, but you might see the occasional German boost.\u003c/p\u003e",
+  "url": "https://fietkau.social/@julian",
+  "manuallyApprovesFollowers": false,
+  "discoverable": true,
+  "indexable": true,
+  "published": "2022-11-03T00:00:00Z",
+  "memorial": false,
+  "attributionDomains": [
+    "fietkau.me",
+    "fietkau.science",
+    "fietkau.software",
+    "fietkau.media",
+    "fietkau.blog",
+    "fietkau.plus"
+  ],
+  "publicKey": {
+    "id": "https://fietkau.social/users/julian#main-key",
+    "owner": "https://fietkau.social/users/julian",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu0/aZEmcuNjK0YvLBfkJ\nDYhdLXK7sdrUn3LCe4av3Ty/TNoFTtNLvuqYGvhhNmwLEetsW+RY8dNjcK3qAiLp\n1HEi7FUydN7grxRavGYEseFq4luCVvWE8o01qbDISYcq585i+jF8KWlJQ4Uw3G73\nkB8IJECnkCpqogCOAL9deKyF4mieYsiGzBNyngMZeBC7SZ73dJm4+f/Bdns7oAbv\nZZ3rHOI9oCoGWfvEO8LfAEBz4jdniT5onSTthTPNc+cX8b8Ug41l6j370b3d6kjT\nC7fiGlhX6UnTcUghYpR7f1X9iBxSJ1ni3rErARYN1E5NsWHwq5azqji0BMGQlkpm\njwIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "tag": [
+    {
+      "type": "Hashtag",
+      "href": "https://fietkau.social/tags/HCI",
+      "name": "#HCI"
+    }
+  ],
+  "attachment": [
+    {
+      "type": "PropertyValue",
+      "name": "Website",
+      "value": "\u003ca href=\"https://fietkau.me\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003efietkau.me\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Employer",
+      "value": "\u003ca href=\"https://www.unibw.de/julian.fietkau\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://www.\u003c/span\u003e\u003cspan class=\"\"\u003eunibw.de/julian.fietkau\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Matrix",
+      "value": "\u003ca href=\"https://matrix.fietkau.social/to/#/@julian:fietkau.social\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"ellipsis\"\u003ematrix.fietkau.social/to/#/@ju\u003c/span\u003e\u003cspan class=\"invisible\"\u003elian:fietkau.social\u003c/span\u003e\u003c/a\u003e"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "ORCID",
+      "value": "\u003ca href=\"https://orcid.org/0000-0001-7264-8496\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003eorcid.org/0000-0001-7264-8496\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    }
+  ],
+  "endpoints": {
+    "sharedInbox": "https://fietkau.social/inbox"
+  },
+  "icon": {
+    "type": "Image",
+    "mediaType": "image/png",
+    "url": "https://fietkau.social/system/accounts/avatars/109/281/407/032/870/910/original/7a71c7a621c8b090.png"
+  },
+  "image": {
+    "type": "Image",
+    "mediaType": "image/jpeg",
+    "url": "https://fietkau.social/system/accounts/headers/109/281/407/032/870/910/original/cf0ead4a953e7043.jpg"
+  }
+}

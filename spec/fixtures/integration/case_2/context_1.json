@@ -1,0 +1,32 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "id": "https://community.nodebb.org/topic/18591",
+  "url": "https://community.nodebb.org/topic/18591/long-formers-activate",
+  "name": "Long-formers Activate!",
+  "attributedTo": "https://community.nodebb.org/category/30",
+  "audience": "https://community.nodebb.org/category/30",
+  "type": "OrderedCollection",
+  "totalItems": 21,
+  "orderedItems": [
+    "103076",
+    "https://hachyderm.io/users/esk/statuses/113936672669185931",
+    "103077",
+    "https://literatur.social/users/viennawriter/statuses/113936726796912124",
+    "https://pan.rent/users/tommi/statuses/113936834320848414",
+    "103078",
+    "103079",
+    "https://digitalcourage.social/users/mro/statuses/113936891738562253",
+    "https://mastodon.social/users/jiejie/statuses/113936903266426831",
+    "103080",
+    "https://mastodon.social/users/jiejie/statuses/113936940529256195",
+    "https://writing.exchange/users/wordsmith/statuses/113937130669017136",
+    "https://socialhub.activitypub.rocks/ap/object/beab91d305882d7dc800fcfb8e9815dc",
+    "https://loves.tech/item/b4110da1-7f1b-47b2-a574-c40534ce3b39",
+    "https://mastodon.social/users/pfefferle/statuses/113938332748077452",
+    "https://mastodon.xyz/users/johnonolan/statuses/113940287991014007",
+    "https://social.wake.st/users/liaizon/statuses/113940293457454071",
+    "https://macaw.social/users/andypiper/statuses/113940300934159556",
+    "https://cosocial.ca/users/evan/statuses/113942883295010569",
+    "https://cosocial.ca/users/evan/statuses/113942885429284387"
+  ]
+}

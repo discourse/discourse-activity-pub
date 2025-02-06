@@ -1,0 +1,27 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1"
+  ],
+  "id": "https://community.nodebb.org/category/30",
+  "url": "https://community.nodebb.org/category/30/activitypub",
+  "inbox": "https://community.nodebb.org/category/30/inbox",
+  "outbox": "https://community.nodebb.org/category/30/outbox",
+  "type": "Group",
+  "name": "ActivityPub",
+  "preferredUsername": "activitypub",
+  "summary": "<p dir=\"auto\">Focused discussion related to ActivityPub integration in NodeBB</p>\n",
+  "icon": {
+    "type": "Image",
+    "mediaType": "image/png",
+    "url": "https://community.nodebb.org/assets/uploads/category/category-30-icon.png"
+  },
+  "publicKey": {
+    "id": "https://community.nodebb.org/category/30#key",
+    "owner": "https://community.nodebb.org/category/30",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhBPoaG3FjSqgyDZqhcno\nC6U7KPtHcsnHvwu2eKQoPIMIGhXv47kCYaUByN+xNIpRdcOEa4F7iapvncAtBcTS\nfddwbiflReTGu3slQP1QDW0s2u4C4o0lYoDYAhClisQJLmNQL+oE3JgnEd3LEWrp\nWxYskRMIquehexV1+9ebZn09720T79Q/KZrzR8nTvmohCVoCVHbB57dDcs6CvFhL\n9q0NxEn9S8vKXNSREUjLhdAI9HQqzVchm6ylz/8gITyWHfyXzF7qEgNlt9f0vujH\nSnLHGwfilZK8woc8BLGIIc6ANaF86Ev0S8RX8PDolYKb4FftRUIFShw8erMmL1FH\nWwIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "endpoints": {
+    "sharedInbox": "https://community.nodebb.org/inbox"
+  }
+}

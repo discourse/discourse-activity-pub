@@ -1,0 +1,109 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1",
+    {
+      "manuallyApprovesFollowers": "as:manuallyApprovesFollowers",
+      "toot": "http://joinmastodon.org/ns#",
+      "featured": {
+        "@id": "toot:featured",
+        "@type": "@id"
+      },
+      "featuredTags": {
+        "@id": "toot:featuredTags",
+        "@type": "@id"
+      },
+      "alsoKnownAs": {
+        "@id": "as:alsoKnownAs",
+        "@type": "@id"
+      },
+      "movedTo": {
+        "@id": "as:movedTo",
+        "@type": "@id"
+      },
+      "schema": "http://schema.org#",
+      "PropertyValue": "schema:PropertyValue",
+      "value": "schema:value",
+      "discoverable": "toot:discoverable",
+      "suspended": "toot:suspended",
+      "memorial": "toot:memorial",
+      "indexable": "toot:indexable",
+      "attributionDomains": {
+        "@id": "toot:attributionDomains",
+        "@type": "@id"
+      },
+      "focalPoint": {
+        "@container": "@list",
+        "@id": "toot:focalPoint"
+      }
+    }
+  ],
+  "id": "https://stefanbohacek.online/users/stefan",
+  "type": "Person",
+  "following": "https://stefanbohacek.online/users/stefan/following",
+  "followers": "https://stefanbohacek.online/users/stefan/followers",
+  "inbox": "https://stefanbohacek.online/users/stefan/inbox",
+  "outbox": "https://stefanbohacek.online/users/stefan/outbox",
+  "featured": "https://stefanbohacek.online/users/stefan/collections/featured",
+  "featuredTags": "https://stefanbohacek.online/users/stefan/collections/tags",
+  "preferredUsername": "stefan",
+  "name": "Stefan Bohacek",
+  "summary": "\u003cp\u003eHusband, father, side project enthusiast: \u003ca href=\"https://stefanbohacek.com/projects\" target=\"_blank\" rel=\"nofollow noopener noreferrer\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003estefanbohacek.com/projects\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e\u003c/p\u003e\u003cp\u003eEnjoy my work? Here\u0026#39;s how to support it: \u003ca href=\"https://stefanbohacek.com/support-my-work/\" target=\"_blank\" rel=\"nofollow noopener noreferrer\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"ellipsis\"\u003estefanbohacek.com/support-my-w\u003c/span\u003e\u003cspan class=\"invisible\"\u003eork/\u003c/span\u003e\u003c/a\u003e\u003c/p\u003e\u003cp\u003e\u003ca href=\"https://FightFascism.glitch.me\" target=\"_blank\" rel=\"nofollow noopener noreferrer\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003eFightFascism.glitch.me\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e ✊\u003c/p\u003e\u003cp\u003eHe/him. 🗺️ Bratislava ➜ NYC ➜ NJ\u003c/p\u003e\u003cp\u003eSee also:\u003c/p\u003e\u003cp\u003e- \u003cspan class=\"h-card\" translate=\"no\"\u003e\u003ca href=\"https://mastodon.social/@alttexthalloffame\" class=\"u-url mention\"\u003e@\u003cspan\u003ealttexthalloffame\u003c/span\u003e\u003c/a\u003e\u003c/span\u003e \u003cbr /\u003e- \u003cspan class=\"h-card\" translate=\"no\"\u003e\u003ca href=\"https://mastodon.social/@FediverseExplorations\" class=\"u-url mention\"\u003e@\u003cspan\u003eFediverseExplorations\u003c/span\u003e\u003c/a\u003e\u003c/span\u003e\u003cbr /\u003e- \u003cspan class=\"h-card\" translate=\"no\"\u003e\u003ca href=\"https://mastodon.social/@challenges\" class=\"u-url mention\"\u003e@\u003cspan\u003echallenges\u003c/span\u003e\u003c/a\u003e\u003c/span\u003e\u003cbr /\u003e- \u003cspan class=\"h-card\" translate=\"no\"\u003e\u003ca href=\"https://mastodon.social/@botwiki\" class=\"u-url mention\"\u003e@\u003cspan\u003ebotwiki\u003c/span\u003e\u003c/a\u003e\u003c/span\u003e\u003cbr /\u003e- \u003ca href=\"https://stefans-creative-bots.glitch.me\" target=\"_blank\" rel=\"nofollow noopener noreferrer\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"ellipsis\"\u003estefans-creative-bots.glitch.m\u003c/span\u003e\u003cspan class=\"invisible\"\u003ee\u003c/span\u003e\u003c/a\u003e\u003c/p\u003e",
+  "url": "https://stefanbohacek.online/@stefan",
+  "manuallyApprovesFollowers": false,
+  "discoverable": true,
+  "indexable": true,
+  "published": "2023-01-15T00:00:00Z",
+  "memorial": false,
+  "alsoKnownAs": [
+    "https://indieweb.social/users/stefanbohacek",
+    "https://calckey.social/users/9eiltn091y",
+    "https://mastodon.social/users/fourtonfish",
+    "https://mastodon.social/users/stefanbohacek"
+  ],
+  "attributionDomains": [
+    "stefanbohacek.com",
+    "botwiki.org"
+  ],
+  "publicKey": {
+    "id": "https://stefanbohacek.online/users/stefan#main-key",
+    "owner": "https://stefanbohacek.online/users/stefan",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA9XLeEzThbClZyqP++Zo2\nXCB2c31cc/Mjttd30sdaAHWZAth2ros0TwSeobyMnO+0Sbg+BFb+vuS5UU7w5hvO\ndyPgwy7S4xPJcNioX86woJ2mak9VivlsgNQqNtOEBfsLbytltFRKUIH0G9LKIdeM\nuaUdb88BqPg4NyJm296s93RUD86bxIzEuVgLmqaBWrRbVcz2G5L3U+p6bN/x2Dt0\n49Y9eb68hgRUr4U8vDbNwgZvQHWYpXeKCmEeh1qrMtTGzbtv6xqa8e7J+gneMD0N\nVYEijBOwRYDNOgj2ajUa91euz0SN93O/sClhUDwVrzU/r20YtO62tAGKTxr0JqV3\nIQIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "tag": [],
+  "attachment": [
+    {
+      "type": "PropertyValue",
+      "name": "Personal website",
+      "value": "\u003ca href=\"https://stefanbohacek.com\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003estefanbohacek.com\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Music portfolio",
+      "value": "\u003ca href=\"https://music.stefanbohacek.com\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003emusic.stefanbohacek.com\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Botwiki",
+      "value": "\u003ca href=\"https://botwiki.org/author/stefan\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003ebotwiki.org/author/stefan\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "GitHub",
+      "value": "\u003ca href=\"https://github.com/stefanbohacek\" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\"\u003e\u003cspan class=\"invisible\"\u003ehttps://\u003c/span\u003e\u003cspan class=\"\"\u003egithub.com/stefanbohacek\u003c/span\u003e\u003cspan class=\"invisible\"\u003e\u003c/span\u003e\u003c/a\u003e"
+    }
+  ],
+  "endpoints": {
+    "sharedInbox": "https://stefanbohacek.online/inbox"
+  },
+  "icon": {
+    "type": "Image",
+    "mediaType": "image/jpeg",
+    "url": "https://sbonline.nyc3.digitaloceanspaces.com/accounts/avatars/109/694/346/929/844/617/original/f4847180e4e3ef0e.jpg"
+  },
+  "image": {
+    "type": "Image",
+    "mediaType": "image/jpeg",
+    "url": "https://sbonline.nyc3.digitaloceanspaces.com/accounts/headers/109/694/346/929/844/617/original/799f8237a271a82e.jpeg"
+  }
+}

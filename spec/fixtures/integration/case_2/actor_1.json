@@ -1,0 +1,67 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1"
+  ],
+  "id": "https://community.nodebb.org/uid/2",
+  "url": "https://community.nodebb.org/user/julian",
+  "followers": "https://community.nodebb.org/uid/2/followers",
+  "following": "https://community.nodebb.org/uid/2/following",
+  "inbox": "https://community.nodebb.org/uid/2/inbox",
+  "outbox": "https://community.nodebb.org/uid/2/outbox",
+  "type": "Person",
+  "name": "julian",
+  "preferredUsername": "julian",
+  "summary": "<p dir=\"auto\">Co-Founder (NodeBB) | Husband 🤷‍♂️ and Dad 🙉 to three | Rock Climber 🧗‍♂️ | Foodie 🥙 | Conductor 🎵 | Saxophonist 🎷</p>\n<p dir=\"auto\">✅ Small teams craft better code.<br />\n🗨️ Federating NodeBB with funding from NLNet ♥️🇪🇺</p>\n",
+  "icon": {
+    "type": "Image",
+    "mediaType": "image/jpeg",
+    "url": "https://community.nodebb.org/assets/uploads/profile/uid-2/2-profileavatar-1738544541106.jpeg"
+  },
+  "image": {
+    "type": "Image",
+    "mediaType": "image/jpeg",
+    "url": "https://community.nodebb.org/assets/uploads/profile/uid-2/2-profilecover-1649468285913.jpeg"
+  },
+  "published": "2013-06-17T20:43:14.786Z",
+  "attachment": [
+    {
+      "type": "Link",
+      "name": "Website",
+      "href": "https:&#x2F;&#x2F;nodebb.org"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Website",
+      "value": "https:&#x2F;&#x2F;nodebb.org"
+    },
+    {
+      "type": "Note",
+      "name": "Location",
+      "content": "Toronto, Ontario"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Location",
+      "value": "Toronto, Ontario"
+    },
+    {
+      "type": "Note",
+      "name": "Preferred Editor",
+      "content": "Visual Studio Code"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "Preferred Editor",
+      "value": "Visual Studio Code"
+    }
+  ],
+  "publicKey": {
+    "id": "https://community.nodebb.org/uid/2#key",
+    "owner": "https://community.nodebb.org/uid/2",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEr0sFdATahQzprS4EOT\nZq+KMc6UTbt2GDP20OrQi/P5AXAbMaQiRCRdGWhYGjnH0jicn5NnozNxRo+HchJT\nV6NOHxpsxqPCoaLeoBkhfhbSCLr2Gzil6mmfqf9TjnI7A7ZTtCc0G+n0ztyL9HwL\nkEAI178l2gckk4XKKYnEd+dyiIevExrq/ROLgwW1o428FZvlF5amKxhpVUEygRU8\nCd1hqWYs+xYDOJURCP5qEx/MmRPpV/yGMTMyF+/gcQc0TUZnhWAM2E4M+aq3aKh6\nJP/vsry+5YZPUaPWfopbT5Ijyt6ZSElp6Avkg56eTz0a5SRcjCVS6IFVPwiLlzOe\nYwIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "endpoints": {
+    "sharedInbox": "https://community.nodebb.org/inbox"
+  }
+}
