@@ -1,6 +1,7 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { AUTO_GROUPS } from "discourse/lib/constants";
+import { cloneJSON } from "discourse/lib/object";
 import Site from "discourse/models/site";
 import topicFixtures from "discourse/tests/fixtures/topic";
 import {
@@ -9,7 +10,6 @@ import {
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
 
 const createdAt = moment().subtract(2, "days");
 const scheduledAt = moment().subtract(2, "days");

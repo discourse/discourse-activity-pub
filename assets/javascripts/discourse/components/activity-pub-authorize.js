@@ -3,8 +3,8 @@ import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import getURL from "discourse-common/lib/get-url";
-import I18n from "I18n";
+import getURL from "discourse/lib/get-url";
+import { i18n } from "discourse-i18n";
 
 const supportedAuthTypes = ["discourse", "mastodon"];
 
@@ -26,7 +26,7 @@ export default class ActivityPubAuthorize extends Component {
     return supportedAuthTypes.map((authType) => {
       return {
         id: authType,
-        name: I18n.t(
+        name: i18n(
           `user.discourse_activity_pub.authorize.auth_type.${authType}.title`
         ),
       };
@@ -34,7 +34,7 @@ export default class ActivityPubAuthorize extends Component {
   }
 
   get title() {
-    return I18n.t(
+    return i18n(
       `user.discourse_activity_pub.authorize.auth_type.${
         this.authType || "none"
       }.title`
@@ -42,7 +42,7 @@ export default class ActivityPubAuthorize extends Component {
   }
 
   get placeholder() {
-    return I18n.t(
+    return i18n(
       `user.discourse_activity_pub.authorize.auth_type.${
         this.authType || "none"
       }.placeholder`

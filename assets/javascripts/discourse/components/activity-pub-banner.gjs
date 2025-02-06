@@ -1,6 +1,6 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
-import I18n from "discourse-i18n";
+import { i18n } from "discourse-i18n";
 import DTooltip from "float-kit/components/d-tooltip";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 import ActivityPubHandle from "./activity-pub-handle";
@@ -11,17 +11,17 @@ export default class ActivityPubBanner extends Component {
   get bannerDescription() {
     const visibility = this.args.actor.default_visibility;
     const publicationType = this.args.actor.publication_type;
-    return I18n.t(
+    return i18n(
       `discourse_activity_pub.banner.${visibility}_${publicationType}`
     );
   }
 
   get responsiveText() {
-    return I18n.t("discourse_activity_pub.banner.responsive_text");
+    return i18n("discourse_activity_pub.banner.responsive_text");
   }
 
   get desktopText() {
-    return I18n.t("discourse_activity_pub.banner.text", {
+    return i18n("discourse_activity_pub.banner.text", {
       model_name: this.args.actor.model.name,
     });
   }

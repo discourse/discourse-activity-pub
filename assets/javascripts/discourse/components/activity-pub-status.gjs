@@ -2,9 +2,9 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
-import icon from "discourse-common/helpers/d-icon";
-import { bind } from "discourse-common/utils/decorators";
-import I18n from "I18n";
+import icon from "discourse/helpers/d-icon";
+import { bind } from "discourse/lib/decorators";
+import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class ActivityPubStatus extends Component {
@@ -87,7 +87,7 @@ export default class ActivityPubStatus extends Component {
       args.delay_minutes =
         this.siteSettings.activity_pub_delivery_delay_minutes;
     }
-    return I18n.t(
+    return i18n(
       `discourse_activity_pub.status.title.${this.translatedTitleKey}`,
       args
     );
@@ -145,7 +145,7 @@ export default class ActivityPubStatus extends Component {
   }
 
   get translatedLabel() {
-    return I18n.t(this.labelKey("label"));
+    return i18n(this.labelKey("label"));
   }
 
   <template>

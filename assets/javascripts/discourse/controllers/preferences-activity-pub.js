@@ -3,7 +3,7 @@ import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { notEmpty } from "@ember/object/computed";
 import { service } from "@ember/service";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ActivityPubAuthorization from "../models/activity-pub-authorization";
 
 export default class PreferencesActivityPubController extends Controller {
@@ -21,7 +21,7 @@ export default class PreferencesActivityPubController extends Controller {
   showError() {
     if (this.error) {
       this.dialog.alert({
-        title: I18n.t("user.discourse_activity_pub.authorize_error.title"),
+        title: i18n("user.discourse_activity_pub.authorize_error.title"),
         message: this.error,
         didConfirm: () => this.clearError(),
         didCancel: () => this.clearError(),
@@ -32,7 +32,7 @@ export default class PreferencesActivityPubController extends Controller {
   @action
   remove(authorization) {
     this.dialog.yesNoConfirm({
-      message: I18n.t(
+      message: i18n(
         "user.discourse_activity_pub.authorization.confirm_remove",
         {
           handle: authorization.actor?.handle,

@@ -1,6 +1,6 @@
 import { computed } from "@ember/object";
 import { classNames } from "@ember-decorators/component";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ComboBoxComponent from "select-kit/components/combo-box";
 
 @classNames("activity-pub-post-object-type-dropdown")
@@ -12,15 +12,13 @@ export default class ActivityPubPostObjectTypeDropdown extends ComboBoxComponent
     return [
       {
         id: "Note",
-        label: I18n.t("discourse_activity_pub.post_object_type.label.note"),
-        title: I18n.t(
-          "discourse_activity_pub.post_object_type.description.note"
-        ),
+        label: i18n("discourse_activity_pub.post_object_type.label.note"),
+        title: i18n("discourse_activity_pub.post_object_type.description.note"),
       },
       {
         id: "Article",
-        label: I18n.t("discourse_activity_pub.post_object_type.label.article"),
-        title: I18n.t(
+        label: i18n("discourse_activity_pub.post_object_type.label.article"),
+        title: i18n(
           "discourse_activity_pub.post_object_type.description.article"
         ),
       },

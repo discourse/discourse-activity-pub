@@ -1,10 +1,10 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 export default class ActivityPubActorUnfollow extends Component {
   get title() {
-    return I18n.t("discourse_activity_pub.actor_unfollow.modal_title", {
+    return i18n("discourse_activity_pub.actor_unfollow.modal_title", {
       actor: this.args.model.actor.name,
     });
   }

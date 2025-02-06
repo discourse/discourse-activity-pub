@@ -2,7 +2,7 @@ import { computed } from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { schedule } from "@ember/runloop";
 import { classNames } from "@ember-decorators/component";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ComboBoxComponent from "select-kit/components/combo-box";
 
 @classNames("activity-pub-visibility-dropdown")
@@ -16,15 +16,15 @@ export default class ActivityPubVisibilityDropdown extends ComboBoxComponent {
     return [
       {
         id: "private",
-        label: I18n.t("discourse_activity_pub.visibility.label.private"),
-        title: I18n.t("discourse_activity_pub.visibility.description.private", {
+        label: i18n("discourse_activity_pub.visibility.label.private"),
+        title: i18n("discourse_activity_pub.visibility.description.private", {
           object_type: this.objectType,
         }),
       },
       {
         id: "public",
-        label: I18n.t("discourse_activity_pub.visibility.label.public"),
-        title: I18n.t("discourse_activity_pub.visibility.description.public", {
+        label: i18n("discourse_activity_pub.visibility.label.public"),
+        title: i18n("discourse_activity_pub.visibility.description.public", {
           object_type: this.objectType,
         }),
       },

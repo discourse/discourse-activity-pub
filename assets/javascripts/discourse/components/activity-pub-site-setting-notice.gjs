@@ -1,9 +1,9 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
-import icon from "discourse-common/helpers/d-icon";
-import getURL from "discourse-common/lib/get-url";
-import I18n from "I18n";
+import icon from "discourse/helpers/d-icon";
+import getURL from "discourse/lib/get-url";
+import { i18n } from "discourse-i18n";
 
 export default class ActivityPubSiteSettingNotice extends Component {
   @service siteSettings;
@@ -13,19 +13,19 @@ export default class ActivityPubSiteSettingNotice extends Component {
   }
 
   get label() {
-    return I18n.t(
+    return i18n(
       `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.label`
     );
   }
 
   get title() {
-    return I18n.t(
+    return i18n(
       `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.title`
     );
   }
 
   get description() {
-    return I18n.t(
+    return i18n(
       `admin.discourse_activity_pub.actor.site_setting.${this.args.setting}.description`,
       {
         model_type: this.args.modelType,

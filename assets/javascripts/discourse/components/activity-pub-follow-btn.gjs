@@ -3,7 +3,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
 import DButton from "discourse/components/d-button";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ActivityPubActorFollowModal from "../components/modal/activity-pub-actor-follow";
 import ActivityPubActorRejectModal from "../components/modal/activity-pub-actor-reject";
 import ActivityPubActorUnfollowModal from "../components/modal/activity-pub-actor-unfollow";
@@ -29,11 +29,11 @@ export default class ActivityPubFollowBtn extends Component {
   }
 
   get label() {
-    return I18n.t(`discourse_activity_pub.${this.args.type}.label`);
+    return i18n(`discourse_activity_pub.${this.args.type}.label`);
   }
 
   get title() {
-    return I18n.t(`discourse_activity_pub.${this.args.type}.title`, {
+    return i18n(`discourse_activity_pub.${this.args.type}.title`, {
       actor: this.args.actor?.name,
     });
   }

@@ -1,5 +1,6 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
 import Site from "discourse/models/site";
 import {
   acceptance,
@@ -7,8 +8,7 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
-import { cloneJSON } from "discourse-common/lib/object";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 acceptance("Discourse Activity Pub | composer", function (needs) {
@@ -50,7 +50,7 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
     );
     assert.strictEqual(
       query("#reply-control .activity-pub-status .label").innerText.trim(),
-      I18n.t("discourse_activity_pub.visibility.label.public"),
+      i18n("discourse_activity_pub.visibility.label.public"),
       "the status label has the right text"
     );
   });
