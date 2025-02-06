@@ -2,8 +2,8 @@ import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { AUTO_GROUPS } from "discourse/lib/constants";
+import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { bind } from "discourse-common/utils/decorators";
 
 export default {
   name: "activity-pub",

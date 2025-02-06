@@ -3,9 +3,9 @@ import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
+import icon from "discourse/helpers/d-icon";
+import discourseLater from "discourse/lib/later";
 import { clipboardCopy } from "discourse/lib/utilities";
-import icon from "discourse-common/helpers/d-icon";
-import discourseLater from "discourse-common/lib/later";
 
 export default class ActivityPubHandle extends Component {
   @service site;

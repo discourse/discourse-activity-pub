@@ -1,9 +1,9 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { service } from "@ember/service";
-import getURL from "discourse-common/lib/get-url";
-import { bind } from "discourse-common/utils/decorators";
-import I18n from "I18n";
+import { bind } from "discourse/lib/decorators";
+import getURL from "discourse/lib/get-url";
+import { i18n } from "discourse-i18n";
 import ActivityPubActor, {
   actorClientPath,
   actorModels,
@@ -102,7 +102,7 @@ export default class ActivityPubNavItem extends Component {
     if (!this.model) {
       return "";
     }
-    return I18n.t("discourse_activity_pub.discovery.description", {
+    return i18n("discourse_activity_pub.discovery.description", {
       model_name: this.modelName,
     });
   }

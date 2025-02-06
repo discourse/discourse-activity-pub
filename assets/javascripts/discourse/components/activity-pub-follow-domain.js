@@ -5,7 +5,7 @@ import { service } from "@ember/service";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { extractDomainFromUrl, hostnameValid } from "discourse/lib/utilities";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 // We're using a hardcoded url here as mastodon will only webfinger this as
 // an ostatus template if the account is local, which is too limiting.
@@ -83,7 +83,7 @@ export default class ActivityPubFollowDomain extends Component {
     if (url) {
       window.open(url, "_blank")?.focus();
     } else {
-      this.error = I18n.t("discourse_activity_pub.follow.domain.invalid");
+      this.error = i18n("discourse_activity_pub.follow.domain.invalid");
     }
   }
 }
