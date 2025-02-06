@@ -116,7 +116,7 @@ export default class ActivityPubPostActions extends Component {
   }
 
   get showPublish() {
-    return !["published", "scheduled", "delivered"].includes(this.status);
+    return !["published", "delivered"].includes(this.status);
   }
 
   get publishLabel() {
@@ -135,6 +135,8 @@ export default class ActivityPubPostActions extends Component {
     if (this.post.post_number !== 1 && !this.topic.activity_pub_published_at) {
       i18nKey = "topic_not_published";
       args.topic_id = this.topic.id;
+    } else if (this.post.activity_pub_scheduled_at) {
+      i18nKey = "post_is_scheduled";
     } else if (this.noFollowers) {
       i18nKey = "no_followers";
     } else {
@@ -151,6 +153,7 @@ export default class ActivityPubPostActions extends Component {
   get publishDisabled() {
     return (
       !!this.post.activity_pub_published_at ||
+      !!this.post.activity_pub_scheduled_at ||
       (!this.topic.activity_pub_published_at && this.post.post_number !== 1)
     );
   }

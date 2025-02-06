@@ -332,8 +332,12 @@ after_initialize do
     return @destroyed_post_activity_pub_enabled if !@destroyed_post_activity_pub_enabled.nil?
     return false unless DiscourseActivityPub.enabled
     return false unless activity_pub_topic&.activity_pub_ready?
+    return false if whisper?
 
     is_first_post? || activity_pub_full_topic
+  end
+  add_to_class(:post, :activity_pub_publishing_enabled) do
+    DiscourseActivityPub.publishing_enabled && activity_pub_enabled
   end
   add_to_class(:post, :activity_pub_content) do
     return nil unless activity_pub_enabled
@@ -363,15 +367,15 @@ after_initialize do
   end
   add_to_class(:post, :activity_pub_after_publish) do |args = {}|
     activity_pub_update_custom_fields(args)
-    activity_pub_topic&.activity_pub_publish_state if activity_pub_is_first_post?
+    activity_pub_topic&.activity_pub_publish_state if is_first_post?
   end
   add_to_class(:post, :activity_pub_after_scheduled) do |args = {}|
     activity_pub_update_custom_fields(args)
-    activity_pub_topic&.activity_pub_publish_state if activity_pub_is_first_post?
+    activity_pub_topic&.activity_pub_publish_state if is_first_post?
   end
   add_to_class(:post, :activity_pub_after_deliver) do |args = {}|
     activity_pub_update_custom_fields(args)
-    activity_pub_topic&.activity_pub_publish_state if activity_pub_is_first_post?
+    activity_pub_topic&.activity_pub_publish_state if is_first_post?
   end
   activity_pub_post_custom_field_names.each do |field_name|
     add_to_class(:post, field_name.to_sym) { custom_fields[field_name] }
@@ -419,10 +423,17 @@ after_initialize do
     if performing_activity.delete?
       self.clear_all_activity_pub_objects
       if is_first_post? && activity_pub_full_topic
+        self.activity_pub_topic.posts.each { |post| post.clear_all_activity_pub_objects }
         self.activity_pub_topic.clear_all_activity_pub_objects
         topic&.activity_pub_publish_state
       end
       self.activity_pub_publish_state
+      return nil
+    end
+
+    if performing_activity.update?
+      @performing_activity_object = activity_pub_object
+      update_activity_pub_activity_object
       return nil
     end
 
@@ -455,7 +466,6 @@ after_initialize do
   add_to_class(:post, :activity_pub_topic_published?) do
     activity_pub_topic&.activity_pub_published?
   end
-  add_to_class(:post, :activity_pub_is_first_post?) { is_first_post? }
   add_to_class(:post, :activity_pub_topic_scheduled?) do
     activity_pub_topic&.activity_pub_scheduled?
   end
@@ -470,7 +480,10 @@ after_initialize do
       activity_pub_topic.first_post.activity_pub_visibility
     end
   end
-  add_to_class(:post, :activity_pub_publish?) { !whisper? }
+  add_to_class(:post, :activity_pub_perform_activity?) do
+    is_first_post? || activity_pub_topic_scheduled? || activity_pub_topic_published? ||
+      activity_pub_published?
+  end
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
 
@@ -569,11 +582,6 @@ after_initialize do
   ) { object.activity_pub_first_post }
   add_to_serializer(
     :post,
-    :activity_pub_is_first_post,
-    include_condition: -> { object.activity_pub_enabled },
-  ) { object.activity_pub_is_first_post? }
-  add_to_serializer(
-    :post,
     :activity_pub_object_id,
     include_condition: -> { object.activity_pub_enabled },
   ) { object.activity_pub_object_id }
@@ -623,7 +631,12 @@ after_initialize do
   PostAction.include DiscourseActivityPub::AP::ModelCallbacks
 
   add_to_class(:post_action, :activity_pub_enabled) { post.activity_pub_enabled }
-  add_to_class(:post_action, :activity_pub_publish?) { true }
+  add_to_class(:post_action, :activity_pub_publishing_enabled) do
+    post.activity_pub_publishing_enabled
+  end
+  add_to_class(:post_action, :activity_pub_perform_activity?) do
+    post.activity_pub_perform_activity?
+  end
   add_to_class(:post_action, :activity_pub_deleted?) { nil }
   add_to_class(:post_action, :activity_pub_published?) { !!post.activity_pub_published_at }
   add_to_class(:post_action, :activity_pub_visibility) { "public" }
@@ -633,7 +646,6 @@ after_initialize do
   add_to_class(:post_action, :activity_pub_full_topic) { post.activity_pub_full_topic }
   add_to_class(:post_action, :activity_pub_first_post) { post.activity_pub_first_post }
   add_to_class(:post_action, :activity_pub_topic_published?) { post.activity_pub_topic_published? }
-  add_to_class(:post_action, :activity_pub_is_first_post?) { false }
   add_to_class(:post_action, :activity_pub_collection) { post.activity_pub_collection }
   add_to_class(:post_action, :activity_pub_valid_activity?) do |activity, target_activity|
     return false unless activity_pub_full_topic

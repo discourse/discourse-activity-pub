@@ -13,7 +13,7 @@ module DiscourseActivityPub
       end
 
       def perform_activity_pub_activity(activity_type, target_activity_type = nil)
-        return nil unless DiscourseActivityPub.publishing_enabled && activity_pub_publish?
+        return false unless activity_pub_publishing_enabled
 
         @performing_activity = DiscourseActivityPub::AP::Object.from_type(activity_type)
 
@@ -22,17 +22,19 @@ module DiscourseActivityPub
           return true unless performing_activity
         end
 
+        return false unless activity_pub_perform_activity?
+
         @performing_activity_target_activity =
           DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
-        return unless valid_activity_pub_activity?
+        return false unless valid_activity_pub_activity?
 
         return false unless ensure_activity_pub_actor
 
         @performing_activity_object = get_performing_activity_object
-        return unless performing_activity_object
+        return false unless performing_activity_object
 
         @performing_activity_actor = get_performing_activity_actor
-        return unless performing_activity_actor
+        return false unless performing_activity_actor
 
         ActiveRecord::Base.transaction do
           update_activity_pub_activity_object
@@ -43,7 +45,7 @@ module DiscourseActivityPub
           if self.respond_to?(:activity_pub_after_scheduled)
             activity_pub_after_scheduled(scheduled_at: activity_pub_scheduled_at)
           end
-          return
+          return true
         end
 
         if performing_activity_can_deliver?
@@ -137,7 +139,7 @@ module DiscourseActivityPub
       end
 
       def update_activity_pub_activity_object
-        return unless performing_activity
+        return unless performing_activity && performing_activity_object
 
         if performing_activity.create? || performing_activity.update?
           performing_activity_object.name = self.activity_pub_name if self.activity_pub_name
@@ -147,9 +149,7 @@ module DiscourseActivityPub
       end
 
       def create_activity_pub_activity
-        if !performing_activity || (performing_activity.update? && !self.activity_pub_published?)
-          return
-        end
+        return unless performing_activity
 
         activity_attrs = {
           local: true,

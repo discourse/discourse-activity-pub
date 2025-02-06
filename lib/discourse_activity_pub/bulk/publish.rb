@@ -278,7 +278,7 @@ module DiscourseActivityPub
               attributed_to_id: nil,
             )
 
-          if !post.activity_pub_is_first_post?
+          if !post.is_first_post?
             object[:reply_to_id] = post_number_id_map.dig(
               post.topic_id,
               post.reply_to_post_number,

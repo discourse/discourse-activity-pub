@@ -170,6 +170,25 @@ RSpec.describe Post do
           post.stubs(:perform_activity_pub_activity).with(:create).returns(true)
           expect(post.activity_pub_publish!).to eq(true)
         end
+
+        context "with a reply" do
+          let!(:reply) { Fabricate(:post, topic: topic, post_number: 2) }
+
+          it "does not create an Activity" do
+            expect { reply.activity_pub_publish! }.not_to change {
+              DiscourseActivityPubActivity.count
+            }
+          end
+
+          it "does not send anything for delivery" do
+            expect_no_delivery
+            reply.activity_pub_publish!
+          end
+
+          it "returns false" do
+            expect(reply.activity_pub_publish!).to eq(false)
+          end
+        end
       end
 
       context "with full_topic enabled on category" do
@@ -487,7 +506,7 @@ RSpec.describe Post do
 
     context "without activty pub enabled on the category" do
       it "does nothing" do
-        expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+        expect(post.perform_activity_pub_activity(:create)).to eq(false)
         expect(post.reload.activity_pub_object.present?).to eq(false)
       end
     end
@@ -502,14 +521,14 @@ RSpec.describe Post do
         before { SiteSetting.login_required = true }
 
         it "does nothing" do
-          expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+          expect(post.perform_activity_pub_activity(:create)).to eq(false)
           expect(post.reload.activity_pub_object.present?).to eq(false)
         end
       end
 
       context "with an invalid activity type" do
         it "does nothing" do
-          expect(post.perform_activity_pub_activity(:follow)).to eq(nil)
+          expect(post.perform_activity_pub_activity(:follow)).to eq(false)
           expect(post.reload.activity_pub_object.present?).to eq(false)
         end
       end
@@ -521,7 +540,7 @@ RSpec.describe Post do
         end
 
         it "does nothing" do
-          expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+          expect(post.perform_activity_pub_activity(:create)).to eq(false)
           expect(post.reload.activity_pub_object.present?).to eq(false)
         end
       end
@@ -1565,7 +1584,7 @@ RSpec.describe Post do
 
       context "without a topic collection" do
         it "does not perform the activity" do
-          expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+          expect(post.perform_activity_pub_activity(:create)).to eq(false)
           expect(DiscourseActivityPubActivity.exists?(ap_type: "Create")).to eq(false)
         end
       end
@@ -1843,54 +1862,46 @@ RSpec.describe Post do
               reply.reload
             end
 
-            it "creates the right object" do
-              perform_create
-              expect(reply.activity_pub_object&.content).to eq(reply.activity_pub_content)
-              expect(reply.activity_pub_object&.reply_to_id).to eq(post_note.ap_id)
-              expect(reply.activity_pub_object&.collection_id).to eq(topic.activity_pub_object.id)
-            end
+            context "when topic is not published" do
+              it "does not create an Activity" do
+                perform_create
+                expect(reply.activity_pub_actor.activities.where(ap_type: "Create").exists?).to eq(
+                  false,
+                )
+              end
 
-            it "creates the right activity" do
-              perform_create
-              expect(
-                reply
-                  .activity_pub_actor
-                  .activities
-                  .where(
-                    object_id: reply.activity_pub_object.id,
-                    object_type: "DiscourseActivityPubObject",
-                    ap_type: "Create",
-                  )
-                  .exists?,
-              ).to eq(true)
-            end
-
-            context "with topic publication" do
-              context "when the category has followers" do
-                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-                let!(:follow1) do
-                  Fabricate(
-                    :discourse_activity_pub_follow,
-                    follower: follower1,
-                    followed: category.activity_pub_actor,
-                  )
-                end
-
-                it "sends the activity for delayed delivery" do
-                  expect_delivery(
-                    actor: topic.activity_pub_actor,
-                    object_type: "Create",
-                    delay: SiteSetting.activity_pub_delivery_delay_minutes.to_i,
-                  )
-                  perform_create
-                end
+              it "does not send anything for delivery" do
+                expect_no_delivery
+                perform_create
               end
             end
 
-            context "after topic publication" do
+            context "when the topic is published" do
               before do
                 post.custom_fields["activity_pub_published_at"] = Time.now
                 post.save_custom_fields(true)
+              end
+
+              it "creates the right activity" do
+                perform_create
+                expect(
+                  reply
+                    .activity_pub_actor
+                    .activities
+                    .where(
+                      object_id: reply.activity_pub_object.id,
+                      object_type: "DiscourseActivityPubObject",
+                      ap_type: "Create",
+                    )
+                    .exists?,
+                ).to eq(true)
+              end
+
+              it "creates the right object" do
+                perform_create
+                expect(reply.activity_pub_object&.content).to eq(reply.activity_pub_content)
+                expect(reply.activity_pub_object&.reply_to_id).to eq(post_note.ap_id)
+                expect(reply.activity_pub_object&.collection_id).to eq(topic.activity_pub_object.id)
               end
 
               context "when the topic has a remote contributor" do
@@ -1937,7 +1948,7 @@ RSpec.describe Post do
               reply.perform_activity_pub_activity(:update)
             end
 
-            context "while not published" do
+            context "when the topic is not published" do
               it "updates the Note content" do
                 perform_update
                 expect(note.reload.content).to eq("Updated content")
@@ -1956,77 +1967,86 @@ RSpec.describe Post do
               end
             end
 
-            context "after publication" do
+            context "when the topic is published" do
               before do
                 post.custom_fields["activity_pub_published_at"] = Time.now
                 post.save_custom_fields(true)
-                reply.custom_fields["activity_pub_published_at"] = Time.now
-                reply.save_custom_fields(true)
               end
 
-              it "updates the Note content" do
-                perform_update
-                expect(note.reload.content).to eq("Updated content")
-              end
-
-              it "creates an Update Activity" do
-                perform_update
-                expect(
-                  reply
-                    .activity_pub_actor
-                    .activities
-                    .where(
-                      object_id: reply.activity_pub_object.id,
-                      object_type: "DiscourseActivityPubObject",
-                      ap_type: "Update",
-                    )
-                    .exists?,
-                ).to eq(true)
-              end
-
-              it "doesn't create multiple unpublished activities" do
-                perform_update
-                expect(
-                  reply
-                    .activity_pub_actor
-                    .activities
-                    .where(
-                      object_id: reply.activity_pub_object.id,
-                      object_type: "DiscourseActivityPubObject",
-                      ap_type: "Update",
-                    )
-                    .size,
-                ).to eq(1)
-              end
-
-              it "creates multiple published activities" do
-                perform_update
-
-                attrs = {
-                  object_id: reply.activity_pub_object.id,
-                  object_type: "DiscourseActivityPubObject",
-                  ap_type: "Update",
-                }
-                reply.activity_pub_actor.activities.where(attrs).update_all(published_at: Time.now)
-
-                perform_update
-
-                expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
-              end
-
-              context "with followers" do
-                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-                let!(:follow1) do
-                  Fabricate(
-                    :discourse_activity_pub_follow,
-                    follower: follower1,
-                    followed: category.activity_pub_actor,
-                  )
+              context "when the reply is published" do
+                before do
+                  reply.custom_fields["activity_pub_published_at"] = Time.now
+                  reply.save_custom_fields(true)
                 end
 
-                it "sends the activity as the category actor for delivery without delay" do
-                  expect_delivery(actor: category.activity_pub_actor, object_type: "Update")
+                it "updates the Note content" do
                   perform_update
+                  expect(note.reload.content).to eq("Updated content")
+                end
+
+                it "creates an Update Activity" do
+                  perform_update
+                  expect(
+                    reply
+                      .activity_pub_actor
+                      .activities
+                      .where(
+                        object_id: reply.activity_pub_object.id,
+                        object_type: "DiscourseActivityPubObject",
+                        ap_type: "Update",
+                      )
+                      .exists?,
+                  ).to eq(true)
+                end
+
+                it "doesn't create multiple unpublished activities" do
+                  perform_update
+                  expect(
+                    reply
+                      .activity_pub_actor
+                      .activities
+                      .where(
+                        object_id: reply.activity_pub_object.id,
+                        object_type: "DiscourseActivityPubObject",
+                        ap_type: "Update",
+                      )
+                      .size,
+                  ).to eq(1)
+                end
+
+                it "creates multiple published activities" do
+                  perform_update
+
+                  attrs = {
+                    object_id: reply.activity_pub_object.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: "Update",
+                  }
+                  reply
+                    .activity_pub_actor
+                    .activities
+                    .where(attrs)
+                    .update_all(published_at: Time.now)
+
+                  perform_update
+
+                  expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
+                end
+
+                context "when the category actor has followers" do
+                  let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                  let!(:follow1) do
+                    Fabricate(
+                      :discourse_activity_pub_follow,
+                      follower: follower1,
+                      followed: category.activity_pub_actor,
+                    )
+                  end
+
+                  it "sends the activity as the category actor for delivery without delay" do
+                    expect_delivery(actor: category.activity_pub_actor, object_type: "Update")
+                    perform_update
+                  end
                 end
               end
             end
@@ -2041,12 +2061,7 @@ RSpec.describe Post do
               reply.perform_activity_pub_activity(:delete)
             end
 
-            context "while in pre publication period" do
-              it "does not create an object" do
-                perform_delete
-                expect(DiscourseActivityPubObject.exists?(model_id: reply.id)).to eq(false)
-              end
-
+            context "when the topic is not published" do
               it "does not create an activity" do
                 perform_delete
                 expect(reply.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(
@@ -2086,44 +2101,49 @@ RSpec.describe Post do
               end
             end
 
-            context "after publication" do
+            context "when the topic is published" do
               before do
                 post.custom_fields["activity_pub_published_at"] = Time.now
                 post.save_custom_fields(true)
-                reply.custom_fields["activity_pub_published_at"] = Time.now
-                reply.save_custom_fields(true)
               end
 
-              it "creates the right activity" do
-                perform_delete
-                expect(reply.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(
-                  true,
-                )
-              end
-
-              it "does not destroy associated objects" do
-                perform_delete
-                expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
-              end
-
-              it "does not destroy associated activities" do
-                perform_delete
-                expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
-              end
-
-              context "with followers" do
-                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-                let!(:follow1) do
-                  Fabricate(
-                    :discourse_activity_pub_follow,
-                    follower: follower1,
-                    followed: category.activity_pub_actor,
-                  )
+              context "when the reply is published" do
+                before do
+                  reply.custom_fields["activity_pub_published_at"] = Time.now
+                  reply.save_custom_fields(true)
                 end
 
-                it "sends the activity as the category actor for delivery without delay" do
-                  expect_delivery(actor: category.activity_pub_actor, object_type: "Delete")
+                it "creates the right activity" do
                   perform_delete
+                  expect(
+                    reply.activity_pub_actor.activities.where(ap_type: "Delete").exists?,
+                  ).to eq(true)
+                end
+
+                it "does not destroy associated objects" do
+                  perform_delete
+                  expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+                end
+
+                it "does not destroy associated activities" do
+                  perform_delete
+                  expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+                end
+
+                context "with followers" do
+                  let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                  let!(:follow1) do
+                    Fabricate(
+                      :discourse_activity_pub_follow,
+                      follower: follower1,
+                      followed: category.activity_pub_actor,
+                    )
+                  end
+
+                  it "sends the activity as the category actor for delivery without delay" do
+                    expect_delivery(actor: category.activity_pub_actor, object_type: "Delete")
+                    perform_delete
+                  end
                 end
               end
             end
@@ -2131,6 +2151,8 @@ RSpec.describe Post do
 
           context "with no reply_to_post_number" do
             before do
+              post.custom_fields["activity_pub_published_at"] = Time.now
+              post.save_custom_fields(true)
               reply.reply_to_post_number = nil
               reply.save!
               reply.perform_activity_pub_activity(:create)
@@ -2155,7 +2177,7 @@ RSpec.describe Post do
 
       context "without a topic collection" do
         it "does not perform the activity" do
-          expect(post.perform_activity_pub_activity(:create)).to eq(nil)
+          expect(post.perform_activity_pub_activity(:create)).to eq(false)
           expect(DiscourseActivityPubActivity.exists?(ap_type: "Create")).to eq(false)
         end
       end
@@ -2439,29 +2461,45 @@ RSpec.describe Post do
               reply.reload
             end
 
-            it "creates the right object" do
-              perform_create
-              expect(reply.activity_pub_object&.content).to eq(reply.activity_pub_content)
-              expect(reply.activity_pub_object&.reply_to_id).to eq(post_note.ap_id)
-              expect(reply.activity_pub_object&.collection_id).to eq(topic.activity_pub_object.id)
+            context "when the topic is not published" do
+              it "does not create an activity" do
+                expect { perform_create }.not_to change { DiscourseActivityPubActivity.count }
+              end
+
+              it "does not send anything for delivery" do
+                expect_no_delivery
+                perform_create
+              end
             end
 
-            it "creates the right activity" do
-              perform_create
-              expect(
-                reply
-                  .activity_pub_actor
-                  .activities
-                  .where(
-                    object_id: reply.activity_pub_object.id,
-                    object_type: "DiscourseActivityPubObject",
-                    ap_type: "Create",
-                  )
-                  .exists?,
-              ).to eq(true)
-            end
+            context "when the topic is scheduled to be published" do
+              before do
+                post.custom_fields["activity_pub_scheduled_at"] = Time.now
+                post.save_custom_fields(true)
+              end
 
-            context "with topic publication" do
+              it "creates the right object" do
+                perform_create
+                expect(reply.activity_pub_object&.content).to eq(reply.activity_pub_content)
+                expect(reply.activity_pub_object&.reply_to_id).to eq(post_note.ap_id)
+                expect(reply.activity_pub_object&.collection_id).to eq(topic.activity_pub_object.id)
+              end
+
+              it "creates the right activity" do
+                perform_create
+                expect(
+                  reply
+                    .activity_pub_actor
+                    .activities
+                    .where(
+                      object_id: reply.activity_pub_object.id,
+                      object_type: "DiscourseActivityPubObject",
+                      ap_type: "Create",
+                    )
+                    .exists?,
+                ).to eq(true)
+              end
+
               context "when the tag has followers" do
                 let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
                 let!(:follow1) do
@@ -2479,7 +2517,7 @@ RSpec.describe Post do
               end
             end
 
-            context "after topic publication" do
+            context "when the topic is published" do
               before do
                 post.custom_fields["activity_pub_published_at"] = Time.now
                 post.save_custom_fields(true)
@@ -2529,7 +2567,7 @@ RSpec.describe Post do
               reply.perform_activity_pub_activity(:update)
             end
 
-            context "while not published" do
+            context "when the topic is not published" do
               it "updates the Note content" do
                 perform_update
                 expect(note.reload.content).to eq("Updated content")
@@ -2548,72 +2586,77 @@ RSpec.describe Post do
               end
             end
 
-            context "after publication" do
+            context "when the topic is published" do
               before do
                 post.custom_fields["activity_pub_published_at"] = Time.now
                 post.save_custom_fields(true)
-                reply.custom_fields["activity_pub_published_at"] = Time.now
-                reply.save_custom_fields(true)
               end
 
-              it "updates the Note content" do
-                perform_update
-                expect(note.reload.content).to eq("Updated content")
-              end
+              context "when the reply is published" do
+                before do
+                  reply.custom_fields["activity_pub_published_at"] = Time.now
+                  reply.save_custom_fields(true)
+                end
 
-              it "creates an Update Activity" do
-                perform_update
-                expect(
-                  reply
-                    .activity_pub_actor
-                    .activities
-                    .where(
+                it "updates the Note content" do
+                  perform_update
+                  expect(note.reload.content).to eq("Updated content")
+                end
+
+                it "creates an Update Activity" do
+                  perform_update
+                  expect(
+                    reply
+                      .activity_pub_actor
+                      .activities
+                      .where(
+                        object_id: reply.activity_pub_object.id,
+                        object_type: "DiscourseActivityPubObject",
+                        ap_type: "Update",
+                      )
+                      .exists?,
+                  ).to eq(true)
+                end
+
+                context "with no followers" do
+                  it "creates multiple published activities" do
+                    perform_update
+                    perform_update
+                    attrs = {
                       object_id: reply.activity_pub_object.id,
                       object_type: "DiscourseActivityPubObject",
                       ap_type: "Update",
+                    }
+                    expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
+                  end
+                end
+
+                context "with followers" do
+                  let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                  let!(:follow1) do
+                    Fabricate(
+                      :discourse_activity_pub_follow,
+                      follower: follower1,
+                      followed: tag.activity_pub_actor,
                     )
-                    .exists?,
-                ).to eq(true)
-              end
+                  end
 
-              context "with no followers" do
-                it "creates multiple published activities" do
-                  perform_update
-                  perform_update
-                  attrs = {
-                    object_id: reply.activity_pub_object.id,
-                    object_type: "DiscourseActivityPubObject",
-                    ap_type: "Update",
-                  }
-                  expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
-                end
-              end
+                  it "does not create multiple unpublished activities" do
+                    perform_update
+                    perform_update
+                    attrs = {
+                      object_id: reply.activity_pub_object.id,
+                      object_type: "DiscourseActivityPubObject",
+                      ap_type: "Update",
+                      published_at: nil,
+                    }
+                    expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(1)
+                  end
 
-              context "with followers" do
-                let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
-                let!(:follow1) do
-                  Fabricate(
-                    :discourse_activity_pub_follow,
-                    follower: follower1,
-                    followed: tag.activity_pub_actor,
-                  )
-                end
-
-                it "does not create multiple unpublished activities" do
-                  perform_update
-                  perform_update
-                  attrs = {
-                    object_id: reply.activity_pub_object.id,
-                    object_type: "DiscourseActivityPubObject",
-                    ap_type: "Update",
-                    published_at: nil,
-                  }
-                  expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(1)
-                end
-
-                it "sends the activity as the tag actor for delivery without delay" do
-                  expect_delivery(actor: tag.activity_pub_actor, object_type: "Update")
-                  perform_update
+                  it "sends the activity as the tag actor for delivery without delay" do
+                    expect_delivery(actor: tag.activity_pub_actor, object_type: "Update")
+                    perform_update
+                  end
                 end
               end
             end
@@ -2718,6 +2761,8 @@ RSpec.describe Post do
 
           context "with no reply_to_post_number" do
             before do
+              post.custom_fields["activity_pub_published_at"] = Time.now
+              post.save_custom_fields(true)
               reply.reply_to_post_number = nil
               reply.save!
               reply.perform_activity_pub_activity(:create)

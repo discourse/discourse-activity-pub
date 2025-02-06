@@ -33,7 +33,6 @@ export default {
         "activity_pub_object_type",
         "activity_pub_domain",
         "activity_pub_first_post",
-        "activity_pub_is_first_post",
         "activity_pub_object_id"
       );
       api.serializeOnCreate("activity_pub_visibility");
@@ -81,7 +80,7 @@ export default {
         if (
           attrs.activity_pub_enabled &&
           currentUser?.staff &&
-          !attrs.activity_pub_is_first_post
+          !attrs.firstPost
         ) {
           return {
             secondaryAction: "closeAdminMenu",
@@ -144,6 +143,10 @@ export default {
         @bind
         handleActivityPubMessage(data) {
           const topic = this.get("model");
+          if (!topic) {
+            return;
+          }
+
           const postStream = topic.get("postStream");
 
           if (data.model.type === "post" && postStream) {

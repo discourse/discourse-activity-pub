@@ -14,7 +14,7 @@ module DiscourseActivityPub
     def deliver
       if !@post.activity_pub_published? || !@post.topic.activity_pub_published? ||
            @post.activity_pub_taxonomy_followers.empty? ||
-           (!@post.topic.activity_pub_delivered? && !@post.activity_pub_is_first_post?)
+           (!@post.topic.activity_pub_delivered? && !@post.is_first_post?)
         return render_post_error("cant_deliver_post", 422)
       end
 
@@ -27,7 +27,7 @@ module DiscourseActivityPub
 
     def publish
       if @post.activity_pub_published? || @post.activity_pub_scheduled? ||
-           (!@post.topic.activity_pub_published? && !@post.activity_pub_is_first_post?)
+           (!@post.topic.activity_pub_published? && !@post.is_first_post?)
         return render_post_error("cant_publish_post", 422)
       end
 
@@ -68,7 +68,7 @@ module DiscourseActivityPub
     protected
 
     def ensure_first_post
-      render_post_error("not_first_post", 422) unless @post.activity_pub_is_first_post?
+      render_post_error("not_first_post", 422) unless @post.is_first_post?
     end
 
     def find_post

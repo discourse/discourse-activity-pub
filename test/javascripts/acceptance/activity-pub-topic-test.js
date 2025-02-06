@@ -28,7 +28,7 @@ const setupServer = (needs, postAttrs = [], topicAttrs = {}) => {
       post.activity_pub_object_type = "Note";
       post.activity_pub_first_post = true;
       if (i === 0) {
-        post.activity_pub_is_first_post = true;
+        post.firstPost = true;
       }
       Object.keys(attrs).forEach((attr) => {
         post[attr] = attrs[attr];

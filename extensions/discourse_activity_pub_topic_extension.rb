@@ -5,7 +5,7 @@ module DiscourseActivityPubTopicExtension
     @activity_pub_total_post_count = nil
     @activity_pub_published_posts = nil
     @activity_pub_published_post_count = nil
-    @ap_first_post = nil
+    @with_deleted_first_post = nil
     super(options)
   end
 
@@ -32,9 +32,8 @@ module DiscourseActivityPubTopicExtension
     activity_pub_total_post_count == activity_pub_published_post_count
   end
 
-  # The break with the naming convention is due to the 'activity_pub_first_post' publication type.
-  def ap_first_post
-    @ap_first_post ||= posts.with_deleted.find_by(post_number: 1)
+  def with_deleted_first_post
+    @with_deleted_first_post ||= posts.with_deleted.find_by(post_number: 1)
   end
 
   def activity_pub_published?
@@ -42,8 +41,8 @@ module DiscourseActivityPubTopicExtension
   end
 
   def activity_pub_published_at
-    return nil unless activity_pub_enabled && ap_first_post
-    ap_first_post.activity_pub_published_at
+    return nil unless activity_pub_enabled && with_deleted_first_post
+    with_deleted_first_post.activity_pub_published_at
   end
 
   def activity_pub_scheduled?
@@ -51,10 +50,11 @@ module DiscourseActivityPubTopicExtension
   end
 
   def activity_pub_scheduled_at
-    unless activity_pub_enabled && ap_first_post && !ap_first_post.activity_pub_published?
+    unless activity_pub_enabled && with_deleted_first_post &&
+             !with_deleted_first_post.activity_pub_published?
       return nil
     end
-    ap_first_post.activity_pub_scheduled_at
+    with_deleted_first_post.activity_pub_scheduled_at
   end
 
   def activity_pub_deleted?
@@ -62,8 +62,8 @@ module DiscourseActivityPubTopicExtension
   end
 
   def activity_pub_deleted_at
-    return nil unless activity_pub_enabled && ap_first_post
-    ap_first_post.activity_pub_deleted_at
+    return nil unless activity_pub_enabled && with_deleted_first_post
+    with_deleted_first_post.activity_pub_deleted_at
   end
 
   def activity_pub_delivered?
@@ -71,7 +71,7 @@ module DiscourseActivityPubTopicExtension
   end
 
   def activity_pub_delivered_at
-    return nil unless activity_pub_enabled && ap_first_post
-    ap_first_post.activity_pub_delivered_at
+    return nil unless activity_pub_enabled && with_deleted_first_post
+    with_deleted_first_post.activity_pub_delivered_at
   end
 end
