@@ -188,7 +188,7 @@ en:
           title: "ActivityPub for Post #%{post_number}"
           url: Original %{object_type} on %{domain}.
           label: "Post Info"
-          actors: "Actors for Post #%{post_number}"
+          group_actors: "Group Actors"
         status:
           label: "Post Status"
           published: "Post was published via ActivityPub at %{time}."
@@ -214,24 +214,25 @@ en:
           label: Post Admin
           menu_label: ActivityPub Post Admin...
         actions:
+          label: "Post Actions"
           publish:
             label: "Publish Post #%{post_number}"
             description:
-              followers: "Publish Post #%{post_number} and deliver it to the followers of the actors."
-              no_followers: "Publish Post #%{post_number} without delivering it. There are no followers to deliver to."
+              followers: "Publish Post #%{post_number} and deliver it to the followers of the Group Actors."
+              no_followers: "Publish Post #%{post_number} without delivering it. The Group Actors have no followers to deliver to."
               topic_not_published: "Publishing is disabled for Post #%{post_number}. Topic #%{topic_id} is not published."
           deliver:
             label: "Deliver Post #%{post_number}"
             description:
-              followers: "Deliver Post #%{post_number} to the followers of the actors."
-              no_followers: "Delivery is disabled for Post #%{post_number}. There are no followers to deliver to."
+              followers: "Deliver Post #%{post_number} to the followers of the Group Actors."
+              no_followers: "Delivery is disabled for Post #%{post_number}. The Group Actors no followers to deliver to."
               topic_not_delivered: "Delivery is disabled for Post #%{post_number}. Topic #%{topic_id} has not been delivered."
-              delivered: "Post #%{post_number} was just delivered to the followers of the actors."
+              delivered: "Post #%{post_number} was just delivered to the followers of the Group Actors."
           schedule:
             label: "Schedule Post #%{post_number}"
             description:
-              followers: "Publish Post #%{post_number} and deliver it to the followers of the actors in %{minutes} minutes."
-              no_followers: "Scheduling is disabled for Post #%{post_number}. There are no followers to deliver to."
+              followers: "Publish Post #%{post_number} and deliver it to the followers of the Group Actors in %{minutes} minutes."
+              no_followers: "Scheduling is disabled for Post #%{post_number}. The Group Actors have no followers to deliver to."
           unschedule:
             label: "Unschedule Post #%{post_number}"
             description: "Unschedule publication of Post #%{post_number}."
@@ -241,10 +242,7 @@ en:
         info:
           title: "ActivityPub for Topic #%{topic_id}"
           label: Topic Info
-          actors: "Actors for posts in Topic #%{topic_id}"
-        first_post:
-          actions:
-            label: First Post Actions
+          group_actors: "Group Actors"
         status:
           scheduled: Topic is scheduled to be published via ActivityPub at %{time}.
           scheduled_past: Topic was scheduled to be published via ActivityPub at %{time}.
@@ -276,7 +274,7 @@ en:
         publish:
           label: Publish All Posts
           description:
-            unpublished: "Publish %{count} unpublished posts in Topic #%{topic_id}. Posts will not be delivered to the followers of the actors."
+            unpublished: "Publish %{count} unpublished posts in Topic #%{topic_id}. Posts will not be delivered to the followers of the Group Actors."
             published: "Publishing all posts is disabled. All posts in Topic #%{topic_id} are already published."
             scheduled: "Publishing all posts is disabled. Topic #%{topic_id} is scheduled to be published."
 

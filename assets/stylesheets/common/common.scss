@@ -118,7 +118,7 @@ section.activity-pub-actor-setting {
     align-items: stretch;
     border-radius: var(--d-border-radius);
     border: 1px solid var(--primary-low);
-    line-height: 32px;
+    line-height: 37px;
     overflow: hidden;
   }
 
@@ -571,16 +571,6 @@ body.user-preferences-activity-pub-page {
   }
 }
 
-.activity-pub-topic-admin-modal,
-.activity-pub-post-admin-modal {
-  .d-modal__body {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1em;
-  }
-}
-
 .d-modal {
   .activity-pub-topic-status,
   .activity-pub-post-status {
@@ -596,7 +586,7 @@ body.user-preferences-activity-pub-page {
 
   .action {
     display: flex;
-    gap: 1em;
+    gap: 0.75em;
     width: 100%;
     align-items: center;
 
@@ -607,12 +597,7 @@ body.user-preferences-activity-pub-page {
     }
 
     .action-description {
-      .activity-pub-handle {
-        background-color: var(--primary-100);
-        border-radius: 4px;
-        font-size: var(--font-down-1);
-        padding: 0.15em 0.3em;
-      }
+      font-size: var(--font-down-1);
     }
   }
 }
@@ -625,28 +610,18 @@ body.user-preferences-activity-pub-page {
   color: var(--primary-700);
 }
 
-.activity-pub-admin-info {
-  padding: 0.75em;
-  background-color: var(--primary-very-low);
-  border-radius: 4px;
-  color: var(--primary-700);
+.activity-pub-topic-admin-modal,
+.activity-pub-post-admin-modal {
+  .control-group:not(:last-child) {
+    margin-bottom: 1.3em;
+  }
+}
+
+.activity-pub-admin-info-actors {
   display: flex;
-  flex-direction: column;
   gap: 0.75em;
-  border: 1px solid var(--primary-low);
 
-  .activity-pub-admin-info-actors {
-    display: flex;
-    gap: 0.5em;
-    flex-direction: column;
-
-    .content {
-      display: flex;
-      gap: 0.75em;
-    }
-
-    .handle {
-      color: var(--primary-700);
-    }
+  .handle {
+    color: var(--primary-700);
   }
 }

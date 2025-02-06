@@ -4,12 +4,22 @@
   class="activity-pub-post-admin-modal"
 >
   <:body>
-    <ActivityPubAdminInfo
-      @post={{this.post}}
-      @topic={{this.topic}}
-      @context="post"
-    />
-    <ActivityPubPostActions @post={{this.post}} />
+    <div class="control-group">
+      <label>{{i18n "post.discourse_activity_pub.info.group_actors"}}</label>
+      <div class="controls">
+        <ActivityPubAdminInfo
+          @post={{this.post}}
+          @topic={{this.topic}}
+          @context="post"
+        />
+      </div>
+    </div>
+    <div class="control-group">
+      <label>{{i18n "post.discourse_activity_pub.actions.label"}}</label>
+      <div class="controls">
+        <ActivityPubPostActions @post={{this.post}} />
+      </div>
+    </div>
   </:body>
   <:footer>
     <DButton
