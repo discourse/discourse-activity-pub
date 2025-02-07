@@ -8,7 +8,7 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import { default as Actors } from "../fixtures/actors-fixtures";
 import { default as Followers } from "../fixtures/followers-fixtures";
 import { default as Follows } from "../fixtures/follows-fixtures";
@@ -150,7 +150,7 @@ acceptance(
       );
       assert.strictEqual(
         query(".activity-pub-banner-text .desktop").textContent.trim(),
-        I18n.t("discourse_activity_pub.banner.text", {
+        i18n("discourse_activity_pub.banner.text", {
           model_name: "Cat 2",
         }),
         "shows the right banner text"
@@ -159,7 +159,7 @@ acceptance(
       await triggerEvent(".fk-d-tooltip__trigger", "pointermove");
       assert.equal(
         query(".fk-d-tooltip__inner-content").textContent.trim(),
-        I18n.t("discourse_activity_pub.banner.public_first_post"),
+        i18n("discourse_activity_pub.banner.public_first_post"),
         "shows the right category banner tip"
       );
     });
@@ -285,7 +285,7 @@ acceptance(
       );
       assert.equal(
         query(".activity-pub-followers-container").innerText,
-        I18n.t("search.no_results"),
+        i18n("search.no_results"),
         "no results shown"
       );
     });
@@ -358,7 +358,7 @@ acceptance(
       );
       assert.equal(
         query("#discourse-modal-title").innerText,
-        I18n.t("discourse_activity_pub.follow.title", {
+        i18n("discourse_activity_pub.follow.title", {
           actor: "Cat 2",
         }),
         "activitypub modal has the right title"
@@ -485,7 +485,7 @@ acceptance(
       );
       assert.equal(
         query("#discourse-modal-title").innerText,
-        I18n.t("discourse_activity_pub.actor_follow.title", {
+        i18n("discourse_activity_pub.actor_follow.title", {
           actor: "Cat 2",
         }),
         "activitypub actor follow modal has the right title"
@@ -502,7 +502,7 @@ acceptance(
       );
       assert.equal(
         query("#discourse-modal-title").innerText,
-        I18n.t("discourse_activity_pub.actor_unfollow.modal_title", {
+        i18n("discourse_activity_pub.actor_unfollow.modal_title", {
           actor: "Cat 2",
         }),
         "activitypub actor unfollow modal has the right title"

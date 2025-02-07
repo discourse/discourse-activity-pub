@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../../models/activity-pub-actor";
 import ActivityPubWebfinger from "../../models/activity-pub-webfinger";
 
@@ -14,7 +14,7 @@ export default class ActivityPubFollowRemote extends Component {
   @tracked followActor;
 
   get title() {
-    return I18n.t("discourse_activity_pub.actor_follow.title", {
+    return i18n("discourse_activity_pub.actor_follow.title", {
       actor: this.args.model.actor.name,
     });
   }
@@ -77,7 +77,7 @@ export default class ActivityPubFollowRemote extends Component {
       );
       this.finding = false;
     } else {
-      this.error = I18n.t("discourse_activity_pub.actor_follow.find.invalid");
+      this.error = i18n("discourse_activity_pub.actor_follow.find.invalid");
     }
   }
 }

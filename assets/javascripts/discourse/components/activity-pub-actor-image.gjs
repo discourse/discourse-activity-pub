@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { translateSize } from "discourse-common/lib/avatar-utils";
+import { translateSize } from "discourse/lib/avatar-utils";
 
 export default class ActivityPubActorImage extends Component {
   get size() {

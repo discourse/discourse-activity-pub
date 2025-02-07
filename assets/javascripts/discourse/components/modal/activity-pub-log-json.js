@@ -1,8 +1,8 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
+import discourseLater from "discourse/lib/later";
 import { clipboardCopy } from "discourse/lib/utilities";
-import discourseLater from "discourse-common/lib/later";
 
 export default class ActivityPubLogJson extends Component {
   @tracked copied = false;

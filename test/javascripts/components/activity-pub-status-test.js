@@ -2,6 +2,7 @@ import { getOwner } from "@ember/application";
 import { render } from "@ember/test-helpers";
 import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
 import Site from "discourse/models/site";
 import AppEvents from "discourse/services/app-events";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
@@ -10,8 +11,7 @@ import {
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 function setSite(context, attrs = {}) {
@@ -64,12 +64,12 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.publishing_disabled"),
+        i18n("discourse_activity_pub.status.title.publishing_disabled"),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.publishing_disabled"),
+        i18n("discourse_activity_pub.status.label.publishing_disabled"),
         "has the right label"
       );
     });
@@ -88,12 +88,12 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.plugin_disabled"),
+        i18n("discourse_activity_pub.status.title.plugin_disabled"),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -120,14 +120,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_disabled", {
+        i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "category",
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -155,14 +155,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_not_ready", {
+        i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -181,14 +181,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_active.first_post", {
+        i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.active"),
+        i18n("discourse_activity_pub.status.label.active"),
         "has the right label"
       );
     });
@@ -215,14 +215,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_not_ready", {
+        i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -245,7 +245,7 @@ module(
       const label = query(".activity-pub-status .label");
       assert.strictEqual(
         label.innerText.trim(),
-        I18n.t("discourse_activity_pub.visibility.label.public"),
+        i18n("discourse_activity_pub.visibility.label.public"),
         "has the right label text"
       );
     });
@@ -272,12 +272,12 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.publishing_disabled"),
+        i18n("discourse_activity_pub.status.title.publishing_disabled"),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.publishing_disabled"),
+        i18n("discourse_activity_pub.status.label.publishing_disabled"),
         "has the right label"
       );
     });
@@ -296,12 +296,12 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.plugin_disabled"),
+        i18n("discourse_activity_pub.status.title.plugin_disabled"),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -328,14 +328,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_disabled", {
+        i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "tag",
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -363,14 +363,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_not_ready", {
+        i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -389,14 +389,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_active.first_post", {
+        i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.active"),
+        i18n("discourse_activity_pub.status.label.active"),
         "has the right label"
       );
     });
@@ -423,14 +423,14 @@ module(
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
-        I18n.t("discourse_activity_pub.status.title.model_not_ready", {
+        i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
         "has the right title"
       );
       assert.strictEqual(
         status.innerText.trim(),
-        I18n.t("discourse_activity_pub.status.label.not_active"),
+        i18n("discourse_activity_pub.status.label.not_active"),
         "has the right label"
       );
     });
@@ -453,7 +453,7 @@ module(
       const label = query(".activity-pub-status .label");
       assert.strictEqual(
         label.innerText.trim(),
-        I18n.t("discourse_activity_pub.visibility.label.public"),
+        i18n("discourse_activity_pub.visibility.label.public"),
         "has the right label text"
       );
     });

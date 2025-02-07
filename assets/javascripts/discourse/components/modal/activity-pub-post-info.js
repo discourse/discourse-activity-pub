@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { clipboardCopy } from "discourse/lib/utilities";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 export default class ActivityPubPostInfo extends Component {
   @tracked copiedObjectId = false;
@@ -17,7 +17,7 @@ export default class ActivityPubPostInfo extends Component {
   }
 
   get title() {
-    return I18n.t("post.discourse_activity_pub.info.title", {
+    return i18n("post.discourse_activity_pub.info.title", {
       post_number: this.args.model.post.post_number,
     });
   }
@@ -30,7 +30,7 @@ export default class ActivityPubPostInfo extends Component {
     if (this.args.model.time) {
       opts.time = this.args.model.time.format("h:mm a, MMM D");
     }
-    return I18n.t(
+    return i18n(
       `post.discourse_activity_pub.title.${this.args.model.state}`,
       opts
     );
@@ -47,7 +47,7 @@ export default class ActivityPubPostInfo extends Component {
   }
 
   get visibilityText() {
-    return I18n.t(
+    return i18n(
       `discourse_activity_pub.visibility.description.${this.args.model.post.activity_pub_visibility}`,
       {
         object_type: this.args.model.post.activity_pub_object_type,
@@ -66,7 +66,7 @@ export default class ActivityPubPostInfo extends Component {
   }
 
   get urlText() {
-    return I18n.t("post.discourse_activity_pub.info.url", {
+    return i18n("post.discourse_activity_pub.info.url", {
       object_type: this.args.model.post.activity_pub_object_type,
       domain: this.args.model.post.activity_pub_domain,
     });

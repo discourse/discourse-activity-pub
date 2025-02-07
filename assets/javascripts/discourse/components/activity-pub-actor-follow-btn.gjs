@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import DButton from "discourse/components/d-button";
-import I18n from "discourse-i18n";
+import { i18n } from "discourse-i18n";
 
 export default class ActivityPubActorFollowBtn extends Component {
   @tracked followed = !!this.args.followActor.followed_at;
@@ -48,14 +48,14 @@ export default class ActivityPubActorFollowBtn extends Component {
       actor: this.args.actor.username,
       follow_actor: this.args.followActor.username,
     };
-    return I18n.t(
+    return i18n(
       `discourse_activity_pub.actor_follow.${this.i18nKey}.title`,
       opts
     );
   }
 
   get label() {
-    return I18n.t(`discourse_activity_pub.actor_follow.${this.i18nKey}.label`);
+    return i18n(`discourse_activity_pub.actor_follow.${this.i18nKey}.label`);
   }
 
   <template>

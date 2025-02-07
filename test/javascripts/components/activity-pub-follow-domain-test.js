@@ -7,7 +7,7 @@ import Site from "discourse/models/site";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { query } from "discourse/tests/helpers/qunit-helpers";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import { default as Mastodon } from "../fixtures/mastodon-fixtures";
 
 const mastodonAboutPath = "api/v2/instance";
@@ -37,7 +37,7 @@ module(
 
       assert.strictEqual(
         query(".activity-pub-follow-domain-footer.error").textContent.trim(),
-        I18n.t("discourse_activity_pub.follow.domain.invalid"),
+        i18n("discourse_activity_pub.follow.domain.invalid"),
         "displays an invalid message"
       );
     });
@@ -55,7 +55,7 @@ module(
 
       assert.strictEqual(
         query(".activity-pub-follow-domain-footer.error")?.textContent.trim(),
-        I18n.t("discourse_activity_pub.follow.domain.invalid"),
+        i18n("discourse_activity_pub.follow.domain.invalid"),
         "displays an invalid message"
       );
     });

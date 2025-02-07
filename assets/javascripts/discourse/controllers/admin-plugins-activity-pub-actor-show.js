@@ -3,9 +3,9 @@ import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { service } from "@ember/service";
+import discourseLater from "discourse/lib/later";
 import Category from "discourse/models/category";
-import discourseLater from "discourse-common/lib/later";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShow extends Controller {
@@ -23,11 +23,11 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   modelTypes = [
     {
       id: "category",
-      label: I18n.t("admin.discourse_activity_pub.actor.model_type.category"),
+      label: i18n("admin.discourse_activity_pub.actor.model_type.category"),
     },
     {
       id: "tag",
-      label: I18n.t("admin.discourse_activity_pub.actor.model_type.tag"),
+      label: i18n("admin.discourse_activity_pub.actor.model_type.tag"),
     },
   ];
 
@@ -43,7 +43,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
 
   get titleLabel() {
     let key = this.actor.isNew ? "add" : "edit";
-    return I18n.t(`admin.discourse_activity_pub.actor.${key}.label`);
+    return i18n(`admin.discourse_activity_pub.actor.${key}.label`);
   }
 
   get enabledLabel() {
