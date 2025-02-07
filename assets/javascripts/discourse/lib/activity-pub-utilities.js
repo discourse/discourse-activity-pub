@@ -1,5 +1,5 @@
 import { AUTO_GROUPS } from "discourse/lib/constants";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export function buildHandle({ actor, model, site }) {
@@ -76,7 +76,7 @@ export function activityPubPostStatusText(post, opts = {}) {
     i18nOpts.time = time.format("h:mm a, MMM D");
   }
 
-  return I18n.t(`post.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
+  return i18n(`post.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
 }
 
 export function activityPubTopicStatus(topic) {
@@ -124,7 +124,7 @@ export function activityPubTopicStatusText(topic, opts = {}) {
     i18nOpts.time = time.format("h:mm a, MMM D");
   }
 
-  return I18n.t(`topic.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
+  return i18n(`topic.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
 }
 
 export function activityPubTopicActors(topic) {

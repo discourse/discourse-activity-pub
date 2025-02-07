@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import ActivityPubTopicAdmin from "./activity-pub-topic-admin";
 
 export default class ActivityPubTopicInfoModal extends Component {
@@ -17,7 +17,7 @@ export default class ActivityPubTopicInfoModal extends Component {
   }
 
   get title() {
-    return I18n.t("topic.discourse_activity_pub.info.title", {
+    return i18n("topic.discourse_activity_pub.info.title", {
       topic_id: this.topic.id,
     });
   }
