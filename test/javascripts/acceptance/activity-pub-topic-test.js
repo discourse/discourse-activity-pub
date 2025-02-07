@@ -27,9 +27,6 @@ const setupServer = (needs, postAttrs = [], topicAttrs = {}) => {
       post.activity_pub_enabled = true;
       post.activity_pub_object_type = "Note";
       post.activity_pub_first_post = true;
-      if (i === 0) {
-        post.firstPost = true;
-      }
       Object.keys(attrs).forEach((attr) => {
         post[attr] = attrs[attr];
       });
@@ -309,7 +306,7 @@ acceptance(
         query(
           ".activity-pub-topic-admin-modal .activity-pub-topic-actions .action.publish-all .action-description"
         ).innerText.trim(),
-        `Publish 18 unpublished posts in Topic #280. Posts will not be delivered to the followers of the actors.`,
+        `Publish 18 unpublished posts in Topic #280. Posts will not be delivered to the followers of the Group Actors.`,
         "shows the right publish all description"
       );
       assert.ok(

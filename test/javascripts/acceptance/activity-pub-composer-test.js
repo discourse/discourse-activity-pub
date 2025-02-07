@@ -49,7 +49,9 @@ acceptance("Discourse Activity Pub | composer", function (needs) {
       "the status label is visible"
     );
     assert.strictEqual(
-      query("#reply-control .activity-pub-actor-status .label").innerText.trim(),
+      query(
+        "#reply-control .activity-pub-actor-status .label"
+      ).innerText.trim(),
       i18n("discourse_activity_pub.visibility.label.public"),
       "the status label has the right text"
     );
