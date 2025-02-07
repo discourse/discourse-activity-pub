@@ -66,10 +66,6 @@ export default class ActivityPubTopicActions extends Component {
     );
   }
 
-  get showPublish() {
-    return this.topic.activity_pub_total_post_count > 1;
-  }
-
   @action
   publish() {
     ajax(`/ap/topic/publish/${this.topic.id}`, {
@@ -84,22 +80,20 @@ export default class ActivityPubTopicActions extends Component {
   }
 
   <template>
-    {{#if this.showPublish}}
-      <div class="activity-pub-topic-actions">
-        <div class="action publish-all">
-          <div class="action-button">
-            <DButton
-              @label="topic.discourse_activity_pub.publish.label"
-              @action={{this.publish}}
-              @disabled={{this.publishDisabled}}
-              class="publish"
-            />
-          </div>
-          <div class="action-description">
-            {{htmlSafe this.publishDescription}}
-          </div>
+    <div class="activity-pub-topic-actions">
+      <div class="action publish-all">
+        <div class="action-button">
+          <DButton
+            @label="topic.discourse_activity_pub.publish.label"
+            @action={{this.publish}}
+            @disabled={{this.publishDisabled}}
+            class="publish"
+          />
+        </div>
+        <div class="action-description">
+          {{htmlSafe this.publishDescription}}
         </div>
       </div>
-    {{/if}}
+    </div>
   </template>
 }

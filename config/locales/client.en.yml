@@ -220,8 +220,8 @@ en:
             description:
               followers: "Publish Post #%{post_number} and deliver it to the followers of the Group Actors."
               no_followers: "Publish Post #%{post_number} without delivering it. The Group Actors have no followers to deliver to."
-              topic_not_published: "Publishing is disabled for Post #%{post_number}. Topic #%{topic_id} is not published."
-              post_is_scheduled: "Publishing is disabled for Post #%{post_number}. Post #%{post_number} is scheduled to be published."
+              topic_not_published: "Publish is disabled for Post #%{post_number}. Topic #%{topic_id} is not published."
+              post_is_scheduled: "Publish is disabled for Post #%{post_number}. Post #%{post_number} is scheduled to be published."
           deliver:
             label: "Deliver Post #%{post_number}"
             description:
@@ -276,8 +276,8 @@ en:
           label: Publish All Posts
           description:
             unpublished: "Publish %{count} unpublished posts in Topic #%{topic_id}. Posts will not be delivered to the followers of the Group Actors."
-            published: "Publishing all posts is disabled. All posts in Topic #%{topic_id} are already published."
-            scheduled: "Publishing all posts is disabled. Topic #%{topic_id} is scheduled to be published."
+            published: "Publish all posts is disabled. All posts in Topic #%{topic_id} are already published."
+            scheduled: "Publish all posts is disabled. Topic #%{topic_id} is scheduled to be published."
 
     user:
       discourse_activity_pub:
