@@ -1779,7 +1779,7 @@ RSpec.describe Post do
                 end
               end
 
-              context "with followers" do
+              context "when the category has followers" do
                 let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
                 let!(:follow1) do
                   Fabricate(
@@ -1801,8 +1801,12 @@ RSpec.describe Post do
                   expect(post.activity_pub_actor.activities.where(attrs).size).to eq(1)
                 end
 
-                it "sends the activity as the category actor for delivery without delay" do
-                  expect_delivery(actor: category.activity_pub_actor, object_type: "Update")
+                it "sends the activity as the post actor to the category followers for delivery without delay" do
+                  expect_delivery(
+                    actor: post.activity_pub_actor,
+                    object_type: "Update",
+                    recipient_ids: [follower1.id],
+                  )
                   perform_update
                 end
               end
@@ -1909,7 +1913,7 @@ RSpec.describe Post do
 
                 it "sends to remote contributors for delivery without delay" do
                   expect_delivery(
-                    actor: topic.activity_pub_actor,
+                    actor: reply.activity_pub_actor,
                     object_type: "Create",
                     recipient_ids: [post.activity_pub_actor.id],
                   )
@@ -1928,7 +1932,7 @@ RSpec.describe Post do
 
                   it "sends to followers and remote contributors for delivery without delay" do
                     expect_delivery(
-                      actor: topic.activity_pub_actor,
+                      actor: reply.activity_pub_actor,
                       object_type: "Create",
                       recipient_ids: [follower1.id] + [post.activity_pub_actor.id],
                     )
@@ -2033,7 +2037,7 @@ RSpec.describe Post do
                   expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(2)
                 end
 
-                context "when the category actor has followers" do
+                context "when the category has followers" do
                   let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
                   let!(:follow1) do
                     Fabricate(
@@ -2043,8 +2047,12 @@ RSpec.describe Post do
                     )
                   end
 
-                  it "sends the activity as the category actor for delivery without delay" do
-                    expect_delivery(actor: category.activity_pub_actor, object_type: "Update")
+                  it "sends the activity as the reply actor to the category followers for delivery without delay" do
+                    expect_delivery(
+                      actor: reply.activity_pub_actor,
+                      object_type: "Update",
+                      recipient_ids: [follower1.id],
+                    )
                     perform_update
                   end
                 end
@@ -2130,7 +2138,7 @@ RSpec.describe Post do
                   expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
                 end
 
-                context "with followers" do
+                context "when the category has followers" do
                   let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
                   let!(:follow1) do
                     Fabricate(
@@ -2140,8 +2148,12 @@ RSpec.describe Post do
                     )
                   end
 
-                  it "sends the activity as the category actor for delivery without delay" do
-                    expect_delivery(actor: category.activity_pub_actor, object_type: "Delete")
+                  it "sends the activity as the post actor to the category followers for delivery without delay" do
+                    expect_delivery(
+                      actor: reply.activity_pub_actor,
+                      object_type: "Delete",
+                      recipient_ids: [follower1.id],
+                    )
                     perform_delete
                   end
                 end
@@ -2400,8 +2412,12 @@ RSpec.describe Post do
                   expect(post.activity_pub_actor.activities.where(attrs).size).to eq(1)
                 end
 
-                it "sends the activity as the tag actor for delivery without delay" do
-                  expect_delivery(actor: tag.activity_pub_actor, object_type: "Update")
+                it "sends the activity as the post actor to the tag followers for delivery without delay" do
+                  expect_delivery(
+                    actor: post.activity_pub_actor,
+                    object_type: "Update",
+                    recipient_ids: [follower1.id],
+                  )
                   perform_update
                 end
               end
@@ -2510,8 +2526,12 @@ RSpec.describe Post do
                   )
                 end
 
-                it "enqueues the activity for delivery" do
-                  expect_delivery(actor: topic.activity_pub_actor, object_type: "Create")
+                it "sends the activity as the reply actor to the tag followers for delivery without delay" do
+                  expect_delivery(
+                    actor: reply.activity_pub_actor,
+                    object_type: "Create",
+                    recipient_ids: [follower1.id],
+                  )
                   perform_create
                 end
               end
@@ -2528,7 +2548,7 @@ RSpec.describe Post do
 
                 it "sends to remote contributors for delivery without delay" do
                   expect_delivery(
-                    actor: topic.activity_pub_actor,
+                    actor: reply.activity_pub_actor,
                     object_type: "Create",
                     recipient_ids: [post.activity_pub_actor.id],
                   )
@@ -2547,7 +2567,7 @@ RSpec.describe Post do
 
                   it "sends to followers and remote contributors for delivery without delay" do
                     expect_delivery(
-                      actor: topic.activity_pub_actor,
+                      actor: reply.activity_pub_actor,
                       object_type: "Create",
                       recipient_ids: [follower1.id] + [post.activity_pub_actor.id],
                     )
@@ -2653,8 +2673,12 @@ RSpec.describe Post do
                     expect(reply.activity_pub_actor.activities.where(attrs).size).to eq(1)
                   end
 
-                  it "sends the activity as the tag actor for delivery without delay" do
-                    expect_delivery(actor: tag.activity_pub_actor, object_type: "Update")
+                  it "sends the activity as the reply actor to the tag followers for delivery without delay" do
+                    expect_delivery(
+                      actor: reply.activity_pub_actor,
+                      object_type: "Update",
+                      recipient_ids: [follower1.id],
+                    )
                     perform_update
                   end
                 end
@@ -2751,8 +2775,12 @@ RSpec.describe Post do
                   )
                 end
 
-                it "sends the activity as the post actor for delivery without delay" do
-                  expect_delivery(actor: tag.activity_pub_actor, object_type: "Delete")
+                it "sends the activity as the reply actor to the tag followers for delivery without delay" do
+                  expect_delivery(
+                    actor: reply.activity_pub_actor,
+                    object_type: "Delete",
+                    recipient_ids: [follower1.id],
+                  )
                   perform_delete
                 end
               end

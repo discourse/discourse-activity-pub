@@ -178,18 +178,18 @@ module DiscourseActivityPub
             deliveries = []
             recipient_ids = []
 
-            activity_pub_taxonomy_actors.each do |actor|
-              actor_recipient_ids =
-                performing_activity_delivery_recipient_ids(actor).select do |recipient_id|
+            performing_activity_delivery_actors.each do |delivery_actor|
+              delivery_actor_actor_recipient_ids =
+                performing_activity_delivery_recipient_ids(delivery_actor).select do |recipient_id|
                   recipient_ids.exclude?(recipient_id)
                 end
 
-              if actor_recipient_ids.present?
-                recipient_ids += actor_recipient_ids
+              if delivery_actor_actor_recipient_ids.present?
+                recipient_ids += delivery_actor_actor_recipient_ids
                 deliveries << OpenStruct.new(
-                  actor: actor,
+                  actor: delivery_actor,
                   object: performing_activity&.stored,
-                  recipient_ids: actor_recipient_ids,
+                  recipient_ids: delivery_actor_actor_recipient_ids,
                   delay: performing_activity_delivery_delay,
                 )
               end
@@ -197,6 +197,20 @@ module DiscourseActivityPub
 
             deliveries
           end
+      end
+
+      def performing_activity_delivery_actors
+        if performing_activity_announce?
+          activity_pub_taxonomy_actors
+        else
+          [performing_activity_actor]
+        end
+      end
+
+      def performing_activity_announce?
+        performing_like = performing_activity.like? || performing_activity.undo_like?
+        preforming_create_first_post = performing_activity.create? && is_first_post?
+        preforming_create_first_post || performing_like
       end
 
       def performing_activity_deliver
@@ -221,8 +235,18 @@ module DiscourseActivityPub
         @performing_activity_delivery_delay = nil
       end
 
-      def performing_activity_delivery_recipient_ids(actor)
-        actor_ids = actor.reload.followers.map(&:id)
+      def performing_activity_delivery_recipient_ids(delivery_actor)
+        actor_ids = delivery_actor.reload.followers.map(&:id)
+
+        if delivery_actor.ap.person?
+          activity_pub_taxonomy_actors.each do |taxonomy_actor|
+            taxonomy_actor
+              .reload
+              .followers
+              .map(&:id)
+              .each { |actor_id| actor_ids << actor_id if actor_ids.exclude?(actor_id) }
+          end
+        end
 
         if self.respond_to?(:activity_pub_collection) && activity_pub_collection.present?
           activity_pub_collection
@@ -235,7 +259,7 @@ module DiscourseActivityPub
             end
         end
 
-        actor_ids
+        actor_ids.uniq
       end
 
       def performing_activity_delivery_delay
