@@ -22,7 +22,10 @@ module DiscourseActivityPub
     end
 
     def permitted_types
-      types = [DiscourseActivityPub::AP::Actor::Group.type, DiscourseActivityPub::AP::Actor::Application.type]
+      types = [
+        DiscourseActivityPub::AP::Actor::Group.type,
+        DiscourseActivityPub::AP::Actor::Application.type,
+      ]
       if DiscourseActivityPub.publishing_enabled
         types << DiscourseActivityPub::AP::Actor::Person.type
       end
