@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 en_GB:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          category:
+            label: Categories

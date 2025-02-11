@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 ur:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "زُمرہ نہیں ملا"

@@ -5,3 +5,68 @@
 # https://translate.discourse.org/
 
 ar:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: تم الحفظ
+          enabled:
+            label: مفعَّلة
+          disabled:
+            label: متوقفة
+          username: اسم المستخدم
+          name: الاسم
+          default_visibility: الرؤية
+          table:
+            auth_type: النوع
+            actions: الإجراءات
+          category:
+            label: الفئات
+          tag:
+            label: الوسوم
+          model_type:
+            category: الفئة
+            tag: الوسم
+        log:
+          label: السجلات
+          title: السجلات
+          created_at: تاريخ الإنشاء
+          level: المستوى
+          message: رسالة
+          json:
+            copy:
+              label: نسخ
+              success: تم النسخ!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: نشطة
+      follow:
+        domain:
+          placeholder: النطاق
+      actor_reject:
+        label: رفض
+      follow_table:
+        user: المستخدم
+        follow_pending: قيد الانتظار
+        actions: الإجراءات
+      visibility:
+        label:
+          public: عامة
+      post_object_type:
+        label:
+          note: ملاحظة
+    user:
+      discourse_activity_pub:
+        auth_type: النوع
+        actions: الإجراءات
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: السماح
+        remove_authorization_button:
+          label: إزالة

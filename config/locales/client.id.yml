@@ -5,3 +5,62 @@
 # https://translate.discourse.org/
 
 id:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Tersimpan
+          enabled:
+            label: Diaktifkan
+          disabled:
+            label: Dinonaktifkan
+          username: Nama Pengguna
+          name: Nama
+          table:
+            auth_type: Tipe
+            actions: Aksi
+          category:
+            label: Kategori
+          tag:
+            label: Label
+          model_type:
+            category: Kategori
+        log:
+          label: Log
+          title: Log
+          created_at: Dibuat Pada
+          level: Tingkat
+          message: pesan
+          json:
+            copy:
+              success: Disalin!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktif
+      follow:
+        domain:
+          placeholder: domain
+      actor_reject:
+        label: Tolak
+      follow_table:
+        user: Pengguna
+        follow_pending: tertunda
+        actions: Aksi
+      visibility:
+        label:
+          public: Umum
+    user:
+      discourse_activity_pub:
+        auth_type: Tipe
+        actions: Aksi
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Izinkan
+        remove_authorization_button:
+          label: Hapus

@@ -5,3 +5,68 @@
 # https://translate.discourse.org/
 
 ro:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Salvat
+          enabled:
+            label: Activat
+          disabled:
+            label: Dezactivat
+          site_setting:
+            title: Setări site
+          username: Nume de utilizator
+          name: Nume
+          table:
+            auth_type: Tip
+            actions: Acțiuni
+          category:
+            label: Categorii
+          tag:
+            label: Etichete
+          model_type:
+            category: Categorie
+            tag: Etichetă
+        log:
+          label: Jurnale
+          title: Jurnale
+          created_at: Creat la
+          message: Mesaj
+          json:
+            copy:
+              label: Copiază
+              success: Copiat!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Activi
+      follow:
+        domain:
+          placeholder: domeniu
+      actor_reject:
+        label: Respingere
+      follow_table:
+        user: Utilizator
+        follow_pending: în așteptare
+        actions: Acțiuni
+      visibility:
+        label:
+          public: Public
+      post_object_type:
+        label:
+          note: Notă
+    user:
+      discourse_activity_pub:
+        auth_type: Tip
+        actions: Acțiuni
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autorizează
+        remove_authorization_button:
+          label: Elimină

@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 be:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Катэгорыя не знойдзена"

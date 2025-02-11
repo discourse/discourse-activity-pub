@@ -5,3 +5,65 @@
 # https://translate.discourse.org/
 
 te:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: సేవ్ చేయబడింది
+          enabled:
+            label: ప్రారంభించబడింది
+          disabled:
+            label: నిలిపివేయబడింది
+          username: సభ్యనామం
+          name: పేరు
+          default_visibility: దృశ్యమానత
+          table:
+            auth_type: రకం
+            actions: చర్యలు
+          category:
+            label: వర్గాలు
+          tag:
+            label: ట్యాగులు
+          model_type:
+            category: వర్గం
+            tag: ట్యాగ్
+        log:
+          label: లాగులు
+          title: లాగులు
+          created_at: వద్ద సృష్టించబడింది
+          level: స్థాయి
+          message: సందేశం పంపించండి
+          json:
+            copy:
+              label: నకలు
+              success: కాపీ చేయబడింది!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: క్రియాశీల
+      follow:
+        domain:
+          placeholder: డొమైను
+      actor_reject:
+        label: తిరస్కరించు
+      follow_table:
+        user: సభ్యుడు
+        follow_pending: పెండింగు
+        actions: చర్యలు
+      visibility:
+        label:
+          public: బహిరంగం
+    user:
+      discourse_activity_pub:
+        auth_type: రకం
+        actions: చర్యలు
+        authorize:
+          auth_type:
+            discourse:
+              title: డిస్కోర్స్
+        authorize_button:
+          label: అధికారం ఇవ్వండి
+        remove_authorization_button:
+          label: తీసివేయండి

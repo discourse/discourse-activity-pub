@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 da:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Denne kategori blev ikke fundet"

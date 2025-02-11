@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 sw:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Kategoria haijapatikana"

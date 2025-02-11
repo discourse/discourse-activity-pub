@@ -5,3 +5,10 @@
 # https://translate.discourse.org/
 
 vi:
+  discourse_activity_pub:
+    process:
+      warning:
+        post_is_deleted: "Bài đăng bị xóa"
+    category:
+      error:
+        category_not_found: "Không tìm thấy danh mục"

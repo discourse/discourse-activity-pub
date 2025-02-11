@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 gl:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Non foi posíbel atopar a categoría"

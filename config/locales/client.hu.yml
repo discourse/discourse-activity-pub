@@ -5,3 +5,68 @@
 # https://translate.discourse.org/
 
 hu:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Mentve
+          enabled:
+            label: Engedélyezed
+          disabled:
+            label: Kikapcsolt
+          username: Felhasználónév
+          name: Név
+          default_visibility: Láthatóság
+          table:
+            auth_type: Típus
+            actions: Műveletek
+          category:
+            label: Kategóriák
+          tag:
+            label: Címkék
+          model_type:
+            category: Kategória
+            tag: Címke
+        log:
+          label: Naplók
+          title: Naplók
+          created_at: Létrehozva
+          level: Szint
+          message: Üzenet
+          json:
+            copy:
+              label: Másolás
+              success: Másolva!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktív
+      follow:
+        domain:
+          placeholder: domain
+      actor_reject:
+        label: Elutasítás
+      follow_table:
+        user: Felhasználó
+        follow_pending: függőben
+        actions: Műveletek
+      visibility:
+        label:
+          public: Nyilvános
+      post_object_type:
+        label:
+          note: Megjegyzés
+    user:
+      discourse_activity_pub:
+        auth_type: Típus
+        actions: Műveletek
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Engedélyezés
+        remove_authorization_button:
+          label: Eltávolítás

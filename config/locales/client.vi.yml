@@ -5,3 +5,59 @@
 # https://translate.discourse.org/
 
 vi:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Lưu trữ
+          disabled:
+            label: Vô hiệu hóa
+          username: Tên tài khoản
+          name: Tên
+          default_visibility: Khả năng hiển thị
+          table:
+            auth_type: Loại
+            actions: Hành động
+          category:
+            label: Danh mục
+          tag:
+            label: Thẻ
+          model_type:
+            category: Danh mục
+        log:
+          label: Log
+          title: Log
+          created_at: Được tạo tại
+          message: Tin nhắn
+          json:
+            copy:
+              label: Sao chép
+              success: Đã sao chép!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Kích hoạt
+      follow:
+        domain:
+          placeholder: tên miền
+      actor_reject:
+        label: Từ chối
+      follow_table:
+        user: Người dùng
+        follow_pending: đang chờ xử lý
+        actions: Hành động
+      visibility:
+        label:
+          public: Công khai
+    user:
+      discourse_activity_pub:
+        auth_type: Loại
+        actions: Hành động
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        remove_authorization_button:
+          label: Xoá
