@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 hr:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Kategorija nije pronađena"

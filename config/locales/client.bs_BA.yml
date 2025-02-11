@@ -5,3 +5,61 @@
 # https://translate.discourse.org/
 
 bs_BA:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Spašeno
+          enabled:
+            label: Omogućen
+          disabled:
+            label: Neomogućen
+          username: Nadimak
+          name: Ime
+          default_visibility: Vidljivost
+          table:
+            auth_type: Tip
+            actions: Akcije
+          category:
+            label: Kategorije
+          tag:
+            label: Oznake
+          model_type:
+            category: Kategorija
+        log:
+          label: Logs
+          title: Logs
+          created_at: Napravjeno kod
+          message: Privatna Poruka
+          json:
+            copy:
+              label: Copy
+              success: Kopirano!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Active
+      follow:
+        domain:
+          placeholder: domain
+      actor_reject:
+        label: Odbij
+      follow_table:
+        user: User
+        follow_pending: na čekanju.
+        actions: Akcije
+      visibility:
+        label:
+          public: Javno
+    user:
+      discourse_activity_pub:
+        auth_type: Tip
+        actions: Akcije
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        remove_authorization_button:
+          label: Ukloni

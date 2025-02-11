@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 te:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_actor:
+          attributes:
+            ap_type:
+              invalid: "చెల్లుబాటు కాదు"
+        discourse_activity_pub_activity:
+          attributes:
+            ap_type:
+              invalid: "చెల్లుబాటు కాదు"
+        discourse_activity_pub_object:
+          attributes:
+            ap_type:
+              invalid: "చెల్లుబాటు కాదు"
+            object_type:
+              invalid: "చెల్లుబాటు కాదు"
+        discourse_activity_pub_client:
+          attributes:
+            credentials:
+              invalid: "చెల్లుబాటు కాదు"
+        discourse_activity_pub:
+          attributes:
+            model_type:
+              invalid: "చెల్లుబాటు కాదు"
+  discourse_activity_pub:
+    process:
+      warning:
+        post_is_deleted: "పోస్ట్ తొలగించబడింది"

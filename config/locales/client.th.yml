@@ -5,3 +5,56 @@
 # https://translate.discourse.org/
 
 th:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: บันทึกแล้ว
+          disabled:
+            label: ปิดใช้งานแล้ว
+          username: ชื่อผู้ใช้
+          name: ชื่อ
+          table:
+            auth_type: ชนิด
+            actions: การกระทำ
+          category:
+            label: หมวดหมู่
+          tag:
+            label: ป้าย
+          model_type:
+            category: หมวดหมู่
+        log:
+          created_at: ถูกสร้างเมื่อ
+          message: ข้อความ
+          json:
+            copy:
+              label: คัดลอก
+              success: คัดลอกแล้ว!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: ใช้งานอยู่
+      follow:
+        domain:
+          placeholder: โดเมน
+      actor_reject:
+        label: ละทิ้ง
+      follow_table:
+        user: ผู้ใช้
+        follow_pending: กำลังรอ
+        actions: การกระทำ
+      visibility:
+        label:
+          public: สาธารณะ
+    user:
+      discourse_activity_pub:
+        auth_type: ชนิด
+        actions: การกระทำ
+        authorize:
+          auth_type:
+            discourse:
+              title: ดิสคอส
+        remove_authorization_button:
+          label: ลบ

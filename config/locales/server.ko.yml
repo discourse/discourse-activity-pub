@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 ko:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "카테고리를 찾을수 없습니다"

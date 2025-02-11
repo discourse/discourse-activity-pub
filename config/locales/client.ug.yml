@@ -5,3 +5,68 @@
 # https://translate.discourse.org/
 
 ug:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: ساقلاندى
+          enabled:
+            label: قوزغىتىلدى
+          disabled:
+            label: چەكلەندى
+          username: ئىشلەتكۈچى ئاتى
+          name: ئىسمى
+          default_visibility: كۆرۈنۈشچانلىقى
+          table:
+            auth_type: تىپى
+            actions: مەشغۇلات
+          category:
+            label: سەھىپە
+          tag:
+            label: بەلگە
+          model_type:
+            category: سەھىپە
+            tag: بەلگە
+        log:
+          label: خاتىرە
+          title: خاتىرە
+          created_at: قۇرغان ۋاقتى
+          level: دەرىجە
+          message: ئۇچۇر
+          json:
+            copy:
+              label: كۆچۈر
+              success: كۆچۈرۈلدى!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: ئاكتىپ
+      follow:
+        domain:
+          placeholder: تور دائىرە
+      actor_reject:
+        label: رەت قىل
+      follow_table:
+        user: ئىشلەتكۈچى
+        follow_pending: كۈتۈۋاتىدۇ
+        actions: مەشغۇلات
+      visibility:
+        label:
+          public: ئاممىۋى
+      post_object_type:
+        label:
+          note: ئەسكەرتىش
+    user:
+      discourse_activity_pub:
+        auth_type: تىپى
+        actions: مەشغۇلات
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: دەلىللە
+        remove_authorization_button:
+          label: چىقىرىۋەت

@@ -5,3 +5,70 @@
 # https://translate.discourse.org/
 
 fr:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Enregistré
+          enabled:
+            label: Activé
+          disabled:
+            label: Désactivé
+          site_setting:
+            title: Paramètres du site
+          username: Nom d'utilisateur
+          name: Nom
+          default_visibility: Visibilité
+          table:
+            auth_type: Type
+            actions: Actions
+          category:
+            label: Catégories
+          tag:
+            label: Étiquettes
+          model_type:
+            category: Catégorie
+            tag: Étiquette
+        log:
+          label: Journaux
+          title: Journaux
+          created_at: Date de création
+          level: Niveau
+          message: Message
+          json:
+            copy:
+              label: Copie
+              success: Copié !
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Actif
+      follow:
+        domain:
+          placeholder: domaine
+      actor_reject:
+        label: Rejeter
+      follow_table:
+        user: Utilisateur
+        follow_pending: en attente
+        actions: Actions
+      visibility:
+        label:
+          public: Public
+      post_object_type:
+        label:
+          note: Note
+    user:
+      discourse_activity_pub:
+        auth_type: Type
+        actions: Actions
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autoriser
+        remove_authorization_button:
+          label: Supprimer

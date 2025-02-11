@@ -5,3 +5,35 @@
 # https://translate.discourse.org/
 
 sk:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_actor:
+          attributes:
+            ap_type:
+              invalid: "nie je platné"
+        discourse_activity_pub_activity:
+          attributes:
+            ap_type:
+              invalid: "nie je platné"
+        discourse_activity_pub_object:
+          attributes:
+            ap_type:
+              invalid: "nie je platné"
+            object_type:
+              invalid: "nie je platné"
+        discourse_activity_pub_client:
+          attributes:
+            credentials:
+              invalid: "nie je platné"
+        discourse_activity_pub:
+          attributes:
+            model_type:
+              invalid: "nie je platné"
+  discourse_activity_pub:
+    process:
+      warning:
+        post_is_deleted: "Príspevok je vymazaný"
+    category:
+      error:
+        category_not_found: "Kategória sa nenašla"

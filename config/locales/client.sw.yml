@@ -5,3 +5,61 @@
 # https://translate.discourse.org/
 
 sw:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Imehifadhiwa
+          enabled:
+            label: Imeruhusiwa
+          disabled:
+            label: Imezuiwa
+          username: Jina la mtumiaji
+          name: Jina
+          default_visibility: Uonekanaji
+          table:
+            auth_type: Aina
+            actions: Vitendo
+          category:
+            label: Kategoria
+          tag:
+            label: Lebo
+          model_type:
+            category: Kategoria
+        log:
+          label: Batli
+          title: Batli
+          message: Ujumbe
+          json:
+            copy:
+              label: Nakili
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Mara kwa Mara
+      follow:
+        domain:
+          placeholder: kikoa
+      actor_reject:
+        label: Kataa
+      follow_table:
+        user: Mtumiaji
+        follow_pending: inasubiri
+        actions: Vitendo
+      visibility:
+        label:
+          public: Umma
+    user:
+      discourse_activity_pub:
+        auth_type: Aina
+        actions: Vitendo
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Idhini
+        remove_authorization_button:
+          label: Ondoa

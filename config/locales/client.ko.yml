@@ -5,3 +5,65 @@
 # https://translate.discourse.org/
 
 ko:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: 저장되었습니다
+          enabled:
+            label: 활성화
+          disabled:
+            label: 비활성
+          username: 아이디
+          name: 그룹명
+          default_visibility: 시계
+          table:
+            auth_type: 유형
+            actions: 작업
+          category:
+            label: 카테고리
+          tag:
+            label: 태그
+          model_type:
+            category: 카테고리
+            tag: 태그
+        log:
+          label: 로그
+          title: 로그
+          created_at: 작성 날짜
+          level: 레벨
+          message: 메시지 보내기
+          json:
+            copy:
+              label: 복사
+              success: 복사되었습니다!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: 활성화 사용자
+      follow:
+        domain:
+          placeholder: 도메인
+      actor_reject:
+        label: 거부
+      follow_table:
+        user: 사용자
+        follow_pending: 보류 중
+        actions: 작업
+      visibility:
+        label:
+          public: 공개
+    user:
+      discourse_activity_pub:
+        auth_type: 유형
+        actions: 작업
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: 인증하기
+        remove_authorization_button:
+          label: 제거

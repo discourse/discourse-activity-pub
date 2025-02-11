@@ -5,3 +5,70 @@
 # https://translate.discourse.org/
 
 zh_CN:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: 已保存
+          enabled:
+            label: 已启用
+          disabled:
+            label: 已禁用
+          site_setting:
+            title: 站点设置
+          username: 用户名
+          name: 名称
+          default_visibility: 公开范围
+          table:
+            auth_type: 类型
+            actions: 操作
+          category:
+            label: 类别
+          tag:
+            label: 标签
+          model_type:
+            category: 类别
+            tag: 标签
+        log:
+          label: 日志
+          title: 日志
+          created_at: 创建时间
+          level: 级别
+          message: 发送私信
+          json:
+            copy:
+              label: 复制
+              success: 已复制！
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: 有效
+      follow:
+        domain:
+          placeholder: 网域
+      actor_reject:
+        label: 拒绝
+      follow_table:
+        user: 用户
+        follow_pending: 待处理
+        actions: 操作
+      visibility:
+        label:
+          public: 公开
+      post_object_type:
+        label:
+          note: 备注
+    user:
+      discourse_activity_pub:
+        auth_type: 类型
+        actions: 操作
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: 授权
+        remove_authorization_button:
+          label: 移除

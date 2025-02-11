@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 nb_NO:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Kategorien finnes ikke"

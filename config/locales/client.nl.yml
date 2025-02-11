@@ -5,3 +5,70 @@
 # https://translate.discourse.org/
 
 nl:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Opgeslagen
+          enabled:
+            label: Ingeschakeld
+          disabled:
+            label: Uitgeschakeld
+          site_setting:
+            title: Site-instellingen
+          username: Gebruikersnaam
+          name: Naam
+          default_visibility: Zichtbaarheid
+          table:
+            auth_type: Type
+            actions: Acties
+          category:
+            label: Categorieën
+          tag:
+            label: Tags
+          model_type:
+            category: Categorie
+            tag: Taggen
+        log:
+          label: Logs
+          title: Logs
+          created_at: Gemaakt op
+          level: Niveau
+          message: Bericht
+          json:
+            copy:
+              label: Kopiëren
+              success: Gekopieerd!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Actief
+      follow:
+        domain:
+          placeholder: domein
+      actor_reject:
+        label: Weigeren
+      follow_table:
+        user: Gebruiker
+        follow_pending: wachtend
+        actions: Acties
+      visibility:
+        label:
+          public: Openbaar
+      post_object_type:
+        label:
+          note: Opmerking
+    user:
+      discourse_activity_pub:
+        auth_type: Type
+        actions: Acties
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autoriseren
+        remove_authorization_button:
+          label: Verwijderen

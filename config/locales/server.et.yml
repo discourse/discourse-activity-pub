@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 et:
+  discourse_activity_pub:
+    category:
+      error:
+        category_not_found: "Kategooriat ei leitud"
