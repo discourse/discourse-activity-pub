@@ -73,7 +73,7 @@ export default class ActivityPubPostInfo extends Component {
     };
     if (this.post.activity_pub_delivered_at) {
       opts.time = moment(this.post.activity_pub_delivered_at).format(
-        "h:mm a, MMM D"
+        i18n("dates.long_with_year")
       );
     }
     return i18n("post.discourse_activity_pub.object_status.delivered", opts);

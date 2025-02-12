@@ -73,7 +73,7 @@ export function activityPubPostStatusText(post, opts = {}) {
   }
 
   if (time) {
-    i18nOpts.time = time.format("h:mm a, MMM D");
+    i18nOpts.time = time.format(i18n("dates.long_with_year"));
   }
 
   return i18n(`post.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
@@ -121,7 +121,7 @@ export function activityPubTopicStatusText(topic, opts = {}) {
   }
 
   if (time) {
-    i18nOpts.time = time.format("h:mm a, MMM D");
+    i18nOpts.time = time.format(i18n("dates.long_with_year"));
   }
 
   return i18n(`topic.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);

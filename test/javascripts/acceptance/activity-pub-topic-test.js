@@ -10,6 +10,7 @@ import {
   publishToMessageBus,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
+import { i18n } from "discourse-i18n";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 const createdAt = moment().subtract(2, "days");
@@ -164,7 +165,7 @@ acceptance(
           ".topic-map__activity-pub .activity-pub-topic-status"
         ).innerText.trim(),
         `Topic is scheduled to be published via ActivityPub at ${scheduledAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right status text"
       );
@@ -222,7 +223,7 @@ acceptance(
           ".topic-map__activity-pub .activity-pub-topic-status"
         ).innerText.trim(),
         `Topic was published via ActivityPub at ${publishedAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right status text"
       );
@@ -251,7 +252,7 @@ acceptance(
           ".topic-map__activity-pub .activity-pub-topic-status"
         ).innerText.trim(),
         `Topic was deleted via ActivityPub at ${deletedAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right status text"
       );
@@ -272,14 +273,18 @@ acceptance(
         query(
           ".activity-pub-topic-info-modal .activity-pub-topic-status"
         ).innerText.trim(),
-        `Collection was published at ${publishedAt.format("h:mm a, MMM D")}.`,
+        `Collection was published at ${publishedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
         "shows the right topic status text"
       );
       assert.strictEqual(
         query(
           ".activity-pub-topic-info-modal .activity-pub-post-status"
         ).innerText.trim(),
-        `Note was published at ${publishedAt.format("h:mm a, MMM D")}.`,
+        `Note was published at ${publishedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
         "shows the right post status text"
       );
     });
@@ -332,7 +337,9 @@ acceptance(
         query(
           ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
-        `Note was published at ${publishedAt.format("h:mm a, MMM D")}.`,
+        `Note was published at ${publishedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
         "shows the right status text"
       );
       assert.strictEqual(
@@ -387,14 +394,14 @@ acceptance(
       assert.strictEqual(
         query(".activity-pub-topic-status").innerText.trim(),
         `Topic was published via ActivityPub by @cat_1@test.local at ${publishedAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right topic status text"
       );
       assert.ok(
         exists(
           `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was published via ActivityPub on external.com at ${publishedAt.format(
-            "h:mm a, MMM D"
+            i18n("dates.long_with_year")
           )}.']`
         ),
         "shows the right post status text"
@@ -417,7 +424,7 @@ acceptance(
           ".activity-pub-topic-info-modal .activity-pub-topic-status"
         ).innerText.trim(),
         `Collection was published by @cat_1@test.local at ${publishedAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right topic status text"
       );
@@ -426,7 +433,7 @@ acceptance(
           ".activity-pub-topic-info-modal .activity-pub-post-status"
         ).innerText.trim(),
         `Note was published on external.com at ${publishedAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right post status text"
       );
@@ -447,7 +454,7 @@ acceptance(
           ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
         `Note was published on external.com at ${publishedAt.format(
-          "h:mm a, MMM D"
+          i18n("dates.long_with_year")
         )}.`,
         "shows the right status text"
       );
