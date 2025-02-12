@@ -14,7 +14,7 @@ export default class TopicMapActivityPub extends Component {
     return this.args.outletArgs.topic;
   }
 
-  get showAcivityPubTopicMap() {
+  get showActivityPubTopicMap() {
     return (
       this.site.activity_pub_enabled &&
       this.topic.activity_pub_enabled &&
