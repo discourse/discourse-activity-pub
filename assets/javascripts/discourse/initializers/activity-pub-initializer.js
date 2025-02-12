@@ -3,6 +3,7 @@ import { Promise } from "rsvp";
 import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import RenderGlimmer from "discourse/widgets/render-glimmer";
+import ActivityPubTopicMap from "../components/activity-pub-topic-map";
 import ActivityPubPostAdmin from "../components/modal/activity-pub-post-admin";
 import ActivityPubTopicAdmin from "../components/modal/activity-pub-topic-admin";
 import {
@@ -211,6 +212,8 @@ export default {
           );
         },
       });
+
+      api.renderInOutlet("topic-map", ActivityPubTopicMap);
     });
   },
 };

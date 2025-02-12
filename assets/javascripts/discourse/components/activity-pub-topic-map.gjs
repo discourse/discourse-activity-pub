@@ -3,9 +3,10 @@ import { service } from "@ember/service";
 import {
   activityPubTopicStatus,
   showStatusToUser,
-} from "../../lib/activity-pub-utilities";
+} from "../lib/activity-pub-utilities";
+import ActivityPubTopicStatus from "./activity-pub-topic-status";
 
-export default class TopicMapActivityPub extends Component {
+export default class ActivityPubTopicMap extends Component {
   @service currentUser;
   @service siteSettings;
   @service site;
@@ -25,4 +26,13 @@ export default class TopicMapActivityPub extends Component {
   get topicStatus() {
     return activityPubTopicStatus(this.topic);
   }
+
+  <template>
+    {{yield}}
+    {{#if this.showActivityPubTopicMap}}
+      <section class="topic-map__activity-pub">
+        <ActivityPubTopicStatus @topic={{this.topic}} />
+      </section>
+    {{/if}}
+  </template>
 }
