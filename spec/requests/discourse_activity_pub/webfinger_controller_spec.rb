@@ -77,6 +77,20 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
             expect(response.parsed_body).to eq(build_error("resource_not_found"))
           end
         end
+
+        context "when requesting an application actor" do
+          let!(:app_actor) { DiscourseActivityPubActor.application }
+
+          it "returns the resource" do
+            get "/.well-known/webfinger?resource=acct:#{app_actor.username}@#{DiscourseActivityPub.host}"
+            expect(response.status).to eq(200)
+
+            body = JSON.parse(response.body)
+            expect(body["subject"]).to eq("acct:#{app_actor.username}@#{DiscourseActivityPub.host}")
+            expect(body["aliases"]).to eq(app_actor.webfinger_aliases)
+            expect(body["links"]).to eq(app_actor.webfinger_links.map(&:as_json))
+          end
+        end
       end
     end
   end
