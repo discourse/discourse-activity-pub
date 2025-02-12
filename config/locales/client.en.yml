@@ -193,7 +193,7 @@ en:
           label: "Post Status"
           published: "Post was published via ActivityPub at %{time}."
           scheduled: "Post is scheduled to be published via ActivityPub at %{time}."
-          scheduled_past: "Post was scheduled to be published via ActivityPub  at %{time}."
+          scheduled_past: "Post was scheduled to be published via ActivityPub at %{time}."
           deleted: "Post was deleted via ActivityPub at %{time}."
           updated: "Post was updated via ActivityPub at %{time}."
           published_remote: "Post was published via ActivityPub on %{domain} at %{time}."
