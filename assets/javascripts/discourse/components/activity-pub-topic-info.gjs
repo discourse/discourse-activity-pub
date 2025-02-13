@@ -10,17 +10,13 @@ export default class ActivityPubTopicInfo extends Component {
     return this.args.topic;
   }
 
-  get showObjectType() {
-    return this.args.showObjectType || false;
-  }
-
   get status() {
     return activityPubTopicStatus(this.topic);
   }
 
   get statusText() {
     return activityPubTopicStatusText(this.topic, {
-      showObjectType: this.showObjectType,
+      infoStatus: true,
     });
   }
 
@@ -28,7 +24,9 @@ export default class ActivityPubTopicInfo extends Component {
     if (this.status === "not_published") {
       return "far-circle-dot";
     } else {
-      return this.topic.activity_pub_local ? "arrow-up" : "arrow-down";
+      return this.topic.activity_pub_local
+        ? "file-arrow-up"
+        : "up-right-from-square";
     }
   }
 

@@ -43,6 +43,15 @@ const setupServer = (needs, postAttrs = [], topicAttrs = {}) => {
     Object.keys(topicAttrs).forEach((topicAttr) => {
       topicResponse[topicAttr] = topicAttrs[topicAttr];
     });
+    topicResponse.activity_pub_post_actors = postAttrs.map((attrs, i) => {
+      let post = topicResponse.post_stream.posts[i];
+      return {
+        post_id: post.id,
+        actor: {
+          handle: `actor${i}@domain.com`,
+        },
+      };
+    });
     server.get("/t/280.json", () => helper.response(topicResponse));
   });
 };
@@ -164,8 +173,8 @@ acceptance(
         query(
           ".topic-map__activity-pub .activity-pub-topic-status"
         ).innerText.trim(),
-        `Topic is scheduled to be published via ActivityPub at ${scheduledAt.format(
-          i18n("dates.long_with_year")
+        `Topic is scheduled to be published via ActivityPub on ${scheduledAt.format(
+          i18n("dates.time_short_day")
         )}.`,
         "shows the right status text"
       );
@@ -222,8 +231,8 @@ acceptance(
         query(
           ".topic-map__activity-pub .activity-pub-topic-status"
         ).innerText.trim(),
-        `Topic was published via ActivityPub at ${publishedAt.format(
-          i18n("dates.long_with_year")
+        `Topic was published via ActivityPub on ${publishedAt.format(
+          i18n("dates.time_short_day")
         )}.`,
         "shows the right status text"
       );
@@ -251,8 +260,8 @@ acceptance(
         query(
           ".topic-map__activity-pub .activity-pub-topic-status"
         ).innerText.trim(),
-        `Topic was deleted via ActivityPub at ${deletedAt.format(
-          i18n("dates.long_with_year")
+        `Topic was deleted via ActivityPub on ${deletedAt.format(
+          i18n("dates.time_short_day")
         )}.`,
         "shows the right status text"
       );
@@ -273,7 +282,7 @@ acceptance(
         query(
           ".activity-pub-topic-info-modal .activity-pub-topic-status"
         ).innerText.trim(),
-        `Collection was published at ${publishedAt.format(
+        `Topic was published on ${publishedAt.format(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right topic status text"
@@ -282,7 +291,7 @@ acceptance(
         query(
           ".activity-pub-topic-info-modal .activity-pub-post-status"
         ).innerText.trim(),
-        `Note was published at ${publishedAt.format(
+        `Post was published on ${publishedAt.format(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right post status text"
@@ -337,16 +346,16 @@ acceptance(
         query(
           ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
-        `Note was published at ${publishedAt.format(
+        `Post was published on ${publishedAt.format(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right status text"
       );
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-visibility"
+          ".activity-pub-post-info-modal .activity-pub-attribute.visibility"
         ).innerText.trim(),
-        "Note is publicly addressed.",
+        "Public",
         "shows the right visibility text"
       );
     });
@@ -393,15 +402,15 @@ acceptance(
 
       assert.strictEqual(
         query(".activity-pub-topic-status").innerText.trim(),
-        `Topic was published via ActivityPub by @cat_1@test.local at ${publishedAt.format(
-          i18n("dates.long_with_year")
+        `Topic was published via ActivityPub by @cat_1@test.local on ${publishedAt.format(
+          i18n("dates.time_short_day")
         )}.`,
         "shows the right topic status text"
       );
       assert.ok(
         exists(
-          `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was published via ActivityPub on external.com at ${publishedAt.format(
-            i18n("dates.long_with_year")
+          `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was published via ActivityPub by actor1@domain.com on ${publishedAt.format(
+            i18n("dates.time_short_day")
           )}.']`
         ),
         "shows the right post status text"
@@ -423,7 +432,7 @@ acceptance(
         query(
           ".activity-pub-topic-info-modal .activity-pub-topic-status"
         ).innerText.trim(),
-        `Collection was published by @cat_1@test.local at ${publishedAt.format(
+        `Topic was published on ${publishedAt.format(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right topic status text"
@@ -432,7 +441,7 @@ acceptance(
         query(
           ".activity-pub-topic-info-modal .activity-pub-post-status"
         ).innerText.trim(),
-        `Note was published on external.com at ${publishedAt.format(
+        `Post was published on ${publishedAt.format(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right post status text"
@@ -453,29 +462,17 @@ acceptance(
         query(
           ".activity-pub-post-info-modal .activity-pub-post-status"
         ).innerText.trim(),
-        `Note was published on external.com at ${publishedAt.format(
+        `Post was published on ${publishedAt.format(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right status text"
       );
       assert.strictEqual(
         query(
-          ".activity-pub-post-info-modal .activity-pub-visibility"
+          ".activity-pub-post-info-modal .activity-pub-attribute.visibility"
         ).innerText.trim(),
-        "Note is publicly addressed.",
+        "Public",
         "shows the right visibility text"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-post-info-modal .activity-pub-url a"
-        ).innerText.trim(),
-        "Original Note on external.com.",
-        "shows the right url text"
-      );
-      assert.strictEqual(
-        query(".activity-pub-post-info-modal .activity-pub-url a").href,
-        "https://external.com/note/3",
-        "shows the right url href"
       );
     });
   }

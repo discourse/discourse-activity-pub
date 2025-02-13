@@ -4,8 +4,8 @@ import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import RenderGlimmer from "discourse/widgets/render-glimmer";
 import ActivityPubTopicMap from "../components/activity-pub-topic-map";
-import ActivityPubPostAdmin from "../components/modal/activity-pub-post-admin";
-import ActivityPubTopicAdmin from "../components/modal/activity-pub-topic-admin";
+import ActivityPubPostAdminModal from "../components/modal/activity-pub-post-admin";
+import ActivityPubTopicAdminModal from "../components/modal/activity-pub-topic-admin";
 import {
   activityPubPostStatus,
   showStatusToUser,
@@ -90,7 +90,7 @@ export default {
             label: "post.discourse_activity_pub.admin.menu_label",
             position: "second-last-hidden",
             action: async (post) => {
-              modal.show(ActivityPubPostAdmin, {
+              modal.show(ActivityPubPostAdminModal, {
                 model: {
                   post,
                 },
@@ -111,7 +111,7 @@ export default {
             title: "topic.discourse_activity_pub.admin.title",
             label: "topic.discourse_activity_pub.admin.menu_label",
             action: async () => {
-              modal.show(ActivityPubTopicAdmin, {
+              modal.show(ActivityPubTopicAdminModal, {
                 model: {
                   topic,
                   firstPost,
@@ -135,6 +135,15 @@ export default {
             }
           });
           return resolved;
+        },
+      });
+
+      api.modifyClass("model:topic", {
+        pluginId: "discourse-activity-pub",
+
+        getActivityPubPostActor(postId) {
+          const postActors = this.activity_pub_post_actors || [];
+          return postActors.findBy("post_id", postId);
         },
       });
 

@@ -4,10 +4,10 @@ import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
-import ActivityPubObjectCopyBtn from "../activity-pub-object-copy-btn";
+import ActivityPubAttributes from "../activity-pub-attributes";
 import ActivityPubPostInfo from "../activity-pub-post-info";
 import ActivityPubTopicInfo from "../activity-pub-topic-info";
-import ActivityPubTopicAdmin from "./activity-pub-topic-admin";
+import ActivityPubTopicAdminModal from "./activity-pub-topic-admin";
 
 export default class ActivityPubTopicInfoModal extends Component {
   @service modal;
@@ -33,7 +33,7 @@ export default class ActivityPubTopicInfoModal extends Component {
 
   @action
   showAdmin() {
-    this.modal.show(ActivityPubTopicAdmin, {
+    this.modal.show(ActivityPubTopicAdminModal, {
       model: {
         firstPost: this.firstPost,
         topic: this.topic,
@@ -45,19 +45,28 @@ export default class ActivityPubTopicInfoModal extends Component {
     <DModal
       @closeModal={{@closeModal}}
       @title={{this.title}}
-      class="activity-pub-info-modal activity-pub-topic-info-modal"
+      class="activity-pub-topic-modal activity-pub-topic-info-modal"
     >
       <:body>
-        <ActivityPubTopicInfo @topic={{this.topic}} @showObjectType={{true}} />
-        <ActivityPubPostInfo
-          @post={{this.firstPost}}
-          @showObjectType={{true}}
-        />
+        <div class="control-group">
+          <label>{{i18n "topic.discourse_activity_pub.info.status"}}</label>
+          <div class="controls">
+            <ActivityPubTopicInfo @topic={{this.topic}} />
+            <ActivityPubPostInfo @post={{this.firstPost}} />
+          </div>
+        </div>
+        <div class="control-group">
+          <label>{{i18n "topic.discourse_activity_pub.info.attributes"}}</label>
+          <div class="controls">
+            <ActivityPubAttributes
+              @topic={{this.topic}}
+              @post={{this.firstPost}}
+            />
+          </div>
+        </div>
       </:body>
 
       <:footer>
-        <ActivityPubObjectCopyBtn @object={{this.topic}} />
-        <ActivityPubObjectCopyBtn @object={{this.firstPost}} />
         {{#if this.canAdmin}}
           <DButton
             @icon="gear"

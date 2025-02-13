@@ -163,10 +163,6 @@ section.activity-pub-actor-setting {
   gap: 0.5em;
   cursor: pointer;
 
-  .d-icon {
-    color: var(--primary-medium);
-  }
-
   &.published .d-icon-discourse-activity-pub,
   &.updated .d-icon-discourse-activity-pub {
     color: var(--success);
@@ -189,7 +185,7 @@ section.activity-pub-actor-setting {
   a {
     display: flex;
     align-items: center;
-    gap: 1em;
+    gap: 0.5em;
     min-height: 35px;
   }
 
@@ -198,14 +194,23 @@ section.activity-pub-actor-setting {
   }
 }
 
-.activity-pub-object-id-copy {
-  position: relative;
+.activity-pub-attributes {
+  display: flex;
+  gap: 0.5em;
+  flex-flow: wrap;
+}
 
-  .activity-pub-object-id-copy-text {
-    position: absolute;
-    top: -25px;
-    width: 90px;
-    color: var(--success);
+.activity-pub-attribute {
+  font-size: var(--font-down-1);
+  background-color: var(--primary-100);
+  padding: 0.15em 0.5em;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 0.5em;
+
+  &.copiable {
+    cursor: pointer;
   }
 }
 
@@ -608,10 +613,13 @@ body.user-preferences-activity-pub-page {
   display: flex;
   align-items: center;
   color: var(--primary-700);
+
+  > .activity-pub-topic-status {
+    font-size: var(--font-down-1);
+  }
 }
 
-.activity-pub-topic-admin-modal,
-.activity-pub-post-admin-modal {
+.activity-pub-topic-modal {
   .control-group:not(:last-child) {
     margin-bottom: 1.3em;
   }

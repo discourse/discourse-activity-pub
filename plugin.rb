@@ -10,6 +10,7 @@ register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
 register_svg_icon "user-check"
+register_svg_icon "file-arrow-up"
 
 add_admin_route "admin.discourse_activity_pub.label", "activityPub"
 
@@ -132,8 +133,8 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/basic_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/site_actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/detailed_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/authorization_serializer"
-  require_relative "app/serializers/discourse_activity_pub/admin/actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/admin/log_serializer"
   require_relative "config/routes"
   require_relative "extensions/discourse_activity_pub_guardian_extension"
@@ -612,10 +613,15 @@ after_initialize do
     object.topic.activity_pub_object&.ap_type
   end
   add_to_serializer(:topic_view, :activity_pub_actor) do
-    DiscourseActivityPub::BasicActorSerializer.new(
-      object.topic.activity_pub_actor,
-      root: false,
-    ).as_json
+    DiscourseActivityPub::ActorSerializer.new(object.topic.activity_pub_actor, root: false).as_json
+  end
+  add_to_serializer(:topic_view, :activity_pub_post_actors) do
+    object.topic.activity_pub_post_actors.map do |post_actor|
+      {
+        post_id: post_actor.post_id,
+        actor: DiscourseActivityPub::BasicActorSerializer.new(post_actor, root: false).as_json,
+      }
+    end
   end
 
   TopicView.on_preload do |topic_view|

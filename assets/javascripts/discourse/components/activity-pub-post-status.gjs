@@ -13,12 +13,18 @@ import ActivityPubPostInfoModal from "./modal/activity-pub-post-info";
 export default class ActivityPubPostStatus extends Component {
   @service modal;
 
+  get post() {
+    return this.args.post;
+  }
+
   get statusText() {
-    return activityPubPostStatusText(this.args.post);
+    return activityPubPostStatusText(this.post, {
+      postActor: this.post.topic.getActivityPubPostActor(this.post.id),
+    });
   }
 
   get status() {
-    return activityPubPostStatus(this.args.post);
+    return activityPubPostStatus(this.post);
   }
 
   get icon() {
@@ -28,7 +34,7 @@ export default class ActivityPubPostStatus extends Component {
   }
 
   get classes() {
-    let placeClass = this.args.post.activity_pub_local ? "local" : "remote";
+    let placeClass = this.post.activity_pub_local ? "local" : "remote";
     return `activity-pub-post-status ${dasherize(this.status)} ${placeClass}`;
   }
 
@@ -36,7 +42,7 @@ export default class ActivityPubPostStatus extends Component {
   showInfoModal() {
     this.modal.show(ActivityPubPostInfoModal, {
       model: {
-        post: this.args.post,
+        post: this.post,
       },
     });
   }

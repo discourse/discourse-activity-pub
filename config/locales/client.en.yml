@@ -164,10 +164,12 @@ en:
         description:
           private: "%{object_type} is addressed to followers."
           public: "%{object_type} is publicly addressed."
-      post_object_type:
+      object_type:
         label:
           note: Note
           article: Article
+          collection: Collection
+          ordered_collection: Ordered Collection
         description:
           note: Best for microblogging platforms (e.g. Mastodon).
           article: Best for longform platforms (e.g. Lemmy).
@@ -179,36 +181,34 @@ en:
           first_post: First post of every topic in this %{model_type} is published via ActivityPub.
           full_topic: Every post of every topic in this %{model_type} is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
       copy_uri:
-        label: "%{object_type} URI"
         copied: URI Copied!
 
     post:
       discourse_activity_pub:
         info:
-          title: "ActivityPub for Post #%{post_number}"
-          url: Original %{object_type} on %{domain}.
+          title: "ActivityPub Info for Post #%{post_number}"
           label: "Post Info"
           group_actors: "Group Actors"
+          attributes: Post Attributes
+          status: Post Status
         status:
-          label: "Post Status"
-          published: "Post was published via ActivityPub at %{time}."
-          scheduled: "Post is scheduled to be published via ActivityPub at %{time}."
-          scheduled_past: "Post was scheduled to be published via ActivityPub at %{time}."
-          deleted: "Post was deleted via ActivityPub at %{time}."
-          updated: "Post was updated via ActivityPub at %{time}."
-          published_remote: "Post was published via ActivityPub on %{domain} at %{time}."
+          published: "Post was published via ActivityPub on %{datetime}."
+          scheduled: "Post is scheduled to be published via ActivityPub on %{datetime}."
+          scheduled_past: "Post was scheduled to be published via ActivityPub on %{datetime}."
+          deleted: "Post was deleted via ActivityPub on %{datetime}."
+          updated: "Post was updated via ActivityPub on %{datetime}."
+          published_remote: "Post was published via ActivityPub by %{actor} on %{datetime}."
           not_published: "Post is not published via ActivityPub."
-          delivered: "Post was delivered via ActivityPub at %{time}."
-        object_status:
-          label: "%{object_type} Status"
-          published: "%{object_type} was published at %{time}."
-          scheduled: "%{object_type} is scheduled to be published at %{time}."
-          scheduled_past: "%{object_type} was scheduled to be published on at %{time}."
-          deleted: "%{object_type} was deleted at %{time}."
-          updated: "%{object_type} was updated at %{time}."
-          published_remote: "%{object_type} was published on %{domain} at %{time}."
-          not_published: "%{object_type} is not published."
-          delivered: "%{object_type} was delivered at %{time}."
+          delivered: "Post was delivered via ActivityPub on %{datetime}."
+        info_status:
+          published: "Post was published on %{datetime}."
+          scheduled: "Post is scheduled to be published on %{datetime}."
+          scheduled_past: "Post was scheduled to be published on %{datetime}."
+          deleted: "Post was deleted on %{datetime}."
+          updated: "Post was updated on %{datetime}."
+          published_remote: "Post was published on %{datetime}."
+          not_published: "Post is not published."
+          delivered: "Post was delivered on %{datetime}."
         admin:
           title: "ActivityPub Admin for Post #%{post_number}"
           label: Post Admin
@@ -241,23 +241,25 @@ en:
     topic:
       discourse_activity_pub:
         info:
-          title: "ActivityPub for Topic #%{topic_id}"
+          title: "ActivityPub Info for Topic #%{topic_id}"
           label: Topic Info
           group_actors: "Group Actors"
+          attributes: Topic Attributes
+          status: Topic Status
         status:
-          scheduled: Topic is scheduled to be published via ActivityPub at %{time}.
-          scheduled_past: Topic was scheduled to be published via ActivityPub at %{time}.
-          published: Topic was published via ActivityPub at %{time}.
-          published_remote: Topic was published via ActivityPub by %{actor} at %{time}.
-          deleted: Topic was deleted via ActivityPub at %{time}.
+          scheduled: Topic is scheduled to be published via ActivityPub on %{datetime}.
+          scheduled_past: Topic was scheduled to be published via ActivityPub on %{datetime}.
+          published: Topic was published via ActivityPub on %{datetime}.
+          published_remote: Topic was published via ActivityPub by %{actor} on %{datetime}.
+          deleted: Topic was deleted via ActivityPub on %{datetime}.
           not_published: Topic is not published via ActivityPub.
-        object_status:
-          scheduled: "%{object_type} is scheduled to be published at %{time}."
-          scheduled_past: "%{object_type} was scheduled to be published at %{time}."
-          published: "%{object_type} was published at %{time}."
-          published_remote: "%{object_type} was published by %{actor} at %{time}."
-          deleted: "%{object_type} was deleted at %{time}."
-          not_published: "%{object_type} is not published."
+        info_status:
+          scheduled: "Topic is scheduled to be published on %{datetime}."
+          scheduled_past: "Topic was scheduled to be published on %{datetime}."
+          published: "Topic was published on %{datetime}."
+          published_remote: "Topic was published on %{datetime}."
+          deleted: "Topic was deleted on %{datetime}."
+          not_published: "Topic is not published."
         posts_status:
           label: Posts Status
           published: All posts in this topic are published.

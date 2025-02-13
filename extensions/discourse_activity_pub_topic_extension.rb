@@ -74,4 +74,18 @@ module DiscourseActivityPubTopicExtension
     return nil unless activity_pub_enabled && with_deleted_first_post
     with_deleted_first_post.activity_pub_delivered_at
   end
+
+  def activity_pub_post_actors
+    @activity_pub_post_actors ||=
+      begin
+        sql = <<~SQL
+        SELECT objects.model_id AS post_id, actors.id, actors.username, actors.domain, actors.ap_id
+        FROM discourse_activity_pub_objects AS objects
+        JOIN discourse_activity_pub_actors AS actors ON actors.ap_id = objects.attributed_to_id
+        WHERE objects.collection_id = :collection_id
+        ORDER BY objects.model_id
+      SQL
+        DB.query(sql, collection_id: self.activity_pub_object.id)
+      end
+  end
 end

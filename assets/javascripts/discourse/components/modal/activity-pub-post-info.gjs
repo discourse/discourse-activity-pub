@@ -4,9 +4,9 @@ import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
-import ActivityPubObjectCopyBtn from "../activity-pub-object-copy-btn";
+import ActivityPubAttributes from "../activity-pub-attributes";
 import ActivityPubPostInfo from "../activity-pub-post-info";
-import ActivityPubPostAdmin from "./activity-pub-post-admin";
+import ActivityPubPostAdminModal from "./activity-pub-post-admin";
 
 export default class ActivityPubPostInfoModal extends Component {
   @service modal;
@@ -28,7 +28,7 @@ export default class ActivityPubPostInfoModal extends Component {
 
   @action
   showAdmin() {
-    this.modal.show(ActivityPubPostAdmin, {
+    this.modal.show(ActivityPubPostAdminModal, {
       model: {
         post: this.post,
       },
@@ -39,13 +39,23 @@ export default class ActivityPubPostInfoModal extends Component {
     <DModal
       @closeModal={{@closeModal}}
       @title={{this.title}}
-      class="activity-pub-info-modal activity-pub-post-info-modal"
+      class="activity-pub-topic-modal activity-pub-post-info-modal"
     >
       <:body>
-        <ActivityPubPostInfo @post={{this.post}} @showObjectType={{true}} />
+        <div class="control-group">
+          <label>{{i18n "post.discourse_activity_pub.info.status"}}</label>
+          <div class="controls">
+            <ActivityPubPostInfo @post={{this.post}} />
+          </div>
+        </div>
+        <div class="control-group">
+          <label>{{i18n "post.discourse_activity_pub.info.attributes"}}</label>
+          <div class="controls">
+            <ActivityPubAttributes @post={{this.post}} />
+          </div>
+        </div>
       </:body>
       <:footer>
-        <ActivityPubObjectCopyBtn @object={{this.post}} />
         {{#if this.canAdmin}}
           <DButton
             @icon="gear"

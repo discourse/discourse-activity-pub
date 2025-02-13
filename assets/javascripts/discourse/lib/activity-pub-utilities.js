@@ -2,6 +2,12 @@ import { AUTO_GROUPS } from "discourse/lib/constants";
 import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
+function getStatusDatetimeFormat(infoStatus = false) {
+  return infoStatus
+    ? i18n("dates.long_with_year")
+    : i18n("dates.time_short_day");
+}
+
 export function buildHandle({ actor, model, site }) {
   if ((!actor && !model) || (model && !site)) {
     return undefined;
@@ -46,34 +52,32 @@ export function activityPubPostStatus(post) {
 }
 
 export function activityPubPostStatusText(post, opts = {}) {
-  const status = activityPubPostStatus(post);
+  const status = opts.status || activityPubPostStatus(post);
 
-  let i18nKey;
-  let i18nOpts = {};
+  let i18nKey = opts.infoStatus ? "info_status" : "status";
+  let i18nOpts = {
+    actor: opts.postActor?.actor.handle,
+  };
 
-  if (opts.showObjectType && post.activity_pub_object_type) {
-    i18nKey = "object_status";
-    i18nOpts.object_type = post.activity_pub_object_type;
-  } else {
-    i18nKey = "status";
-  }
-
-  let time;
-  if (status === "deleted") {
-    time = moment(post.activity_pub_deleted_at);
+  let datetime;
+  if (status === "delivered") {
+    datetime = post.activity_pub_delivered_at;
+  } else if (status === "deleted") {
+    datetime = post.activity_pub_deleted_at;
   } else if (status === "updated") {
-    time = moment(post.activity_pub_updated_at);
+    datetime = post.activity_pub_updated_at;
   } else if (status === "published") {
-    time = moment(post.activity_pub_published_at);
+    datetime = post.activity_pub_published_at;
   } else if (status === "published_remote") {
-    time = moment(post.activity_pub_published_at);
-    i18nOpts.domain = post.activity_pub_domain;
+    datetime = post.activity_pub_published_at;
   } else if (status.includes("scheduled")) {
-    time = moment(post.activity_pub_scheduled_at);
+    datetime = post.activity_pub_scheduled_at;
   }
 
-  if (time) {
-    i18nOpts.time = time.format(i18n("dates.long_with_year"));
+  if (datetime) {
+    i18nOpts.datetime = moment(datetime).format(
+      getStatusDatetimeFormat(opts.infoStatus)
+    );
   }
 
   return i18n(`post.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
@@ -100,28 +104,26 @@ export function activityPubTopicStatus(topic) {
 export function activityPubTopicStatusText(topic, opts = {}) {
   const status = activityPubTopicStatus(topic);
 
-  let i18nKey = "status";
-  let i18nOpts = {};
+  let i18nKey = opts.infoStatus ? "info_status" : "status";
+  let i18nOpts = {
+    actor: topic.activity_pub_actor.handle,
+  };
 
-  if (opts.showObjectType) {
-    i18nKey = "object_status";
-    i18nOpts.object_type = topic.activity_pub_object_type || "Collection";
-  }
-
-  let time;
+  let datetime;
   if (status === "deleted") {
-    time = moment(topic.activity_pub_deleted_at);
+    datetime = topic.activity_pub_deleted_at;
   } else if (status === "published") {
-    time = moment(topic.activity_pub_published_at);
+    datetime = topic.activity_pub_published_at;
   } else if (status === "published_remote") {
-    time = moment(topic.activity_pub_published_at);
-    i18nOpts.actor = topic.activity_pub_actor.handle;
+    datetime = topic.activity_pub_published_at;
   } else if (status.includes("scheduled")) {
-    time = moment(topic.activity_pub_scheduled_at);
+    datetime = topic.activity_pub_scheduled_at;
   }
 
-  if (time) {
-    i18nOpts.time = time.format(i18n("dates.long_with_year"));
+  if (datetime) {
+    i18nOpts.datetime = moment(datetime).format(
+      getStatusDatetimeFormat(opts.infoStatus)
+    );
   }
 
   return i18n(`topic.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);

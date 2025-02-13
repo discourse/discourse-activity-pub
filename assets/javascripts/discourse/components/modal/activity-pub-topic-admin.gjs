@@ -9,7 +9,7 @@ import ActivityPubPostActions from "../activity-pub-post-actions";
 import ActivityPubTopicActions from "../activity-pub-topic-actions";
 import ActivityPubTopicInfo from "./activity-pub-topic-info";
 
-export default class ActivityPubTopicAdmin extends Component {
+export default class ActivityPubTopicAdminModal extends Component {
   @service modal;
 
   get title() {
@@ -40,7 +40,7 @@ export default class ActivityPubTopicAdmin extends Component {
     <DModal
       @closeModal={{@closeModal}}
       @title={{this.title}}
-      class="activity-pub-topic-admin-modal"
+      class="activity-pub-topic-modal activity-pub-topic-admin-modal"
     >
       <:body>
         <div class="control-group">

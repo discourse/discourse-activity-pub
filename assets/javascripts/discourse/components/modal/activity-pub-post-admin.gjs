@@ -6,9 +6,9 @@ import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
 import ActivityPubAdminInfo from "../activity-pub-admin-info";
 import ActivityPubPostActions from "../activity-pub-post-actions";
-import ActivityPubPostInfo from "./activity-pub-post-info";
+import ActivityPubPostInfoModal from "./activity-pub-post-info";
 
-export default class ActivityPubPostAdmin extends Component {
+export default class ActivityPubPostAdminModal extends Component {
   @service modal;
 
   get title() {
@@ -27,7 +27,7 @@ export default class ActivityPubPostAdmin extends Component {
 
   @action
   showInfo() {
-    this.modal.show(ActivityPubPostInfo, {
+    this.modal.show(ActivityPubPostInfoModal, {
       model: {
         post: this.post,
       },
@@ -38,7 +38,7 @@ export default class ActivityPubPostAdmin extends Component {
     <DModal
       @closeModal={{@closeModal}}
       @title={{this.title}}
-      class="activity-pub-post-admin-modal"
+      class="activity-pub-topic-modal activity-pub-post-admin-modal"
     >
       <:body>
         <div class="control-group">
