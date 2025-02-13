@@ -45,10 +45,10 @@ function setComposer(context, opts = {}) {
 }
 
 module(
-  "Discourse Activity Pub | Component | activity-pub-status with category",
+  "Discourse Activity Pub | Component | activity-pub-actor-status with category",
   function (hooks) {
     setupRenderingTest(hooks);
-    const template = hbs`<ActivityPubStatus @model={{this.category}} @modelType="category" />`;
+    const template = hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`;
 
     test("with publishing disabled", async function (assert) {
       setSite(this, {
@@ -60,7 +60,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.publishing-disabled");
+      const status = query(".activity-pub-actor-status.publishing-disabled");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -84,7 +84,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -116,7 +116,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -151,7 +151,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -177,7 +177,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.active");
+      const status = query(".activity-pub-actor-status.active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -211,7 +211,7 @@ module(
         },
       });
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -228,7 +228,7 @@ module(
     });
 
     test("when in the composer", async function (assert) {
-      const composerTemplate = hbs`<ActivityPubStatus @model={{this.composer}} @modelType="composer" />`;
+      const composerTemplate = hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`;
 
       setSite(this, {
         activity_pub_enabled: true,
@@ -242,7 +242,7 @@ module(
 
       await render(composerTemplate);
 
-      const label = query(".activity-pub-status .label");
+      const label = query(".activity-pub-actor-status .label");
       assert.strictEqual(
         label.innerText.trim(),
         i18n("discourse_activity_pub.visibility.label.public"),
@@ -253,10 +253,10 @@ module(
 );
 
 module(
-  "Discourse Activity Pub | Component | activity-pub-status with tag",
+  "Discourse Activity Pub | Component | activity-pub-actor-status with tag",
   function (hooks) {
     setupRenderingTest(hooks);
-    const template = hbs`<ActivityPubStatus @model={{this.tag}} @modelType="tag" />`;
+    const template = hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`;
 
     test("with publishing disabled", async function (assert) {
       setSite(this, {
@@ -268,7 +268,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.publishing-disabled");
+      const status = query(".activity-pub-actor-status.publishing-disabled");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -292,7 +292,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -324,7 +324,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -359,7 +359,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -385,7 +385,7 @@ module(
 
       await render(template);
 
-      const status = query(".activity-pub-status.active");
+      const status = query(".activity-pub-actor-status.active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -419,7 +419,7 @@ module(
         },
       });
 
-      const status = query(".activity-pub-status.not-active");
+      const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
       assert.strictEqual(
         status.title,
@@ -436,7 +436,7 @@ module(
     });
 
     test("when in the composer", async function (assert) {
-      const composerTemplate = hbs`<ActivityPubStatus @model={{this.composer}} @modelType="composer" />`;
+      const composerTemplate = hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`;
 
       setSite(this, {
         activity_pub_enabled: true,
@@ -450,7 +450,7 @@ module(
 
       await render(composerTemplate);
 
-      const label = query(".activity-pub-status .label");
+      const label = query(".activity-pub-actor-status .label");
       assert.strictEqual(
         label.innerText.trim(),
         i18n("discourse_activity_pub.visibility.label.public"),

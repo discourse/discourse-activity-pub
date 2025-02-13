@@ -4,6 +4,12 @@ DiscourseActivityPub::Engine.routes.draw do
   scope "/post", defaults: { format: :json } do
     post "schedule/:post_id" => "post#schedule"
     delete "schedule/:post_id" => "post#unschedule"
+    post "deliver/:post_id" => "post#deliver"
+    post "publish/:post_id" => "post#publish"
+  end
+
+  scope "/topic", defaults: { format: :json } do
+    post "publish/:topic_id" => "topic#publish"
   end
 
   get "/auth" => "authorization#index", :defaults => { format: :json }

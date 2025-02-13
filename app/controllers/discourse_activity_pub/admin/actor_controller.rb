@@ -50,9 +50,8 @@ module DiscourseActivityPub
 
         render_serialized(
           actors,
-          DiscourseActivityPub::ActorSerializer,
+          DiscourseActivityPub::DetailedActorSerializer,
           root: "actors",
-          include_model: true,
           meta: {
             total: total,
             load_more_url: load_more_url.to_s,
@@ -61,12 +60,7 @@ module DiscourseActivityPub
       end
 
       def show
-        render_serialized(
-          @actor,
-          DiscourseActivityPub::ActorSerializer,
-          root: false,
-          include_model: true,
-        )
+        render_serialized(@actor, DiscourseActivityPub::DetailedActorSerializer, root: false)
       end
 
       def create
@@ -105,10 +99,9 @@ module DiscourseActivityPub
           render json:
                    success_json.merge(
                      actor:
-                       DiscourseActivityPub::ActorSerializer.new(
+                       DiscourseActivityPub::DetailedActorSerializer.new(
                          actor,
                          root: false,
-                         include_model: true,
                        ).as_json,
                    )
         else

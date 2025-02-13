@@ -2,6 +2,7 @@
 class DiscourseActivityPubActivity < ActiveRecord::Base
   include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ObjectValidations
+  include DiscourseActivityPub::AP::ObjectHelpers
 
   belongs_to :actor, class_name: "DiscourseActivityPubActor"
   belongs_to :object, polymorphic: true
@@ -93,9 +94,14 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     )
   end
 
+  def publish!
+    _published_at = get_published_at
+    self.update(published_at: _published_at) if !self.published_at
+    after_published(_published_at, self)
+  end
+
   def before_deliver
-    # We have to set "published" on the JSON we deliver
-    after_published(Time.now.utc.iso8601, self)
+    publish!
   end
 
   def after_deliver(delivered = true)
@@ -116,6 +122,8 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
         followed_id: actor_id,
       ).destroy_all
     end
+
+    object.after_deliver(delivered) if object.respond_to?(:after_deliver)
   end
 
   def undo_follow?
@@ -131,7 +139,6 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def after_published(published_at, _activity = nil)
-    self.update(published_at: published_at) if !self.published_at
     object.after_published(published_at, self) if object.respond_to?(:after_published)
   end
 
