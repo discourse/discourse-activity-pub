@@ -114,7 +114,14 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_scheduled)
-          .with({ scheduled_at: Time.now.utc.iso8601 })
+          .with(
+            {
+              scheduled_at: Time.now.utc.iso8601,
+              published_at: nil,
+              deleted_at: nil,
+              updated_at: nil,
+            },
+          )
           .once
         activity.after_scheduled(Time.now.utc.iso8601)
       end
@@ -132,7 +139,14 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_scheduled)
-          .with({ scheduled_at: Time.now.utc.iso8601 })
+          .with(
+            {
+              scheduled_at: Time.now.utc.iso8601,
+              published_at: nil,
+              deleted_at: nil,
+              updated_at: nil,
+            },
+          )
           .once
         collection.after_scheduled(Time.now.utc.iso8601)
       end
@@ -162,7 +176,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_publish)
-          .with({ published_at: Time.now.utc.iso8601, deleted_at: nil })
+          .with({ published_at: Time.now.utc.iso8601 })
           .once
         create_activity.before_deliver
       end
@@ -175,14 +189,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_publish)
-          .with(
-            {
-              deleted_at: Time.now.utc.iso8601,
-              published_at: nil,
-              updated_at: nil,
-              scheduled_at: nil,
-            },
-          )
+          .with({ deleted_at: Time.now.utc.iso8601 })
           .once
         delete_activity.before_deliver
       end
@@ -225,7 +232,7 @@ RSpec.describe DiscourseActivityPubActivity do
         Post
           .any_instance
           .expects(:activity_pub_after_publish)
-          .with({ published_at: Time.now.utc.iso8601, deleted_at: nil })
+          .with({ published_at: Time.now.utc.iso8601 })
           .once
         activity.before_deliver
       end
@@ -358,19 +365,6 @@ RSpec.describe DiscourseActivityPubActivity do
             ).exists?,
           ).to eq(false)
         end
-      end
-    end
-
-    context "with create activity" do
-      let(:activity) { Fabricate(:discourse_activity_pub_activity_create, actor: actor) }
-
-      it "calls activity_pub_after_deliver with correct arguments" do
-        Post
-          .any_instance
-          .expects(:activity_pub_after_deliver)
-          .with({ delivered_at: Time.now.utc.iso8601 })
-          .once
-        activity.after_deliver(Time.now.utc.iso8601)
       end
     end
   end

@@ -12,13 +12,15 @@ export default class ActivityPubPostObjectTypeDropdown extends ComboBoxComponent
     return [
       {
         id: "Note",
-        label: i18n("discourse_activity_pub.object_type.label.note"),
-        title: i18n("discourse_activity_pub.object_type.description.note"),
+        label: i18n("discourse_activity_pub.post_object_type.label.note"),
+        title: i18n("discourse_activity_pub.post_object_type.description.note"),
       },
       {
         id: "Article",
-        label: i18n("discourse_activity_pub.object_type.label.article"),
-        title: i18n("discourse_activity_pub.object_type.description.article"),
+        label: i18n("discourse_activity_pub.post_object_type.label.article"),
+        title: i18n(
+          "discourse_activity_pub.post_object_type.description.article"
+        ),
       },
     ];
   }

@@ -3,7 +3,6 @@
 class DiscourseActivityPubObject < ActiveRecord::Base
   include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
-  include DiscourseActivityPub::AP::ObjectHelpers
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
   belongs_to :collection, class_name: "DiscourseActivityPubCollection", foreign_key: "collection_id"
@@ -91,38 +90,32 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def before_deliver
+    after_published(Time.now.utc.iso8601)
   end
 
   def after_deliver(delivered = true)
-    if delivered && model.respond_to?(:activity_pub_after_deliver)
-      args = { delivered_at: get_delivered_at }
-      model.activity_pub_after_deliver(args)
-    end
   end
 
   def after_scheduled(scheduled_at, activity = nil)
     if model.respond_to?(:activity_pub_after_scheduled)
       args = { scheduled_at: scheduled_at }
+      if activity&.ap&.create?
+        args[:published_at] = nil
+        args[:deleted_at] = nil
+        args[:updated_at] = nil
+      end
       model.activity_pub_after_scheduled(args)
     end
   end
 
   def after_published(published_at, activity = nil)
-    self.update(published_at: published_at) if !self.published_at.present?
+    self.update(published_at: published_at)
 
     if model.respond_to?(:activity_pub_after_publish)
       args = {}
-      if activity&.ap&.create? && model.activity_pub_published_at.blank?
-        args[:published_at] = published_at
-        args[:deleted_at] = nil
-      end
+      args[:published_at] = published_at if activity&.ap&.create?
+      args[:deleted_at] = published_at if activity&.ap&.delete?
       args[:updated_at] = published_at if activity&.ap&.update?
-      if activity&.ap&.delete?
-        args[:published_at] = nil
-        args[:updated_at] = nil
-        args[:scheduled_at] = nil
-        args[:deleted_at] = published_at
-      end
       model.activity_pub_after_publish(args)
     end
   end
@@ -152,7 +145,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def attributed_to
-    if local? && model&.activity_pub_first_post
+    if model&.activity_pub_first_post
       topic_actor
     else
       super
