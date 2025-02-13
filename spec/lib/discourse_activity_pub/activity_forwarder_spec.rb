@@ -160,6 +160,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
 
             activity.ap.json[:to] = follower2.ap_id
             activity.ap.json[:cc] = []
+            activity.ap.json[:audience] = nil
           end
 
           it "does not forward to the topic actor's followers" do
@@ -183,6 +184,7 @@ RSpec.describe DiscourseActivityPub::ActivityForwarder do
 
             before do
               note1.local = false
+              note1.attributed_to = remote_topic_actor
               note1.save!
             end
 
