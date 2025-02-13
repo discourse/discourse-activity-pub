@@ -549,6 +549,12 @@ after_initialize do
   end
 
   add_to_serializer(:post, :activity_pub_enabled) { object.activity_pub_enabled }
+
+  # Do not include in web hook post serializer
+  add_to_serializer(:web_hook_post, :activity_pub_enabled, include_condition: -> { false }) do
+    false
+  end
+
   activity_pub_post_custom_field_names.each do |field_name|
     add_to_serializer(
       :post,
@@ -588,34 +594,74 @@ after_initialize do
   ) { object.activity_pub_object_id }
 
   add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
-  add_to_serializer(:topic_view, :activity_pub_local) { object.topic.activity_pub_local? }
-  add_to_serializer(:topic_view, :activity_pub_deleted_at) { object.topic.activity_pub_deleted_at }
-  add_to_serializer(:topic_view, :activity_pub_published_at) do
-    object.topic.activity_pub_published_at
+
+  # Do not include in web hook topic view serializer
+  add_to_serializer(:web_hook_topic_view, :activity_pub_enabled, include_condition: -> { false }) do
+    false
   end
-  add_to_serializer(:topic_view, :activity_pub_scheduled_at) do
-    object.topic.activity_pub_scheduled_at
-  end
-  add_to_serializer(:topic_view, :activity_pub_delivered_at) do
-    object.topic.activity_pub_delivered_at
-  end
-  add_to_serializer(:topic_view, :activity_pub_full_topic) { object.topic.activity_pub_full_topic }
-  add_to_serializer(:topic_view, :activity_pub_published_post_count) do
-    object.topic.activity_pub_published_post_count
-  end
-  add_to_serializer(:topic_view, :activity_pub_total_post_count) do
-    object.topic.activity_pub_total_post_count
-  end
-  add_to_serializer(:topic_view, :activity_pub_object_id) do
-    object.topic.activity_pub_object&.ap_id
-  end
-  add_to_serializer(:topic_view, :activity_pub_object_type) do
-    object.topic.activity_pub_object&.ap_type
-  end
-  add_to_serializer(:topic_view, :activity_pub_actor) do
+
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_local,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_local? }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_deleted_at,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_deleted_at }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_published_at,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_published_at }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_scheduled_at,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_scheduled_at }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_delivered_at,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_delivered_at }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_full_topic,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_full_topic }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_published_post_count,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_published_post_count }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_total_post_count,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_total_post_count }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_object_id,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_object&.ap_id }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_object_type,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) { object.topic.activity_pub_object&.ap_type }
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_actor,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) do
     DiscourseActivityPub::ActorSerializer.new(object.topic.activity_pub_actor, root: false).as_json
   end
-  add_to_serializer(:topic_view, :activity_pub_post_actors) do
+  add_to_serializer(
+    :topic_view,
+    :activity_pub_post_actors,
+    include_condition: -> { object.topic.activity_pub_enabled },
+  ) do
     object.topic.activity_pub_post_actors.map do |post_actor|
       {
         post_id: post_actor.post_id,
