@@ -1,22 +1,14 @@
-import { hbs } from "ember-cli-htmlbars";
 import { Promise } from "rsvp";
+import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
+import { AUTO_GROUPS } from "discourse/lib/constants";
 import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import RenderGlimmer from "discourse/widgets/render-glimmer";
-import ActivityPubTopicMap from "../components/activity-pub-topic-map";
-import ActivityPubPostAdminModal from "../components/modal/activity-pub-post-admin";
-import ActivityPubTopicAdminModal from "../components/modal/activity-pub-topic-admin";
-import {
-  activityPubPostStatus,
-  showStatusToUser,
-} from "../lib/activity-pub-utilities";
 
 export default {
   name: "activity-pub",
   initialize(container) {
     const site = container.lookup("service:site");
-    const siteSettings = container.lookup("service:site-settings");
-    const modal = container.lookup("service:modal");
 
     withPluginApi("1.6.0", (api) => {
       const currentUser = api.getCurrentUser();
@@ -25,7 +17,6 @@ export default {
         "activity_pub_enabled",
         "activity_pub_scheduled_at",
         "activity_pub_published_at",
-        "activity_pub_delivered_at",
         "activity_pub_deleted_at",
         "activity_pub_updated_at",
         "activity_pub_visibility",
@@ -34,12 +25,28 @@ export default {
         "activity_pub_object_type",
         "activity_pub_domain",
         "activity_pub_first_post",
+        "activity_pub_is_first_post",
         "activity_pub_object_id"
       );
       api.serializeOnCreate("activity_pub_visibility");
 
       // TODO (future): PR discourse/discourse to add post infos via api
       api.reopenWidget("post-meta-data", {
+        showStatusToUser(user) {
+          if (!user) {
+            return false;
+          }
+          const groupIds =
+            this.siteSettings.activity_pub_post_status_visibility_groups
+              .split("|")
+              .map(Number);
+          return user.groups.some(
+            (group) =>
+              groupIds.includes(AUTO_GROUPS.everyone.id) ||
+              groupIds.includes(group.id)
+          );
+        },
+
         html(attrs) {
           const result = this._super(attrs);
           let postStatuses = result[result.length - 1].children;
@@ -49,26 +56,43 @@ export default {
           if (
             site.activity_pub_enabled &&
             attrs.activity_pub_enabled &&
-            attrs.post_number !== 1 &&
-            showStatusToUser(currentUser, siteSettings)
+            this.showStatusToUser(this.currentUser)
           ) {
-            const status = activityPubPostStatus(attrs);
-            if (status) {
+            let time;
+            let state;
+
+            if (attrs.activity_pub_deleted_at) {
+              time = moment(attrs.activity_pub_deleted_at);
+              state = "deleted";
+            } else if (attrs.activity_pub_updated_at) {
+              time = moment(attrs.activity_pub_updated_at);
+              state = "updated";
+            } else if (attrs.activity_pub_published_at) {
+              time = moment(attrs.activity_pub_published_at);
+              state = attrs.activity_pub_local
+                ? "published"
+                : "published_remote";
+            } else if (attrs.activity_pub_scheduled_at) {
+              time = moment(attrs.activity_pub_scheduled_at);
+              state = moment().isAfter(moment(time))
+                ? "scheduled_past"
+                : "scheduled";
+            } else {
+              state = "not_published";
+            }
+
+            if (state) {
               let replyToTabIndex = postStatuses.findIndex((postStatus) => {
                 return postStatus.name === "reply-to-tab";
               });
-              const post = this.findAncestorModel();
               postStatuses.splice(
                 replyToTabIndex !== -1 ? replyToTabIndex + 1 : 0,
                 0,
-                new RenderGlimmer(
-                  this,
-                  "div.post-info.activity-pub",
-                  hbs`<ActivityPubPostStatus @post={{@data.post}} />`,
-                  {
-                    post,
-                  }
-                )
+                this.attach("post-activity-pub-indicator", {
+                  post: attrs,
+                  time,
+                  state,
+                })
               );
             }
           }
@@ -77,50 +101,91 @@ export default {
         },
       });
 
-      api.addPostAdminMenuButton((attrs) => {
-        if (
-          attrs.activity_pub_enabled &&
-          currentUser?.staff &&
-          !attrs.firstPost
-        ) {
-          return {
-            secondaryAction: "closeAdminMenu",
-            icon: "discourse-activity-pub",
-            className: "show-activity-pub-post-admin",
-            label: "post.discourse_activity_pub.admin.menu_label",
-            position: "second-last-hidden",
-            action: async (post) => {
-              modal.show(ActivityPubPostAdminModal, {
-                model: {
-                  post,
-                },
-              });
-            },
-          };
-        }
-      });
+      if (api.addPostAdminMenuButton) {
+        api.addPostAdminMenuButton((attrs) => {
+          if (!attrs.activity_pub_enabled) {
+            return;
+          }
 
-      api.addTopicAdminMenuButton((topic) => {
-        if (topic.activity_pub_enabled && currentUser?.staff) {
-          const firstPost = topic
-            .get("postStream.posts")
-            .findBy("post_number", 1);
-          return {
-            icon: "discourse-activity-pub",
-            className: "show-activity-pub-topic-admin",
-            title: "topic.discourse_activity_pub.admin.title",
-            label: "topic.discourse_activity_pub.admin.menu_label",
-            action: async () => {
-              modal.show(ActivityPubTopicAdminModal, {
-                model: {
-                  topic,
-                  firstPost,
-                },
-              });
-            },
-          };
-        }
-      });
+          const canSchedule =
+            currentUser?.staff &&
+            attrs.activity_pub_is_first_post &&
+            !attrs.activity_pub_published_at;
+
+          if (canSchedule) {
+            const scheduled = !!attrs.activity_pub_scheduled_at;
+            const type = scheduled ? "unschedule" : "schedule";
+            return {
+              secondaryAction: "closeAdminMenu",
+              icon: "discourse-activity-pub",
+              className: `activity-pub-${type}`,
+              title: `post.discourse_activity_pub.${type}.title`,
+              label: `post.discourse_activity_pub.${type}.label`,
+              position: "second-last-hidden",
+              action: async (post) => {
+                if (scheduled) {
+                  ajax(`/ap/post/schedule/${post.id}`, {
+                    type: "DELETE",
+                  }).catch(popupAjaxError);
+                } else {
+                  ajax(`/ap/post/schedule/${post.id}`, {
+                    type: "POST",
+                  }).catch(popupAjaxError);
+                }
+              },
+            };
+          }
+        });
+      } else {
+        // TODO: remove support for older Discourse versions in December 2023
+        api.reopenWidget("post-admin-menu", {
+          pluginId: "discourse-activity-pub",
+
+          html(attrs) {
+            let result = this._super(attrs);
+
+            if (attrs.activity_pub_enabled) {
+              const buttons = result.children.filter(
+                (widget) => widget.attrs.action !== "changePostOwner"
+              );
+              const canSchedule =
+                currentUser?.staff &&
+                attrs.activity_pub_first_post &&
+                attrs.activity_pub_is_first_post &&
+                !attrs.activity_pub_published_at;
+
+              if (canSchedule) {
+                const scheduled = !!attrs.activity_pub_scheduled_at;
+                const type = scheduled ? "unschedule" : "schedule";
+                const button = {
+                  action: `${type}ActivityPublication`,
+                  secondaryAction: "closeAdminMenu",
+                  icon: "discourse-activity-pub",
+                  className: `activity-pub-${type}`,
+                  title: `post.discourse_activity_pub.${type}.title`,
+                  label: `post.discourse_activity_pub.${type}.label`,
+                  position: "second-last-hidden",
+                };
+                buttons.push(this.attach("post-admin-menu-button", button));
+              }
+              result.children = buttons;
+            }
+            return result;
+          },
+
+          scheduleActivityPublication() {
+            ajax(`/ap/post/schedule/${this.attrs.id}`, {
+              type: "POST",
+            }).catch(popupAjaxError);
+          },
+
+          unscheduleActivityPublication() {
+            ajax(`/ap/post/schedule/${this.attrs.id}`, {
+              type: "DELETE",
+            }).catch(popupAjaxError);
+          },
+        });
+      }
 
       api.modifyClass("model:post-stream", {
         pluginId: "discourse-activity-pub",
@@ -138,67 +203,27 @@ export default {
         },
       });
 
-      api.modifyClass("model:topic", {
-        pluginId: "discourse-activity-pub",
-
-        getActivityPubPostActor(postId) {
-          const postActors = this.activity_pub_post_actors || [];
-          return postActors.findBy("post_id", postId);
-        },
-      });
-
       api.modifyClass("controller:topic", {
         pluginId: "discourse-activity-pub",
 
         @bind
         handleActivityPubMessage(data) {
-          const topic = this.get("model");
-          if (!topic) {
-            return;
-          }
-
-          const postStream = topic.get("postStream");
+          const postStream = this.get("model.postStream");
 
           if (data.model.type === "post" && postStream) {
-            let postProps = {
+            let stateProps = {
               activity_pub_scheduled_at: data.model.scheduled_at,
               activity_pub_published_at: data.model.published_at,
               activity_pub_deleted_at: data.model.deleted_at,
               activity_pub_updated_at: data.model.updated_at,
-              activity_pub_delivered_at: data.model.delivered_at,
             };
-
             postStream
-              .triggerActivityPubStateChange(data.model.id, postProps)
+              .triggerActivityPubStateChange(data.model.id, stateProps)
               .then(() =>
                 this.appEvents.trigger("post-stream:refresh", {
                   id: data.model.id,
                 })
               );
-            this.appEvents.trigger(
-              "activity-pub:post-updated",
-              data.model.id,
-              postProps
-            );
-          }
-
-          if (data.model.type === "topic" && topic) {
-            let topicProps = {
-              activity_pub_published: data.model.published,
-              activity_pub_published_post_count:
-                data.model.published_post_count,
-              activity_pub_total_post_count: data.model.total_post_count,
-              activity_pub_scheduled_at: data.model.scheduled_at,
-              activity_pub_published_at: data.model.published_at,
-              activity_pub_deleted_at: data.model.deleted_at,
-            };
-            topic.setProperties(topicProps);
-            postStream.refresh();
-            this.appEvents.trigger(
-              "activity-pub:topic-updated",
-              data.model.id,
-              topicProps
-            );
           }
         },
 
@@ -221,8 +246,6 @@ export default {
           );
         },
       });
-
-      api.renderInOutlet("topic-map", ActivityPubTopicMap);
     });
   },
 };

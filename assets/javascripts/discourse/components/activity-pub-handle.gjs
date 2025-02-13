@@ -34,13 +34,11 @@ export default class ActivityPubHandle extends Component {
             class="btn btn-icon no-text"
           >{{icon "up-right-from-square"}}</a>
         {{/if}}
-        {{#unless @hideCopy}}
-          {{#if this.copied}}
-            <DButton @icon="copy" @label="ip_lookup.copied" class="btn-hover" />
-          {{else}}
-            <DButton @action={{this.copy}} @icon="copy" class="no-text" />
-          {{/if}}
-        {{/unless}}
+        {{#if this.copied}}
+          <DButton @icon="copy" @label="ip_lookup.copied" class="btn-hover" />
+        {{else}}
+          <DButton @action={{this.copy}} @icon="copy" class="no-text" />
+        {{/if}}
       </div>
     </div>
   </template>

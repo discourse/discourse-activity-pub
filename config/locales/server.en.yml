@@ -116,16 +116,10 @@ en:
     post:
       error:
         post_not_found: "Post not found"
-        cant_deliver_post: "Can't deliver post"
-        cant_publish_post: "Can't publish post"
         cant_schedule_post: "Can't schedule post"
         cant_unschedule_post: "Can't unschedule post"
         not_first_post: "Post is not the first post"
         failed_to_create: "Failed to create post for %{object_id}: %{message}"
-    topic:
-      error:
-        topic_not_found: "Topic not found"
-        cant_publish_topic: "Can't publish topic"
     user:
       error:
         failed_to_create: "Failed to create user for %{actor_id}: %{message}"
@@ -231,13 +225,12 @@ en:
             other: "Updated %{count} replies."
       publish:
         warning:
-          publish_did_not_start: "Failed to bulk publish the activities of %{target}"
-          actor_not_found: "Actor not found"
+          publish_did_not_start: "Failed to bulk publish the activities of %{actor}"
           actor_not_ready: "Actor is not ready"
           actor_model_not_supported: "Actor model is not supported"
         info:
-          started: "Started publishing the activities of %{target}."
-          finished: "Finished publishing the activities of %{target}."
+          started: "Started publishing the activities of %{actor}."
+          finished: "Finished publishing the activities of %{actor}."
           created_actors:
             one: "Created 1 actor."
             other: "Created %{count} actors."  

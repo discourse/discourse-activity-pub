@@ -18,7 +18,7 @@ module DiscourseActivityPub
     before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
-      render_serialized(@actor, DiscourseActivityPub::DetailedActorSerializer)
+      render_serialized(@actor, DiscourseActivityPub::ActorSerializer, include_model: true)
     end
 
     def follow
@@ -102,7 +102,7 @@ module DiscourseActivityPub
 
     def render_actors
       render_json_dump(
-        actors: serialize_data(actors, DetailedActorSerializer, root: false),
+        actors: serialize_data(actors, ActorSerializer, root: false, include_model: true),
         meta: {
           total: @total,
           load_more_url: load_more_url(@page),

@@ -3,7 +3,6 @@
 class DiscourseActivityPubCollection < ActiveRecord::Base
   include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
-  include DiscourseActivityPub::AP::ObjectHelpers
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
 
@@ -40,7 +39,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   def before_deliver
     @context = :activities
-    after_published(get_published_at)
+    after_published(Time.now.utc.iso8601)
   end
 
   def after_deliver(delivered = true)
@@ -53,6 +52,7 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   def after_published(published_at, activity = nil)
     self.update(published_at: published_at)
+    send_to_collection("after_published", published_at)
   end
 
   def actor
