@@ -18,7 +18,7 @@ module DiscourseActivityPub
     before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
-      render_serialized(@actor, DiscourseActivityPub::DetailedActorSerializer)
+      render_serialized(@actor, DiscourseActivityPub::DetailedActorSerializer, root: "actor")
     end
 
     def follow
