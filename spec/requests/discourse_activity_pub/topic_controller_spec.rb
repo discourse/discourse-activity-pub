@@ -18,7 +18,7 @@ RSpec.describe DiscourseActivityPub::TopicController do
 
       it "returns a not enabled error" do
         post "/ap/topic/publish/#{topic.id}"
-        expect_not_enabled(response)
+        expect(response.status).to eq(404)
       end
     end
 

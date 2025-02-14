@@ -16,7 +16,7 @@ RSpec.describe DiscourseActivityPub::Admin::AdminController do
 
           it "returns a not enabled error" do
             get "/admin/plugins/ap.json"
-            expect_not_enabled(response)
+            expect(response.status).to eq(404)
           end
         end
 

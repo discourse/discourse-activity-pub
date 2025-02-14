@@ -15,7 +15,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
       it "returns a not enabled error" do
         post "/ap/post/schedule/#{post1.id}"
-        expect_not_enabled(response)
+        expect(response.status).to eq(404)
       end
     end
 
@@ -154,7 +154,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
       it "returns a not enabled error" do
         delete "/ap/post/schedule/#{post1.id}"
-        expect_not_enabled(response)
+        expect(response.status).to eq(404)
       end
     end
 
@@ -282,7 +282,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
       it "returns a not enabled error" do
         post "/ap/post/deliver/#{post1.id}"
-        expect_not_enabled(response)
+        expect(response.status).to eq(404)
       end
     end
 
@@ -423,7 +423,7 @@ RSpec.describe DiscourseActivityPub::PostController do
 
       it "returns a not enabled error" do
         post "/ap/post/publish/#{post1.id}"
-        expect_not_enabled(response)
+        expect(response.status).to eq(404)
       end
     end
 

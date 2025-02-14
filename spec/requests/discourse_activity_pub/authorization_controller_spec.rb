@@ -42,7 +42,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
         it "returns a not enabled error" do
           get "/ap/auth"
-          expect_not_enabled(response)
+          expect(response.status).to eq(404)
         end
       end
 
