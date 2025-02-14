@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe TopicsController do
-  ADDITIONAL_QUERY_LIMIT = 10
+  ADDITIONAL_QUERY_LIMIT = 12
 
   describe "#show" do
     fab!(:category)

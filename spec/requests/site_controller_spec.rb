@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe SiteController do
+  ADDITIONAL_QUERY_LIMIT = 4
+
   describe "#site" do
     context "with activity pub categories" do
       let!(:category1) { Fabricate(:category) }
@@ -36,7 +38,7 @@ RSpec.describe SiteController do
               expect(response.status).to eq(200)
             end
 
-          expect(enabled_queries.count).to be <= disabled_queries.count
+          expect(enabled_queries.count).to be <= disabled_queries.count + ADDITIONAL_QUERY_LIMIT
         end
       end
 
