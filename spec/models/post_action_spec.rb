@@ -32,14 +32,14 @@ RSpec.describe PostAction do
   describe "#perform_activity_pub_activity" do
     context "without activty pub enabled on the category" do
       it "does nothing" do
-        expect(post_action.perform_activity_pub_activity(:like)).to eq(nil)
+        expect(post_action.perform_activity_pub_activity(:like)).to eq(false)
         expect(post.activity_pub_object.reload.likes.present?).to eq(false)
       end
     end
 
     context "with an invalid activity type" do
       it "does nothing" do
-        expect(post_action.perform_activity_pub_activity(:create)).to eq(nil)
+        expect(post_action.perform_activity_pub_activity(:create)).to eq(false)
         expect(post.activity_pub_object.reload.likes.present?).to eq(false)
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe PostAction do
       end
 
       it "does nothing" do
-        expect(post_action.perform_activity_pub_activity(:like)).to eq(nil)
+        expect(post_action.perform_activity_pub_activity(:like)).to eq(false)
         expect(post.activity_pub_object.reload.likes.any?).to eq(false)
       end
     end

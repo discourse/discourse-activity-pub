@@ -70,24 +70,38 @@ RSpec.describe DiscourseActivityPub::PostController do
               end
 
               context "when the post is not scheduled or published" do
-                it "schedules the post" do
-                  Post.any_instance.expects(:activity_pub_schedule!)
-                  post "/ap/post/schedule/#{post1.id}"
-                end
+                context "with followers" do
+                  let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+                  let!(:follow1) do
+                    Fabricate(
+                      :discourse_activity_pub_follow,
+                      follower: follower1,
+                      followed: category.activity_pub_actor,
+                    )
+                  end
 
-                context "when scheduling succeeds" do
-                  it "returns a success response" do
-                    Post.any_instance.expects(:activity_pub_schedule!).returns(true)
-                    post "/ap/post/schedule/#{post1.id}"
-                    expect(response).to be_successful
+                  context "when scheduling succeeds" do
+                    it "returns a success response" do
+                      Post.any_instance.expects(:activity_pub_schedule!).returns(true)
+                      post "/ap/post/schedule/#{post1.id}"
+                      expect(response).to be_successful
+                    end
+                  end
+
+                  context "when scheduling fails" do
+                    it "returns a failed response" do
+                      Post.any_instance.expects(:activity_pub_schedule!).returns(false)
+                      post "/ap/post/schedule/#{post1.id}"
+                      expect(response).not_to be_successful
+                    end
                   end
                 end
 
-                context "when scheduling fails" do
-                  it "returns a failed response" do
-                    Post.any_instance.expects(:activity_pub_schedule!).returns(false)
+                context "without followers" do
+                  it "returns a can't schedule post error" do
                     post "/ap/post/schedule/#{post1.id}"
-                    expect(response).not_to be_successful
+                    expect(response.status).to eq(422)
+                    expect(response.parsed_body).to eq(build_error("cant_schedule_post"))
                   end
                 end
               end
@@ -256,6 +270,239 @@ RSpec.describe DiscourseActivityPub::PostController do
 
         it "returns an invalid access error" do
           post "/ap/post/schedule/#{post1.id}"
+          expect(response.status).to eq(403)
+        end
+      end
+    end
+  end
+
+  describe "#deliver" do
+    context "without activity pub enabled" do
+      before { SiteSetting.activity_pub_enabled = false }
+
+      it "returns a not enabled error" do
+        post "/ap/post/deliver/#{post1.id}"
+        expect_not_enabled(response)
+      end
+    end
+
+    context "with activity pub enabled" do
+      before do
+        SiteSetting.activity_pub_enabled = true
+        toggle_activity_pub(category, publication_type: "full_topic")
+      end
+
+      context "with signed in staff" do
+        let!(:user) { Fabricate(:user, moderator: true) }
+
+        before { sign_in(user) }
+
+        context "without a valid post id" do
+          it "returns a post not found error" do
+            post "/ap/post/deliver/#{post1.id + 1}"
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("post_not_found"))
+          end
+        end
+
+        context "with the first post" do
+          context "when the post is published" do
+            let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
+            let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+            before do
+              post1.custom_fields["activity_pub_published_at"] = Time.now
+              post1.save_custom_fields(true)
+            end
+
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: category.activity_pub_actor,
+                )
+              end
+
+              it "schedules the create activity for delivery immediately" do
+                expect_delivery(actor: topic.activity_pub_actor, object_type: "Create", delay: nil)
+                post "/ap/post/deliver/#{post1.id}"
+                expect(response.status).to eq(200)
+              end
+            end
+
+            context "without followers" do
+              it "returns a can't deliver post error" do
+                post "/ap/post/deliver/#{post1.id}"
+                expect(response.status).to eq(422)
+                expect(response.parsed_body).to eq(build_error("cant_deliver_post"))
+              end
+            end
+          end
+
+          context "when the post is not published" do
+            it "returns a can't deliver post error" do
+              post "/ap/post/deliver/#{post1.id}"
+              expect(response.status).to eq(422)
+              expect(response.parsed_body).to eq(build_error("cant_deliver_post"))
+            end
+          end
+        end
+
+        context "with a reply" do
+          let!(:post2) { Fabricate(:post, topic: topic) }
+
+          context "when the reply is published" do
+            let!(:note2) { Fabricate(:discourse_activity_pub_object_note, model: post2) }
+            let!(:create2) { Fabricate(:discourse_activity_pub_activity_create, object: note2) }
+
+            before do
+              post2.custom_fields["activity_pub_published_at"] = Time.now
+              post2.save_custom_fields(true)
+            end
+
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: category.activity_pub_actor,
+                )
+              end
+
+              context "when the first post is not published" do
+                it "returns a can't deliver post error" do
+                  post "/ap/post/deliver/#{post1.id}"
+                  expect(response.status).to eq(422)
+                  expect(response.parsed_body).to eq(build_error("cant_deliver_post"))
+                end
+              end
+
+              context "when the first post is published" do
+                let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
+                let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+                before do
+                  post1.custom_fields["activity_pub_published_at"] = Time.now
+                  post1.save_custom_fields(true)
+                end
+
+                it "schedules the create activity for delivery immediately" do
+                  expect_delivery(
+                    actor: topic.activity_pub_actor,
+                    object_type: "Create",
+                    delay: nil,
+                  )
+                  post "/ap/post/deliver/#{post1.id}"
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context "without signed in staff" do
+        let!(:user) { Fabricate(:user) }
+
+        before { sign_in(user) }
+
+        it "returns an invalid access error" do
+          post "/ap/post/deliver/#{post1.id}"
+          expect(response.status).to eq(403)
+        end
+      end
+    end
+  end
+
+  describe "#publish" do
+    context "without activity pub enabled" do
+      before { SiteSetting.activity_pub_enabled = false }
+
+      it "returns a not enabled error" do
+        post "/ap/post/publish/#{post1.id}"
+        expect_not_enabled(response)
+      end
+    end
+
+    context "with activity pub enabled" do
+      before do
+        SiteSetting.activity_pub_enabled = true
+        toggle_activity_pub(category, publication_type: "full_topic")
+      end
+
+      context "with signed in staff" do
+        let!(:user) { Fabricate(:user, moderator: true) }
+
+        before { sign_in(user) }
+
+        context "without a valid post id" do
+          it "returns a post not found error" do
+            post "/ap/post/publish/#{post1.id + 1}"
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("post_not_found"))
+          end
+        end
+
+        context "with a valid post id" do
+          context "when the post is published" do
+            before do
+              post1.custom_fields["activity_pub_published_at"] = Time.now
+              post1.save_custom_fields(true)
+            end
+
+            it "returns a can't publish post error" do
+              post "/ap/post/publish/#{post1.id}"
+              expect(response.status).to eq(422)
+              expect(response.parsed_body).to eq(build_error("cant_publish_post"))
+            end
+          end
+
+          context "when the post is not published" do
+            let!(:note) { Fabricate(:discourse_activity_pub_object_note, model: post1) }
+            let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
+
+            it "publishes the post" do
+              post "/ap/post/publish/#{post1.id}"
+              expect(response.status).to eq(200)
+              expect(post1.reload.activity_pub_published?).to eq(true)
+            end
+
+            context "with followers" do
+              let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
+              let!(:follow1) do
+                Fabricate(
+                  :discourse_activity_pub_follow,
+                  follower: follower1,
+                  followed: category.activity_pub_actor,
+                )
+              end
+
+              it "delivers the activity" do
+                expect_delivery(actor: topic.activity_pub_actor, object_type: "Create", delay: nil)
+                post "/ap/post/publish/#{post1.id}"
+                expect(response.status).to eq(200)
+              end
+
+              it "does not set secheduled_at" do
+                post "/ap/post/publish/#{post1.id}"
+                expect(response.status).to eq(200)
+                expect(post1.reload.activity_pub_scheduled_at).to eq(nil)
+              end
+            end
+          end
+        end
+      end
+
+      context "without signed in staff" do
+        let!(:user) { Fabricate(:user) }
+
+        before { sign_in(user) }
+
+        it "returns an invalid access error" do
+          post "/ap/post/publish/#{post1.id}"
           expect(response.status).to eq(403)
         end
       end

@@ -76,17 +76,18 @@ module DiscourseActivityPub
 
       Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
 
-      if delay
+      if delay.to_i > 0
         Jobs.enqueue_in(delay.to_i.minutes, :discourse_activity_pub_deliver, args)
         @scheduled_at = (Time.now.utc + delay.to_i.minutes).iso8601
       else
         Jobs.enqueue(:discourse_activity_pub_deliver, args)
-        @scheduled_at = Time.now.utc.iso8601
       end
     end
 
     def after_scheduled
-      object.after_scheduled(scheduled_at) if object.respond_to?(:after_scheduled)
+      if scheduled_at.present? && object.respond_to?(:after_scheduled)
+        object.after_scheduled(scheduled_at)
+      end
     end
 
     def log_failure(reason)
