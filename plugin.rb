@@ -244,9 +244,6 @@ after_initialize do
     [*tags, category].select { |t| t&.activity_pub_actor.present? }
   end
   add_to_class(:topic, :activity_pub_taxonomy) { activity_pub_taxonomies.first }
-  add_to_class(:topic, :activity_pub_enabled) do
-    regular? && DiscourseActivityPub.enabled && activity_pub_taxonomy&.activity_pub_ready?
-  end
   add_to_class(:topic, :activity_pub_ready?) do
     activity_pub_enabled && (activity_pub_first_post || activity_pub_full_topic)
   end

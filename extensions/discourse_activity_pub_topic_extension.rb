@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 module DiscourseActivityPubTopicExtension
   def reload(options = nil)
+    @activity_pub_enabled = nil
     @activity_pub_total_posts = nil
     @activity_pub_total_post_count = nil
     @activity_pub_published_posts = nil
     @activity_pub_published_post_count = nil
     @with_deleted_first_post = nil
     super(options)
+  end
+
+  def activity_pub_enabled
+    @activity_pub_enabled ||= regular? && activity_pub_taxonomy&.activity_pub_ready?
   end
 
   def activity_pub_total_posts
@@ -78,6 +83,8 @@ module DiscourseActivityPubTopicExtension
   def activity_pub_post_actors
     @activity_pub_post_actors ||=
       begin
+        return [] unless activity_pub_enabled && activity_pub_object
+
         sql = <<~SQL
         SELECT objects.model_id AS post_id, actors.id, actors.username, actors.domain, actors.ap_id
         FROM discourse_activity_pub_objects AS objects
