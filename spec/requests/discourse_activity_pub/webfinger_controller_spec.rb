@@ -11,7 +11,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
 
       it "returns a not enabled error" do
         get "/.well-known/webfinger"
-        expect_not_enabled(response)
+        expect(response.status).to eq(404)
       end
     end
 

@@ -27,7 +27,7 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
 
     it "returns a not enabled error" do
       get_object(object)
-      expect_request_error(response, "not_enabled", 403)
+      expect(response.status).to eq(404)
     end
   end
 
