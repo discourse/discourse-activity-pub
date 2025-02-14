@@ -26,7 +26,7 @@ export default class ActivityPubPostInfo extends Component {
       return "far-circle-dot";
     } else {
       return this.post.activity_pub_local
-        ? "file-arrow-up"
+        ? "circle-arrow-up"
         : "up-right-from-square";
     }
   }

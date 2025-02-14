@@ -12,7 +12,8 @@ register_asset "stylesheets/common/common.scss"
 register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
 register_svg_icon "user-check"
-register_svg_icon "file-arrow-up"
+register_svg_icon "circle-arrow-up"
+register_svg_icon "circle-arrow-down"
 
 add_admin_route "admin.discourse_activity_pub.label", "activityPub"
 

@@ -25,8 +25,8 @@ export default class ActivityPubTopicInfo extends Component {
       return "far-circle-dot";
     } else {
       return this.topic.activity_pub_local
-        ? "file-arrow-up"
-        : "up-right-from-square";
+        ? "circle-arrow-up"
+        : "circle-arrow-down";
     }
   }
 
