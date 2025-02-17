@@ -1,0 +1,68 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+et:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Salvestatud
+          enabled:
+            label: Sisse lülitatud
+          disabled:
+            label: Välja lülitatud
+          username: Kasutajanimi
+          name: Nimi
+          default_visibility: Nähtavus
+          table:
+            auth_type: Tüüp
+            actions: Tegevused
+          category:
+            label: Liigid
+          tag:
+            label: Sildid
+          model_type:
+            category: Foorum
+        log:
+          label: Logid
+          title: Logid
+          created_at: Loomise aeg
+          level: Tase
+          message: Sõnum
+          json:
+            copy:
+              label: Kopeeri
+              success: Kopeeritud!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktiivne
+      follow:
+        domain:
+          placeholder: domeen
+      actor_reject:
+        label: Lükka tagasi
+      follow_table:
+        user: Kasutaja
+        follow_pending: ootel
+        actions: Tegevused
+      visibility:
+        label:
+          public: Avalik
+    user:
+      discourse_activity_pub:
+        auth_type: Tüüp
+        actions: Tegevused
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autoriseeri
+        remove_authorization_button:
+          label: Eemalda

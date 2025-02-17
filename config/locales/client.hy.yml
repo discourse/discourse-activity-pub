@@ -1,0 +1,66 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+hy:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Պահված է
+          disabled:
+            label: Անջատված
+          username: Օգտանուն
+          name: Անուն
+          default_visibility: Տեսանելիություն
+          table:
+            auth_type: Տիպը
+            actions: Գործողություններ
+          category:
+            label: Կատեգորիաներ
+          tag:
+            label: Պիտակներ
+          model_type:
+            category: Կատեգորիա
+        log:
+          label: Գրառումներ
+          title: Գրառումներ
+          created_at: Ստեղծվել է At
+          level: Մակարդակ
+          message: Ուղարկել
+          json:
+            copy:
+              label: Կրկնօրինակել
+              success: Պատճենված է!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Ակտիվ
+      follow:
+        domain:
+          placeholder: դոմեն
+      actor_reject:
+        label: Մերժել
+      follow_table:
+        user: Օգտատեր
+        follow_pending: սպասող
+        actions: Գործողություններ
+      visibility:
+        label:
+          public: Հանրային
+    user:
+      discourse_activity_pub:
+        auth_type: Տիպը
+        actions: Գործողություններ
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Նույնականացնել
+        remove_authorization_button:
+          label: Հեռացնել

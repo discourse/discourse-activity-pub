@@ -1,0 +1,74 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+cs:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Uloženo
+          enabled:
+            label: Zapnuto
+          disabled:
+            label: Vypnuto
+          site_setting:
+            title: Nastavení webu
+          username: Uživatelské jméno
+          name: Název
+          default_visibility: Viditelnost
+          table:
+            auth_type: Typ
+            actions: Akce
+          category:
+            label: Kategorie
+          tag:
+            label: Štítky
+          model_type:
+            category: Kategorie
+            tag: Štítek
+        log:
+          label: Protokoly
+          title: Protokoly
+          created_at: Vytvořeno v
+          level: Úroveň
+          message: Odeslat
+          json:
+            copy:
+              label: Kopírovat
+              success: Zkopírováno!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktivní
+      follow:
+        domain:
+          placeholder: doména
+      actor_reject:
+        label: Odmítnout
+      follow_table:
+        user: Uživatel
+        follow_pending: čeká na schválení
+        actions: Akce
+      visibility:
+        label:
+          public: Veřejné
+      post_object_type:
+        label:
+          note: Poznámka
+    user:
+      discourse_activity_pub:
+        auth_type: Typ
+        actions: Akce
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autorizovat
+        remove_authorization_button:
+          label: Smazat

@@ -53,6 +53,14 @@ module DiscourseActivityPub
       raw_object.is_a?(String) ? request_object(raw_object) : raw_object
     end
 
+    def base_object_id(raw_object)
+      if raw_object.is_a?(Object) && raw_object["object"].present?
+        base_object_id(raw_object["object"])
+      else
+        resolve_id(raw_object)
+      end
+    end
+
     def request_object(uri)
       Request.get_json_ld(uri: uri)
     end
@@ -141,6 +149,7 @@ module DiscourseActivityPub
     module_function :required_properties?
     module_function :resolve_id
     module_function :resolve_object
+    module_function :base_object_id
     module_function :request_object
     module_function :json_ld_id
     module_function :valid_content_type?

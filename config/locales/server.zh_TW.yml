@@ -1,0 +1,32 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+zh_TW:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_actor:
+          attributes:
+            ap_type:
+              invalid: "無效"
+        discourse_activity_pub_activity:
+          attributes:
+            ap_type:
+              invalid: "無效"
+        discourse_activity_pub_object:
+          attributes:
+            ap_type:
+              invalid: "無效"
+            object_type:
+              invalid: "無效"
+        discourse_activity_pub_client:
+          attributes:
+            credentials:
+              invalid: "無效"
+        discourse_activity_pub:
+          attributes:
+            model_type:
+              invalid: "無效"

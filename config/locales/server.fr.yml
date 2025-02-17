@@ -1,0 +1,39 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+fr:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_actor:
+          attributes:
+            ap_type:
+              invalid: "n'est pas valide"
+        discourse_activity_pub_activity:
+          attributes:
+            ap_type:
+              invalid: "n'est pas valide"
+        discourse_activity_pub_object:
+          attributes:
+            ap_type:
+              invalid: "n'est pas valide"
+            object_type:
+              invalid: "n'est pas valide"
+        discourse_activity_pub_client:
+          attributes:
+            credentials:
+              invalid: "n'est pas valide"
+        discourse_activity_pub:
+          attributes:
+            model_type:
+              invalid: "n'est pas valide"
+  discourse_activity_pub:
+    process:
+      warning:
+        post_is_deleted: "Le message est supprimé"
+    category:
+      error:
+        category_not_found: "Catégorie non trouvée "

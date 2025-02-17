@@ -1,0 +1,105 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "actor": "https://community.nodebb.org/category/30",
+  "id": "https://community.nodebb.org/post/https%3A%2F%2Fcommunity.nodebb.org%2Fpost%2F103075#activity/announce/1738535735558",
+  "type": "Announce",
+  "to": [
+    "https://community.nodebb.org/category/30/followers"
+  ],
+  "cc": [
+    "https://fietkau.social/users/julian",
+    "https://www.w3.org/ns/activitystreams#Public"
+  ],
+  "object": {
+    "@context": "https://www.w3.org/ns/activitystreams",
+    "id": "https://fietkau.social/users/julian#likes/11650",
+    "type": "Like",
+    "actor": "https://fietkau.social/users/julian",
+    "object": {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "toot": "http://joinmastodon.org/ns#",
+          "Emoji": "toot:Emoji"
+        }
+      ],
+      "id": "https://community.nodebb.org/post/103075",
+      "type": "Note",
+      "to": [
+        "https://www.w3.org/ns/activitystreams#Public"
+      ],
+      "cc": [
+        "https://community.nodebb.org/uid/2/followers",
+        "https://writing.exchange/users/matt",
+        "https://mastodon.social/users/pfefferle",
+        "https://mastodon.xyz/users/johnonolan"
+      ],
+      "inReplyTo": null,
+      "published": "2025-02-02T22:31:00.027Z",
+      "updated": null,
+      "url": "https://community.nodebb.org/post/103075",
+      "attributedTo": "https://community.nodebb.org/uid/2",
+      "context": "https://community.nodebb.org/topic/18591",
+      "audience": "https://community.nodebb.org/category/30",
+      "summary": null,
+      "name": "Long-formers Activate!",
+      "content": "<p>Among the fediverse there are microblogs (your Mastodons, Misskeys(+forks), etc.</p>\n<p>Then there are the long form peeps. We managed to all find each other at FOSDEM 2025.</p>\n<p>Pictured is <a href=\"https://writing.exchange/@matt\">@matt@writing.exchange</a> (Write freely), <a href=\"https://mastodon.social/@pfefferle\">@pfefferle@mastodon.social</a> (WordPress), and yours truly (NodeBB). We also had some good conversations with <a href=\"https://mastodon.xyz/@johnonolan\">@johnonolan@mastodon.xyz</a> (Ghost), but I wasn't quick enough with my camera 😩</p>\n<p>Let's move the state of long-form text on the open social web, forward!</p>\n<p><img /></p>\n",
+      "source": {
+        "content": "Among the fediverse there are microblogs (your Mastodons, Misskeys(+forks), etc.\n\nThen there are the long form peeps. We managed to all find each other at FOSDEM 2025.\n\nPictured is [@matt@writing.exchange](https://community.nodebb.org/user/matt%40writing.exchange) (Write freely), [@pfefferle@mastodon.social](https://community.nodebb.org/user/pfefferle%40mastodon.social) (WordPress), and yours truly (NodeBB). We also had some good conversations with [@johnonolan@mastodon.xyz](https://community.nodebb.org/user/johnonolan%40mastodon.xyz) (Ghost), but I wasn't quick enough with my camera 😩\n\nLet's move the state of long-form text on the open social web, forward!\n\n![1000007220.jpg](https://community.nodebb.org/assets/uploads/files/1738535378096-1000007220-resized.jpg)",
+        "mediaType": "text/markdown"
+      },
+      "tag": [
+        {
+          "type": "Hashtag",
+          "href": "https://community.nodebb.org/tags/fosdem",
+          "name": "#fosdem"
+        },
+        {
+          "type": "Hashtag",
+          "href": "https://community.nodebb.org/tags/socialwebfosdem",
+          "name": "#socialwebfosdem"
+        },
+        {
+          "type": "Hashtag",
+          "href": "https://community.nodebb.org/tags/ghost",
+          "name": "#ghost"
+        },
+        {
+          "type": "Hashtag",
+          "href": "https://community.nodebb.org/tags/wordpress",
+          "name": "#wordpress"
+        },
+        {
+          "type": "Hashtag",
+          "href": "https://community.nodebb.org/tags/activitypub",
+          "name": "#activitypub"
+        },
+        {
+          "type": "Mention",
+          "href": "https://writing.exchange/users/matt",
+          "name": "@matt@writing.exchange"
+        },
+        {
+          "type": "Mention",
+          "href": "https://mastodon.social/users/pfefferle",
+          "name": "@pfefferle@mastodon.social"
+        },
+        {
+          "type": "Mention",
+          "href": "https://mastodon.xyz/users/johnonolan",
+          "name": "@johnonolan@mastodon.xyz"
+        }
+      ],
+      "attachment": [
+        {
+          "type": "Image",
+          "mediaType": "image/jpeg",
+          "url": "https://community.nodebb.org/assets/uploads/files/1738535378096-1000007220.jpg",
+          "width": 3264,
+          "height": 2448
+        }
+      ],
+      "replies": "https://community.nodebb.org/post/103075/replies"
+    }
+  }
+}

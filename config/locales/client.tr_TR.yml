@@ -1,0 +1,74 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+tr_TR:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Kaydedildi
+          enabled:
+            label: Etkin
+          disabled:
+            label: Devre Dışı
+          site_setting:
+            title: Site Ayarları
+          username: Kullanıcı adı
+          name: Ad
+          default_visibility: Görünürlük
+          table:
+            auth_type: Tür
+            actions: Eylemler
+          category:
+            label: Kategoriler
+          tag:
+            label: Etiketler
+          model_type:
+            category: Kategori
+            tag: Etiket
+        log:
+          label: Günlükler
+          title: Günlükler
+          created_at: 'Oluşturulma:'
+          level: Seviye
+          message: Mesaj
+          json:
+            copy:
+              label: Kopyala
+              success: Kopyalandı!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktif
+      follow:
+        domain:
+          placeholder: alan Adı
+      actor_reject:
+        label: Reddet
+      follow_table:
+        user: Kullanıcı
+        follow_pending: beklemede
+        actions: Eylemler
+      visibility:
+        label:
+          public: Herkese Açık
+      post_object_type:
+        label:
+          note: Not
+    user:
+      discourse_activity_pub:
+        auth_type: Tür
+        actions: Eylemler
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Yetkilendir
+        remove_authorization_button:
+          label: Kaldır

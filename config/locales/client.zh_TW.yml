@@ -1,0 +1,69 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+zh_TW:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: 已儲存
+          enabled:
+            label: 啟用
+          disabled:
+            label: 停用
+          username: 使用者名稱
+          name: 名字
+          default_visibility: 能見度
+          table:
+            auth_type: 類型
+            actions: 動作
+          category:
+            label: 分類
+          tag:
+            label: 標記
+          model_type:
+            category: 分類
+            tag: 標記
+        log:
+          label: 紀錄
+          title: 紀錄
+          created_at: 建立於
+          level: 等級
+          message: 訊息
+          json:
+            copy:
+              label: 複製
+              success: 已複製!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: 啟用的
+      follow:
+        domain:
+          placeholder: 網域
+      actor_reject:
+        label: 拒絕
+      follow_table:
+        user: 使用者
+        follow_pending: 等待中
+        actions: 動作
+      visibility:
+        label:
+          public: 公開
+    user:
+      discourse_activity_pub:
+        auth_type: 類型
+        actions: 動作
+        authorize:
+          auth_type:
+            discourse:
+              title: 論壇
+        authorize_button:
+          label: 授權
+        remove_authorization_button:
+          label: 移除

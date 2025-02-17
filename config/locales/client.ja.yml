@@ -1,0 +1,72 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+ja:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: 保存済み
+          enabled:
+            label: 有効
+          disabled:
+            label: 無効
+          username: ユーザー名
+          name: 名前
+          default_visibility: 表示状態
+          table:
+            auth_type: タイプ
+            actions: 操作
+          category:
+            label: カテゴリ
+          tag:
+            label: タグ
+          model_type:
+            category: カテゴリ
+            tag: タグ
+        log:
+          label: ログ
+          title: ログ
+          created_at: 作成日
+          level: レベル
+          message: メッセージ
+          json:
+            copy:
+              label: コピー
+              success: コピーしました！
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: アクティブ
+      follow:
+        domain:
+          placeholder: ドメイン
+      actor_reject:
+        label: 却下
+      follow_table:
+        user: ユーザー
+        follow_pending: 保留中
+        actions: 操作
+      visibility:
+        label:
+          public: 公開
+      post_object_type:
+        label:
+          note: 注意
+    user:
+      discourse_activity_pub:
+        auth_type: タイプ
+        actions: 操作
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: 承認
+        remove_authorization_button:
+          label: 削除

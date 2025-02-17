@@ -1,0 +1,69 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+sq:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: U ruajt
+          enabled:
+            label: Aktivizuar
+          disabled:
+            label: E çaktivizuar
+          username: Emri i përdoruesit
+          name: Emri
+          table:
+            auth_type: Lloji
+            actions: Veprimet
+          category:
+            label: Categories
+          tag:
+            label: Etiketat
+          model_type:
+            category: Kategori
+        log:
+          label: Ditari
+          title: Ditari
+          created_at: Krijuar më
+          message: Mesazh
+          json:
+            copy:
+              label: Kopjo
+              success: Kopjuar!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktiv
+      follow:
+        domain:
+          placeholder: domain
+      actor_reject:
+        label: Refuzo
+      follow_table:
+        user: User
+        follow_pending: në pritje
+        actions: Veprimet
+      visibility:
+        label:
+          public: Publike
+      post_object_type:
+        label:
+          note: Shënim
+    user:
+      discourse_activity_pub:
+        auth_type: Lloji
+        actions: Veprimet
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autorizo
+        remove_authorization_button:
+          label: Hiq

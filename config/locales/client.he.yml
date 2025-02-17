@@ -1,0 +1,72 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+he:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: נשמר
+          enabled:
+            label: פעיל
+          disabled:
+            label: כבוי
+          username: שם משתמש
+          name: שם
+          default_visibility: חשיפה
+          table:
+            auth_type: סוג
+            actions: פעולות
+          category:
+            label: קטגוריות
+          tag:
+            label: תגיות
+          model_type:
+            category: קטגוריה
+            tag: תגית
+        log:
+          label: יומנים
+          title: יומנים
+          created_at: מועד יצירה
+          level: דרגה
+          message: הודעה
+          json:
+            copy:
+              label: העתקה
+              success: הועתק!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: פעיל
+      follow:
+        domain:
+          placeholder: שם תחום
+      actor_reject:
+        label: לדחות
+      follow_table:
+        user: משתמש
+        follow_pending: ממתין
+        actions: פעולות
+      visibility:
+        label:
+          public: פומבי
+      post_object_type:
+        label:
+          note: הערה
+    user:
+      discourse_activity_pub:
+        auth_type: סוג
+        actions: פעולות
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: אישור
+        remove_authorization_button:
+          label: הסרה

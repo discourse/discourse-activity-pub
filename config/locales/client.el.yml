@@ -1,0 +1,71 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+el:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Αποθηκεύτηκε!
+          enabled:
+            label: Ενεργοποιημένα
+          disabled:
+            label: Απενεργοποιημένο
+          username: Όνομα Χρήστη
+          name: Όνομα
+          default_visibility: Ορατότητα
+          table:
+            auth_type: Τύπος
+            actions: Ενέργειες
+          category:
+            label: Κατηγορίες
+          tag:
+            label: Ετικέτες
+          model_type:
+            category: Κατηγορία
+        log:
+          label: Αρχεία καταγραφής
+          title: Αρχεία καταγραφής
+          created_at: Δημιουργήθηκε στις
+          level: Επίπεδο
+          message: Μήνυμα
+          json:
+            copy:
+              label: Αντιγραφή
+              success: Αντιγράφηκε!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Ενεργοί
+      follow:
+        domain:
+          placeholder: domain
+      actor_reject:
+        label: Απόρριψη
+      follow_table:
+        user: Χρήστης
+        follow_pending: εκρεμείς
+        actions: Ενέργειες
+      visibility:
+        label:
+          public: Δημόσια
+      post_object_type:
+        label:
+          note: Σημείωση
+    user:
+      discourse_activity_pub:
+        auth_type: Τύπος
+        actions: Ενέργειες
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Εξουσιοδότηση
+        remove_authorization_button:
+          label: Αφαίρεση

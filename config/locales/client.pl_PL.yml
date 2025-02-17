@@ -1,0 +1,72 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+pl_PL:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Zapisano
+          enabled:
+            label: Włączona
+          disabled:
+            label: Wyłączone
+          username: Nazwa użytkownika
+          name: Nazwa
+          default_visibility: Widoczność
+          table:
+            auth_type: Typ
+            actions: Akcje
+          category:
+            label: Kategorie
+          tag:
+            label: Tagi
+          model_type:
+            category: Kategoria
+            tag: Tag
+        log:
+          label: Logi
+          title: Logi
+          created_at: Utworzony
+          level: Poziom
+          message: Wiadomość
+          json:
+            copy:
+              label: Kopiuj
+              success: Skopiowane!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktywni
+      follow:
+        domain:
+          placeholder: domena
+      actor_reject:
+        label: Odrzuć
+      follow_table:
+        user: Użytkownik
+        follow_pending: oczekujący
+        actions: Akcje
+      visibility:
+        label:
+          public: Publiczne
+      post_object_type:
+        label:
+          note: Uwaga
+    user:
+      discourse_activity_pub:
+        auth_type: Typ
+        actions: Akcje
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autoryzuj
+        remove_authorization_button:
+          label: Usuń

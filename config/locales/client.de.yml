@@ -1,0 +1,74 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+de:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Gespeichert
+          enabled:
+            label: Aktiviert
+          disabled:
+            label: Deaktiviert
+          site_setting:
+            title: Website-Einstellungen
+          username: Benutzername
+          name: Name
+          default_visibility: Sichtbarkeit
+          table:
+            auth_type: Art
+            actions: Aktionen
+          category:
+            label: Kategorien
+          tag:
+            label: Schlagwörter
+          model_type:
+            category: Kategorie
+            tag: Schlagwort
+        log:
+          label: Protokolle
+          title: Protokolle
+          created_at: Erstellt am
+          level: Stufe
+          message: Nachricht
+          json:
+            copy:
+              label: Kopieren
+              success: Kopiert!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktiv
+      follow:
+        domain:
+          placeholder: domain
+      actor_reject:
+        label: Ablehnen
+      follow_table:
+        user: Benutzer
+        follow_pending: ausstehend
+        actions: Aktionen
+      visibility:
+        label:
+          public: Öffentlich
+      post_object_type:
+        label:
+          note: Hinweis
+    user:
+      discourse_activity_pub:
+        auth_type: Art
+        actions: Aktionen
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Genehmigen
+        remove_authorization_button:
+          label: Entfernen

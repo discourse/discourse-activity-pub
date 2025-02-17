@@ -1,0 +1,71 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+nb_NO:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Lagret
+          enabled:
+            label: Aktivert
+          disabled:
+            label: Deaktivert
+          username: Brukernavn
+          name: Navn
+          default_visibility: Synlighet
+          table:
+            auth_type: Type
+            actions: Handlinger
+          category:
+            label: Kategorier
+          tag:
+            label: Stikkord
+          model_type:
+            category: Kategori
+        log:
+          label: Logger
+          title: Logger
+          created_at: Opprettet på
+          level: Nivå
+          message: Send
+          json:
+            copy:
+              label: Kopier
+              success: Kopiert!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktiv
+      follow:
+        domain:
+          placeholder: domene
+      actor_reject:
+        label: Avvis
+      follow_table:
+        user: Bruker
+        follow_pending: venter
+        actions: Handlinger
+      visibility:
+        label:
+          public: Offentlig
+      post_object_type:
+        label:
+          note: Merk
+    user:
+      discourse_activity_pub:
+        auth_type: Type
+        actions: Handlinger
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autoriser
+        remove_authorization_button:
+          label: Fjern

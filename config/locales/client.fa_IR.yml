@@ -1,0 +1,72 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+fa_IR:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: ذخیره شد
+          enabled:
+            label: فعال شده
+          disabled:
+            label: غیرفعال
+          username: نام‌کاربری
+          name: نام
+          default_visibility: قابل مشاهده
+          table:
+            auth_type: نوع
+            actions: عملیات
+          category:
+            label: دسته‌بندی‌ها
+          tag:
+            label: برچسب‌ها
+          model_type:
+            category: دسته‌بندی
+            tag: برچسب
+        log:
+          label: گزارش‌ها
+          title: گزارش‌ها
+          created_at: ساخته شده
+          level: سطح
+          message: پیام
+          json:
+            copy:
+              label: کپی
+              success: کپی شد!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: فعال
+      follow:
+        domain:
+          placeholder: دومین
+      actor_reject:
+        label: رد کردن
+      follow_table:
+        user: کاربر
+        follow_pending: در انتظار
+        actions: عملیات
+      visibility:
+        label:
+          public: عمومی
+      post_object_type:
+        label:
+          note: یادداشت
+    user:
+      discourse_activity_pub:
+        auth_type: نوع
+        actions: عملیات
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: اجازه دادن
+        remove_authorization_button:
+          label: پاک کردن

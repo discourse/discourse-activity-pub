@@ -1,0 +1,65 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+sl:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Shranjeno
+          enabled:
+            label: Vključeno
+          disabled:
+            label: Onemogočeno
+          username: Uporabniško ime
+          name: Ime
+          default_visibility: Vidljivost
+          table:
+            auth_type: Tip
+            actions: Akcije
+          category:
+            label: Kategorije
+          tag:
+            label: Oznake
+          model_type:
+            category: Kategorija
+        log:
+          label: Dnevniki
+          title: Dnevniki
+          created_at: Ustvarjeno
+          message: Opozorilo
+          json:
+            copy:
+              label: Kopiraj
+              success: Kopirano!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktivni
+      follow:
+        domain:
+          placeholder: domena
+      actor_reject:
+        label: Zavrni
+      follow_table:
+        user: Uporabnik
+        follow_pending: v teku
+        actions: Akcije
+      visibility:
+        label:
+          public: Javno
+    user:
+      discourse_activity_pub:
+        auth_type: Tip
+        actions: Akcije
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        remove_authorization_button:
+          label: Odstrani

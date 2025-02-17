@@ -1,0 +1,63 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+be:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Захавана
+          disabled:
+            label: Адключана
+          username: Імя карыстальніка
+          name: Імя
+          table:
+            auth_type: Тып
+            actions: Дзеянні
+          category:
+            label: катэгорыі
+          tag:
+            label: тэгі
+          model_type:
+            category: катэгорыя
+        log:
+          label: Логі
+          title: Логі
+          level: ўзровень
+          message: Паказаць выдаленыя паведамленні...
+          json:
+            copy:
+              label: капіяваць
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: актыўныя
+      follow:
+        domain:
+          placeholder: дамен
+      actor_reject:
+        label: адхіляць
+      follow_table:
+        user: карыстальнік
+        follow_pending: прынята......
+        actions: Дзеянні
+      visibility:
+        label:
+          public: грамадскага
+    user:
+      discourse_activity_pub:
+        auth_type: Тып
+        actions: Дзеянні
+        authorize:
+          auth_type:
+            discourse:
+              title: гаворка
+        authorize_button:
+          label: санкцыянаваць
+        remove_authorization_button:
+          label: выдаліць

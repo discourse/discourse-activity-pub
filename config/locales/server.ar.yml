@@ -1,0 +1,39 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+ar:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_actor:
+          attributes:
+            ap_type:
+              invalid: "غير صالح"
+        discourse_activity_pub_activity:
+          attributes:
+            ap_type:
+              invalid: "غير صالح"
+        discourse_activity_pub_object:
+          attributes:
+            ap_type:
+              invalid: "غير صالح"
+            object_type:
+              invalid: "غير صالح"
+        discourse_activity_pub_client:
+          attributes:
+            credentials:
+              invalid: "غير صالح"
+        discourse_activity_pub:
+          attributes:
+            model_type:
+              invalid: "غير صالح"
+  discourse_activity_pub:
+    process:
+      warning:
+        post_is_deleted: "تم حذف المنشور"
+    category:
+      error:
+        category_not_found: "لم يتم العثور على الفئة"

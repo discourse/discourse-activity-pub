@@ -1,0 +1,68 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+ca:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Desat
+          enabled:
+            label: Activat
+          disabled:
+            label: Desactivat
+          username: Nom d'usuari
+          name: Nom
+          default_visibility: Visibilitat
+          table:
+            auth_type: Tipus
+            actions: Accions
+          category:
+            label: Categories
+          tag:
+            label: Etiquetes
+          model_type:
+            category: Categoria
+        log:
+          label: Registres
+          title: Registres
+          created_at: Creat
+          level: Nivell
+          message: Missatge
+          json:
+            copy:
+              label: Còpia
+              success: Copiat!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Actiu
+      follow:
+        domain:
+          placeholder: domini
+      actor_reject:
+        label: Rebutja
+      follow_table:
+        user: Usuari
+        follow_pending: pendents
+        actions: Accions
+      visibility:
+        label:
+          public: Públic
+    user:
+      discourse_activity_pub:
+        auth_type: Tipus
+        actions: Accions
+        authorize:
+          auth_type:
+            discourse:
+              title: Discourse
+        authorize_button:
+          label: Autoritza
+        remove_authorization_button:
+          label: Elimina

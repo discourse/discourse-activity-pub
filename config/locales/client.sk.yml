@@ -1,0 +1,74 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+sk:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: Uložené
+          enabled:
+            label: Povolené
+          disabled:
+            label: Vypnuté
+          site_setting:
+            title: Nastavenia lokality
+          username: Používateľské meno
+          name: Meno
+          default_visibility: Viditeľnosť
+          table:
+            auth_type: Typ
+            actions: Akcie
+          category:
+            label: Kategórie
+          tag:
+            label: Značky
+          model_type:
+            category: Kategória
+            tag: Značka
+        log:
+          label: Logy
+          title: Logy
+          created_at: Vytvorené v
+          level: Úroveň
+          message: Správa
+          json:
+            copy:
+              label: Kopírovať
+              success: Skopírované!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: Aktívny
+      follow:
+        domain:
+          placeholder: doména
+      actor_reject:
+        label: Zamietnuť
+      follow_table:
+        user: Používateľ
+        follow_pending: čakajúce
+        actions: Akcie
+      visibility:
+        label:
+          public: Verejné
+      post_object_type:
+        label:
+          note: Poznámka
+    user:
+      discourse_activity_pub:
+        auth_type: Typ
+        actions: Akcie
+        authorize:
+          auth_type:
+            discourse:
+              title: DIscourse
+        authorize_button:
+          label: Autorizovať
+        remove_authorization_button:
+          label: Odstrániť

@@ -7,7 +7,7 @@ import { bind } from "discourse/lib/decorators";
 import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
-export default class ActivityPubStatus extends Component {
+export default class ActivityPubActorStatus extends Component {
   @service siteSettings;
   @service site;
   @service messageBus;
@@ -127,7 +127,7 @@ export default class ActivityPubStatus extends Component {
   }
 
   get classes() {
-    let result = `activity-pub-status ${dasherize(this.statusKey)}`;
+    let result = `activity-pub-actor-status ${dasherize(this.statusKey)}`;
     if (this.args.onClick) {
       result += " clickable";
     }

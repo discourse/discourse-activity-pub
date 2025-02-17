@@ -1,0 +1,67 @@
+# WARNING: Never edit this file.
+# It will be overwritten when translations are pulled from Crowdin.
+#
+# To work with us on translations, join this project:
+# https://translate.discourse.org/
+
+ur:
+  admin_js:
+    admin:
+      discourse_activity_pub:
+        actor:
+          save:
+            success: محفوظ کر لیا گیا
+          disabled:
+            label: غیر فعال
+          username: صارف نام
+          name: نام
+          default_visibility: نموداری
+          table:
+            auth_type: قِسم
+            actions: عمل
+          category:
+            label: اقسام
+          tag:
+            label: ٹیگز
+          model_type:
+            category: زمرہ
+            tag: ٹیگ
+        log:
+          label: لاگز
+          title: لاگز
+          created_at: کو بنایا گیا
+          level: لَیول
+          message: پیغام
+          json:
+            copy:
+              label: کاپی
+              success: کاپی کر لیا!
+  js:
+    discourse_activity_pub:
+      status:
+        label:
+          active: فعال
+      follow:
+        domain:
+          placeholder: ڈَومَین
+      actor_reject:
+        label: مسترد کریں
+      follow_table:
+        user: صارف
+        follow_pending: زیرِاِلتوَاء
+        actions: عمل
+      visibility:
+        label:
+          public: عوامی
+    user:
+      discourse_activity_pub:
+        auth_type: قِسم
+        actions: عمل
+        authorize:
+          auth_type:
+            discourse:
+              title: ڈسکورس
+        authorize_button:
+          label: اجازت دیں
+        remove_authorization_button:
+          label: خارج کریں
