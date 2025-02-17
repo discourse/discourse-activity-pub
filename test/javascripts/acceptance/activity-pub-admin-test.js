@@ -249,9 +249,8 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
     await click(".activity-pub-save-actor");
 
     const siteActors = Site.currentProp("activity_pub_actors");
-    assert.strictEqual(
-      siteActors.tag.some((actor) => actor.name === createdActor.name),
-      true,
+    assert.true(
+      siteActors.tag.some((a) => a.name === createdActor.name),
       "adds the actor to site actors"
     );
     assert.ok(
@@ -312,9 +311,8 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     await click(".activity-pub-save-actor");
 
     const siteActors = Site.currentProp("activity_pub_actors");
-    assert.strictEqual(
-      siteActors.category.some((actor) => actor.name === updatedActor.name),
-      true,
+    assert.true(
+      siteActors.category.some((a) => a.name === updatedActor.name),
       "updates the site actor"
     );
   });
