@@ -1,5 +1,7 @@
 import { click, currentURL, fillIn, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
+import Site from "discourse/models/site";
 import pretender, {
   parsePostData,
   response,
@@ -12,6 +14,7 @@ import {
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
 import { default as Logs } from "../fixtures/logs-fixtures";
+import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 const categoryActors =
   AdminActors["/admin/plugins/ap/actor?model_type=category"];
@@ -77,6 +80,7 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
   needs.site({
     activity_pub_enabled: true,
     activity_pub_publishing_enabled: true,
+    activity_pub_actors: cloneJSON(SiteActors),
   });
   needs.pretender((server, helper) => {
     server.get("/admin/plugins/ap/actor/new", () =>
@@ -185,7 +189,7 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
 
     const tags = selectKit(".activity-pub-actor-add .tag-chooser");
     await tags.expand();
-    await tags.selectRowByName("monkey");
+    await tags.selectRowByName("dog");
 
     assert.ok(
       exists(".activity-pub-actor-form"),
@@ -193,13 +197,13 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
     );
 
     const actor = {
-      username: "ap_monkey",
-      name: "AP monkey",
+      username: "ap_dog",
+      name: "AP dog",
       default_visibility: "public",
       post_object_type: "Article",
       publication_type: "full_topic",
       model_type: "Tag",
-      model_name: "monkey",
+      model_name: "dog",
     };
 
     await fillIn("#activity-pub-username", actor.username);
@@ -222,7 +226,7 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
     await publicationTypes.selectRowByValue(actor.publication_type);
 
     const createdActor = {
-      ...{ id: 5 },
+      ...{ id: 5, enabled: true, ready: true, model: "dog" },
       ...actor,
     };
 
@@ -244,7 +248,16 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
 
     await click(".activity-pub-save-actor");
 
-    // pauseTest();
+    const siteActors = Site.currentProp("activity_pub_actors");
+    assert.strictEqual(
+      siteActors.tag.some((actor) => actor.name === createdActor.name),
+      true,
+      "adds the actor to site actors"
+    );
+    assert.ok(
+      query(".activity-pub-actor-status.active"),
+      "actor has the right status"
+    );
   });
 });
 
@@ -254,6 +267,7 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
   needs.site({
     activity_pub_enabled: true,
     activity_pub_publishing_enabled: true,
+    activity_pub_actors: cloneJSON(SiteActors),
   });
   needs.pretender((server, helper) => {
     server.get(`/admin/plugins/ap/actor/${actor.id}`, () =>
@@ -296,6 +310,13 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     });
 
     await click(".activity-pub-save-actor");
+
+    const siteActors = Site.currentProp("activity_pub_actors");
+    assert.strictEqual(
+      siteActors.category.some((actor) => actor.name === updatedActor.name),
+      true,
+      "updates the site actor"
+    );
   });
 });
 

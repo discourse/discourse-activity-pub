@@ -6,6 +6,7 @@ import { service } from "@ember/service";
 import discourseLater from "discourse/lib/later";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
+import { updateSiteActor } from "../lib/activity-pub-utilities";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShow extends Controller {
@@ -70,6 +71,8 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     this.saving = true;
     this.actor.save().then((result) => {
       if (result?.success) {
+        updateSiteActor(result.actor);
+
         if (this.actor.isNew) {
           this.saving = false;
           return this.router.transitionTo(
