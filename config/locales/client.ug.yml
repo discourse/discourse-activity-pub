@@ -55,7 +55,7 @@ ug:
       visibility:
         label:
           public: ئاممىۋى
-      post_object_type:
+      object_type:
         label:
           note: ئەسكەرتىش
     user:

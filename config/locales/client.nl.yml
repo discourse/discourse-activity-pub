@@ -57,7 +57,7 @@ nl:
       visibility:
         label:
           public: Openbaar
-      post_object_type:
+      object_type:
         label:
           note: Opmerking
     user:

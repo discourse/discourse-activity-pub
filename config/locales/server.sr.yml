@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 sr:
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "Tema nije pronađena"

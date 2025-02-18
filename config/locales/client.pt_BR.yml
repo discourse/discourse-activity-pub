@@ -57,7 +57,7 @@ pt_BR:
       visibility:
         label:
           public: Público(a)
-      post_object_type:
+      object_type:
         label:
           note: Observação
     user:

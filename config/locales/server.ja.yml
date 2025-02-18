@@ -34,3 +34,6 @@ ja:
     process:
       warning:
         post_is_deleted: "投稿が削除された"
+    topic:
+      error:
+        topic_not_found: "トピックが見つかりませんでした"

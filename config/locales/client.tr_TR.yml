@@ -57,7 +57,7 @@ tr_TR:
       visibility:
         label:
           public: Herkese Açık
-      post_object_type:
+      object_type:
         label:
           note: Not
     user:

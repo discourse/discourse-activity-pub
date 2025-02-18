@@ -9,3 +9,6 @@ sw:
     category:
       error:
         category_not_found: "Kategoria haijapatikana"
+    topic:
+      error:
+        topic_not_found: "Mada haijapatikana"

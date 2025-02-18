@@ -9,3 +9,6 @@ ko:
     category:
       error:
         category_not_found: "카테고리를 찾을수 없습니다"
+    topic:
+      error:
+        topic_not_found: "글을 찾을 수 없음"

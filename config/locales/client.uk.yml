@@ -55,7 +55,7 @@ uk:
       visibility:
         label:
           public: Публічні
-      post_object_type:
+      object_type:
         label:
           note: Примітка
     user:

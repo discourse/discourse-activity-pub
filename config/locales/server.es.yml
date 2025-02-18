@@ -34,3 +34,6 @@ es:
     process:
       warning:
         post_is_deleted: "Se ha eliminado la publicación"
+    topic:
+      error:
+        topic_not_found: "Tema no encontrado"

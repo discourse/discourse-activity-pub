@@ -37,3 +37,6 @@ tr_TR:
     category:
       error:
         category_not_found: "Kategori bulunamadı"
+    topic:
+      error:
+        topic_not_found: "Konu bulunamadı."

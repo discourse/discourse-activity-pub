@@ -9,3 +9,6 @@ gl:
     category:
       error:
         category_not_found: "Non foi posíbel atopar a categoría"
+    topic:
+      error:
+        topic_not_found: "Non foi posíbel atopar o tema"

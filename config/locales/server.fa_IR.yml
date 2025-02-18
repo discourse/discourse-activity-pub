@@ -34,3 +34,6 @@ fa_IR:
     process:
       warning:
         post_is_deleted: "فرسته حذف شده است"
+    topic:
+      error:
+        topic_not_found: "موضوع پیدا نشد"

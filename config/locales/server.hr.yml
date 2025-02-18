@@ -9,3 +9,6 @@ hr:
     category:
       error:
         category_not_found: "Kategorija nije pronađena"
+    topic:
+      error:
+        topic_not_found: "Tema nije pronađena"
