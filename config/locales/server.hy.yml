@@ -9,3 +9,6 @@ hy:
     category:
       error:
         category_not_found: "Կատեգորիան չի գտնվել"
+    topic:
+      error:
+        topic_not_found: "Թեման չի գտնվել"

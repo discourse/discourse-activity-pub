@@ -57,7 +57,7 @@ sk:
       visibility:
         label:
           public: Verejné
-      post_object_type:
+      object_type:
         label:
           note: Poznámka
     user:

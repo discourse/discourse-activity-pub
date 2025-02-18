@@ -9,3 +9,6 @@ sl:
     process:
       warning:
         post_is_deleted: "Objava je izbrisana"
+    topic:
+      error:
+        topic_not_found: "Ne najdemo temo."

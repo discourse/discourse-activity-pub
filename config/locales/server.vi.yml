@@ -12,3 +12,6 @@ vi:
     category:
       error:
         category_not_found: "Không tìm thấy danh mục"
+    topic:
+      error:
+        topic_not_found: "Không tìm thấy chủ đề"

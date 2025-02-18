@@ -37,3 +37,6 @@ cs:
     category:
       error:
         category_not_found: "Kategorie nebyla nalezena"
+    topic:
+      error:
+        topic_not_found: "Téma nenalezeno"

@@ -9,3 +9,6 @@ da:
     category:
       error:
         category_not_found: "Denne kategori blev ikke fundet"
+    topic:
+      error:
+        topic_not_found: "Emne ikke fundet"

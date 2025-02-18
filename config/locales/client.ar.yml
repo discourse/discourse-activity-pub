@@ -55,7 +55,7 @@ ar:
       visibility:
         label:
           public: عامة
-      post_object_type:
+      object_type:
         label:
           note: ملاحظة
     user:

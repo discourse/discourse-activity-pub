@@ -54,7 +54,7 @@ el:
       visibility:
         label:
           public: Δημόσια
-      post_object_type:
+      object_type:
         label:
           note: Σημείωση
     user:

@@ -37,3 +37,6 @@ he:
     category:
       error:
         category_not_found: "לא נמצאה קטגוריה"
+    topic:
+      error:
+        topic_not_found: "הנושא לא נמצא"

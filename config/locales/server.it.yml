@@ -37,3 +37,6 @@ it:
     category:
       error:
         category_not_found: "Categoria non trovata"
+    topic:
+      error:
+        topic_not_found: "Argomento non trovato"

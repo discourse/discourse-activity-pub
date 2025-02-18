@@ -34,3 +34,6 @@ hu:
     process:
       warning:
         post_is_deleted: "Bejegyzés törölve"
+    topic:
+      error:
+        topic_not_found: "A téma nem található"

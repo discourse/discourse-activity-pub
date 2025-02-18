@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 th:
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "ไม่พบกระทู้"

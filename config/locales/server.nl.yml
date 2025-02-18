@@ -37,3 +37,6 @@ nl:
     category:
       error:
         category_not_found: "Categorie niet gevonden"
+    topic:
+      error:
+        topic_not_found: "Topic niet gevonden"

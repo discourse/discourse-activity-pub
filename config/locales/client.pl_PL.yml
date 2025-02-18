@@ -55,7 +55,7 @@ pl_PL:
       visibility:
         label:
           public: Publiczne
-      post_object_type:
+      object_type:
         label:
           note: Uwaga
     user:

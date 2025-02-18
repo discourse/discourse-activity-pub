@@ -37,3 +37,6 @@ ug:
     category:
       error:
         category_not_found: "سەھىپە تېپىلمىدى"
+    topic:
+      error:
+        topic_not_found: "تېما تېپىلمىدى"

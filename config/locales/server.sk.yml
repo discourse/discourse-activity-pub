@@ -37,3 +37,6 @@ sk:
     category:
       error:
         category_not_found: "Kategória sa nenašla"
+    topic:
+      error:
+        topic_not_found: "Téma sa nenašla"

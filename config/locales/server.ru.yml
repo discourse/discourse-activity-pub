@@ -37,3 +37,6 @@ ru:
     category:
       error:
         category_not_found: "Категория не найдена"
+    topic:
+      error:
+        topic_not_found: "Тема не найдена"

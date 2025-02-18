@@ -57,7 +57,7 @@ de:
       visibility:
         label:
           public: Öffentlich
-      post_object_type:
+      object_type:
         label:
           note: Hinweis
     user:

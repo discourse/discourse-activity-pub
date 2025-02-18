@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 ro:
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "Subiectul nu a fost găsit"

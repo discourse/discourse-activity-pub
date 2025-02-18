@@ -55,7 +55,7 @@ fa_IR:
       visibility:
         label:
           public: عمومی
-      post_object_type:
+      object_type:
         label:
           note: یادداشت
     user:

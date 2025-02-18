@@ -34,3 +34,6 @@ zh_CN:
     process:
       warning:
         post_is_deleted: "帖子被删除"
+    topic:
+      error:
+        topic_not_found: "找不到话题"
