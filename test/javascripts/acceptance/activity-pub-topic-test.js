@@ -144,6 +144,56 @@ acceptance(
 );
 
 acceptance(
+  "Discourse Activity Pub | ActivityPub topic as anon user when post status is visible to everyone",
+  function (needs) {
+    setupServer(needs, [
+      {
+        activity_pub_published_at: publishedAt,
+        activity_pub_visibility: "public",
+        activity_pub_domain: "external.com",
+        activity_pub_local: false,
+      },
+      {
+        activity_pub_published_at: publishedAt,
+        activity_pub_visibility: "public",
+        activity_pub_local: true,
+      },
+    ]);
+
+    test("When the plugin is disabled", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "0";
+      Site.current().setProperties({
+        activity_pub_enabled: false,
+        activity_pub_publishing_enabled: false,
+      });
+
+      await visit("/t/280");
+
+      assert.notOk(
+        exists(".topic-map__activity-pub"),
+        "the activity pub topic map is not visible"
+      );
+    });
+
+    test("When the plugin is enabled", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "0";
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
+
+      await visit("/t/280");
+
+      assert.ok(exists(".topic-map__activity-pub"), "the topic map is visible");
+      assert.ok(
+        exists(".topic-post:nth-of-type(3) .post-info.activity-pub"),
+        "is visible"
+      );
+    });
+  }
+);
+
+acceptance(
   "Discourse Activity Pub | Scheduled ActivityPub topic as staff",
   function (needs) {
     needs.user({ moderator: true, admin: false });
