@@ -145,7 +145,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | ActivityPub topic as guest when post status is visible to everyone",
+  "Discourse Activity Pub | ActivityPub topic as anon user when post status is visible to everyone",
   function (needs) {
     setupServer(needs, [
       {
