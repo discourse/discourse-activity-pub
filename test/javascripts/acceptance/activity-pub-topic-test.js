@@ -27,7 +27,6 @@ const setupServer = (needs, postAttrs = [], topicAttrs = {}) => {
       post.created_at = createdAt;
       post.activity_pub_enabled = true;
       post.activity_pub_object_type = "Note";
-      post.activity_pub_first_post = true;
       Object.keys(attrs).forEach((attr) => {
         post[attr] = attrs[attr];
       });
@@ -183,7 +182,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Published ActivityPub topic as staff",
+  "Discourse Activity Pub | Published ActivityPub full_topic topic as staff",
   function (needs) {
     needs.user({ moderator: true, admin: false });
     setupServer(
@@ -193,15 +192,20 @@ acceptance(
           activity_pub_published_at: publishedAt,
           activity_pub_visibility: "public",
           activity_pub_local: true,
+          activity_pub_full_topic: true,
         },
         {
           activity_pub_published_at: publishedAt,
           activity_pub_visibility: "public",
           activity_pub_local: true,
+          activity_pub_full_topic: true,
         },
       ],
       {
         activity_pub_published_at: publishedAt,
+        activity_pub_object_type: "Collection",
+        activity_pub_object_id: "https://local.com/collection/1234567",
+        activity_pub_full_topic: true,
       }
     );
 
@@ -296,6 +300,18 @@ acceptance(
         )}.`,
         "shows the right post status text"
       );
+      assert.ok(
+        exists(
+          ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.collection"
+        ),
+        "shows the right topic object type attribute"
+      );
+      assert.ok(
+        exists(
+          ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.note"
+        ),
+        "shows the right post object type attribute"
+      );
     });
 
     test("ActivityPub topic admin modal", async function (assert) {
@@ -357,6 +373,71 @@ acceptance(
         ).innerText.trim(),
         "Public",
         "shows the right visibility text"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Discourse Activity Pub | Published ActivityPub first_post topic as staff",
+  function (needs) {
+    needs.user({ moderator: true, admin: false });
+    setupServer(
+      needs,
+      [
+        {
+          activity_pub_first_post: true,
+          activity_pub_published_at: publishedAt,
+          activity_pub_visibility: "public",
+          activity_pub_local: true,
+        },
+      ],
+      {
+        activity_pub_published_at: publishedAt,
+        activity_pub_full_topic: false,
+      }
+    );
+
+    test("ActivityPub topic info modal", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
+
+      await visit("/t/280");
+
+      await click(".topic-map__activity-pub .activity-pub-topic-status");
+      assert.ok(exists(".activity-pub-topic-info-modal"), "shows the modal");
+
+      assert.strictEqual(
+        query(
+          ".activity-pub-topic-info-modal .activity-pub-topic-status"
+        ).innerText.trim(),
+        `Topic was published on ${publishedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
+        "shows the right topic status text"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-topic-info-modal .activity-pub-post-status"
+        ).innerText.trim(),
+        `Post was published on ${publishedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
+        "shows the right post status text"
+      );
+      assert.notOk(
+        exists(
+          ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.collection"
+        ),
+        "does not show a topic object type attribute"
+      );
+      assert.ok(
+        exists(
+          ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.note"
+        ),
+        "shows the right post object type attribute"
       );
     });
   }
@@ -436,6 +517,15 @@ acceptance(
           i18n("dates.long_with_year")
         )}.`,
         "shows the right topic status text"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-topic-info-modal .activity-pub-post-status"
+        ).innerText.trim(),
+        `Post was published on ${publishedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
+        "shows the right post status text"
       );
       assert.strictEqual(
         query(
