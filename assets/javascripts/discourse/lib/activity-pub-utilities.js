@@ -19,16 +19,19 @@ export function buildHandle({ actor, model, site }) {
 }
 
 export function showStatusToUser(user, siteSettings) {
-  if (!user || !siteSettings) {
+  if (!siteSettings) {
     return false;
   }
   const groupIds = siteSettings.activity_pub_post_status_visibility_groups
     .split("|")
     .map(Number);
-  return user.groups.some(
-    (group) =>
-      groupIds.includes(AUTO_GROUPS.everyone.id) || groupIds.includes(group.id)
-  );
+  if (groupIds.includes(AUTO_GROUPS.everyone.id)) {
+    return true;
+  }
+  if (!user) {
+    return false;
+  }
+  return user.groups.some((group) => groupIds.includes(group.id));
 }
 
 export function activityPubPostStatus(post) {
