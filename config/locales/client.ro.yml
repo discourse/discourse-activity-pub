@@ -55,7 +55,7 @@ ro:
       visibility:
         label:
           public: Public
-      post_object_type:
+      object_type:
         label:
           note: Notă
     user:

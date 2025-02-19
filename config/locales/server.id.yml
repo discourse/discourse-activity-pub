@@ -34,3 +34,6 @@ id:
     category:
       error:
         category_not_found: "Kategori tidak ditemukan"
+    topic:
+      error:
+        topic_not_found: "Tidak ada topik"

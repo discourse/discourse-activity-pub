@@ -9,3 +9,6 @@ ca:
     category:
       error:
         category_not_found: "Categoria no trobada"
+    topic:
+      error:
+        topic_not_found: "Tema no trobat"

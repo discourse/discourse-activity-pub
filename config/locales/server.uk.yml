@@ -37,3 +37,6 @@ uk:
     category:
       error:
         category_not_found: "Розділ не знайдено"
+    topic:
+      error:
+        topic_not_found: "Тему не знайдено"

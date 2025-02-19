@@ -37,3 +37,6 @@ ar:
     category:
       error:
         category_not_found: "لم يتم العثور على الفئة"
+    topic:
+      error:
+        topic_not_found: "الموضوع غير موجود"

@@ -34,3 +34,6 @@ te:
     process:
       warning:
         post_is_deleted: "పోస్ట్ తొలగించబడింది"
+    topic:
+      error:
+        topic_not_found: "విషయం కనిపించలేదు"

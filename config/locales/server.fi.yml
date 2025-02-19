@@ -37,3 +37,6 @@ fi:
     category:
       error:
         category_not_found: "Aluetta ei löytynyt"
+    topic:
+      error:
+        topic_not_found: "Ketjua ei löytynyt"

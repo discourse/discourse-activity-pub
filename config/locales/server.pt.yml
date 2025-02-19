@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 pt:
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "Tópico não encontrado"

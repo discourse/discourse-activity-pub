@@ -9,3 +9,6 @@ be:
     category:
       error:
         category_not_found: "Катэгорыя не знойдзена"
+    topic:
+      error:
+        topic_not_found: "Тэму не знойдзена"

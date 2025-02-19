@@ -55,7 +55,7 @@ ja:
       visibility:
         label:
           public: 公開
-      post_object_type:
+      object_type:
         label:
           note: 注意
     user:

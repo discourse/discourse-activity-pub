@@ -55,7 +55,7 @@ es:
       visibility:
         label:
           public: Pública
-      post_object_type:
+      object_type:
         label:
           note: Nota
     user:

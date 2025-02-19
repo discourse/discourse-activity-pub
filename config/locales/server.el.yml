@@ -30,3 +30,7 @@ el:
           attributes:
             model_type:
               invalid: "δεν είναι έγκυρο"
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "Το θέμα δε βρέθηκε"

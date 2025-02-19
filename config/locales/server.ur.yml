@@ -9,3 +9,6 @@ ur:
     category:
       error:
         category_not_found: "زُمرہ نہیں ملا"
+    topic:
+      error:
+        topic_not_found: "ٹاپک نہیں ملا"

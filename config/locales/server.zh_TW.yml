@@ -30,3 +30,7 @@ zh_TW:
           attributes:
             model_type:
               invalid: "無效"
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "未找到話題"

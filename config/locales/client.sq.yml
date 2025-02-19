@@ -52,7 +52,7 @@ sq:
       visibility:
         label:
           public: Publike
-      post_object_type:
+      object_type:
         label:
           note: Shënim
     user:

@@ -9,3 +9,6 @@ et:
     category:
       error:
         category_not_found: "Kategooriat ei leitud"
+    topic:
+      error:
+        topic_not_found: "Teemat ei leitud"

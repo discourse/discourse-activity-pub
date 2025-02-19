@@ -54,7 +54,7 @@ nb_NO:
       visibility:
         label:
           public: Offentlig
-      post_object_type:
+      object_type:
         label:
           note: Merk
     user:

@@ -7,27 +7,64 @@
 cs:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse Activity Pub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            title: Přidat aktéra ActivityPub
+            label: Přidat aktéra
           save:
+            title: Uložit aktéra ActivityPub
+            label: Uložit aktéra
             success: Uloženo
+            failed: Neuloženo
+          edit:
+            title: Upravit aktéra ActivityPub
+            label: Upravit aktéra
           enabled:
+            title: Aktér ActivityPub povolen
             label: Zapnuto
           disabled:
+            title: Aktér ActivityPub zakázán
             label: Vypnuto
           site_setting:
             title: Nastavení webu
+            activity_pub_enabled:
+              label: Plugin je povolen
+              title: Plugin ActivityPub je povolen nastavením webu.
+              description: Příchozí aktivity určené povoleným aktérům budou zpracovány.
+            login_required:
+              label: Je vyžadováno přihlášení
+              title: Nastavením webu `login required` je vyžadováno přihlášení.
+              description: Zveřejněny jsou pouze odchozí požadavky na sledování a atributy povolených aktérů.
           username: Uživatelské jméno
+          username_description: "%{min_length} až %{max_length} písmena, číslice, pomlčky nebo podtržítka."
           name: Název
+          name_description: Používá se jako zobrazovaný název u některých služeb.
           default_visibility: Viditelnost
+          default_visibility_description: Všechny příspěvky budou zveřejněny prostřednictvím služby ActivityPub s touto viditelností.
+          post_object_type: Typ objektu příspěvku
+          post_object_type_description: Pro krátký obsah (např. Mastodon) použijte Note a pro dlouhý obsah použijte Article.
+          publication_type: Typ zveřejnění
+          publication_type_description: First Post zveřejní první příspěvek v každém tématu. Full Topic zveřejňuje všechny příspěvky a přijímá odpovědi.
           table:
+            actor: Aktér
+            model: Model
             auth_type: Typ
             actions: Akce
           category:
             label: Kategorie
+            title: Aktéři kategorií
+            none: Vyberte kategorii
           tag:
             label: Štítky
+            title: Aktéři štítků
+            none: Vyberte štítek
           model_type:
+            none: Vyberte model
             category: Kategorie
             tag: Štítek
         log:
@@ -37,14 +74,37 @@ cs:
           level: Úroveň
           message: Odeslat
           json:
+            label: JSON
+            title: JSON aktivity
+            show:
+              label: JSON
+              title: Zobrazit JSON aktivity
             copy:
               label: Kopírovat
+              title: Zkopírovat JSON do schránky.
               success: Zkopírováno!
+            logged_at: Přihlášen %{logged_at}
   js:
     discourse_activity_pub:
       status:
+        title:
+          publishing_disabled: Publikování v ActivityPub je zakázáno nastavením webu `login required`. Jsou povoleny příchozí aktivity a odchozí sledování.
+          plugin_disabled: Plugin ActivityPub je zakázán
+          category_read_restricted: ActivityPub nefunguje se soukromými kategoriemi
+          model_disabled: ActivityPub je pro %{model_type} zakázán
+          model_not_ready: ActivityPub není připraven na %{model_type}
+          model_not_active: ActivityPub není pro %{model_type} aktivní
+          model_active:
+            first_post: První příspěvek nového tématu bude zveřejněn %{delay_minutes} minut po zveřejnění
         label:
           active: Aktivní
+          not_active: Není aktivní
+          publishing_disabled: Publikování zakázáno
+      discovery:
+        label: Federace
+        description: Federace pro %{model_name}
+        followers: Sledující
+        follows: Sleduje
       follow:
         domain:
           placeholder: doména
@@ -57,9 +117,12 @@ cs:
       visibility:
         label:
           public: Veřejné
-      post_object_type:
+      object_type:
         label:
           note: Poznámka
+      publication_type:
+        description:
+          full_topic: Každý příspěvek každého tématu v tomto %{model_type} je zveřejněn prostřednictvím ActivityPub a odpovědi na jiných serverech ActivityPub jsou importovány jako odpovědi v Discourse.
     user:
       discourse_activity_pub:
         auth_type: Typ

@@ -57,7 +57,7 @@ fr:
       visibility:
         label:
           public: Public
-      post_object_type:
+      object_type:
         label:
           note: Note
     user:

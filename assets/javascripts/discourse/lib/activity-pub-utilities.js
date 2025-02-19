@@ -1,4 +1,5 @@
 import { AUTO_GROUPS } from "discourse/lib/constants";
+import Site from "discourse/models/site";
 import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../models/activity-pub-actor";
 
@@ -19,16 +20,19 @@ export function buildHandle({ actor, model, site }) {
 }
 
 export function showStatusToUser(user, siteSettings) {
-  if (!user || !siteSettings) {
+  if (!siteSettings) {
     return false;
   }
   const groupIds = siteSettings.activity_pub_post_status_visibility_groups
     .split("|")
     .map(Number);
-  return user.groups.some(
-    (group) =>
-      groupIds.includes(AUTO_GROUPS.everyone.id) || groupIds.includes(group.id)
-  );
+  if (groupIds.includes(AUTO_GROUPS.everyone.id)) {
+    return true;
+  }
+  if (!user) {
+    return false;
+  }
+  return user.groups.some((group) => groupIds.includes(group.id));
 }
 
 export function activityPubPostStatus(post) {
@@ -149,4 +153,31 @@ export function activityPubTopicActors(topic) {
     });
   }
   return result;
+}
+
+export function updateSiteActor(newActor) {
+  if (!newActor || !newActor.model_type) {
+    return;
+  }
+  const actors = Site.currentProp("activity_pub_actors");
+  if (!actors) {
+    return;
+  }
+
+  const modelType = newActor.model_type.toLowerCase();
+  const existingActor = actors[modelType].find(
+    (actor) => actor.id === newActor.id
+  );
+
+  if (existingActor) {
+    actors[modelType].splice(
+      actors[modelType].indexOf(existingActor),
+      1,
+      newActor
+    );
+  } else {
+    actors[modelType].push(newActor);
+  }
+
+  Site.currentProp("activity_pub_actors", actors);
 }

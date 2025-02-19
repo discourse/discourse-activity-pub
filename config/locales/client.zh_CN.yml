@@ -57,7 +57,7 @@ zh_CN:
       visibility:
         label:
           public: 公开
-      post_object_type:
+      object_type:
         label:
           note: 备注
     user:

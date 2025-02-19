@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 bg:
+  discourse_activity_pub:
+    topic:
+      error:
+        topic_not_found: "Темата не е намерена"

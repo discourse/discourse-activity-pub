@@ -16,7 +16,7 @@ export default class ActivityPubAttributes extends Component {
 
   <template>
     <div class="activity-pub-attributes">
-      {{#if this.topic}}
+      {{#if this.topic.activity_pub_object_type}}
         <ActivityPubAttribute
           @attribute="object_type"
           @value={{this.topic.activity_pub_object_type}}

@@ -55,7 +55,7 @@ ru:
       visibility:
         label:
           public: Публичное
-      post_object_type:
+      object_type:
         label:
           note: Примечание
     user:

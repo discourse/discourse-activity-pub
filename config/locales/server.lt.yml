@@ -9,3 +9,6 @@ lt:
     category:
       error:
         category_not_found: "Kategorijos nėra"
+    topic:
+      error:
+        topic_not_found: "Tema nerasta"

@@ -55,7 +55,7 @@ he:
       visibility:
         label:
           public: פומבי
-      post_object_type:
+      object_type:
         label:
           note: הערה
     user:

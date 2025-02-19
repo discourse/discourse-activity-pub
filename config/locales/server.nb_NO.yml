@@ -9,3 +9,6 @@ nb_NO:
     category:
       error:
         category_not_found: "Kategorien finnes ikke"
+    topic:
+      error:
+        topic_not_found: "Fant ikke emnet"
