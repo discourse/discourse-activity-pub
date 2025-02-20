@@ -157,9 +157,16 @@ export default {
             return;
           }
 
+          const postUpdate = data.model.type === "post";
+          const topicUpdate = data.model.type === "topic";
+          const topicId = topicUpdate ? data.model.id : data.model.topic_id;
           const postStream = topic.get("postStream");
 
-          if (data.model.type === "post" && postStream) {
+          if (topicId !== topic.id || !postStream) {
+            return;
+          }
+
+          if (postUpdate) {
             let postProps = {
               activity_pub_scheduled_at: data.model.scheduled_at,
               activity_pub_published_at: data.model.published_at,
@@ -182,7 +189,7 @@ export default {
             );
           }
 
-          if (data.model.type === "topic" && topic) {
+          if (topicUpdate) {
             let topicProps = {
               activity_pub_published: data.model.published,
               activity_pub_published_post_count:
