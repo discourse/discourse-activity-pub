@@ -1,3 +1,4 @@
+import { getOwner } from "@ember/owner";
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { AUTO_GROUPS } from "discourse/lib/constants";
@@ -298,6 +299,13 @@ acceptance(
         activity_pub_publishing_enabled: true,
       });
 
+      const appEvents = getOwner(this).lookup("service:app-events");
+      let topicUpdated = false;
+      let topicUpdatedCallback = () => {
+        topicUpdated = true;
+      };
+      appEvents.on("activity-pub:topic-updated", topicUpdatedCallback);
+
       await visit("/t/280");
 
       const stateUpdate = {
@@ -310,6 +318,7 @@ acceptance(
       };
       await publishToMessageBus("/activity-pub", stateUpdate);
 
+      assert.true(topicUpdated, "ap topic is updated");
       assert.strictEqual(
         query(
           ".topic-map__activity-pub .activity-pub-topic-status"
@@ -319,6 +328,16 @@ acceptance(
         )}.`,
         "shows the right status text"
       );
+
+      await visit("/t/2480");
+
+      topicUpdated = false;
+
+      await publishToMessageBus("/activity-pub", stateUpdate);
+
+      assert.false(topicUpdated, "non ap topic is not updated");
+
+      appEvents.off("activity-pub:topic-updated", topicUpdatedCallback);
     });
 
     test("ActivityPub topic info modal", async function (assert) {
