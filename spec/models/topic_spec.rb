@@ -156,7 +156,7 @@ RSpec.describe Topic do
               destination_topic_id: topic3.id,
               category_id: category2.id,
             )
-            @first_post = topic3.first_post
+            @first_post = topic3.first_post.reload
           end
 
           it "moves the posts" do
