@@ -3,13 +3,13 @@
 module DiscourseActivityPub
   class Auth
     class Mastodon < Auth
-      REDIRECT_PATH = "ap/auth/redirect/mastodon"
-      AUTHORIZE_PATH = "oauth/authorize"
-      APP_PATH = "api/v1/apps"
-      APP_CHECK_PATH = "api/v1/apps/verify_credentials"
-      TOKEN_PATH = "oauth/token"
-      ACCOUNT_PATH = "api/v1/accounts/verify_credentials"
-      SCOPES = "read"
+      REDIRECT_PATH ||= "ap/auth/redirect/mastodon"
+      AUTHORIZE_PATH ||= "oauth/authorize"
+      APP_PATH ||= "api/v1/apps"
+      APP_CHECK_PATH ||= "api/v1/apps/verify_credentials"
+      TOKEN_PATH ||= "oauth/token"
+      ACCOUNT_PATH ||= "api/v1/accounts/verify_credentials"
+      SCOPES ||= "profile"
 
       def name
         "mastodon"

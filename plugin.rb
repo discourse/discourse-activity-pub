@@ -399,7 +399,12 @@ after_initialize do
     return false unless activity_pub_enabled
     return false unless activity_pub_topic
 
-    model = { id: self.id, type: "post", post_number: self.post_number }
+    model = {
+      id: self.id,
+      type: "post",
+      post_number: self.post_number,
+      topic_id: self.activity_pub_topic.id,
+    }
 
     activity_pub_post_custom_fields.each do |field|
       model[field.to_sym] = self.send("activity_pub_#{field}")
