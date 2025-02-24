@@ -509,6 +509,25 @@ acceptance(
         "shows the right post object type attribute"
       );
     });
+
+    test("ActivityPub topic admin modal", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+        activity_pub_actors: SiteActors,
+      });
+
+      await visit("/t/280");
+      await click(".topic-admin-menu-trigger");
+      await click(".show-activity-pub-topic-admin");
+
+      assert.notOk(
+        query(
+          ".activity-pub-topic-admin-modal .activity-pub-topic-actions .action.publish-all"
+        ),
+        "does not show the publish all posts action"
+      );
+    });
   }
 );
 
