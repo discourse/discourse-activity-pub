@@ -2459,6 +2459,18 @@ RSpec.describe Post do
               end
             end
           end
+
+          context "in a read restricted category" do
+            before do
+              category.set_permissions(staff: :full)
+              category.save!
+            end
+
+            it "does nothing" do
+              expect(post.perform_activity_pub_activity(:create)).to eq(false)
+              expect(post.reload.activity_pub_object.present?).to eq(false)
+            end
+          end
         end
 
         context "with replies" do
