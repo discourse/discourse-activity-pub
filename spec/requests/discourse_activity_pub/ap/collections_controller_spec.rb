@@ -49,10 +49,20 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
       let!(:post1) { Fabricate(:post, topic: collection.model) }
       let!(:post2) { Fabricate(:post, topic: collection.model) }
       let!(:note1) do
-        Fabricate(:discourse_activity_pub_object_note, model: post1, collection_id: collection.id)
+        Fabricate(
+          :discourse_activity_pub_object_note,
+          model: post1,
+          collection_id: collection.id,
+          created_at: 2.minutes.ago,
+        )
       end
       let!(:note2) do
-        Fabricate(:discourse_activity_pub_object_note, model: post2, collection_id: collection.id)
+        Fabricate(
+          :discourse_activity_pub_object_note,
+          model: post2,
+          collection_id: collection.id,
+          created_at: 1.minute.ago,
+        )
       end
 
       it "returns collection json with items" do
