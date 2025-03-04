@@ -51,12 +51,14 @@ export default class ActivityPubTopicAdminModal extends Component {
             <ActivityPubAdminInfo @topic={{this.topic}} @context="topic" />
           </div>
         </div>
-        <div class="control-group">
-          <label>{{i18n "topic.discourse_activity_pub.actions.label"}}</label>
-          <div class="controls">
-            <ActivityPubTopicActions @topic={{this.topic}} />
+        {{#if this.topic.activity_pub_full_topic}}
+          <div class="control-group">
+            <label>{{i18n "topic.discourse_activity_pub.actions.label"}}</label>
+            <div class="controls">
+              <ActivityPubTopicActions @topic={{this.topic}} />
+            </div>
           </div>
-        </div>
+        {{/if}}
         <div class="control-group">
           <label>{{i18n "post.discourse_activity_pub.actions.label"}}</label>
           <div class="controls">

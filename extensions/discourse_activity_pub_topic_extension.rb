@@ -11,7 +11,9 @@ module DiscourseActivityPubTopicExtension
   end
 
   def activity_pub_enabled
-    @activity_pub_enabled ||= regular? && activity_pub_taxonomy&.activity_pub_ready?
+    @activity_pub_enabled ||=
+      regular? && activity_pub_taxonomy&.activity_pub_ready? &&
+        (!category || category.activity_pub_allowed?)
   end
 
   def activity_pub_total_posts
