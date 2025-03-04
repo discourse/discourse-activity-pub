@@ -122,112 +122,118 @@ export default {
         }
       });
 
-      api.modifyClass("model:post-stream", {
-        pluginId: "discourse-activity-pub",
-
-        triggerActivityPubStateChange(postId, stateProps) {
-          const resolved = Promise.resolve();
-          resolved.then(() => {
-            const post = this.findLoadedPost(postId);
-            if (post) {
-              post.setProperties(stateProps);
-              this.storePost(post);
+      api.modifyClass(
+        "model:post-stream",
+        (Superclass) =>
+          class extends Superclass {
+            triggerActivityPubStateChange(postId, stateProps) {
+              const resolved = Promise.resolve();
+              resolved.then(() => {
+                const post = this.findLoadedPost(postId);
+                if (post) {
+                  post.setProperties(stateProps);
+                  this.storePost(post);
+                }
+              });
+              return resolved;
             }
-          });
-          return resolved;
-        },
-      });
-
-      api.modifyClass("model:topic", {
-        pluginId: "discourse-activity-pub",
-
-        getActivityPubPostActor(postId) {
-          const postActors = this.activity_pub_post_actors || [];
-          return postActors.findBy("post_id", postId);
-        },
-      });
-
-      api.modifyClass("controller:topic", {
-        pluginId: "discourse-activity-pub",
-
-        @bind
-        handleActivityPubMessage(data) {
-          const topic = this.get("model");
-          if (!topic) {
-            return;
           }
+      );
 
-          const postUpdate = data.model.type === "post";
-          const topicUpdate = data.model.type === "topic";
-          const topicId = topicUpdate ? data.model.id : data.model.topic_id;
-          const postStream = topic.get("postStream");
-
-          if (topicId !== topic.id || !postStream) {
-            return;
+      api.modifyClass(
+        "model:topic",
+        (Superclass) =>
+          class extends Superclass {
+            getActivityPubPostActor(postId) {
+              const postActors = this.activity_pub_post_actors || [];
+              return postActors.findBy("post_id", postId);
+            }
           }
+      );
 
-          if (postUpdate) {
-            let postProps = {
-              activity_pub_scheduled_at: data.model.scheduled_at,
-              activity_pub_published_at: data.model.published_at,
-              activity_pub_deleted_at: data.model.deleted_at,
-              activity_pub_updated_at: data.model.updated_at,
-              activity_pub_delivered_at: data.model.delivered_at,
-            };
+      api.modifyClass(
+        "controller:topic",
+        (Superclass) =>
+          class extends Superclass {
+            @bind
+            handleActivityPubMessage(data) {
+              const topic = this.get("model");
+              if (!topic) {
+                return;
+              }
 
-            postStream
-              .triggerActivityPubStateChange(data.model.id, postProps)
-              .then(() =>
-                this.appEvents.trigger("post-stream:refresh", {
-                  id: data.model.id,
-                })
+              const postUpdate = data.model.type === "post";
+              const topicUpdate = data.model.type === "topic";
+              const topicId = topicUpdate ? data.model.id : data.model.topic_id;
+              const postStream = topic.get("postStream");
+
+              if (topicId !== topic.id || !postStream) {
+                return;
+              }
+
+              if (postUpdate) {
+                let postProps = {
+                  activity_pub_scheduled_at: data.model.scheduled_at,
+                  activity_pub_published_at: data.model.published_at,
+                  activity_pub_deleted_at: data.model.deleted_at,
+                  activity_pub_updated_at: data.model.updated_at,
+                  activity_pub_delivered_at: data.model.delivered_at,
+                };
+
+                postStream
+                  .triggerActivityPubStateChange(data.model.id, postProps)
+                  .then(() =>
+                    this.appEvents.trigger("post-stream:refresh", {
+                      id: data.model.id,
+                    })
+                  );
+                this.appEvents.trigger(
+                  "activity-pub:post-updated",
+                  data.model.id,
+                  postProps
+                );
+              }
+
+              if (topicUpdate) {
+                let topicProps = {
+                  activity_pub_published: data.model.published,
+                  activity_pub_published_post_count:
+                    data.model.published_post_count,
+                  activity_pub_total_post_count: data.model.total_post_count,
+                  activity_pub_scheduled_at: data.model.scheduled_at,
+                  activity_pub_published_at: data.model.published_at,
+                  activity_pub_deleted_at: data.model.deleted_at,
+                };
+                topic.setProperties(topicProps);
+                postStream.refresh();
+                this.appEvents.trigger(
+                  "activity-pub:topic-updated",
+                  data.model.id,
+                  topicProps
+                );
+              }
+            }
+
+            subscribe() {
+              this._super();
+              this.messageBus.subscribe(
+                "/activity-pub",
+                this.handleActivityPubMessage
               );
-            this.appEvents.trigger(
-              "activity-pub:post-updated",
-              data.model.id,
-              postProps
-            );
-          }
+            }
 
-          if (topicUpdate) {
-            let topicProps = {
-              activity_pub_published: data.model.published,
-              activity_pub_published_post_count:
-                data.model.published_post_count,
-              activity_pub_total_post_count: data.model.total_post_count,
-              activity_pub_scheduled_at: data.model.scheduled_at,
-              activity_pub_published_at: data.model.published_at,
-              activity_pub_deleted_at: data.model.deleted_at,
-            };
-            topic.setProperties(topicProps);
-            postStream.refresh();
-            this.appEvents.trigger(
-              "activity-pub:topic-updated",
-              data.model.id,
-              topicProps
-            );
+            unsubscribe() {
+              this._super();
+              if (!this.get("model.id")) {
+                return;
+              }
+              this.messageBus.subscribe(
+                "/activity-pub",
+                this.handleActivityPubMessage
+              );
+            }
           }
-        },
-
-        subscribe() {
-          this._super();
-          this.messageBus.subscribe(
-            "/activity-pub",
-            this.handleActivityPubMessage
-          );
-        },
-
-        unsubscribe() {
-          this._super();
-          if (!this.get("model.id")) {
-            return;
-          }
-          this.messageBus.subscribe(
-            "/activity-pub",
-            this.handleActivityPubMessage
-          );
-        },
-      });
+      );
 
       api.renderInOutlet("topic-map", ActivityPubTopicMap);
     });
