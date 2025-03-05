@@ -215,7 +215,7 @@ export default {
             }
 
             subscribe() {
-              this._super();
+              super.subscribe();
               this.messageBus.subscribe(
                 "/activity-pub",
                 this.handleActivityPubMessage
@@ -223,7 +223,7 @@ export default {
             }
 
             unsubscribe() {
-              this._super();
+              super.unsubscribe();
               if (!this.get("model.id")) {
                 return;
               }
