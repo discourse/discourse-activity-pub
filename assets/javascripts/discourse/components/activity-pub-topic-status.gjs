@@ -4,25 +4,31 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
 import dIcon from "discourse/helpers/d-icon";
-import {
-  activityPubTopicStatus,
-  activityPubTopicStatusText,
-} from "../lib/activity-pub-utilities";
+import { activityPubTopicStatusText } from "../lib/activity-pub-utilities";
 import ActivityPubTopicInfoModal from "./modal/activity-pub-topic-info";
 
 export default class ActivityPubTopicStatus extends Component {
   @service modal;
+  @service("activity-pub-topic-tracking-state") apTopicTrackingState;
 
   get topic() {
     return this.args.topic;
   }
 
-  get statusText() {
-    return activityPubTopicStatusText(this.topic);
+  get attributes() {
+    return this.apTopicTrackingState.getAttributes(this.topic.id);
   }
 
   get status() {
-    return activityPubTopicStatus(this.topic);
+    return this.apTopicTrackingState.getStatus(this.topic.id);
+  }
+
+  get statusText() {
+    return activityPubTopicStatusText({
+      actor: this.topic.activity_pub_actor.handle,
+      attributes: this.attributes,
+      status: this.status,
+    });
   }
 
   get icon() {

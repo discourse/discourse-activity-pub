@@ -10,19 +10,17 @@ import { i18n } from "discourse-i18n";
 import { activityPubTopicActors } from "../lib/activity-pub-utilities";
 
 export default class ActivityPubPostActions extends Component {
+  @service("activity-pub-topic-tracking-state") apTopicTrackingState;
   @service siteSettings;
   @service appEvents;
   @tracked status;
   @tracked post;
-  @tracked topic;
 
   constructor() {
     super(...arguments);
 
     this.post = this.args.post;
-    this.topic = this.args.post.topic;
     this.appEvents.on("activity-pub:post-updated", this, "postUpdated");
-    this.appEvents.on("activity-pub:topic-updated", this, "topicUpdated");
 
     let status = "unpublished";
     if (this.post.activity_pub_published_at) {
@@ -39,14 +37,12 @@ export default class ActivityPubPostActions extends Component {
     }
   }
 
-  topicUpdated(topicId, topicProps) {
-    if (this.topic.id === topicId) {
-      this.topic.setProperties(topicProps);
-    }
+  get topicAttributes() {
+    return this.apTopicTrackingState.getAttributes(this.post.topic.id);
   }
 
   get actors() {
-    return activityPubTopicActors(this.topic);
+    return activityPubTopicActors(this.post.topic);
   }
 
   get actorsString() {
@@ -90,10 +86,10 @@ export default class ActivityPubPostActions extends Component {
       i18nKey = "delivered";
     } else if (
       this.post.post_number !== 1 &&
-      !this.topic.activity_pub_delivered_at
+      !this.topicAttributes.activity_pub_delivered_at
     ) {
       i18nKey = "topic_not_delivered";
-      args.topic_id = this.topic.id;
+      args.topic_id = this.post.topic.id;
     } else if (this.noFollowers) {
       i18nKey = "no_followers";
     } else {
@@ -111,7 +107,8 @@ export default class ActivityPubPostActions extends Component {
       this.status === "delivered" ||
       !this.post.activity_pub_published_at ||
       this.noFollowers ||
-      (!this.topic.activity_pub_delivered_at && this.post.post_number !== 1)
+      (!this.topicAttributes.activity_pub_delivered_at &&
+        this.post.post_number !== 1)
     );
   }
 
@@ -132,9 +129,12 @@ export default class ActivityPubPostActions extends Component {
     };
     let i18nKey;
 
-    if (this.post.post_number !== 1 && !this.topic.activity_pub_published_at) {
+    if (
+      this.post.post_number !== 1 &&
+      !this.topicAttributes.activity_pub_published_at
+    ) {
       i18nKey = "topic_not_published";
-      args.topic_id = this.topic.id;
+      args.topic_id = this.post.topic.id;
     } else if (this.post.activity_pub_scheduled_at) {
       i18nKey = "post_is_scheduled";
     } else if (this.noFollowers) {
@@ -154,7 +154,8 @@ export default class ActivityPubPostActions extends Component {
     return (
       !!this.post.activity_pub_published_at ||
       !!this.post.activity_pub_scheduled_at ||
-      (!this.topic.activity_pub_published_at && this.post.post_number !== 1)
+      (!this.topicAttributes.activity_pub_published_at &&
+        this.post.post_number !== 1)
     );
   }
 
