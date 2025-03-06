@@ -87,47 +87,28 @@ export function activityPubPostStatusText(post, opts = {}) {
   return i18n(`post.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);
 }
 
-export function activityPubTopicStatus(topic) {
-  let status;
-
-  if (topic.activity_pub_deleted_at) {
-    status = "deleted";
-  } else if (topic.activity_pub_published_at) {
-    status = topic.activity_pub_local ? "published" : "published_remote";
-  } else if (topic.activity_pub_scheduled_at) {
-    status = moment().isAfter(moment(topic.activity_pub_scheduled_at))
-      ? "scheduled_past"
-      : "scheduled";
-  } else {
-    status = "not_published";
-  }
-
-  return status;
-}
-
-export function activityPubTopicStatusText(topic, opts = {}) {
-  const status = activityPubTopicStatus(topic);
-
-  let i18nKey = opts.infoStatus ? "info_status" : "status";
-  let i18nOpts = {
-    actor: topic.activity_pub_actor.handle,
-  };
+export function activityPubTopicStatusText({
+  actor,
+  attributes,
+  status,
+  info,
+}) {
+  let i18nKey = info ? "info_status" : "status";
+  let i18nOpts = { actor };
 
   let datetime;
   if (status === "deleted") {
-    datetime = topic.activity_pub_deleted_at;
+    datetime = attributes.activity_pub_deleted_at;
   } else if (status === "published") {
-    datetime = topic.activity_pub_published_at;
+    datetime = attributes.activity_pub_published_at;
   } else if (status === "published_remote") {
-    datetime = topic.activity_pub_published_at;
+    datetime = attributes.activity_pub_published_at;
   } else if (status.includes("scheduled")) {
-    datetime = topic.activity_pub_scheduled_at;
+    datetime = attributes.activity_pub_scheduled_at;
   }
 
   if (datetime) {
-    i18nOpts.datetime = moment(datetime).format(
-      getStatusDatetimeFormat(opts.infoStatus)
-    );
+    i18nOpts.datetime = moment(datetime).format(getStatusDatetimeFormat(info));
   }
 
   return i18n(`topic.discourse_activity_pub.${i18nKey}.${status}`, i18nOpts);

@@ -1,6 +1,5 @@
 import Component from "@glimmer/component";
-import { tracked } from "@glimmer/tracking";
-import EmberObject, { action } from "@ember/object";
+import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { htmlSafe } from "@ember/template";
 import DButton from "discourse/components/d-button";
@@ -10,31 +9,18 @@ import { i18n } from "discourse-i18n";
 import { activityPubTopicActors } from "../lib/activity-pub-utilities";
 
 export default class ActivityPubTopicActions extends Component {
-  @service appEvents;
-  @tracked status;
+  @service("activity-pub-topic-tracking-state") apTopicTrackingState;
 
-  constructor() {
-    super(...arguments);
-
-    this.topic = EmberObject.create(this.args.topic);
-    this.appEvents.on("activity-pub:topic-updated", this, "topicUpdated");
-
-    let status = "unpublished";
-    if (this.topic.activity_pub_scheduled_at) {
-      status = "scheduled";
-    } else if (
-      this.topic.activity_pub_published_post_count ===
-      this.topic.activity_pub_total_post_count
-    ) {
-      status = "published";
-    }
-    this.status = status;
+  get topic() {
+    return this.args.topic;
   }
 
-  topicUpdated(topicId, topicProps) {
-    if (this.topic.id === topicId) {
-      this.topic.setProperties(topicProps);
-    }
+  get attributes() {
+    return this.apTopicTrackingState.getAttributes(this.topic.id);
+  }
+
+  get status() {
+    return this.apTopicTrackingState.getStatus(this.topic.id);
   }
 
   get actors() {
@@ -49,21 +35,33 @@ export default class ActivityPubTopicActions extends Component {
       .join(" ");
   }
 
+  get allPostsPublished() {
+    return (
+      this.attributes.activity_pub_published_post_count ===
+      this.attributes.activity_pub_total_post_count
+    );
+  }
+
   get publishDisabled() {
-    return this.status !== "unpublished";
+    return this.status === "scheduled" || this.allPostsPublished;
   }
 
   get publishDescription() {
-    return i18n(
-      `topic.discourse_activity_pub.publish.description.${this.status}`,
-      {
-        count:
-          this.topic.activity_pub_total_post_count -
-          this.topic.activity_pub_published_post_count,
-        topic_id: this.topic.id,
-        actors: this.actorsString,
-      }
-    );
+    let i18nKey;
+    if (this.status === "scheduled") {
+      i18nKey = "scheduled";
+    } else if (this.allPostsPublished) {
+      i18nKey = "published";
+    } else {
+      i18nKey = "unpublished";
+    }
+    return i18n(`topic.discourse_activity_pub.publish.description.${i18nKey}`, {
+      count:
+        this.attributes.activity_pub_total_post_count -
+        this.attributes.activity_pub_published_post_count,
+      topic_id: this.topic.id,
+      actors: this.actorsString,
+    });
   }
 
   @action
@@ -73,7 +71,12 @@ export default class ActivityPubTopicActions extends Component {
     })
       .then((result) => {
         if (result.success) {
-          this.status = "published";
+          // Optimistic update
+          this.apTopicTrackingState.update({
+            id: this.topic.id,
+            activity_pub_published_post_count:
+              this.attributes.activity_pub_total_post_count,
+          });
         }
       })
       .catch(popupAjaxError);

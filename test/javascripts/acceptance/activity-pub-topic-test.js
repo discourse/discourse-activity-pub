@@ -1,4 +1,3 @@
-import { getOwner } from "@ember/owner";
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { AUTO_GROUPS } from "discourse/lib/constants";
@@ -141,6 +140,36 @@ acceptance(
         "is visible"
       );
     });
+
+    test("post status update", async function (assert) {
+      this.siteSettings.activity_pub_post_status_visibility_groups = "2";
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+      });
+
+      await visit("/t/280");
+
+      const postStatusUpdate = {
+        model: {
+          id: 419,
+          type: "post",
+          topic_id: 280,
+          published_at: publishedAt,
+          deleted_at: deletedAt,
+        },
+      };
+      await publishToMessageBus("/activity-pub", postStatusUpdate);
+
+      assert.ok(
+        exists(
+          `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was deleted via ActivityPub on ${deletedAt.format(
+            i18n("dates.time_short_day")
+          )}.']`
+        ),
+        "shows the right post status text"
+      );
+    });
   }
 );
 
@@ -251,6 +280,7 @@ acceptance(
           activity_pub_local: true,
           activity_pub_full_topic: true,
         },
+        {},
       ],
       {
         activity_pub_published_at: publishedAt,
@@ -293,32 +323,24 @@ acceptance(
       );
     });
 
-    test("ActivityPub status update", async function (assert) {
+    test("topic status update", async function (assert) {
       Site.current().setProperties({
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
       });
 
-      const appEvents = getOwner(this).lookup("service:app-events");
-      let topicUpdated = false;
-      let topicUpdatedCallback = () => {
-        topicUpdated = true;
-      };
-      appEvents.on("activity-pub:topic-updated", topicUpdatedCallback);
-
       await visit("/t/280");
 
-      const stateUpdate = {
+      const topicStatusUpdate = {
         model: {
           id: 280,
           type: "topic",
-          published_at: publishedAt,
-          deleted_at: deletedAt,
+          activity_pub_published_at: publishedAt,
+          activity_pub_deleted_at: deletedAt,
         },
       };
-      await publishToMessageBus("/activity-pub", stateUpdate);
+      await publishToMessageBus("/activity-pub", topicStatusUpdate);
 
-      assert.true(topicUpdated, "ap topic is updated");
       assert.strictEqual(
         query(
           ".topic-map__activity-pub .activity-pub-topic-status"
@@ -328,19 +350,9 @@ acceptance(
         )}.`,
         "shows the right status text"
       );
-
-      await visit("/t/2480");
-
-      topicUpdated = false;
-
-      await publishToMessageBus("/activity-pub", stateUpdate);
-
-      assert.false(topicUpdated, "non ap topic is not updated");
-
-      appEvents.off("activity-pub:topic-updated", topicUpdatedCallback);
     });
 
-    test("ActivityPub topic info modal", async function (assert) {
+    test("topic info modal", async function (assert) {
       Site.current().setProperties({
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -381,9 +393,29 @@ acceptance(
         ),
         "shows the right post object type attribute"
       );
+
+      const topicStatusUpdate = {
+        model: {
+          id: 280,
+          type: "topic",
+          activity_pub_published_at: publishedAt,
+          activity_pub_deleted_at: deletedAt,
+        },
+      };
+      await publishToMessageBus("/activity-pub", topicStatusUpdate);
+
+      assert.strictEqual(
+        query(
+          ".activity-pub-topic-info-modal .activity-pub-topic-status"
+        ).innerText.trim(),
+        `Topic was deleted on ${deletedAt.format(
+          i18n("dates.long_with_year")
+        )}.`,
+        "handles a status update"
+      );
     });
 
-    test("ActivityPub topic admin modal", async function (assert) {
+    test("topic admin modal", async function (assert) {
       Site.current().setProperties({
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -414,9 +446,26 @@ acceptance(
         ),
         "shows the post deliver action"
       );
+
+      const topicStatusUpdate = {
+        model: {
+          id: 280,
+          type: "topic",
+          activity_pub_published_post_count: 20,
+          activity_pub_total_post_count: 20,
+        },
+      };
+      await publishToMessageBus("/activity-pub", topicStatusUpdate);
+      assert.strictEqual(
+        query(
+          ".activity-pub-topic-admin-modal .activity-pub-topic-actions .action.publish-all .action-description"
+        ).innerText.trim(),
+        `Publish all posts is disabled. All posts in Topic #280 are already published.`,
+        "handles topic status updates"
+      );
     });
 
-    test("ActivityPub post info modal", async function (assert) {
+    test("post info modal", async function (assert) {
       Site.current().setProperties({
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -442,6 +491,48 @@ acceptance(
         ).innerText.trim(),
         "Public",
         "shows the right visibility text"
+      );
+    });
+
+    test("post admin modal", async function (assert) {
+      Site.current().setProperties({
+        activity_pub_enabled: true,
+        activity_pub_publishing_enabled: true,
+        activity_pub_actors: SiteActors,
+      });
+
+      await visit("/t/280");
+      await click(".topic-post:nth-of-type(4) .post-action-menu__show-more");
+      await click(".topic-post:nth-of-type(4) .post-action-menu__admin");
+      await click(".show-activity-pub-post-admin");
+      assert.ok(exists(".activity-pub-post-admin-modal"), "shows the modal");
+      assert.ok(
+        query(
+          ".activity-pub-post-admin-modal .activity-pub-post-actions .action.publish"
+        ),
+        "shows the publish post action"
+      );
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-admin-modal .activity-pub-post-actions .action.publish .action-description"
+        ).innerText.trim(),
+        `Publish Post #3 without delivering it. The Group Actors have no followers to deliver to.`,
+        "shows the right publish description"
+      );
+      const topicStatusUpdate = {
+        model: {
+          id: 280,
+          type: "topic",
+          activity_pub_published_at: null,
+        },
+      };
+      await publishToMessageBus("/activity-pub", topicStatusUpdate);
+      assert.strictEqual(
+        query(
+          ".activity-pub-post-admin-modal .activity-pub-post-actions .action.publish .action-description"
+        ).innerText.trim(),
+        "Publish is disabled for Post #3. Topic #280 is not published.",
+        "handles topic status updates"
       );
     });
   }

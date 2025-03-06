@@ -1,9 +1,6 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
-import {
-  activityPubTopicStatus,
-  showStatusToUser,
-} from "../lib/activity-pub-utilities";
+import { showStatusToUser } from "../lib/activity-pub-utilities";
 import ActivityPubTopicStatus from "./activity-pub-topic-status";
 
 export default class ActivityPubTopicMap extends Component {
@@ -21,10 +18,6 @@ export default class ActivityPubTopicMap extends Component {
       this.topic.activity_pub_enabled &&
       showStatusToUser(this.currentUser, this.siteSettings)
     );
-  }
-
-  get topicStatus() {
-    return activityPubTopicStatus(this.topic);
   }
 
   <template>

@@ -1,3 +1,4 @@
+import { service } from "@ember/service";
 import { hbs } from "ember-cli-htmlbars";
 import { Promise } from "rsvp";
 import { bind } from "discourse/lib/decorators";
@@ -122,6 +123,16 @@ export default {
         }
       });
 
+      api.modifyClass("route:topic", {
+        pluginId: "discourse-activity-pub",
+        apTopicTrackingState: service("activity-pub-topic-tracking-state"),
+
+        setupController(controller, model) {
+          this._super(controller, model);
+          this.apTopicTrackingState.update(model);
+        },
+      });
+
       api.modifyClass(
         "model:post-stream",
         (Superclass) =>
@@ -156,80 +167,50 @@ export default {
         (Superclass) =>
           class extends Superclass {
             @bind
-            handleActivityPubMessage(data) {
+            handleActivityPubPostMessage(data) {
               const topic = this.get("model");
-              if (!topic) {
+              if (
+                !topic ||
+                data.model.topic_id !== topic.id ||
+                data.model.type !== "post"
+              ) {
                 return;
               }
 
-              const postUpdate = data.model.type === "post";
-              const topicUpdate = data.model.type === "topic";
-              const topicId = topicUpdate ? data.model.id : data.model.topic_id;
-              const postStream = topic.get("postStream");
-
-              if (topicId !== topic.id || !postStream) {
-                return;
-              }
-
-              if (postUpdate) {
-                let postProps = {
-                  activity_pub_scheduled_at: data.model.scheduled_at,
-                  activity_pub_published_at: data.model.published_at,
-                  activity_pub_deleted_at: data.model.deleted_at,
-                  activity_pub_updated_at: data.model.updated_at,
-                  activity_pub_delivered_at: data.model.delivered_at,
-                };
-
-                postStream
-                  .triggerActivityPubStateChange(data.model.id, postProps)
-                  .then(() =>
-                    this.appEvents.trigger("post-stream:refresh", {
-                      id: data.model.id,
-                    })
-                  );
-                this.appEvents.trigger(
-                  "activity-pub:post-updated",
-                  data.model.id,
-                  postProps
+              let props = {
+                activity_pub_scheduled_at: data.model.scheduled_at,
+                activity_pub_published_at: data.model.published_at,
+                activity_pub_deleted_at: data.model.deleted_at,
+                activity_pub_updated_at: data.model.updated_at,
+                activity_pub_delivered_at: data.model.delivered_at,
+              };
+              topic.postStream
+                .triggerActivityPubStateChange(data.model.id, props)
+                .then(() =>
+                  this.appEvents.trigger("post-stream:refresh", {
+                    id: data.model.id,
+                  })
                 );
-              }
-
-              if (topicUpdate) {
-                let topicProps = {
-                  activity_pub_published: data.model.published,
-                  activity_pub_published_post_count:
-                    data.model.published_post_count,
-                  activity_pub_total_post_count: data.model.total_post_count,
-                  activity_pub_scheduled_at: data.model.scheduled_at,
-                  activity_pub_published_at: data.model.published_at,
-                  activity_pub_deleted_at: data.model.deleted_at,
-                };
-                topic.setProperties(topicProps);
-                postStream.refresh();
-                this.appEvents.trigger(
-                  "activity-pub:topic-updated",
-                  data.model.id,
-                  topicProps
-                );
-              }
+              this.appEvents.trigger(
+                "activity-pub:post-updated",
+                data.model.id,
+                props
+              );
             }
 
             subscribe() {
               super.subscribe();
               this.messageBus.subscribe(
                 "/activity-pub",
-                this.handleActivityPubMessage
+                this.handleActivityPubPostMessage
               );
             }
 
             unsubscribe() {
               super.unsubscribe();
-              if (!this.get("model.id")) {
-                return;
-              }
-              this.messageBus.subscribe(
+              this.messageBus.unsubscribe(
                 "/activity-pub",
-                this.handleActivityPubMessage
+                this.handleActivityPubPostMessage
               );
             }
           }
