@@ -283,12 +283,13 @@ after_initialize do
     model = {
       id: self.id,
       type: "topic",
-      published: self.activity_pub_published?,
-      published_post_count: self.activity_pub_published_post_count,
-      total_post_count: self.activity_pub_total_post_count,
-      scheduled_at: self.activity_pub_scheduled_at,
-      published_at: self.activity_pub_published_at,
-      deleted_at: self.activity_pub_deleted_at,
+      activity_pub_published: self.activity_pub_published?,
+      activity_pub_published_post_count: self.activity_pub_published_post_count,
+      activity_pub_total_post_count: self.activity_pub_total_post_count,
+      activity_pub_scheduled_at: self.activity_pub_scheduled_at,
+      activity_pub_published_at: self.activity_pub_published_at,
+      activity_pub_deleted_at: self.activity_pub_deleted_at,
+      activity_pub_delivered_at: self.activity_pub_delivered_at,
     }
     MessageBus.publish("/activity-pub", { model: model })
   end
