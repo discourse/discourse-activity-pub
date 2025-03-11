@@ -66,6 +66,8 @@ module DiscourseActivityPub
           update_actor_from_model
         end
 
+        ensure_required_attributes
+
         actor.save! if actor.new_record? || actor.changed?
       end
 
@@ -159,6 +161,12 @@ module DiscourseActivityPub
 
       actor.username = username
       actor.name = model.activity_pub_name if model.activity_pub_name
+    end
+
+    def ensure_required_attributes
+      return unless actor.local?
+      actor.ensure_keys
+      actor.ensure_inbox_and_outbox
     end
 
     def update_actor_from_opts

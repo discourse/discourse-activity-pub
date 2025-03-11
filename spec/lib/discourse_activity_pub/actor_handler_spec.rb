@@ -162,8 +162,8 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
         expect(actor.reload.model_id).to eq(user.id)
       end
 
-      context "with an actor" do
-        let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user) }
+      context "with a local actor" do
+        let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user, local: true) }
 
         it "returns the actor" do
           actor = described_class.update_or_create_actor(user)
@@ -174,6 +174,17 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
           actor_count = DiscourseActivityPubActor.all.size
           described_class.update_or_create_actor(user)
           expect(DiscourseActivityPubActor.all.size).to eq(actor_count)
+        end
+
+        context "when required attributes are blank" do
+          before { actor.update(public_key: nil, private_key: nil, inbox: nil, outbox: nil) }
+
+          it "ensures they are set" do
+            described_class.update_or_create_actor(user)
+            expect(actor.reload.keypair).to be_present
+            expect(actor.inbox).to be_present
+            expect(actor.outbox).to be_present
+          end
         end
       end
 

@@ -114,6 +114,21 @@ RSpec.describe DiscourseActivityPubActor do
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
+
+    it "sets required attributes for local actors" do
+      user = Fabricate(:user)
+      actor =
+        described_class.create!(
+          local: true,
+          model_id: user.id,
+          model_type: user.class.name,
+          ap_type: DiscourseActivityPub::AP::Actor::Person.type,
+          username: user.username,
+        )
+      expect(actor.keypair).to be_present
+      expect(actor.inbox).to be_present
+      expect(actor.outbox).to be_present
+    end
   end
 
   describe "#find_by_handle" do
