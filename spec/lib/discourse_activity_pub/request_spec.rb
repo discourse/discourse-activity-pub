@@ -53,6 +53,71 @@ RSpec.describe DiscourseActivityPub::Request do
     end
   end
 
+  describe "#expects" do
+    context "with no expectation" do
+      it "returns the response" do
+        response = Excon::Response.new(body: { error: "Request failed" }.to_s, status: 401)
+        Excon.expects(:get).returns(response)
+
+        request = described_class.new(uri: "https://success.com")
+        expect(request.perform(:get)).to eq(response)
+      end
+    end
+
+    context "with a succesful expectation" do
+      it "returns the response" do
+        response = Excon::Response.new(body: { success: "OK" }.to_s, status: 200)
+        Excon.expects(:get).returns(response)
+
+        request = described_class.new(uri: "https://success.com")
+        request.expects = described_class::SUCCESS_CODES
+        expect(request.perform(:get)).to eq(response)
+      end
+    end
+
+    context "with a failed expectation" do
+      let!(:response_body_error) { { error: "Request failed" }.to_s }
+
+      before { setup_logging }
+      after { teardown_logging }
+
+      def perform_failed_request(response_body: response_body_error)
+        Excon.expects(:get).returns(Excon::Response.new(body: response_body, status: 401))
+        request = described_class.new(uri: "https://fail.com")
+        request.expects = described_class::SUCCESS_CODES
+        request.perform(:get)
+      end
+
+      it "returns nil" do
+        expect(perform_failed_request).to eq(nil)
+      end
+
+      it "logs the request response" do
+        perform_failed_request
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.request.error.request_to_failed",
+            method: "GET",
+            uri: "https://fail.com",
+            message: response_body_error,
+          ),
+        )
+      end
+
+      it "truncates a long response body in logged message" do
+        perform_failed_request(response_body: "#{"a" * 300}")
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.request.error.request_to_failed",
+            method: "GET",
+            uri: "https://fail.com",
+            message: "#{"a" * 200}",
+          ),
+        )
+      end
+    end
+  end
+
   describe "#get_json_ld" do
     context "with a successful response" do
       before do

@@ -50,13 +50,18 @@ module DiscourseActivityPub
 
       options = { headers: final_headers(verb) }
 
-      options[:expects] = expects if expects.present?
       options[:middlewares] = middlewares if middlewares.present?
       options[:body] = body if body.present?
       options[:read_timeout] = TIMEOUT
       options[:write_timeout] = TIMEOUT
 
-      Excon.send(verb, uri.to_s, options)
+      response = Excon.send(verb, uri.to_s, options)
+
+      if expects.present? && expects.exclude?(response.status)
+        raise Excon::Error.new(response.body.to_s[0..200])
+      end
+
+      response
     rescue Excon::Error => e
       DiscourseActivityPub::Logger.warn(
         I18n.t(
