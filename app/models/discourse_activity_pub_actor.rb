@@ -275,19 +275,17 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     )
   end
 
-  protected
-
   def ensure_keys
     return unless local? && private_key.blank? && public_key.blank?
 
     keypair = OpenSSL::PKey::RSA.new(2048)
     self.private_key = keypair.to_pem
     self.public_key = keypair.public_key.to_pem
-
-    save!
   end
 
   def ensure_inbox_and_outbox
+    return unless local?
+
     self.inbox = "#{self.ap_id}/inbox" if !self.inbox
     self.outbox = "#{self.ap_id}/outbox" if !self.outbox
   end
