@@ -27,7 +27,6 @@ en:
               invalid: "is not valid"
   model:
     discourse_activity_pub:
-      
 
   post:
     discourse_activity_pub:
@@ -36,7 +35,7 @@ en:
 
   user_api_key:
     scopes:
-      "discourse-activity-pub:read": "ActivityPub" 
+      "discourse-activity-pub:read": "ActivityPub"
 
   discourse_activity_pub:
     not_enabled: "ActivityPub is not enabled"
@@ -65,7 +64,7 @@ en:
         invalid_digest_base64: "Invalid Digest value. The provided Digest value is not a valid base64 string. Given digest: %{digest}"
         invalid_digest_sha256: "Invalid Digest value. The provided Digest value is not a SHA-256 digest. Given digest: %{digest}"
         invalid_digest: "Invalid Digest value. Computed SHA-256 digest: %{computed}; given: %{digest}"
-        invalid_signature_pseudo_header: 'Invalid Signature pseudo-header (%{header})'
+        invalid_signature_pseudo_header: "Invalid Signature pseudo-header (%{header})"
         invalid_date_header: "Invalid Date header: %{reason}"
         request_to_failed: "%{method} request to %{uri} failed: %{message}"
         request_from_failed: "%{method} request received by %{uri} failed: %{status} %{message}"
@@ -129,7 +128,7 @@ en:
     user:
       error:
         failed_to_create: "Failed to create user for %{actor_id}: %{message}"
-      
+
     object:
       note:
         link_to_forum: Discuss this on our forum.
@@ -188,46 +187,46 @@ en:
           started: "%{actor} started processing the activities of %{target_actor}."
           finished: "%{actor} finished processing the activities of %{target_actor}."
           created_actors:
-            one: "Created 1 actor."
-            other: "Created %{count} actors."  
+            one: "Created %{count} actor."
+            other: "Created %{count} actors."
           updated_actors:
-            one: "Updated 1 actor."
+            one: "Updated %{count} actor."
             other: "Updated %{count} actors."
           created_objects:
-            one: "Created 1 object."
-            other: "Created %{count} objects."  
+            one: "Created %{count} object."
+            other: "Created %{count} objects."
           updated_objects:
-            one: "Updated 1 object."
-            other: "Updated %{count} objects." 
+            one: "Updated %{count} object."
+            other: "Updated %{count} objects."
           created_collections:
-            one: "Created 1 collection."
-            other: "Created %{count} collections."  
+            one: "Created %{count} collection."
+            other: "Created %{count} collections."
           updated_collections:
-            one: "Updated 1 collection."
+            one: "Updated %{count} collection."
             other: "Updated %{count} collections."
           created_activities:
-            one: "Created 1 activity."
-            other: "Created %{count} activities."  
+            one: "Created %{count} activity."
+            other: "Created %{count} activities."
           updated_activities:
-            one: "Updated 1 activity."
-            other: "Updated %{count} activities." 
+            one: "Updated %{count} activity."
+            other: "Updated %{count} activities."
           created_users:
-            one: "Created 1 user."
+            one: "Created %{count} user."
             other: "Created %{count} users."
           updated_users:
-            one: "Updated 1 user."
+            one: "Updated %{count} user."
             other: "Updated %{count} users."
           created_topics:
-            one: "Created 1 topic."
+            one: "Created %{count} topic."
             other: "Created %{count} topics."
           updated_topics:
-            one: "Updated 1 topic."
+            one: "Updated %{count} topic."
             other: "Updated %{count} topics."
           created_replies:
-            one: "Created 1 reply."
+            one: "Created %{count} reply."
             other: "Created %{count} replies."
           updated_replies:
-            one: "Updated 1 reply."
+            one: "Updated %{count} reply."
             other: "Updated %{count} replies."
       publish:
         warning:
@@ -239,29 +238,29 @@ en:
           started: "Started publishing the activities of %{target}."
           finished: "Finished publishing the activities of %{target}."
           created_actors:
-            one: "Created 1 actor."
-            other: "Created %{count} actors."  
+            one: "Created %{count} actor."
+            other: "Created %{count} actors."
           updated_actors:
-            one: "Updated 1 actor."
+            one: "Updated %{count} actor."
             other: "Updated %{count} actors."
           created_objects:
-            one: "Created 1 object."
-            other: "Created %{count} objects."  
+            one: "Created %{count} object."
+            other: "Created %{count} objects."
           updated_objects:
-            one: "Updated 1 object."
-            other: "Updated %{count} objects." 
+            one: "Updated %{count} object."
+            other: "Updated %{count} objects."
           created_collections:
-            one: "Created 1 collection."
-            other: "Created %{count} collections."  
+            one: "Created %{count} collection."
+            other: "Created %{count} collections."
           updated_collections:
-            one: "Updated 1 collection."
+            one: "Updated %{count} collection."
             other: "Updated %{count} collections."
           created_activities:
-            one: "Created 1 activity."
-            other: "Created %{count} activities."  
+            one: "Created %{count} activity."
+            other: "Created %{count} activities."
           updated_activities:
-            one: "Updated 1 activity."
-            other: "Updated %{count} activities." 
+            one: "Updated %{count} activity."
+            other: "Updated %{count} activities."
   site_settings:
     activity_pub_enabled: "Enable ActivityPub plugin."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
