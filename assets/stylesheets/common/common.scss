@@ -167,9 +167,11 @@ section.activity-pub-actor-setting {
   &.updated .d-icon-discourse-activity-pub {
     color: var(--success);
   }
+
   &.deleted .d-icon-discourse-activity-pub {
     color: var(--danger);
   }
+
   &.published-remote .d-icon-discourse-activity-pub {
     color: var(--tertiary);
   }
@@ -289,6 +291,7 @@ body.user-preferences-activity-pub-page {
   .desktop {
     display: block;
   }
+
   .responsive {
     display: none;
   }
@@ -299,6 +302,7 @@ body.user-preferences-activity-pub-page {
     .desktop {
       display: none;
     }
+
     .responsive {
       display: block;
     }
@@ -326,10 +330,12 @@ body.user-preferences-activity-pub-page {
 .activity-pub-follow-table {
   &.followers {
     grid-template-columns: minmax(13em, 3fr) repeat(2, 110px);
+
     &.show-controls {
       grid-template-columns: minmax(13em, 3fr) repeat(3, 110px);
     }
   }
+
   &.follows {
     grid-template-columns: minmax(13em, 3fr) repeat(3, 110px);
   }
@@ -340,6 +346,7 @@ body.user-preferences-activity-pub-page {
   .activity-pub-follow-table-followed-at {
     display: none;
   }
+
   .activity-pub-follow-table-actions {
     width: 100%;
     padding: 0.5em 0.25em 1em;
@@ -361,6 +368,7 @@ body.user-preferences-activity-pub-page {
   .activity-pub-handle-label {
     margin-top: 1em;
   }
+
   .activity-pub-handle {
     display: inline-flex;
   }
@@ -428,6 +436,7 @@ body.user-preferences-activity-pub-page {
     &::after {
       content: unset;
     }
+
     .nav-pills > li.activity-pub-add-actor {
       margin-left: auto;
     }
@@ -525,6 +534,7 @@ body.user-preferences-activity-pub-page {
   &.success {
     color: var(--success);
   }
+
   &.failed {
     color: var(--danger);
   }

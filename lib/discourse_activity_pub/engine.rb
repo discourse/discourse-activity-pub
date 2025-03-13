@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DiscourseActivityPub
-  PLUGIN_NAME ||= "discourse-activity-pub"
+  PLUGIN_NAME = "discourse-activity-pub"
 
   class AuthFailed < StandardError
   end
