@@ -87,7 +87,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
   end
 
   def in_reply_to_post
-    reply_to&.post? && reply_to&.model
+    reply_to&.post? && reply_to.model
   end
 
   def before_deliver
