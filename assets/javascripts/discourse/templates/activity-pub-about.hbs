@@ -1,0 +1,6 @@
+<h3>{{i18n "discourse_activity_pub.about.actors"}}</h3>
+<div class="activity-pub-actors-list">
+  {{#each this.actors as |actor|}}
+    <ActivityPubActor @actor={{actor}} />
+  {{/each}}
+</div>
