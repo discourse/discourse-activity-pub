@@ -8,6 +8,7 @@ import ActivityPubAuthorization from "../models/activity-pub-authorization";
 
 export default class PreferencesActivityPubController extends Controller {
   @service dialog;
+
   @tracked authorizations = null;
   @tracked error;
   @notEmpty("authorizations") hasAuthorizations;
