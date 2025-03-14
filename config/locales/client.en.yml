@@ -80,6 +80,10 @@ en:
             logged_at: Logged %{logged_at}
   js:   
     discourse_activity_pub:
+      about:
+        label: ActivityPub
+        title: About ActivityPub on this forum
+        actors: Our Actors
       status:
         title:
           publishing_disabled: ActivityPub publishing is disabled by the login required site setting. Incoming activities and outgoing follows are enabled.
