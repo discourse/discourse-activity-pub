@@ -7,13 +7,13 @@ Fabricator(:discourse_activity_pub_actor) do
   username { sequence(:username) { |i| "username#{i}" } }
 
   before_create do |actor, transient|
-    DiscourseActivityPub::Logger.warn("FABRICATOR BEFORE" + (self.ap_id || "NO ID") + "-----" + local ? "LOCAL" : "NOT LOCAL")
+    Rails.logger.info(("FABRICATOR BEFORE" + (self.ap_id || "NO ID") + "-----" + local ? "LOCAL" : "NOT LOCAL")
     self.domain = (transient[:actor_domain] || "remote.com") unless local
     self.ap_id = "https://#{self.domain}/actor/#{SecureRandom.hex(16)}" unless self.ap_id || local
   end
 
   after_create do |actor|
-    DiscourseActivityPub::Logger.warn("FABRICATOR AFTER" + (self.ap_id || "NO ID") + "-----" + local ? "LOCAL" : "NOT LOCAL")
+    Rails.logger.info("FABRICATOR AFTER" + (self.ap_id || "NO ID") + "-----" + local ? "LOCAL" : "NOT LOCAL")
     actor.inbox = "#{actor.ap_id}/inbox"
     actor.outbox = "#{actor.ap_id}/outbox"
     actor.save!
