@@ -11,6 +11,10 @@ class DiscourseActivityPub::AP::ActorSerializer < DiscourseActivityPub::AP::Obje
     "#{object.id}/inbox"
   end
 
+  def outbox
+    "#{object.id}/outbox"
+  end
+
   def include_followers?
     object.stored.local?
   end
