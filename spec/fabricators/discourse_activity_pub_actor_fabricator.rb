@@ -6,7 +6,7 @@ Fabricator(:discourse_activity_pub_actor) do
   domain { DiscourseActivityPub.host }
   username { sequence(:username) { |i| "username#{i}" } }
 
-  DiscourseActivityPub::Logger.warn("FABRICATOR" + (self.ap_id || "NO ID")) + "-----" + local ? "LOCAL" : "NOT LOCAL")
+  DiscourseActivityPub::Logger.warn("FABRICATOR" + (self.ap_id || "NO ID") + "-----" + local ? "LOCAL" : "NOT LOCAL")
   
   before_create do |actor, transient|
     self.domain = (transient[:actor_domain] || "remote.com") unless local
