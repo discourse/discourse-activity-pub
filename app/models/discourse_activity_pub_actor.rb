@@ -284,7 +284,6 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   end
 
   def ensure_inbox_and_outbox
-    Rails.logger.info("MODEL" + (self.ap_id || "NO ID") + "-----" + local ? "LOCAL" : "NOT LOCAL")
     return unless local?
 
     self.inbox = "#{self.ap_id}/inbox" if !self.inbox
