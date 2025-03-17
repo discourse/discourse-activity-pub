@@ -22,6 +22,7 @@ const mastodonAboutPath = "api/v2/instance";
 
 export default class ActivityPubFollowDomain extends Component {
   @service site;
+
   @tracked verifying = false;
   @tracked error = null;
 

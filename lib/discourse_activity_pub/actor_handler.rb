@@ -165,6 +165,12 @@ module DiscourseActivityPub
 
     def ensure_required_attributes
       return unless actor.local?
+
+      # Normally these are set in model callbacks when an actor is created, however
+      # those callbacks fail for some user actors making this fallback necessary.
+      actor.ensure_ap_type
+      actor.ensure_ap_key
+      actor.ensure_ap_id
       actor.ensure_keys
       actor.ensure_inbox_and_outbox
     end

@@ -11,6 +11,7 @@ import ActivityPubActor, { newActor } from "../models/activity-pub-actor";
 export default class AdminPluginsActivityPubActor extends Controller {
   @service router;
   @controller("adminPlugins.activityPub.actorShow") actorShowController;
+
   @tracked order = "";
   @tracked asc = null;
   @tracked model_type = "category";

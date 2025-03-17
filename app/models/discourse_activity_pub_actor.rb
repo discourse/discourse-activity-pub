@@ -286,8 +286,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   def ensure_inbox_and_outbox
     return unless local?
 
-    self.inbox = "#{self.ap_id}/inbox" if !self.inbox
-    self.outbox = "#{self.ap_id}/outbox" if !self.outbox
+    self.inbox = "#{self.ap_id}/inbox" if !self.inbox || self.inbox.exclude?(self.ap_key)
+    self.outbox = "#{self.ap_id}/outbox" if !self.outbox || self.outbox.exclude?(self.ap_key)
   end
 
   def local_username_uniqueness
