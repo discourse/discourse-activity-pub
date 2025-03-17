@@ -181,9 +181,18 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
 
           it "ensures they are set" do
             described_class.update_or_create_actor(user)
-            expect(actor.reload.keypair).to be_present
-            expect(actor.inbox).to be_present
-            expect(actor.outbox).to be_present
+            expect(actor.reload.ap_key).to be_present
+            expect(actor.ap_id).to be_present
+            expect(actor.inbox).to eq("#{actor.ap_id}/inbox")
+            expect(actor.outbox).to eq("#{actor.ap_id}/outbox")
+            expect(actor.keypair).to be_present
+          end
+
+          it "ensures inbox and outbox urls have the correct structure" do
+            actor.update(inbox: "/inbox", outbox: "/outbox")
+            described_class.update_or_create_actor(user)
+            expect(actor.inbox).to eq("#{actor.ap_id}/inbox")
+            expect(actor.outbox).to eq("#{actor.ap_id}/outbox")
           end
         end
       end
