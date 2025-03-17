@@ -1,6 +1,20 @@
-<h3>{{i18n "discourse_activity_pub.about.actors"}}</h3>
-<div class="activity-pub-actors-list">
-  {{#each this.actors as |actor|}}
-    <ActivityPubActor @actor={{actor}} />
-  {{/each}}
+<div class="activity-pub-about">
+  <h3>{{i18n "discourse_activity_pub.about.title"}}</h3>
+  <p>{{i18n "discourse_activity_pub.about.description"}}</p>
+  <div class="activity-pub-actors categories">
+    <h3>{{i18n "discourse_activity_pub.about.categories"}}</h3>
+    <div class="activity-pub-actors-list">
+      {{#each this.categoryActors as |actor|}}
+        <ActivityPubActorCard @actor={{actor}} />
+      {{/each}}
+    </div>
+  </div>
+  <div class="activity-pub-actors tags">
+    <h3>{{i18n "discourse_activity_pub.about.tags"}}</h3>
+    <div class="activity-pub-actors-list">
+      {{#each this.tagActors as |actor|}}
+        <ActivityPubActorCard @actor={{actor}} />
+      {{/each}}
+    </div>
+  </div>
 </div>

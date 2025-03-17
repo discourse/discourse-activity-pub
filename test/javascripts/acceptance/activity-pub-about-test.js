@@ -1,6 +1,10 @@
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import { acceptance, queryAll } from "discourse/tests/helpers/qunit-helpers";
+import {
+  acceptance,
+  query,
+  queryAll,
+} from "discourse/tests/helpers/qunit-helpers";
 import { default as AboutFixtures } from "../fixtures/about-fixtures";
 
 acceptance("Discourse Activity Pub | About", function (needs) {
@@ -14,7 +18,22 @@ acceptance("Discourse Activity Pub | About", function (needs) {
   test("lists the forum's actors", async function (assert) {
     await visit("/ap/local/about");
 
-    const actors = queryAll(".activity-pub-actors-list .activity-pub-actor");
-    assert.strictEqual(actors.length, 3);
+    const categoryActors = queryAll(
+      ".activity-pub-actors.categories .activity-pub-actor-card"
+    );
+    assert.strictEqual(categoryActors.length, 2);
+
+    const tagActors = queryAll(
+      ".activity-pub-actors.tags .activity-pub-actor-card"
+    );
+    assert.strictEqual(tagActors.length, 1);
+
+    assert.strictEqual(
+      query(
+        ".activity-pub-actors.categories div.activity-pub-actor-card:first-of-type .follower-count"
+      ).innerText.trim(),
+      "4 followers",
+      "shows the right follower counts"
+    );
   });
 });

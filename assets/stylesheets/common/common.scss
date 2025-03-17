@@ -643,3 +643,39 @@ body.user-preferences-activity-pub-page {
     color: var(--primary-700);
   }
 }
+
+.activity-pub-about {
+  > p {
+    max-width: 700px;
+  }
+
+  .activity-pub-actors {
+    margin-top: 2em;
+  }
+
+  .activity-pub-actors-list {
+    display: flex;
+    flex-flow: wrap;
+    gap: 2em;
+  }
+
+  .activity-pub-actor-card {
+    flex: 1;
+  }
+}
+
+.activity-pub-actor-card {
+  display: flex;
+  flex-flow: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 1em;
+  border: 1px solid var(--primary-200);
+  min-width: 400px;
+  max-width: 600px;
+
+  .activity-pub-actor-card-bottom {
+    flex-basis: 100%;
+  }
+}

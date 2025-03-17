@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::AboutController do
-  let!(:local_actor1) { Fabricate(:discourse_activity_pub_actor_group, local: true) }
-  let!(:local_actor2) { Fabricate(:discourse_activity_pub_actor_group, local: true) }
-  let!(:local_actor3) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
-  let!(:remote_actor1) { Fabricate(:discourse_activity_pub_actor_group, local: false) }
+  let!(:category) { Fabricate(:category) }
+  let!(:tag) { Fabricate(:tag) }
+  let!(:category_actor) do
+    Fabricate(:discourse_activity_pub_actor_group, model: category, local: true)
+  end
+  let!(:tag_actor) { Fabricate(:discourse_activity_pub_actor_group, model: tag, local: true) }
+  let!(:second_category_actor) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
+  let!(:remote_category_actor) { Fabricate(:discourse_activity_pub_actor_group, local: false) }
 
   describe "#index" do
     context "without activity pub enabled" do
@@ -22,16 +26,24 @@ RSpec.describe DiscourseActivityPub::AboutController do
       it "returns about json" do
         get "/ap/local/about.json"
         expect(response.status).to eq(200)
-        expect(response.parsed_body["actors"].size).to eq(0)
+        expect(response.parsed_body["category_actors"].size).to eq(0)
       end
 
       context "with active actors" do
-        before { toggle_activity_pub(local_actor1.model) }
-
         it "returns active actors" do
+          toggle_activity_pub(category)
+
           get "/ap/local/about.json"
           expect(response.status).to eq(200)
-          expect(response.parsed_body["actors"].size).to eq(1)
+          expect(response.parsed_body["category_actors"].size).to eq(1)
+          expect(response.parsed_body["tag_actors"].size).to eq(0)
+
+          toggle_activity_pub(tag)
+
+          get "/ap/local/about.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["category_actors"].size).to eq(1)
+          expect(response.parsed_body["tag_actors"].size).to eq(1)
         end
       end
     end

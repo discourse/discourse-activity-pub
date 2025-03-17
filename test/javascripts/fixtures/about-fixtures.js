@@ -1,6 +1,6 @@
 export default {
   "/ap/local/about.json": {
-    actors: [
+    category_actors: [
       {
         id: 1,
         handle: "@angus_ap@test.local",
@@ -20,6 +20,7 @@ export default {
           name: "Cat 1",
           slug: "cat-1",
         },
+        follower_count: 4,
       },
       {
         id: 2,
@@ -40,7 +41,10 @@ export default {
           name: "Cat 2",
           slug: "cat-2",
         },
+        follower_count: 1,
       },
+    ],
+    tag_actors: [
       {
         id: 4,
         handle: "@monkey@test.local",
@@ -55,6 +59,7 @@ export default {
         post_object_type: "Note",
         enabled: true,
         ready: true,
+        follower_count: 0,
       },
     ],
   },

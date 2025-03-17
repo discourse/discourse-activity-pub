@@ -2,11 +2,17 @@
 
 module DiscourseActivityPub
   class AboutSerializer < ActiveModel::Serializer
-    attributes :actors
+    attributes :category_actors, :tag_actors
 
-    def actors
-      object.actors.map do |actor|
-        DiscourseActivityPub::DetailedActorSerializer.new(actor, root: false).as_json
+    def category_actors
+      object.category_actors.map do |actor|
+        DiscourseActivityPub::CardActorSerializer.new(actor, root: false).as_json
+      end
+    end
+
+    def tag_actors
+      object.tag_actors.map do |actor|
+        DiscourseActivityPub::CardActorSerializer.new(actor, root: false).as_json
       end
     end
   end

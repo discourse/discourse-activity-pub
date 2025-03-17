@@ -223,8 +223,8 @@ export default {
         {
           name: "activity-pub-about",
           route: "activityPub.about",
-          title: i18n("discourse_activity_pub.about.title"),
-          text: i18n("discourse_activity_pub.about.label"),
+          title: i18n("discourse_activity_pub.about.naviation.title"),
+          text: i18n("discourse_activity_pub.about.navigation.label"),
           icon: "discourse-activity-pub",
         },
         true

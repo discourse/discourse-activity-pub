@@ -9,7 +9,8 @@ export default class ActivityPubAboutRoute extends DiscourseRoute {
 
   setupController(controller, model) {
     controller.setProperties({
-      actors: model.actors,
+      categoryActors: model.category_actors,
+      tagActors: model.tag_actors,
     });
   }
 }

@@ -140,6 +140,7 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/site_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/detailed_actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/card_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/authorization_serializer"
   require_relative "app/serializers/discourse_activity_pub/admin/log_serializer"
   require_relative "config/routes"
