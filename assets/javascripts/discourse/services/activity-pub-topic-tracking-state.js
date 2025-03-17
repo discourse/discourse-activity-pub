@@ -14,6 +14,7 @@ const trackedAttributes = [
 
 export default class ActivityPubTopicTrackingState extends Service {
   @service appEvents;
+
   attributes = new TrackedMap();
   statuses = new TrackedMap();
 

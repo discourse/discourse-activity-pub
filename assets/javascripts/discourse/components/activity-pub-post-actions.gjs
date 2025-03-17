@@ -13,6 +13,7 @@ export default class ActivityPubPostActions extends Component {
   @service("activity-pub-topic-tracking-state") apTopicTrackingState;
   @service siteSettings;
   @service appEvents;
+
   @tracked status;
   @tracked post;
 

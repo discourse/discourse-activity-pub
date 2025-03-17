@@ -13,6 +13,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @service dialog;
   @service router;
   @service site;
+
   @tracked categoryId = null;
   @tracked tags = [];
   @tracked showForm = false;
