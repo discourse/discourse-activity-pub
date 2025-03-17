@@ -318,9 +318,9 @@ body.user-preferences-activity-pub-page {
 .activity-pub-actor {
   display: flex;
   justify-content: flex-start;
+  gap: 1em;
 
   .activity-pub-actor-content {
-    margin-left: 1em;
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -672,10 +672,18 @@ body.user-preferences-activity-pub-page {
   gap: 1em;
   padding: 1em;
   border: 1px solid var(--primary-200);
-  min-width: 400px;
-  max-width: 600px;
+  min-width: 450px;
+  max-width: 450px;
 
   .activity-pub-actor-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
     flex-basis: 100%;
+  }
+
+  .activity-pub-actor-metadata {
+    font-size: var(--font-down-1);
   }
 }
