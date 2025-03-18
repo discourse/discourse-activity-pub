@@ -13,6 +13,10 @@ export default class ActivityPubHandle extends Component {
 
   @tracked copied = false;
 
+  get showLink() {
+    return this.args.actor?.url && !this.args.hideLink;
+  }
+
   @action
   copy() {
     clipboardCopy(this.args.actor.handle);
@@ -26,7 +30,7 @@ export default class ActivityPubHandle extends Component {
     <div class="activity-pub-handle">
       <div class="activity-pub-handle-contents">
         <span class="handle">{{@actor.handle}}</span>
-        {{#if @actor.url}}
+        {{#if this.showLink}}
           <a
             href={{@actor.url}}
             target="_blank"

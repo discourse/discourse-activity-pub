@@ -41,7 +41,7 @@ export default class ActivityPubFollowBtn extends Component {
   get icon() {
     switch (this.args.type) {
       case "follow":
-        return "up-right-from-square";
+        return "";
       case "actor_follow":
         return "plus";
       case "actor_unfollow":

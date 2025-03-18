@@ -9,6 +9,7 @@
 enabled_site_setting :activity_pub_enabled
 
 register_asset "stylesheets/common/common.scss"
+register_asset "stylesheets/mobile/mobile.scss", :mobile
 register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
 register_svg_icon "user-check"

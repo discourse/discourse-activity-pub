@@ -118,7 +118,7 @@ section.activity-pub-actor-setting {
     align-items: stretch;
     border-radius: var(--d-border-radius);
     border: 1px solid var(--primary-low);
-    line-height: 37px;
+    line-height: 35px;
     overflow: hidden;
   }
 
@@ -128,6 +128,10 @@ section.activity-pub-actor-setting {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  .btn {
+    border: unset;
   }
 }
 
@@ -672,15 +676,16 @@ body.user-preferences-activity-pub-page {
   gap: 1em;
   padding: 1em;
   border: 1px solid var(--primary-200);
-  min-width: 450px;
   max-width: 450px;
+  box-sizing: border-box;
 
+  .activity-pub-actor-card-top,
   .activity-pub-actor-card-bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1em;
-    flex-basis: 100%;
+    width: 100%;
   }
 
   .activity-pub-actor-metadata {

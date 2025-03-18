@@ -1,12 +1,14 @@
 import { i18n } from "discourse-i18n";
-import ActivityPubActor from "./activity-pub-actor";
 import ActivityPubActorModel from "./activity-pub-actor-model";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
+import ActivityPubHandle from "./activity-pub-handle";
 
 const ActivityPubActorCard = <template>
   <div class="activity-pub-actor-card">
-    <ActivityPubActor @actor={{@actor}} @hideImage={{true}} />
-    <ActivityPubFollowBtn @actor={{@actor}} @type="follow" />
+    <div class="activity-pub-actor-card-top">
+      <ActivityPubHandle @actor={{@actor}} @hideLink={{true}} />
+      <ActivityPubFollowBtn @actor={{@actor}} @type="follow" />
+    </div>
     <div class="activity-pub-actor-card-bottom">
       <ActivityPubActorModel @actor={{@actor}} />
       <div class="follower-count activity-pub-actor-metadata">
