@@ -80,6 +80,17 @@ module DiscourseActivityPub
       errors.blank?
     end
 
+    def ensure_required_attributes
+      return unless actor.local?
+
+      # These are set in model callbacks when an actor is created, however those can fail or the data can be changed.
+      actor.ensure_ap_type
+      actor.ensure_ap_key
+      actor.ensure_ap_id
+      actor.ensure_keys
+      actor.ensure_inbox_and_outbox
+    end
+
     def self.update_or_create_user(actor)
       return nil unless actor
       new(actor: actor).update_or_create_user
@@ -97,6 +108,16 @@ module DiscourseActivityPub
         .joins(:activity_pub_actor)
         .where("discourse_activity_pub_actors.ap_id = :actor_id", actor_id: actor_id)
         .first
+    end
+
+    def self.ensure_required_attributes(actor)
+      return true unless actor.local?
+
+      handler = self.new(actor: actor)
+      handler.ensure_required_attributes
+      return true unless actor.changed?
+
+      actor.save!
     end
 
     protected
@@ -161,18 +182,6 @@ module DiscourseActivityPub
 
       actor.username = username
       actor.name = model.activity_pub_name if model.activity_pub_name
-    end
-
-    def ensure_required_attributes
-      return unless actor.local?
-
-      # Normally these are set in model callbacks when an actor is created, however
-      # those callbacks fail for some user actors making this fallback necessary.
-      actor.ensure_ap_type
-      actor.ensure_ap_key
-      actor.ensure_ap_id
-      actor.ensure_keys
-      actor.ensure_inbox_and_outbox
     end
 
     def update_actor_from_opts
