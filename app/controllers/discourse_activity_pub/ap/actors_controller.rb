@@ -34,6 +34,8 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   end
 
   def ensure_actor_ready
-    render_activity_pub_error("not_available", 403) unless @actor.ready?
+    unless @actor.ready? && DiscourseActivityPub::ActorHandler.ensure_required_attributes(@actor)
+      render_activity_pub_error("not_available", 403)
+    end
   end
 end

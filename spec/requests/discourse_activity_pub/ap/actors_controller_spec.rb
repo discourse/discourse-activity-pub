@@ -3,7 +3,9 @@
 RSpec.describe DiscourseActivityPub::AP::ActorsController do
   let!(:application) { Fabricate(:discourse_activity_pub_actor_application, local: true) }
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group) }
-  let!(:person) { Fabricate(:discourse_activity_pub_actor_person, local: true) }
+  let!(:person) do
+    Fabricate(:discourse_activity_pub_actor_person, local: true, model: Fabricate(:user))
+  end
 
   it { expect(described_class).to be < DiscourseActivityPub::AP::ObjectsController }
 
@@ -80,6 +82,13 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
       get_object(group)
       expect(response.status).to eq(200)
       expect(parsed_body).to eq(group.reload.ap.json)
+    end
+
+    it "ensures actor has required attributes" do
+      person.update_columns(inbox: "/inbox", outbox: "/outbox")
+      get_object(person)
+      expect(parsed_body["inbox"]).to include(person.ap_key)
+      expect(parsed_body["outbox"]).to include(person.ap_key)
     end
 
     context "when requested from a browser" do
