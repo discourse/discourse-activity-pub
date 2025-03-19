@@ -4,6 +4,7 @@ import { Promise } from "rsvp";
 import { bind } from "discourse/lib/decorators";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import RenderGlimmer from "discourse/widgets/render-glimmer";
+import { i18n } from "discourse-i18n";
 import ActivityPubTopicMap from "../components/activity-pub-topic-map";
 import ActivityPubPostAdminModal from "../components/modal/activity-pub-post-admin";
 import ActivityPubTopicAdminModal from "../components/modal/activity-pub-topic-admin";
@@ -217,6 +218,17 @@ export default {
       );
 
       api.renderInOutlet("topic-map", ActivityPubTopicMap);
+
+      api.addCommunitySectionLink(
+        {
+          name: "activity-pub-about",
+          route: "activityPub.about",
+          title: i18n("discourse_activity_pub.about.navigation.title"),
+          text: i18n("discourse_activity_pub.about.navigation.label"),
+          icon: "discourse-activity-pub",
+        },
+        true
+      );
     });
   },
 };

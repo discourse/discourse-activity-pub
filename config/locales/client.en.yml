@@ -80,6 +80,18 @@ en:
             logged_at: Logged %{logged_at}
   js:   
     discourse_activity_pub:
+      about:
+        navigation:
+          label: Federation
+          title: Explore this community's ActivityPub federation
+        title: Federation
+        description: These categories and tags support ActivityPub Federation. If you use Mastodon or other ActivityPub platforms you can follow them to see their topics and posts in your feed.
+        categories: Categories
+        tags: Tags
+        actor:
+          follower_count:
+            one: "%{count} follower"
+            other: "%{count} followers"
       status:
         title:
           publishing_disabled: ActivityPub publishing is disabled by the login required site setting. Incoming activities and outgoing follows are enabled.

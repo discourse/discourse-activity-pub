@@ -9,6 +9,7 @@
 enabled_site_setting :activity_pub_enabled
 
 register_asset "stylesheets/common/common.scss"
+register_asset "stylesheets/mobile/mobile.scss", :mobile
 register_svg_icon "discourse-activity-pub"
 register_svg_icon "fingerprint"
 register_svg_icon "user-check"
@@ -24,6 +25,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/json_ld"
   require_relative "lib/discourse_activity_pub/uri"
   require_relative "lib/discourse_activity_pub/request"
+  require_relative "lib/discourse_activity_pub/about"
   require_relative "lib/discourse_activity_pub/webfinger"
   require_relative "lib/discourse_activity_pub/username_validator"
   require_relative "lib/discourse_activity_pub/username_suggester"
@@ -107,6 +109,7 @@ after_initialize do
   require_relative "app/controllers/discourse_activity_pub/admin/admin_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/actor_controller"
   require_relative "app/controllers/discourse_activity_pub/admin/log_controller"
+  require_relative "app/controllers/discourse_activity_pub/about_controller"
   require_relative "app/controllers/discourse_activity_pub/authorization_controller"
   require_relative "app/controllers/discourse_activity_pub/post_controller"
   require_relative "app/controllers/discourse_activity_pub/topic_controller"
@@ -132,11 +135,13 @@ after_initialize do
   require_relative "app/serializers/discourse_activity_pub/ap/object/article_serializer"
   require_relative "app/serializers/discourse_activity_pub/ap/collection_serializer"
   require_relative "app/serializers/discourse_activity_pub/ap/collection/ordered_collection_serializer"
+  require_relative "app/serializers/discourse_activity_pub/about_serializer"
   require_relative "app/serializers/discourse_activity_pub/webfinger_serializer"
   require_relative "app/serializers/discourse_activity_pub/basic_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/site_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/detailed_actor_serializer"
+  require_relative "app/serializers/discourse_activity_pub/card_actor_serializer"
   require_relative "app/serializers/discourse_activity_pub/authorization_serializer"
   require_relative "app/serializers/discourse_activity_pub/admin/log_serializer"
   require_relative "config/routes"

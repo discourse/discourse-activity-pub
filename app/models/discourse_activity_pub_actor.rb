@@ -73,6 +73,8 @@ class DiscourseActivityPubActor < ActiveRecord::Base
            source: :followed,
            dependent: :destroy
 
+  scope :local, -> { where(local: true) }
+
   validates :username, presence: true, if: :local?
   validate :local_username_uniqueness, if: :local?
 
@@ -294,8 +296,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     if will_save_change_to_username?
       existing =
         DiscourseActivityPubActor
+          .local
           .where.not(id: self.id)
-          .where(local: true, username: self.username)
+          .where(username: self.username)
           .exists?
       errors.add(:username, "Username taken by local actor") if existing
     end

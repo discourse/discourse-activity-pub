@@ -118,7 +118,7 @@ section.activity-pub-actor-setting {
     align-items: stretch;
     border-radius: var(--d-border-radius);
     border: 1px solid var(--primary-low);
-    line-height: 37px;
+    line-height: 35px;
     overflow: hidden;
   }
 
@@ -128,6 +128,10 @@ section.activity-pub-actor-setting {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  .btn {
+    border: unset;
   }
 }
 
@@ -318,9 +322,9 @@ body.user-preferences-activity-pub-page {
 .activity-pub-actor {
   display: flex;
   justify-content: flex-start;
+  gap: 1em;
 
   .activity-pub-actor-content {
-    margin-left: 1em;
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -641,5 +645,50 @@ body.user-preferences-activity-pub-page {
 
   .handle {
     color: var(--primary-700);
+  }
+}
+
+.activity-pub-about {
+  > p {
+    max-width: 700px;
+  }
+
+  .activity-pub-actors {
+    margin-top: 2em;
+  }
+
+  .activity-pub-actors-list {
+    display: flex;
+    flex-flow: wrap;
+    gap: 2em;
+  }
+
+  .activity-pub-actor-card {
+    flex: 1;
+  }
+}
+
+.activity-pub-actor-card {
+  display: flex;
+  flex-flow: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 1em;
+  border: 1px solid var(--primary-200);
+  max-width: 450px;
+  box-sizing: border-box;
+
+  .activity-pub-actor-card-top,
+  .activity-pub-actor-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    width: 100%;
+  }
+
+  .activity-pub-actor-metadata {
+    font-size: var(--font-down-1);
   }
 }
