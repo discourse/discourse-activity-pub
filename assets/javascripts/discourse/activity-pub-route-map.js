@@ -2,7 +2,7 @@ export default function () {
   this.route(
     "activityPub",
     {
-      path: "/ap/local",
+      path: "/ap",
       resetNamespace: true,
     },
     function () {
@@ -10,7 +10,7 @@ export default function () {
       this.route(
         "actor",
         {
-          path: "/actor/:actor_id",
+          path: "/local/actor/:actor_id",
         },
         function () {
           this.route("followers");

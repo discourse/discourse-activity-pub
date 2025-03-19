@@ -1,5 +1,5 @@
 export default {
-  "/ap/local/about.json": {
+  "/ap/about.json": {
     category_actors: [
       {
         id: 1,

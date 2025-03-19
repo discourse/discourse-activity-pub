@@ -45,7 +45,7 @@ RSpec.describe DiscourseActivityPub::AboutController do
       before { SiteSetting.activity_pub_enabled = false }
 
       it "returns a not enabled error" do
-        get "/ap/local/about.json"
+        get "/ap/about.json"
         expect(response.status).to eq(404)
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe DiscourseActivityPub::AboutController do
       before { SiteSetting.activity_pub_enabled = true }
 
       it "returns about json" do
-        get "/ap/local/about.json"
+        get "/ap/about.json"
         expect(response.status).to eq(200)
         expect(response.parsed_body["category_actors"].size).to eq(0)
       end
@@ -64,7 +64,7 @@ RSpec.describe DiscourseActivityPub::AboutController do
           toggle_activity_pub(category1)
           toggle_activity_pub(category2)
 
-          get "/ap/local/about.json"
+          get "/ap/about.json"
           expect(response.status).to eq(200)
           expect(response.parsed_body["category_actors"].size).to eq(2)
           expect(response.parsed_body["category_actors"].map { |c| c["id"] }).to eq(
@@ -74,7 +74,7 @@ RSpec.describe DiscourseActivityPub::AboutController do
 
           toggle_activity_pub(tag)
 
-          get "/ap/local/about.json"
+          get "/ap/about.json"
           expect(response.status).to eq(200)
           expect(response.parsed_body["category_actors"].size).to eq(2)
           expect(response.parsed_body["tag_actors"].size).to eq(1)

@@ -4,7 +4,7 @@ import DiscourseRoute from "discourse/routes/discourse";
 
 export default class ActivityPubAboutRoute extends DiscourseRoute {
   model() {
-    return ajax("/ap/local/about.json").catch(popupAjaxError);
+    return ajax("/ap/about.json").catch(popupAjaxError);
   }
 
   setupController(controller, model) {
