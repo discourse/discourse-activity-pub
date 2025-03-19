@@ -83,7 +83,7 @@ en:
       about:
         navigation:
           label: Federation
-          title: About Federation on this forum
+          title: Explore this community's ActivityPub federation
         title: Federation
         description: These categories and tags support ActivityPub Federation. If you use Mastodon or other ActivityPub platforms you can follow them to see their topics and posts in your feed.
         categories: Categories
