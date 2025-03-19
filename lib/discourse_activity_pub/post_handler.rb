@@ -31,7 +31,7 @@ module DiscourseActivityPub
       return nil if !import_mode && !new_topic && !reply_to && !topic_id
 
       params = {
-        raw: object.content,
+        raw: build_post_raw,
         skip_events: true,
         skip_validations: true,
         skip_jobs: true,
@@ -148,6 +148,21 @@ module DiscourseActivityPub
     end
 
     protected
+
+    def supported_media_type?(media_type)
+      extension = MiniMime.lookup_by_content_type(media_type)&.extension
+      FileHelper.supported_images.include?(extension)
+    end
+
+    def build_post_raw
+      raw = object.content
+      if object.attachments.present?
+        object.attachments.each do |attachment|
+          raw += "\n#{attachment.url}" if supported_media_type?(attachment.media_type)
+        end
+      end
+      raw
+    end
 
     def can_create_topic?(category)
       category&.activity_pub_ready?
