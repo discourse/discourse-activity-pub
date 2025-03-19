@@ -158,7 +158,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
       context "with an unspported actor" do
         before do
           @json = build_activity_json(object: actor, type: activity_type)
-          @json["actor"]["type"] = "Service"
+          @json["actor"]["type"] = "Organization"
         end
 
         it "returns false" do
