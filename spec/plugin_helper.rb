@@ -150,7 +150,8 @@ def build_object_json(
   cc: nil,
   audience: nil,
   attributed_to: nil,
-  context: nil
+  context: nil,
+  attachments: []
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -173,6 +174,7 @@ def build_object_json(
     attributed_to
   end
   _json[:context] = context if context
+  _json[:attachments] = attachments if attachments.present?
   _json.with_indifferent_access
 end
 

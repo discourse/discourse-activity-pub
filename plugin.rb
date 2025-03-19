@@ -70,11 +70,14 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/ap/activity/like"
   require_relative "lib/discourse_activity_pub/ap/object/note"
   require_relative "lib/discourse_activity_pub/ap/object/article"
+  require_relative "lib/discourse_activity_pub/ap/object/document"
+  require_relative "lib/discourse_activity_pub/ap/object/image"
   require_relative "lib/discourse_activity_pub/ap/collection"
   require_relative "lib/discourse_activity_pub/ap/collection/collection_page"
   require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection_page"
   require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection"
   require_relative "lib/discourse_activity_pub/admin"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/type_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/identifier_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/object_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/model_validations"
@@ -90,6 +93,7 @@ after_initialize do
   require_relative "app/models/discourse_activity_pub_log"
   require_relative "app/models/discourse_activity_pub_object"
   require_relative "app/models/discourse_activity_pub_collection"
+  require_relative "app/models/discourse_activity_pub_attachment"
   require_relative "app/jobs/discourse_activity_pub_process"
   require_relative "app/jobs/discourse_activity_pub_deliver"
   require_relative "app/jobs/discourse_activity_pub_log_rotate"
@@ -1165,6 +1169,23 @@ after_initialize do
                     "discourse_activity_pub.process.error.failed_to_save_object",
                     object_id: object.json[:id],
                   )
+          end
+
+          if object.json[:attachment].present?
+            object.json[:attachment].each do |attachment|
+              begin
+                DiscourseActivityPubAttachment.create(
+                  object_id: object.stored.id,
+                  object_type: "DiscourseActivityPubObject",
+                  ap_type: attachment[:type],
+                  url: attachment[:url],
+                  name: attachment[:name],
+                  media_type: attachment[:mediaType],
+                )
+              rescue ActiveRecord::RecordInvalid => error
+                # fail silently if an attachment does not validate
+              end
+            end
           end
         end
       end
