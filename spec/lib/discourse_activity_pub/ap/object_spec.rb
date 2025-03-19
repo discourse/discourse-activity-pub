@@ -77,7 +77,7 @@ RSpec.describe DiscourseActivityPub::AP::Object do
 
       context "with an object that cannot belong to remote" do
         before do
-          json["type"] = "Service"
+          json["type"] = "Organization"
           stub_request(:get, json["id"]).to_return(
             body: json.to_json,
             headers: {
