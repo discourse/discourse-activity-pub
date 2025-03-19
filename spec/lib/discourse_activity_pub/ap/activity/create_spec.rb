@@ -470,7 +470,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
                 build_object_json(
                   name: "My cool topic title",
                   attributed_to: actor,
-                  attachment: attachments_with_supported_mediatypes,
+                  attachments: attachments_with_supported_mediatypes,
                 ),
               type: "Create",
             )
@@ -508,7 +508,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
                 build_object_json(
                   name: "My cool topic title",
                   attributed_to: actor,
-                  attachment: attachments_with_unsupported_mediatypes,
+                  attachments: attachments_with_unsupported_mediatypes,
                 ),
               type: "Create",
             )
@@ -542,7 +542,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
                 build_object_json(
                   name: "My cool topic title",
                   attributed_to: actor,
-                  attachment: attachments_with_invalid_mediatypes,
+                  attachments: attachments_with_invalid_mediatypes,
                 ),
               type: "Create",
             )
@@ -571,7 +571,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           build_object_json(
             name: "My cool topic title",
             attributed_to: actor,
-            attachment: [
+            attachments: [
               { type: "PropertyValue", name: "Homepage", value: "https://myhomepage.com" },
             ],
           )
