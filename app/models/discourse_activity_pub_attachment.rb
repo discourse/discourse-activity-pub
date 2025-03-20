@@ -31,11 +31,9 @@ end
 #  ap_type     :string           not null
 #  object_id   :bigint           not null
 #  object_type :string           not null
-#  model_id    :integer
-#  model_type  :string
 #  url         :string
 #  name        :string
-#  media_type  :string
+#  media_type  :string(200)
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
