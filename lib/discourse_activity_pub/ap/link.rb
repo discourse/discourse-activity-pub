@@ -9,20 +9,20 @@ module DiscourseActivityPub
       end
 
       def type
-        'Link'
+        "Link"
       end
 
       def href
         return value if value.is_a?(String)
-        return value[:href] if value.is_a?(Hash)
+        value[:href] if value.is_a?(Hash)
       end
 
       def media_type
-        return value[:mediaType] if value.is_a?(Hash)
+        value[:mediaType] if value.is_a?(Hash)
       end
 
       def name
-        return value[:name] if value.is_a?(Hash)
+        value[:name] if value.is_a?(Hash)
       end
     end
   end
