@@ -443,21 +443,37 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         let!(:attachment_url_1) { "https://example.com/files/cats.png" }
         let!(:attachment_url_2) { "https://example.com/files/dogs.jpeg" }
         let!(:attachment_url_3) { "https://example.com/files/autodesk-dog.3ds" }
+        let!(:attachment_name_1) { "A cool cat" }
         let!(:attachments_with_supported_mediatypes) do
           [
-            { type: "Document", mediaType: "image/png", url: attachment_url_1 },
+            {
+              type: "Document",
+              mediaType: "image/png",
+              url: attachment_url_1,
+              name: attachment_name_1,
+            },
             { type: "Image", mediaType: "image/jpeg", url: attachment_url_2 },
           ]
         end
         let!(:attachments_with_unsupported_mediatypes) do
           [
-            { type: "Document", mediaType: "image/png", url: attachment_url_1 },
+            {
+              type: "Document",
+              mediaType: "image/png",
+              url: attachment_url_1,
+              name: attachment_name_1,
+            },
             { type: "Image", mediaType: "image/x-3ds", url: attachment_url_3 },
           ]
         end
         let!(:attachments_with_invalid_mediatypes) do
           [
-            { type: "Document", mediaType: "image/png", url: attachment_url_1 },
+            {
+              type: "Document",
+              mediaType: "image/png",
+              url: attachment_url_1,
+              name: attachment_name_1,
+            },
             { type: "Image", mediaType: "invalid-type", url: attachment_url_3 },
           ]
         end
@@ -494,7 +510,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             post =
               Post.find_by(
                 raw:
-                  "#{new_post_json[:object][:content]}\n#{attachment_url_1}\n#{attachment_url_2}",
+                  "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>\n<img src=\"#{attachment_url_2}\" alt=\"\"/>",
               )
             expect(post.present?).to be(true)
           end
@@ -529,7 +545,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
           it "adds urls for attachments with supported media types to the post" do
             perform_process(new_post_json, delivered_to)
-            post = Post.find_by(raw: "#{new_post_json[:object][:content]}\n#{attachment_url_1}")
+            post =
+              Post.find_by(
+                raw:
+                  "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>",
+              )
             expect(post.present?).to be(true)
           end
         end
@@ -560,7 +580,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
           it "adds urls for attachments with supported media types to the post" do
             perform_process(new_post_json, delivered_to)
-            post = Post.find_by(raw: "#{new_post_json[:object][:content]}\n#{attachment_url_1}")
+            post =
+              Post.find_by(
+                raw:
+                  "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>",
+              )
             expect(post.present?).to be(true)
           end
         end
