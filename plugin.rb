@@ -47,6 +47,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/context_resolver"
   require_relative "lib/discourse_activity_pub/ap"
   require_relative "lib/discourse_activity_pub/ap/handlers"
+  require_relative "lib/discourse_activity_pub/ap/link"
   require_relative "lib/discourse_activity_pub/ap/object"
   require_relative "lib/discourse_activity_pub/ap/actor"
   require_relative "lib/discourse_activity_pub/ap/actor/group"
@@ -67,11 +68,14 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/ap/activity/like"
   require_relative "lib/discourse_activity_pub/ap/object/note"
   require_relative "lib/discourse_activity_pub/ap/object/article"
+  require_relative "lib/discourse_activity_pub/ap/object/document"
+  require_relative "lib/discourse_activity_pub/ap/object/image"
   require_relative "lib/discourse_activity_pub/ap/collection"
   require_relative "lib/discourse_activity_pub/ap/collection/collection_page"
   require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection_page"
   require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection"
   require_relative "lib/discourse_activity_pub/admin"
+  require_relative "app/models/concerns/discourse_activity_pub/ap/type_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/identifier_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/object_validations"
   require_relative "app/models/concerns/discourse_activity_pub/ap/model_validations"
@@ -87,6 +91,7 @@ after_initialize do
   require_relative "app/models/discourse_activity_pub_log"
   require_relative "app/models/discourse_activity_pub_object"
   require_relative "app/models/discourse_activity_pub_collection"
+  require_relative "app/models/discourse_activity_pub_attachment"
   require_relative "app/jobs/discourse_activity_pub_process"
   require_relative "app/jobs/discourse_activity_pub_deliver"
   require_relative "app/jobs/discourse_activity_pub_log_rotate"
@@ -1158,6 +1163,29 @@ after_initialize do
                     "discourse_activity_pub.process.error.failed_to_save_object",
                     object_id: object.json[:id],
                   )
+          end
+
+          if object.attachment.present?
+            object.attachment.each do |attachment|
+              # Some platforms (e.g. Mastodon) put attachment url media types on the attachment itself,
+              # instead of on a Link object in the url attribute. Technically this violates the specification,
+              # but we need to support it nevertheless. See further https://www.w3.org/TR/activitystreams-vocabulary/#dfn-mediatype
+              media_type = attachment.url.media_type || attachment.media_type
+              name = attachment.url.name || attachment.name
+
+              begin
+                DiscourseActivityPubAttachment.create(
+                  object_id: object.stored.id,
+                  object_type: "DiscourseActivityPubObject",
+                  ap_type: attachment.type,
+                  url: attachment.url.href,
+                  name: name,
+                  media_type: media_type,
+                )
+              rescue ActiveRecord::RecordInvalid => error
+                # fail silently if an attachment does not validate
+              end
+            end
           end
         end
       end

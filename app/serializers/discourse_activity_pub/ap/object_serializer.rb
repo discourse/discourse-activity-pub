@@ -20,8 +20,8 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
     hash
   end
 
-  def context
-    object.context
+  def include_id?
+    object.id.present?
   end
 
   def include_context?
