@@ -149,7 +149,7 @@ module DiscourseActivityPub
 
     protected
 
-    def supported_media_type?(media_type)
+    def supported_image?(media_type)
       extension = MiniMime.lookup_by_content_type(media_type)&.extension
       FileHelper.supported_images.include?(extension)
     end
@@ -158,10 +158,14 @@ module DiscourseActivityPub
       raw = object.content
       if object.attachments.present?
         object.attachments.each do |attachment|
-          raw += "\n#{attachment.url}" if supported_media_type?(attachment.media_type)
+          raw += attached_image_html(attachment) if supported_image?(attachment.media_type)
         end
       end
       raw
+    end
+
+    def attached_image_html(attachment)
+      "\n<img src=\"#{attachment.url}\" alt=\"#{attachment.name}\"/>"
     end
 
     def can_create_topic?(category)
