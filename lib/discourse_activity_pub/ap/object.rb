@@ -51,7 +51,11 @@ module DiscourseActivityPub
       end
 
       def url
-        stored.respond_to?(:url) && stored&.url
+        if stored
+          stored.respond_to?(:url) && stored&.url
+        elsif json.present?
+          Link.new(json[:url])
+        end
       end
 
       def audience
@@ -95,7 +99,11 @@ module DiscourseActivityPub
       end
 
       def name
-        stored.respond_to?(:name) && stored&.name
+        if stored.present?
+          stored.respond_to?(:name) && stored&.name
+        elsif json.present?
+          json[:name]
+        end
       end
 
       def context
@@ -108,6 +116,19 @@ module DiscourseActivityPub
 
       def delivered_to
         @delivered_to ||= []
+      end
+
+      def media_type
+        json[:mediaType] if json.present?
+      end
+
+      def attachment
+        if json.present? && json[:attachment].present?
+          json[:attachment].each_with_object([]) do |attachment_json, result|
+            obj = AP::Object.factory(attachment_json)
+            result << obj if obj.present?
+          end
+        end
       end
 
       def cache

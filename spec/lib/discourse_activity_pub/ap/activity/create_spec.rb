@@ -477,6 +477,20 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             { type: "Image", mediaType: "invalid-type", url: attachment_url_3 },
           ]
         end
+        let!(:attachments_with_link_objects) do
+          [
+            {
+              type: "Document",
+              url: {
+                type: "Link",
+                href: attachment_url_1,
+                mediaType: "image/png",
+                name: attachment_name_1,
+              },
+            },
+            { type: "Image", mediaType: "image/jpeg", url: attachment_url_2 },
+          ]
+        end
 
         context "with supported media types" do
           let!(:new_post_json) do
@@ -586,6 +600,34 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
                   "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>",
               )
             expect(post.present?).to be(true)
+          end
+        end
+
+        context "with Link objects" do
+          let!(:new_post_json) do
+            build_activity_json(
+              actor: actor,
+              object:
+                build_object_json(
+                  name: "My cool topic title",
+                  attributed_to: actor,
+                  attachments: attachments_with_link_objects,
+                ),
+              type: "Create",
+            )
+          end
+
+          it "creates records for all attachments" do
+            perform_process(new_post_json, delivered_to)
+            object =
+              DiscourseActivityPubObject.find_by(ap_type: "Note", attributed_to_id: actor.ap_id)
+            expect(object.attachments.size).to eq(2)
+            expect(object.attachments.first.ap_type).to eq("Document")
+            expect(object.attachments.first.url).to eq(attachment_url_1)
+            expect(object.attachments.first.media_type).to eq("image/png")
+            expect(object.attachments.second.ap_type).to eq("Image")
+            expect(object.attachments.second.url).to eq(attachment_url_2)
+            expect(object.attachments.second.media_type).to eq("image/jpeg")
           end
         end
       end
