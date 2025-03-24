@@ -55,6 +55,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/ap/actor/person"
   require_relative "lib/discourse_activity_pub/ap/actor/application"
   require_relative "lib/discourse_activity_pub/ap/actor/service"
+  require_relative "lib/discourse_activity_pub/ap/actor/organization"
   require_relative "lib/discourse_activity_pub/ap/activity"
   require_relative "lib/discourse_activity_pub/ap/activity/follow"
   require_relative "lib/discourse_activity_pub/ap/activity/response"
