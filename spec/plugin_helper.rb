@@ -135,7 +135,7 @@ def build_actor_json(
     owner: _json[:id],
     publicKeyPem: public_key,
   } if public_key
-  _json
+  _json.with_indifferent_access
 end
 
 def build_object_json(
@@ -173,7 +173,7 @@ def build_object_json(
     attributed_to
   end
   _json[:context] = context if context
-  _json
+  _json.with_indifferent_access
 end
 
 def build_activity_json(

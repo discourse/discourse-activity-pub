@@ -105,4 +105,34 @@ RSpec.describe DiscourseActivityPub::JsonLd do
       end
     end
   end
+
+  describe "#base_object_id" do
+    let!(:object_id) { "1234" }
+    let!(:object_json) { build_object_json(id: object_id) }
+    let!(:activity_json) { build_activity_json(type: "Create", object: object_json) }
+    let!(:announce_json) { build_activity_json(type: "Announce", object: activity_json) }
+
+    it "returns the base object id" do
+      expect(described_class.base_object_id(object_json)).to eq(object_id)
+      expect(described_class.base_object_id(activity_json)).to eq(object_id)
+      expect(described_class.base_object_id(announce_json)).to eq(object_id)
+    end
+
+    it "handles invalid json" do
+      invalid_activity_json = activity_json.dup
+      invalid_activity_json[:object] = nil
+      expect(described_class.base_object_id(invalid_activity_json)).to eq(
+        invalid_activity_json[:id],
+      )
+
+      invalid_announce_json = announce_json.dup
+      invalid_announce_json[:object][:object] = nil
+      expect(described_class.base_object_id(invalid_activity_json)).to eq(activity_json[:id])
+    end
+
+    it "handles nil and blank strings" do
+      expect(described_class.base_object_id("")).to eq(nil)
+      expect(described_class.base_object_id(nil)).to eq(nil)
+    end
+  end
 end

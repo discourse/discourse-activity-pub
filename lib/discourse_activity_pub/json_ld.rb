@@ -54,7 +54,9 @@ module DiscourseActivityPub
     end
 
     def base_object_id(raw_object)
-      if raw_object.is_a?(Object) && raw_object["object"].present?
+      return if raw_object.blank?
+
+      if raw_object.is_a?(Hash) && raw_object["object"].present?
         base_object_id(raw_object["object"])
       else
         resolve_id(raw_object)
