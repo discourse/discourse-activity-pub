@@ -4,9 +4,11 @@ import ActivityPubActorImage from "./activity-pub-actor-image";
 
 const ActivityPubActor = <template>
   <div class="activity-pub-actor">
-    <div class="activity-pub-actor-image">
-      <ActivityPubActorImage @actor={{@actor}} @size="large" />
-    </div>
+    {{#unless @hideImage}}
+      <div class="activity-pub-actor-image">
+        <ActivityPubActorImage @actor={{@actor}} @size="large" />
+      </div>
+    {{/unless}}
     <div class="activity-pub-actor-content">
       <div class="activity-pub-actor-name">
         {{or @actor.name @actor.username}}

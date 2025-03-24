@@ -20,6 +20,8 @@ DiscourseActivityPub::Engine.routes.draw do
     delete "destroy/:auth_id" => "authorization#destroy"
   end
 
+  get "/about" => "about#index"
+
   scope "/local" do
     scope "/actor" do
       get "/find-by-user" => "actor#find_by_user", :defaults => { format: :json }
