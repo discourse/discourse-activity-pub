@@ -40,6 +40,9 @@ ar:
               success: تم النسخ!
   js:
     discourse_activity_pub:
+      about:
+        categories: الفئات
+        tags: الوسوم
       status:
         label:
           active: نشطة

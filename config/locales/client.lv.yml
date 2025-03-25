@@ -37,6 +37,9 @@ lv:
               success: Nokopēts!
   js:
     discourse_activity_pub:
+      about:
+        categories: Sadaļas
+        tags: Birkas
       status:
         label:
           active: Aktīvi

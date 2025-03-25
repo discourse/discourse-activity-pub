@@ -39,6 +39,9 @@ el:
               success: Αντιγράφηκε!
   js:
     discourse_activity_pub:
+      about:
+        categories: Κατηγορίες
+        tags: Ετικέτες
       status:
         label:
           active: Ενεργοί

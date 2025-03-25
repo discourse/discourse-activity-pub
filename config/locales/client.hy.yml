@@ -37,6 +37,9 @@ hy:
               success: Պատճենված է!
   js:
     discourse_activity_pub:
+      about:
+        categories: Կատեգորիաներ
+        tags: Պիտակներ
       status:
         label:
           active: Ակտիվ

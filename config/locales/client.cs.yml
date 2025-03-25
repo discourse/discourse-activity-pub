@@ -86,6 +86,12 @@ cs:
             logged_at: Přihlášen %{logged_at}
   js:
     discourse_activity_pub:
+      about:
+        navigation:
+          label: Federace
+        title: Federace
+        categories: Kategorie
+        tags: Tagy
       status:
         title:
           publishing_disabled: Publikování v ActivityPub je zakázáno nastavením webu `login required`. Jsou povoleny příchozí aktivity a odchozí sledování.

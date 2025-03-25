@@ -40,6 +40,9 @@ hu:
               success: Másolva!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategóriák
+        tags: Címkék
       status:
         label:
           active: Aktív

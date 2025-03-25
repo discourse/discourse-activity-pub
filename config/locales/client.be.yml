@@ -34,6 +34,9 @@ be:
               label: капіяваць
   js:
     discourse_activity_pub:
+      about:
+        categories: катэгорыі
+        tags: тэгі
       status:
         label:
           active: актыўныя

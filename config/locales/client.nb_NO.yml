@@ -39,6 +39,9 @@ nb_NO:
               success: Kopiert!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorier
+        tags: Stikkord
       status:
         label:
           active: Aktiv

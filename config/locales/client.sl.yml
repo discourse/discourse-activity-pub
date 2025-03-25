@@ -38,6 +38,9 @@ sl:
               success: Kopirano!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorije
+        tags: Oznake
       status:
         label:
           active: Aktivni

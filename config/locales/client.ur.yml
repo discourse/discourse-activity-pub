@@ -38,6 +38,9 @@ ur:
               success: کاپی کر لیا!
   js:
     discourse_activity_pub:
+      about:
+        categories: اقسام
+        tags: ٹیگز
       status:
         label:
           active: فعال

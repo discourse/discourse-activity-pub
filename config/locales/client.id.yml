@@ -37,6 +37,9 @@ id:
               success: Disalin!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategori
+        tags: Label
       status:
         label:
           active: Aktif

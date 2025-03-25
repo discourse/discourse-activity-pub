@@ -40,6 +40,9 @@ pl_PL:
               success: Skopiowane!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorie
+        tags: Tagi
       status:
         label:
           active: Aktywni

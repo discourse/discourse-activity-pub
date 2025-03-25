@@ -40,6 +40,9 @@ fa_IR:
               success: کپی شد!
   js:
     discourse_activity_pub:
+      about:
+        categories: دسته‌بندی‌ها
+        tags: برچسب‌ها
       status:
         label:
           active: فعال

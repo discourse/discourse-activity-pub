@@ -40,6 +40,9 @@ zh_TW:
               success: 已複製!
   js:
     discourse_activity_pub:
+      about:
+        categories: 分類
+        tags: 標記
       status:
         label:
           active: 啟用的

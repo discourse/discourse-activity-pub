@@ -39,6 +39,9 @@ et:
               success: Kopeeritud!
   js:
     discourse_activity_pub:
+      about:
+        categories: Liigid
+        tags: Sildid
       status:
         label:
           active: Aktiivne

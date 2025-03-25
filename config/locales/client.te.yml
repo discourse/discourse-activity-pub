@@ -40,6 +40,9 @@ te:
               success: కాపీ చేయబడింది!
   js:
     discourse_activity_pub:
+      about:
+        categories: వర్గాలు
+        tags: ట్యాగులు
       status:
         label:
           active: క్రియాశీల

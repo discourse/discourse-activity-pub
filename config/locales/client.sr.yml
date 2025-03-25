@@ -36,6 +36,9 @@ sr:
               success: Kopirano!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorije
+        tags: Tagovi
       status:
         label:
           active: Aktivno

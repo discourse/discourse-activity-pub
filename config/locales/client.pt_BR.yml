@@ -42,6 +42,9 @@ pt_BR:
               success: Copiado!
   js:
     discourse_activity_pub:
+      about:
+        categories: Categorias
+        tags: Etiquetas
       status:
         label:
           active: Ativo(a)

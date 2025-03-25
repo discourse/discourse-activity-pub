@@ -40,6 +40,9 @@ es:
               success: '¡Copiado!'
   js:
     discourse_activity_pub:
+      about:
+        categories: Categorías
+        tags: Etiquetas
       status:
         label:
           active: Activo

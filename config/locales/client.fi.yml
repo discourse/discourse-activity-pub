@@ -40,6 +40,9 @@ fi:
               success: Kopioitiin!
   js:
     discourse_activity_pub:
+      about:
+        categories: Luokat
+        tags: Tunnisteet
       status:
         label:
           active: Aktiivinen

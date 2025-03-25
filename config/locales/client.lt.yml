@@ -40,6 +40,9 @@ lt:
               success: Nukopijuota!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorijos
+        tags: Žymos
       status:
         label:
           active: Aktyvūs

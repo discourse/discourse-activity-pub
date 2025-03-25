@@ -11,3 +11,7 @@ en_GB:
         actor:
           category:
             label: Categories
+  js:
+    discourse_activity_pub:
+      about:
+        categories: Categories

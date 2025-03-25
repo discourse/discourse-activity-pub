@@ -40,6 +40,9 @@ ja:
               success: コピーしました！
   js:
     discourse_activity_pub:
+      about:
+        categories: カテゴリ
+        tags: タグ
       status:
         label:
           active: アクティブ
