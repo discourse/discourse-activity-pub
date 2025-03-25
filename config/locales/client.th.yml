@@ -33,6 +33,9 @@ th:
               success: คัดลอกแล้ว!
   js:
     discourse_activity_pub:
+      about:
+        categories: หมวดหมู่
+        tags: ป้าย
       status:
         label:
           active: ใช้งานอยู่

@@ -39,6 +39,9 @@ ca:
               success: Copiat!
   js:
     discourse_activity_pub:
+      about:
+        categories: Categories
+        tags: Etiquetes
       status:
         label:
           active: Actiu

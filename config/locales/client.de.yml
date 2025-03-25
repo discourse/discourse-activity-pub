@@ -42,6 +42,9 @@ de:
               success: Kopiert!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorien
+        tags: Schlagwörter
       status:
         label:
           active: Aktiv

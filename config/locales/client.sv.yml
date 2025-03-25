@@ -40,6 +40,9 @@ sv:
               success: Kopierad!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorier
+        tags: Taggar
       status:
         label:
           active: Aktiv

@@ -42,6 +42,9 @@ fr:
               success: Copié !
   js:
     discourse_activity_pub:
+      about:
+        categories: Catégories
+        tags: Étiquettes
       status:
         label:
           active: Actif

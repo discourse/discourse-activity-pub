@@ -40,6 +40,9 @@ ug:
               success: كۆچۈرۈلدى!
   js:
     discourse_activity_pub:
+      about:
+        categories: سەھىپە
+        tags: بەلگە
       status:
         label:
           active: ئاكتىپ

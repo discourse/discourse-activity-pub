@@ -40,6 +40,9 @@ it:
               success: Copiato!
   js:
     discourse_activity_pub:
+      about:
+        categories: Categorie
+        tags: Etichette
       status:
         label:
           active: Attivi

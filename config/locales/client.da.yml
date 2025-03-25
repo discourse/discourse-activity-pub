@@ -40,6 +40,9 @@ da:
               success: Kopieret!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategorier
+        tags: Mærker
       status:
         label:
           active: Aktiv

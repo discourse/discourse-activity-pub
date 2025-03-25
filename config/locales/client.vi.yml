@@ -36,6 +36,9 @@ vi:
               success: Đã sao chép!
   js:
     discourse_activity_pub:
+      about:
+        categories: Danh mục
+        tags: Thẻ
       status:
         label:
           active: Kích hoạt

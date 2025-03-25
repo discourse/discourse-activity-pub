@@ -42,6 +42,9 @@ tr_TR:
               success: Kopyalandı!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategoriler
+        tags: Etiketler
       status:
         label:
           active: Aktif

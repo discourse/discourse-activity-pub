@@ -42,6 +42,9 @@ nl:
               success: Gekopieerd!
   js:
     discourse_activity_pub:
+      about:
+        categories: Categorieën
+        tags: Tags
       status:
         label:
           active: Actief

@@ -38,6 +38,9 @@ bg:
               success: Копирано!
   js:
     discourse_activity_pub:
+      about:
+        categories: Категории
+        tags: Тагове
       status:
         label:
           active: Активни

@@ -40,6 +40,9 @@ uk:
               success: Скопійовано!
   js:
     discourse_activity_pub:
+      about:
+        categories: Розділи
+        tags: Теґи
       status:
         label:
           active: Активні

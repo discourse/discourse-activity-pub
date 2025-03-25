@@ -37,6 +37,9 @@ sq:
               success: Kopjuar!
   js:
     discourse_activity_pub:
+      about:
+        categories: Categories
+        tags: Etiketat
       status:
         label:
           active: Aktiv

@@ -40,6 +40,9 @@ he:
               success: הועתק!
   js:
     discourse_activity_pub:
+      about:
+        categories: קטגוריות
+        tags: תגיות
       status:
         label:
           active: פעיל

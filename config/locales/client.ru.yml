@@ -40,6 +40,9 @@ ru:
               success: Скопировано!
   js:
     discourse_activity_pub:
+      about:
+        categories: Категории
+        tags: Теги
       status:
         label:
           active: Активна

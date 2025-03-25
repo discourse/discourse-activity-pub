@@ -40,6 +40,9 @@ ko:
               success: 복사되었습니다!
   js:
     discourse_activity_pub:
+      about:
+        categories: 카테고리
+        tags: 태그
       status:
         label:
           active: 활성화 사용자

@@ -36,6 +36,9 @@ sw:
               label: Nakili
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategoria
+        tags: Lebo
       status:
         label:
           active: Mara kwa Mara

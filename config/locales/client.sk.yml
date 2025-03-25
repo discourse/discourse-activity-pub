@@ -42,6 +42,9 @@ sk:
               success: Skopírované!
   js:
     discourse_activity_pub:
+      about:
+        categories: Kategórie
+        tags: Značky
       status:
         label:
           active: Aktívny

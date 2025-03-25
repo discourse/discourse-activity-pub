@@ -42,6 +42,9 @@ zh_CN:
               success: 已复制！
   js:
     discourse_activity_pub:
+      about:
+        categories: 类别
+        tags: 标签
       status:
         label:
           active: 有效
