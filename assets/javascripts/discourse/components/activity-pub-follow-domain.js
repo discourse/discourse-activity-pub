@@ -82,13 +82,9 @@ export default class ActivityPubFollowDomain extends Component {
     this.verifying = false;
 
     if (url) {
-      this.openFollowUrl(url);
+      window.location.href = url;
     } else {
       this.error = i18n("discourse_activity_pub.follow.domain.invalid");
     }
-  }
-
-  openFollowUrl(url) {
-    window.open(url, "_blank")?.focus();
   }
 }
