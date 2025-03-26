@@ -688,7 +688,9 @@ body.user-preferences-activity-pub-page {
     width: 100%;
   }
 
-  .activity-pub-actor-metadata {
+  .activity-pub-actor-metadata,
+  .activity-pub-handle,
+  .activity-pub-follow-btn {
     font-size: var(--font-down-1);
   }
 }
