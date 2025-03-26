@@ -4,6 +4,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
+import DiscourseURL from "discourse/lib/url";
 import { extractDomainFromUrl, hostnameValid } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
 
@@ -82,7 +83,7 @@ export default class ActivityPubFollowDomain extends Component {
     this.verifying = false;
 
     if (url) {
-      window.location.href = url;
+      DiscourseURL.redirectAbsolute(url);
     } else {
       this.error = i18n("discourse_activity_pub.follow.domain.invalid");
     }

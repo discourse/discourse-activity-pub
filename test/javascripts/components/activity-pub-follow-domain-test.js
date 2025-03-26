@@ -2,6 +2,7 @@ import { click, fillIn, render } from "@ember/test-helpers";
 import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import sinon from "sinon";
+import DiscourseURL from "discourse/lib/url";
 import Category from "discourse/models/category";
 import Site from "discourse/models/site";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
@@ -67,7 +68,9 @@ module(
         return response(Mastodon[`/${mastodonAboutPath}`]);
       });
 
-      const openStub = sinon.stub(window, "open").returns(null);
+      const openStub = sinon
+        .stub(DiscourseURL, "redirectAbsolute")
+        .returns(null);
 
       await render(template);
       await fillIn("#activity_pub_follow_domain_input", domain);
@@ -77,7 +80,7 @@ module(
         "announcements@forum.local"
       )}`;
       assert.true(
-        openStub.calledWith(url, "_blank"),
+        openStub.calledWith(url),
         "it loads the mastodon authorize interaction route in a new tab"
       );
     });
