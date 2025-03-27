@@ -12,7 +12,7 @@ RSpec.describe Post do
   describe "#activity_pub_enabled" do
     context "with activity pub plugin enabled" do
       context "with activity pub set to first post on category" do
-        before { toggle_activity_pub(category) }
+        before { toggle_activity_pub(category, publication_type: "first_post") }
 
         context "when first post in topic" do
           it { expect(post.activity_pub_enabled).to eq(true) }
@@ -43,7 +43,7 @@ RSpec.describe Post do
       end
 
       context "with activity pub set to first post on tag" do
-        before { toggle_activity_pub(tag) }
+        before { toggle_activity_pub(tag, publication_type: "first_post") }
 
         context "when first post in topic" do
           it { expect(post.activity_pub_enabled).to eq(true) }
@@ -548,7 +548,7 @@ RSpec.describe Post do
 
     context "with first_post enabled on the category" do
       before do
-        toggle_activity_pub(category)
+        toggle_activity_pub(category, publication_type: "first_post")
         post.reload
       end
 
@@ -1014,7 +1014,7 @@ RSpec.describe Post do
 
     context "with first_post enabled on the tag" do
       before do
-        toggle_activity_pub(tag)
+        toggle_activity_pub(tag, publication_type: "first_post")
         post.reload
       end
 
@@ -1459,8 +1459,8 @@ RSpec.describe Post do
 
     context "with first_post enabled on the tag and the category" do
       before do
-        toggle_activity_pub(tag)
-        toggle_activity_pub(category)
+        toggle_activity_pub(tag, publication_type: "first_post")
+        toggle_activity_pub(category, publication_type: "first_post")
         post.reload
       end
 

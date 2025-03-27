@@ -8,7 +8,7 @@ export const newActor = {
   id: "new",
   default_visibility: "public",
   post_object_type: "Note",
-  publication_type: "first_post",
+  publication_type: "full_topic",
 };
 export const actorModels = ["category"];
 export const actorAdminPath = "/admin/plugins/ap/actor";
