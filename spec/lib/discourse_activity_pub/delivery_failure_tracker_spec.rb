@@ -23,7 +23,7 @@ describe DiscourseActivityPub::DeliveryFailureTracker do
     end
 
     it "doesn't call update_all if domain is available" do
-      expect(DiscourseActivityPubActor).not_to receive(:update_all)
+      DiscourseActivityPubActor.expects(:update_all).never
       tracker.track_success
     end
   end
