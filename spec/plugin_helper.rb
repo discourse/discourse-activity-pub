@@ -328,20 +328,6 @@ def expect_request(body: nil, body_type: nil, actor_id: nil, uri: nil, returns: 
     .returns(returns)
 end
 
-def expect_post(returns: true)
-  DiscourseActivityPubActivity.any_instance.expects(:before_deliver).once
-
-  DiscourseActivityPub::Request.any_instance.expects(:post_json_ld).returns(returns)
-
-  if returns
-    DiscourseActivityPub::DeliveryFailureTracker.any_instance.expects(:track_success).once
-    DiscourseActivityPubActivity.any_instance.expects(:after_deliver).with(true).once
-  else
-    DiscourseActivityPub::DeliveryFailureTracker.any_instance.expects(:track_failure).once
-    DiscourseActivityPubActivity.any_instance.expects(:after_deliver).with(false).once
-  end
-end
-
 def setup_logging
   @fake_logger = FakeLogger.new
   SiteSetting.activity_pub_verbose_logging = true

@@ -3,8 +3,10 @@
 describe DiscourseActivityPub::DeliveryFailureTracker do
   subject(:tracker) { described_class.new(actor.inbox) }
 
-  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
+  let!(:domain) { "example.com" }
+  let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, domain: domain) }
 
+  before { 10.times { Fabricate(:discourse_activity_pub_actor_person, domain: domain) } }
   after { Discourse.redis.flushdb }
 
   describe "#track_success" do

@@ -47,11 +47,14 @@ module Jobs
     ensure
       if @delivered
         log_success
-        failure_tracker.track_success
       else
         log_failure
-        failure_tracker.track_failure
       end
+      Jobs.enqueue(
+        :discourse_activity_pub_track_delivery,
+        delivered: @delivered,
+        send_to: @args[:send_to],
+      )
     end
 
     def perform_request?

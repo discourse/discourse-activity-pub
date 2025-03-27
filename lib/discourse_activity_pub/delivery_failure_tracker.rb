@@ -33,11 +33,17 @@ module DiscourseActivityPub
     private
 
     def set_domain_actors_as_available
-      DiscourseActivityPubActor.where(domain: domain).update_all(available: true)
+      DiscourseActivityPubActor
+        .where(domain: domain)
+        .in_batches(of: 100)
+        .update_all(available: true)
     end
 
     def set_domain_actors_as_unavailable
-      DiscourseActivityPubActor.where(domain: domain).update_all(available: false)
+      DiscourseActivityPubActor
+        .where(domain: domain)
+        .in_batches(of: 100)
+        .update_all(available: false)
     end
 
     def clear_failures
