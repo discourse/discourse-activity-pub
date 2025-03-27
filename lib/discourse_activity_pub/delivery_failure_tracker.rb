@@ -19,7 +19,7 @@ module DiscourseActivityPub
 
     def track_success
       clear_failures
-      set_domain_actors_as_available
+      set_domain_actors_as_available unless domain_available?
     end
 
     def domain_available?

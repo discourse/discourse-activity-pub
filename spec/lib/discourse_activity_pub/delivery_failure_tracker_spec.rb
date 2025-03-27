@@ -10,17 +10,21 @@ describe DiscourseActivityPub::DeliveryFailureTracker do
   after { Discourse.redis.flushdb }
 
   describe "#track_success" do
-    before do
+    it "marks URL as available again" do
       tracker.track_failure
       tracker.track_success
-    end
-
-    it "marks URL as available again" do
       expect(tracker.domain_available?).to eq(true)
     end
 
     it "resets days to 0" do
+      tracker.track_failure
+      tracker.track_success
       expect(tracker.days).to eq(0)
+    end
+
+    it "doesn't call update_all if domain is available" do
+      expect(DiscourseActivityPubActor).not_to receive(:update_all)
+      tracker.track_success
     end
   end
 
