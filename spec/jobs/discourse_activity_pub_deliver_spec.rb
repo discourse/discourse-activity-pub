@@ -23,6 +23,12 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     described_class.new.execute(build_job_args(args))
   end
 
+  def expect_delivery(result: true)
+    DiscourseActivityPubActivity.any_instance.expects(:before_deliver).once
+    DiscourseActivityPub::Request.any_instance.expects(:post_json_ld).returns(result)
+    DiscourseActivityPubActivity.any_instance.expects(:after_deliver).with(result).once
+  end
+
   context "without activity pub enabled" do
     before { SiteSetting.activity_pub_enabled = false }
 
@@ -91,13 +97,13 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
     end
 
     it "performs the right request" do
-      expect_post
+      expect_delivery(result: true)
       execute_job
     end
 
     context "when request succeeds" do
       before do
-        expect_post(returns: true)
+        expect_delivery(result: true)
         setup_logging
       end
       after { teardown_logging }
@@ -116,11 +122,24 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
           )
         expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
       end
+
+      it "enqueues the right track delivery job" do
+        execute_job
+        expect(
+          job_enqueued?(
+            job: :discourse_activity_pub_track_delivery,
+            args: {
+              send_to: person.inbox,
+              delivered: true,
+            },
+          ),
+        ).to eq(true)
+      end
     end
 
     context "when request fails" do
       before do
-        expect_post(returns: false)
+        expect_delivery(result: false)
         setup_logging
       end
       after { teardown_logging }
@@ -154,6 +173,19 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
             send_to: person.inbox,
           )
         expect(@fake_logger.warnings).to include("[Discourse Activity Pub] #{log}")
+      end
+
+      it "enqueues the right track delivery job" do
+        execute_job
+        expect(
+          job_enqueued?(
+            job: :discourse_activity_pub_track_delivery,
+            args: {
+              send_to: person.inbox,
+              delivered: false,
+            },
+          ),
+        ).to eq(true)
       end
     end
 

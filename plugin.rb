@@ -94,6 +94,7 @@ after_initialize do
   require_relative "app/jobs/discourse_activity_pub_deliver"
   require_relative "app/jobs/discourse_activity_pub_log_rotate"
   require_relative "app/jobs/discourse_activity_pub_publish"
+  require_relative "app/jobs/discourse_activity_pub_track_delivery"
   require_relative "app/controllers/concerns/discourse_activity_pub/domain_verification"
   require_relative "app/controllers/concerns/discourse_activity_pub/signature_verification"
   require_relative "app/controllers/concerns/discourse_activity_pub/enabled_verification"
