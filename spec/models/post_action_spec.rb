@@ -46,7 +46,7 @@ RSpec.describe PostAction do
 
     context "with first_post enabled on the category" do
       before do
-        toggle_activity_pub(category)
+        toggle_activity_pub(category, publication_type: "first_post")
         post_action.reload
       end
 

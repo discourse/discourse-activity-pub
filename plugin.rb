@@ -215,7 +215,7 @@ after_initialize do
       DiscourseActivityPub::AP::Actor::Group.type
     end
     add_to_class(class_name, :activity_pub_publication_type) do
-      activity_pub_actor&.publication_type || "first_post"
+      activity_pub_actor&.publication_type || "full_topic"
     end
     add_to_class(class_name, :activity_pub_first_post) do
       activity_pub_publication_type === "first_post"

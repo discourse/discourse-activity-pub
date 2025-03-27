@@ -31,6 +31,8 @@ RSpec.describe DiscourseActivityPub::AP::Object::NoteSerializer do
   end
 
   context "with first_post enabled" do
+    before { toggle_activity_pub(category, publication_type: "first_post") }
+
     it "serializes attributedTo as the category actor" do
       note = Fabricate(:discourse_activity_pub_object_note, model: post, local: true)
       expect(note.ap.json[:attributedTo]).to eq(category.activity_pub_actor.ap_id)
