@@ -14,7 +14,11 @@ fi:
           enabled:
             label: Käytössä
           disabled:
+            title: ActivityPub toimija pois käytöstä
             label: Pois käytöstä
+          site_setting:
+            activity_pub_enabled:
+              label: Lisäosa on käytössä
           username: Käyttäjätunnus
           name: Nimi
           default_visibility: Näkyvyys
@@ -41,6 +45,7 @@ fi:
   js:
     discourse_activity_pub:
       about:
+        title: Federaatio
         categories: Luokat
         tags: Tunnisteet
       status:
