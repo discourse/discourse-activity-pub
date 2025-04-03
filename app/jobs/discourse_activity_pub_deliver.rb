@@ -34,6 +34,8 @@ module Jobs
       if request&.post_json_ld
         @delivered = true
       else
+        return if ENV["ACTIVITY_PUB_DISABLE_DELIVERY_RETRIES"]
+
         retry_count += 1
         return if retry_count > MAX_RETRY_COUNT
 

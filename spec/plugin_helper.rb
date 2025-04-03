@@ -342,3 +342,17 @@ end
 def parsed_body
   JSON.parse(response.body)
 end
+
+def read_integration_json(case_name, file_name)
+  JSON.parse(
+    File.open(
+      File.join(
+        File.expand_path(__dir__),
+        "fixtures",
+        "integration",
+        case_name,
+        "#{file_name}.json",
+      ),
+    ).read,
+  ).with_indifferent_access
+end
