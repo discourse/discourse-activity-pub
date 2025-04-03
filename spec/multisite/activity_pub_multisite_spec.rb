@@ -6,15 +6,13 @@ RSpec.describe "ActivityPub Multisite", type: :multisite do
   context "when processing" do
     def fabricate_follow(actor)
       remote_actor_json = read_integration_json("case_2", "group_actor")
-      remote_actor = Fabricate(:discourse_activity_pub_actor_group, ap_id: remote_actor_json[:id], local: false)
+      remote_actor =
+        Fabricate(:discourse_activity_pub_actor_group, ap_id: remote_actor_json[:id], local: false)
       Fabricate(:discourse_activity_pub_follow, follower: actor, followed: remote_actor)
     end
 
     def process_json(json, actor)
-      Jobs::DiscourseActivityPubProcess.new.execute(
-        json: json,
-        delivered_to: actor.ap_id
-      )
+      Jobs::DiscourseActivityPubProcess.new.execute(json: json, delivered_to: actor.ap_id)
     end
 
     def process_case(actor)
@@ -86,9 +84,7 @@ RSpec.describe "ActivityPub Multisite", type: :multisite do
       follower
     end
 
-    before do
-      ENV["ACTIVITY_PUB_DISABLE_DELIVERY_RETRIES"] = "true"
-    end
+    before { ENV["ACTIVITY_PUB_DISABLE_DELIVERY_RETRIES"] = "true" }
 
     it "sends activities to followers" do
       test_multisite_connection("default") do
