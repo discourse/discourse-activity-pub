@@ -32,6 +32,15 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
       end
     end
 
+    context "when the actor is for a category or tag" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+
+      it "does nothing" do
+        result = described_class.update_or_create_user(actor)
+        expect(result).to eq(nil)
+      end
+    end
+
     context "when actor has user" do
       let!(:user) { Fabricate(:user) }
 
