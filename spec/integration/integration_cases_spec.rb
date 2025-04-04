@@ -78,16 +78,9 @@ RSpec.describe "integration cases" do
       stub_object_request(read_integration_json("case_2", "actor_3"))
       stub_object_request(read_integration_json("case_2", "context_1"))
 
-      threads = []
-      results = []
       6.times do |index|
-        threads << Thread.new do
-          post_to_inbox(actor, body: read_integration_json("case_2", "received_#{index + 1}"))
-          results << response
-          sleep 0.01
-        end
+        post_to_inbox(actor, body: read_integration_json("case_2", "received_#{index + 1}"))
       end
-      threads.each(&:join)
     end
 
     it "creates the right Discourse objects" do

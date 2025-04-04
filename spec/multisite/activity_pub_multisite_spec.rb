@@ -85,6 +85,7 @@ RSpec.describe "ActivityPub Multisite", type: :multisite do
     end
 
     before { ENV["ACTIVITY_PUB_DISABLE_DELIVERY_RETRIES"] = "true" }
+    after { ENV.delete("ACTIVITY_PUB_DISABLE_DELIVERY_RETRIES") }
 
     it "sends activities to followers" do
       test_multisite_connection("default") do
