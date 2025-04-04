@@ -40,6 +40,7 @@ module DiscourseActivityPub
     end
 
     def update_or_create_user
+      return if model_type.present? && model_type != "User"
       @model_type = "User"
       return invalid_opts unless valid_actor?
 
