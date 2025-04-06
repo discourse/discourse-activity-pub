@@ -555,6 +555,19 @@ after_initialize do
     @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
   add_to_class(:post, :activity_pub_object_id) { activity_pub_object&.ap_id }
+  add_to_class(:post, :activity_pub_attachments) do
+    uploads
+      .where(extension: FileHelper.supported_images)
+      .map do |upload|
+        DiscourseActivityPub::AP::Object::Image.new(
+          json: {
+            name: upload.original_filename,
+            url: UrlHelper.absolute(upload.url),
+            mediaType: MiniMime.lookup_by_extension(upload.extension).content_type,
+          },
+        )
+      end
+  end
 
   add_model_callback(:post, :after_destroy) do
     # We need these to create a Delete activity when the post is actually destroyed

@@ -2817,5 +2817,56 @@ RSpec.describe Post do
         end
       end
     end
+
+    context "with uploads" do
+      let!(:topic) { Fabricate(:topic, category: category) }
+      let!(:user) { Fabricate(:user) }
+
+      before do
+        toggle_activity_pub(category, publication_type: "full_topic")
+        topic.create_activity_pub_collection!
+      end
+
+      def perform_create
+        post.perform_activity_pub_activity(:create)
+        post.reload
+      end
+
+      context "with a supported media type" do
+        let!(:post) { Fabricate(:post_with_uploaded_image, topic: topic) }
+
+        before do
+          DiscourseActivityPub::ActorHandler.update_or_create_actor(post.user)
+          post.link_post_uploads
+        end
+
+        it "creates attachments" do
+          perform_create
+          expect(post.activity_pub_object.attachments.size).to eq(1)
+          expect(post.activity_pub_object.attachments.first.ap_type).to eq("Image")
+          expect(post.activity_pub_object.attachments.first.name).to eq(
+            post.uploads.first.original_filename,
+          )
+          expect(post.activity_pub_object.attachments.first.media_type).to eq("image/png")
+          expect(post.activity_pub_object.attachments.first.url).to eq(
+            UrlHelper.absolute(post.uploads.first.url),
+          )
+        end
+      end
+
+      context "with an unsupported media type" do
+        let!(:post) { Fabricate(:post_with_an_attachment, topic: topic) }
+
+        before do
+          DiscourseActivityPub::ActorHandler.update_or_create_actor(post.user)
+          post.link_post_uploads
+        end
+
+        it "does not create attachments" do
+          perform_create
+          expect(post.activity_pub_object.attachments.size).to eq(0)
+        end
+      end
+    end
   end
 end
