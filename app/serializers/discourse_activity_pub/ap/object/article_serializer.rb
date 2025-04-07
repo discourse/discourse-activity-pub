@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::Object::ArticleSerializer < DiscourseActivityPub::AP::ObjectSerializer
-  attributes :content, :inReplyTo, :url, :updated
+  attributes :content, :inReplyTo, :url, :updated, :attachment
 
   def inReplyTo
     object.in_reply_to
@@ -17,5 +17,13 @@ class DiscourseActivityPub::AP::Object::ArticleSerializer < DiscourseActivityPub
 
   def deleted?
     !object.stored.model || object.stored.model.trashed?
+  end
+
+  def attachment
+    object.attachment.map(&:json)
+  end
+
+  def include_attachment?
+    object.attachment.present?
   end
 end

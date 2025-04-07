@@ -144,6 +144,20 @@ module DiscourseActivityPub
         if performing_activity.create? || performing_activity.update?
           performing_activity_object.name = self.activity_pub_name if self.activity_pub_name
           performing_activity_object.content = self.activity_pub_content
+
+          if self.activity_pub_attachments.present?
+            self.activity_pub_attachments.each do |attachment|
+              performing_activity_object.attachments.build(
+                object_id: performing_activity_object.id,
+                object_type: performing_activity_object.class.name,
+                ap_type: attachment.type,
+                url: attachment.url.href,
+                name: attachment.name,
+                media_type: attachment.media_type,
+              )
+            end
+          end
+
           performing_activity_object.save!
         end
       end

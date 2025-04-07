@@ -20,8 +20,9 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
     hash
   end
 
-  def context
-    object.context
+  def include_id?
+    return false if object.attachment?
+    object.id.present?
   end
 
   def include_context?
