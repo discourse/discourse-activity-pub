@@ -21,6 +21,7 @@ class DiscourseActivityPub::AP::ObjectSerializer < ActiveModel::Serializer
   end
 
   def include_id?
+    return false if object.attachment?
     object.id.present?
   end
 

@@ -7,6 +7,8 @@ module DiscourseActivityPub
       include HasErrors
       include Handlers
 
+      ATTACHMENT_TYPES = %w[Image Document]
+
       attr_writer :json
       attr_writer :attributed_to
       attr_writer :context
@@ -48,6 +50,10 @@ module DiscourseActivityPub
 
       def actor?
         base_type == "Actor"
+      end
+
+      def attachment?
+        ATTACHMENT_TYPES.include?(type)
       end
 
       def url
@@ -118,12 +124,10 @@ module DiscourseActivityPub
         @delivered_to ||= []
       end
 
-      def media_type
-        json[:mediaType] if json.present?
-      end
-
       def attachment
-        if json.present? && json[:attachment].present?
+        if stored.respond_to?(:attachment)
+          @attachment ||= (stored.attachment || []).map { |a| a.ap }
+        elsif json.present? && json[:attachment].present?
           json[:attachment].each_with_object([]) do |attachment_json, result|
             obj = AP::Object.factory(attachment_json)
             result << obj if obj.present?

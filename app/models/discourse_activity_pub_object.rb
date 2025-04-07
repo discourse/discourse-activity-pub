@@ -159,6 +159,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     end
   end
 
+  def attachment
+    self.attachments
+  end
+
   def likes_collection
     @likes_collection ||=
       begin

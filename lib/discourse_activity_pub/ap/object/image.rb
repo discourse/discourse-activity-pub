@@ -7,6 +7,14 @@ module DiscourseActivityPub
           "Image"
         end
 
+        def media_type
+          if stored && stored.respond_to?(:media_type)
+            stored.media_type
+          elsif json
+            json[:mediaType]
+          end
+        end
+
         def can_belong_to
           %i[remote]
         end
