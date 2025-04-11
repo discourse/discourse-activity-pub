@@ -4,6 +4,7 @@ import { newActor } from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPub extends Controller {
   @controller adminPluginsActivityPubActor;
+
   @readOnly("adminPluginsActivityPubActor.model_type") modelType;
 
   get newActor() {
