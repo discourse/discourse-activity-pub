@@ -6,11 +6,14 @@ import ActivityPubActor, {
 } from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShowRoute extends DiscourseRoute {
-  model(params) {
+  model(params, transition) {
     if (params.actor_id && params.actor_id !== newActor.id) {
       return ajax(`${actorAdminPath}/${params.actor_id}`);
     } else {
-      return newActor;
+      const queryParams = transition.to.queryParams;
+      return Object.assign({}, newActor, {
+        model_type: queryParams.model_type || "category",
+      });
     }
   }
 

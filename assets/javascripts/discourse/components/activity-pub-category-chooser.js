@@ -5,6 +5,7 @@ import ActivityPubActor from "../models/activity-pub-actor";
 
 @selectKitOptions({
   allowUncategorized: false,
+  none: "admin.discourse_activity_pub.actor.category.none",
 })
 @classNames("activity-pub-category-chooser")
 export default class ActivityPubCategoryChooser extends CategoryChooser {

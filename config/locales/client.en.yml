@@ -8,8 +8,12 @@ en:
         label: ActivityPub
         actor:
           add:
-            title: Add ActivityPub actor
-            label: Add Actor
+            category:
+              title: Add Category ActivityPub actor
+              label: Add Category Actor
+            tag:
+              title: Add Tag ActivityPub actor
+              label: Add Tag Actor 
           save: 
             title: Save ActivityPub actor
             label: Save Actor
@@ -57,10 +61,7 @@ en:
             label: Tags
             title: Tag Actors
             none: Select a tag
-          model_type:
-            none: Select a model
-            category: Category
-            tag: Tag
+            filter: filter tags
         log:
           label: Logs
           title: Logs

@@ -6,33 +6,17 @@
   <div class="activity-pub-actor-header">
     {{#if this.actor.isNew}}
       <div class="activity-pub-actor-setting activity-pub-new-actor-model">
-        <DropdownSelectBox
-          @nameProperty="label"
-          @value={{this.actor.model_type}}
-          @content={{this.modelTypes}}
-          @onChange={{action (mut this.actor.model_type)}}
-          class="activity-pub-model-type-chooser"
-          @options={{hash
-            none="admin.discourse_activity_pub.actor.model_type.none"
-          }}
-        />
-
         {{#if (eq this.actor.model_type "category")}}
           <ActivityPubCategoryChooser
             @value={{this.categoryId}}
             @onChange={{action "changeCategoryId"}}
-            @options={{hash
-              none="admin.discourse_activity_pub.actor.category.none"
-              hasActor=false
-            }}
+            @options={{hash hasActor=false}}
           />
         {{/if}}
         {{#if (eq this.actor.model_type "tag")}}
-          <TagChooser
+          <ActivityPubTagChooser
             @tags={{this.tags}}
             @onChange={{action "changeTag"}}
-            @blockedTags={{this.blockedTagActorNames}}
-            @options={{hash allowAny=false maximum=1}}
           />
         {{/if}}
       </div>

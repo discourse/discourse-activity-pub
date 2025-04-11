@@ -44,22 +44,13 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   }
 
   get titleLabel() {
-    let key = this.actor.isNew ? "add" : "edit";
+    let key = this.actor.isNew ? `add.${this.actor.model_type}` : "edit";
     return i18n(`admin.discourse_activity_pub.actor.${key}.label`);
   }
 
   get enabledLabel() {
     let key = this.enabled ? "enabled" : "disabled";
     return `admin.discourse_activity_pub.actor.${key}.label`;
-  }
-
-  get blockedTagActorNames() {
-    const tagActors = this.get("site.activity_pub_actors.tag") || [];
-    return tagActors
-      .filter((actor) => actor.model_name)
-      .map((actor) => {
-        return actor.model_name;
-      });
   }
 
   @action
