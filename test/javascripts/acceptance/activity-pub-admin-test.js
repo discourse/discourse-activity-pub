@@ -18,6 +18,7 @@ import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 const categoryActors =
   AdminActors["/admin/plugins/ap/actor?model_type=category"];
+const tagActors = AdminActors["/admin/plugins/ap/actor?model_type=tag"];
 
 acceptance(
   "Discourse Activity Pub | Admin | ActivityPub disabled",
@@ -40,19 +41,22 @@ acceptance(
   }
 );
 
-acceptance("Discourse Activity Pub | Admin | Categories", function (needs) {
+acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
   needs.user({ admin: true });
   needs.site({
     activity_pub_enabled: true,
     activity_pub_publishing_enabled: true,
   });
-  needs.pretender((server, helper) => {
-    server.get("/admin/plugins/ap/actor", () =>
-      helper.response(categoryActors)
-    );
-  });
 
   test("lists category actors", async function (assert) {
+    pretender.get("/admin/plugins/ap/actor", (request) => {
+      if (request.queryParams.model_type === "category") {
+        return response(categoryActors);
+      } else {
+        return response(tagActors);
+      }
+    });
+
     await visit("/admin/plugins/ap/actor");
     assert.ok(
       exists(".activity-pub-actor-table"),
@@ -71,6 +75,50 @@ acceptance("Discourse Activity Pub | Admin | Categories", function (needs) {
     assert.ok(
       exists(".admin-plugins.activity-pub.actor-show"),
       "it routes to actor show"
+    );
+  });
+
+  test("actor controls", async function (assert) {
+    let queryParams;
+    pretender.get("/admin/plugins/ap/actor", (request) => {
+      queryParams = request.queryParams;
+      if (queryParams.model_type === "category") {
+        return response(categoryActors);
+      } else {
+        return response(tagActors);
+      }
+    });
+    pretender.get("/admin/plugins/ap/actor/new", (request) => {
+      queryParams = request.queryParams;
+      if (queryParams.model_type === "category") {
+        return response(categoryActors);
+      } else {
+        return response(tagActors);
+      }
+    });
+
+    await visit("/admin/plugins/ap/actor");
+    assert.ok(
+      exists(".activity-pub-add-actor.category"),
+      "the add category actor button is visible"
+    );
+    await click(".activity-pub-add-actor");
+    assert.strictEqual(
+      queryParams.model_type,
+      "category",
+      "new actor model_type is correct"
+    );
+
+    await visit("/admin/plugins/ap/actor?model_type=tag");
+    assert.ok(
+      exists(".activity-pub-add-actor.tag"),
+      "the add tag actor button is visible"
+    );
+    await click(".activity-pub-add-actor");
+    assert.strictEqual(
+      queryParams.model_type,
+      "tag",
+      "new actor model_type is correct"
     );
   });
 });
@@ -99,10 +147,6 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
       exists(".activity-pub-new-actor-model"),
       "actor model controls are visible"
     );
-
-    const modelTypes = selectKit(".activity-pub-model-type-chooser");
-    await modelTypes.expand();
-    await modelTypes.selectRowByValue("category");
 
     assert.ok(
       exists(".activity-pub-category-chooser"),
@@ -172,7 +216,7 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
   });
 
   test("creates a new actor with a tag model", async function (assert) {
-    await visit("/admin/plugins/ap/actor/new");
+    await visit("/admin/plugins/ap/actor/new?model_type=tag");
 
     assert.ok(
       exists(".activity-pub-actor-add"),
@@ -182,10 +226,6 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
       exists(".activity-pub-new-actor-model"),
       "actor model controls are visible"
     );
-
-    const modelTypes = selectKit(".activity-pub-model-type-chooser");
-    await modelTypes.expand();
-    await modelTypes.selectRowByValue("tag");
 
     const tags = selectKit(".activity-pub-actor-add .tag-chooser");
     await tags.expand();

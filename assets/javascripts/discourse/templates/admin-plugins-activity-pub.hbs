@@ -20,13 +20,14 @@
       <span>{{i18n "admin.discourse_activity_pub.log.label"}}</span>
     </LinkTo>
   </li>
-  <li class="activity-pub-add-actor">
+  <li class={{this.addActorClass}}>
     <LinkTo
       @route="adminPlugins.activityPub.actorShow"
       @model={{this.newActor}}
+      @query={{hash model_type=this.model_type}}
     >
       {{d-icon "plus"}}
-      <span>{{i18n "admin.discourse_activity_pub.actor.add.label"}}</span>
+      <span>{{i18n this.addActorLabel}}</span>
     </LinkTo>
   </li>
 {{/admin-nav}}

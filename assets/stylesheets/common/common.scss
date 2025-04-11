@@ -433,14 +433,7 @@ body.user-preferences-activity-pub-page {
 }
 
 .admin-plugins.activity-pub {
-  .admin-container > .admin-controls nav {
-    background-color: var(--primary-very-low);
-
-    &::before,
-    &::after {
-      content: unset;
-    }
-
+  .admin-controls nav {
     .nav-pills > li.activity-pub-add-actor {
       margin-left: auto;
     }
@@ -581,7 +574,7 @@ body.user-preferences-activity-pub-page {
   gap: 1em;
 }
 
-.select-kit.combo-box.activity-pub-tag-chooser,
+.select-kit.multi-select.activity-pub-tag-chooser,
 .select-kit.combo-box.activity-pub-category-chooser {
   width: 300px;
 

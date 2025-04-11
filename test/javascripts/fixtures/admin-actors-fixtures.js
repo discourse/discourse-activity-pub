@@ -46,4 +46,29 @@ export default {
         "/admin/plugins/ap/actor.json?model_type=category&offset=4",
     },
   },
+  "/admin/plugins/ap/actor?model_type=tag": {
+    actors: [
+      {
+        id: 4,
+        handle: "@monkey@test.local",
+        name: "Monkey",
+        username: "monkey",
+        local: true,
+        default_visibility: "public",
+        publication_type: "first_post",
+        post_object_type: "Note",
+        model_type: "Tag",
+        model_id: 1,
+        model: {
+          id: 1,
+          name: "Monkey",
+          slug: "monkey",
+        },
+      },
+    ],
+    meta: {
+      total: 2,
+      load_more_url: "/admin/plugins/ap/actor.json?model_type=tag&offset=1",
+    },
+  },
 };
