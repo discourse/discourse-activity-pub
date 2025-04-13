@@ -492,10 +492,12 @@ RSpec.describe Post do
         expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(true)
       end
 
-      it "does not destroy associated objects" do
+      it "converts associated objects to tombstones" do
         perform_delete
-        expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
-        expect(DiscourseActivityPubCollection.exists?(id: topic.activity_pub_object.id)).to eq(true)
+        expect(note.reload.ap_type).to eq("Tombstone")
+        expect(note.reload.ap_former_type).to eq("Note")
+        expect(topic.activity_pub_object.reload.ap_type).to eq("Tombstone")
+        expect(topic.activity_pub_object.reload.ap_former_type).to eq("OrderedCollection")
       end
 
       it "does not destroy associated activities" do
@@ -823,8 +825,7 @@ RSpec.describe Post do
         before { SiteSetting.activity_pub_delivery_delay_minutes = 3 }
 
         def perform_delete
-          post.trash!
-          post.perform_activity_pub_activity(:delete)
+          PostDestroyer.new(Fabricate(:admin), post, force_destroy: false).destroy
         end
 
         context "while in pre publication period" do
@@ -876,9 +877,10 @@ RSpec.describe Post do
             expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(true)
           end
 
-          it "does not destroy associated objects" do
+          it "tombstones associated objects" do
             perform_delete
-            expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+            expect(note.reload.ap_type).to eq("Tombstone")
+            expect(note.reload.ap_former_type).to eq("Note")
           end
 
           it "does not destroy associated activities" do
@@ -1268,8 +1270,7 @@ RSpec.describe Post do
         before { SiteSetting.activity_pub_delivery_delay_minutes = 3 }
 
         def perform_delete
-          post.trash!
-          post.perform_activity_pub_activity(:delete)
+          PostDestroyer.new(Fabricate(:admin), post, force_destroy: false).destroy
         end
 
         context "while in pre publication period" do
@@ -1323,7 +1324,8 @@ RSpec.describe Post do
 
           it "does not destroy associated objects" do
             perform_delete
-            expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+            expect(note.reload.ap_type).to eq("Tombstone")
+            expect(note.reload.ap_former_type).to eq("Note")
           end
 
           it "does not destroy associated activities" do
@@ -1670,9 +1672,7 @@ RSpec.describe Post do
 
             context "when post is trashed" do
               def perform_delete
-                topic.trash!
-                post.trash!
-                post.reload.perform_activity_pub_activity(:delete)
+                PostDestroyer.new(Fabricate(:admin), post, force_destroy: false).destroy
               end
 
               context "while in pre publication period" do
@@ -1691,9 +1691,7 @@ RSpec.describe Post do
 
             context "when post is destroyed" do
               def perform_delete
-                topic.destroy!
-                post.destroy!
-                post.perform_activity_pub_activity(:delete)
+                PostDestroyer.new(Fabricate(:admin), post, force_destroy: true).destroy
               end
 
               context "while in pre publication period" do
@@ -2065,8 +2063,7 @@ RSpec.describe Post do
             let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
 
             def perform_delete
-              reply.delete
-              reply.perform_activity_pub_activity(:delete)
+              PostDestroyer.new(Fabricate(:admin), reply, force_destroy: false).destroy
             end
 
             context "when the topic is not published" do
@@ -2128,9 +2125,10 @@ RSpec.describe Post do
                   ).to eq(true)
                 end
 
-                it "does not destroy associated objects" do
+                it "tombstones associated objects" do
                   perform_delete
-                  expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+                  expect(note.reload.ap_type).to eq("Tombstone")
+                  expect(note.reload.ap_former_type).to eq("Note")
                 end
 
                 it "does not destroy associated activities" do
@@ -2281,9 +2279,7 @@ RSpec.describe Post do
 
             context "when post is trashed" do
               def perform_delete
-                post.trash!
-                topic.trash!
-                post.reload.perform_activity_pub_activity(:delete)
+                PostDestroyer.new(Fabricate(:admin), post, force_destroy: false).destroy
               end
 
               context "while in pre publication period" do
@@ -2302,9 +2298,7 @@ RSpec.describe Post do
 
             context "when post is destroyed" do
               def perform_delete
-                post.destroy!
-                topic.destroy!
-                post.perform_activity_pub_activity(:delete)
+                PostDestroyer.new(Fabricate(:admin), post, force_destroy: true).destroy
               end
 
               context "while in pre publication period" do
@@ -2703,8 +2697,7 @@ RSpec.describe Post do
             let!(:create) { Fabricate(:discourse_activity_pub_activity_create, object: note) }
 
             def perform_delete
-              reply.delete
-              reply.perform_activity_pub_activity(:delete)
+              PostDestroyer.new(Fabricate(:admin), reply, force_destroy: false).destroy
             end
 
             context "while in pre publication period" do
@@ -2769,7 +2762,8 @@ RSpec.describe Post do
 
               it "does not destroy associated objects" do
                 perform_delete
-                expect(DiscourseActivityPubObject.exists?(id: note.id)).to eq(true)
+                expect(note.reload.ap_type).to eq("Tombstone")
+                expect(note.reload.ap_former_type).to eq("Note")
               end
 
               it "does not destroy associated activities" do

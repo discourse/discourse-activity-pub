@@ -54,6 +54,7 @@ module DiscourseActivityPub
           @performing_activity.stored.publish! if @performing_activity.stored
         end
 
+        after_perform_activity_pub_activity
         performing_activity_cleanup
 
         true
@@ -101,6 +102,8 @@ module DiscourseActivityPub
         when :update, :delete, :like
           self.activity_pub_object
         when :create
+          return self.activity_pub_object if self.activity_pub_object.present?
+
           attrs = { local: true }
           if self.activity_pub_reply_to_object
             attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
@@ -224,6 +227,10 @@ module DiscourseActivityPub
             delay: delivery.delay,
           )
         end
+      end
+
+      def after_perform_activity_pub_activity
+        performing_activity_object.tombstone! if performing_activity.delete?
       end
 
       def performing_activity_cleanup

@@ -50,6 +50,10 @@ module DiscourseActivityPub
         base_type == "Actor"
       end
 
+      def tombstone?
+        self.type == Tombstone.type
+      end
+
       def url
         stored.respond_to?(:url) && stored&.url
       end

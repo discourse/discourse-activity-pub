@@ -3,7 +3,7 @@
 module DiscourseActivityPub
   module Admin
     class ActorController < DiscourseActivityPub::Admin::AdminController
-      before_action :find_actor, only: %i[show update enable disable]
+      before_action :find_actor, only: %i[show update destroy enable disable]
       before_action :find_model, only: [:create]
       before_action :validate_actor_params, only: %i[create update]
 
@@ -69,6 +69,11 @@ module DiscourseActivityPub
 
       def update
         update_or_create
+      end
+
+      def destroy
+        Jobs.enqueue(:discourse_activity_pub_destroy_actor, actor_id: @actor.id)
+        render json: success_json
       end
 
       def enable

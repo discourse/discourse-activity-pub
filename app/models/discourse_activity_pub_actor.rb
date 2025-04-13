@@ -72,6 +72,11 @@ class DiscourseActivityPubActor < ActiveRecord::Base
            through: :follow_follows,
            source: :followed,
            dependent: :destroy
+  has_many :objects,
+           class_name: "DiscourseActivityPubObject",
+           primary_key: "ap_id",
+           foreign_key: "attributed_to_id",
+           dependent: :destroy
 
   scope :local, -> { where(local: true) }
 

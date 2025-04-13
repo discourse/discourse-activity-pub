@@ -123,5 +123,14 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         end
       end
     end
+
+    context "when tombstoned" do
+      before { object.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type) }
+
+      it "returns not found" do
+        get_object(object)
+        expect(response.status).to eq(404)
+      end
+    end
   end
 end

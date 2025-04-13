@@ -37,6 +37,19 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     end
   end
 
+  context "with a tombstoned base model" do
+    before do
+      setup_logging
+      activity.base_object.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type)
+    end
+    after { teardown_logging }
+
+    it "returns a not found error" do
+      get_object(activity)
+      expect_request_error(response, "not_available", 404)
+    end
+  end
+
   describe "with an available base model" do
     before do
       category =

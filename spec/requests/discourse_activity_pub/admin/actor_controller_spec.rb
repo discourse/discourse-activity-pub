@@ -35,31 +35,54 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
     end
 
     context "with a valid model type" do
+      let!(:actor1) { Fabricate(:discourse_activity_pub_actor_group) }
+      let!(:actor2) { Fabricate(:discourse_activity_pub_actor_group) }
+      let!(:actor3) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:actor4) { Fabricate(:discourse_activity_pub_actor_group, local: false) }
+
       it "returns administrable actors of that model type" do
-        actor1 = Fabricate(:discourse_activity_pub_actor_group)
-        actor2 = Fabricate(:discourse_activity_pub_actor_group)
-        actor3 = Fabricate(:discourse_activity_pub_actor_person)
-        actor4 = Fabricate(:discourse_activity_pub_actor_group, local: false)
         get "/admin/plugins/ap/actor.json?model_type=category"
         expect(response.status).to eq(200)
         expect(response.parsed_body["actors"].size).to eq(2)
+      end
+
+      context "when an actor is tombstoned" do
+        before { actor2.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type) }
+
+        it "does not return the actor" do
+          get "/admin/plugins/ap/actor.json?model_type=category"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].size).to eq(1)
+        end
       end
     end
   end
 
   describe "#show" do
     context "with an administratable actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_group) }
+
       it "returns the actor" do
-        actor = Fabricate(:discourse_activity_pub_actor_group)
         get "/admin/plugins/ap/actor/#{actor.id}.json"
         expect(response.status).to eq(200)
         expect(response.parsed_body["id"]).to eq(actor.id)
       end
+
+      context "when it is tombstoned" do
+        before { actor.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type) }
+
+        it "returns an actor not found error" do
+          get "/admin/plugins/ap/actor/#{actor.id}.json"
+          expect(response.status).to eq(404)
+          expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
+        end
+      end
     end
 
     context "with a non-administrable actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
+
       it "returns an actor not found error" do
-        actor = Fabricate(:discourse_activity_pub_actor_person)
         get "/admin/plugins/ap/actor/#{actor.id}.json"
         expect(response.status).to eq(404)
         expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
@@ -314,6 +337,67 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
           expect(response.status).to eq(200)
           expect(response.parsed_body["actor"]["name"]).to eq("New name")
         end
+      end
+    end
+  end
+
+  describe "#destroy" do
+    before do
+      Jobs.run_immediately!
+      freeze_time
+    end
+    after { unfreeze_time }
+
+    context "when the actor cant be found" do
+      it "returns a 404" do
+        delete "/admin/plugins/ap/actor/30.json"
+        expect(response.status).to eq(404)
+        expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
+      end
+    end
+
+    context "with a group actor" do
+      let!(:category) { Fabricate(:category) }
+      let!(:group_actor) do
+        Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true)
+      end
+      let!(:group_note) do
+        Fabricate(:discourse_activity_pub_object_note, attributed_to: group_actor)
+      end
+      let!(:topic) { Fabricate(:topic, category: category) }
+      let!(:post) { Fabricate(:post, topic: topic) }
+      let!(:person_actor) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:person_note) do
+        Fabricate(:discourse_activity_pub_object_note, attributed_to: person_actor, model: post)
+      end
+      let!(:person_note_announce) do
+        Fabricate(
+          :discourse_activity_pub_activity_announce,
+          object: person_note,
+          actor: group_actor,
+        )
+      end
+
+      it "deletes the group actor" do
+        delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+        expect(response.status).to eq(200)
+        expect(group_actor.reload.ap_type).to eq("Tombstone")
+        expect(group_actor.reload.ap_former_type).to eq("Group")
+        expect(group_actor.reload.deleted_at).to eq_time(Time.now)
+      end
+
+      it "deletes objects attributed to the group actor" do
+        delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+        expect(response.status).to eq(200)
+        expect(group_note.reload.ap_type).to eq("Tombstone")
+        expect(group_note.reload.ap_former_type).to eq("Note")
+        expect(group_actor.reload.deleted_at).to eq_time(Time.now)
+      end
+
+      it "does not delete objects announced by the group actor" do
+        delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+        expect(response.status).to eq(200)
+        expect(person_note.reload.ap_type).to eq("Note")
       end
     end
   end

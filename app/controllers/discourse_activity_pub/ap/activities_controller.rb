@@ -2,6 +2,7 @@
 
 class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP::ObjectsController
   before_action :ensure_activity_exists
+  before_action :ensure_object_exists
   before_action :ensure_can_access_activity
   before_action :ensure_can_access_activity_object_model
 
@@ -17,6 +18,10 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
     end
   end
 
+  def ensure_object_exists
+    render_activity_pub_error("not_available", 404) if @activity.base_object.nil?
+  end
+
   def ensure_can_access_activity
     unless (
              DiscourseActivityPub.publishing_enabled || @activity.ap.follow? ||
@@ -27,7 +32,7 @@ class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP:
   end
 
   def ensure_can_access_activity_object_model
-    if @activity.base_object.nil? || !guardian.can_see?(@activity.base_object.model)
+    if !guardian.can_see?(@activity.base_object.model)
       render_activity_pub_error("not_available", 401)
     end
   end

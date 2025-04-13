@@ -13,9 +13,12 @@ module DiscourseActivityPub
         validates :ap_type, presence: true
         validates :ap_key, uniqueness: true, allow_nil: true # foreign objects don't have keys
         validates :ap_id, uniqueness: true, presence: true
+
+        default_scope { where.not(ap_type: AP::Object::Tombstone.type) }
       end
 
       def ap
+        @ap = nil if ap_type_changed?
         @ap ||= DiscourseActivityPub::AP::Object.get_klass(ap_type)&.new(stored: self)
       end
 
@@ -25,6 +28,10 @@ module DiscourseActivityPub
 
       def remote?
         !local?
+      end
+
+      def tombstoned?
+        self.ap_type == AP::Object::Tombstone.type
       end
 
       def _model

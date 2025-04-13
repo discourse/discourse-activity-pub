@@ -70,6 +70,7 @@ after_initialize do
   require_relative "lib/discourse_activity_pub/ap/activity/like"
   require_relative "lib/discourse_activity_pub/ap/object/note"
   require_relative "lib/discourse_activity_pub/ap/object/article"
+  require_relative "lib/discourse_activity_pub/ap/object/tombstone"
   require_relative "lib/discourse_activity_pub/ap/collection"
   require_relative "lib/discourse_activity_pub/ap/collection/collection_page"
   require_relative "lib/discourse_activity_pub/ap/collection/ordered_collection_page"
@@ -92,6 +93,7 @@ after_initialize do
   require_relative "app/models/discourse_activity_pub_collection"
   require_relative "app/jobs/discourse_activity_pub_process"
   require_relative "app/jobs/discourse_activity_pub_deliver"
+  require_relative "app/jobs/discourse_activity_pub_destroy_actor"
   require_relative "app/jobs/discourse_activity_pub_log_rotate"
   require_relative "app/jobs/discourse_activity_pub_publish"
   require_relative "app/jobs/discourse_activity_pub_track_delivery"
@@ -188,7 +190,9 @@ after_initialize do
         true
       end
     end
-    add_to_class(class_name, :activity_pub_ready?) { activity_pub_enabled && activity_pub_allowed? }
+    add_to_class(class_name, :activity_pub_ready?) do
+      activity_pub_enabled && activity_pub_allowed? && !activity_pub_actor.tombstoned?
+    end
     add_to_class(class_name, :activity_pub_username) { activity_pub_actor.username }
     add_to_class(class_name, :activity_pub_name) { activity_pub_actor.name }
     add_to_class(class_name, :activity_pub_publish_state) do
@@ -268,7 +272,7 @@ after_initialize do
   add_to_class(:topic, :create_activity_pub_collection!) do
     create_activity_pub_object!(
       local: true,
-      ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+      ap_type: activity_pub_default_object_type,
       name: activity_pub_name,
     )
   end
@@ -300,8 +304,11 @@ after_initialize do
     }
     MessageBus.publish("/activity-pub", { model: model })
   end
-  Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
+  add_to_class(:topic, :activity_pub_default_object_type) do
+    DiscourseActivityPub::AP::Collection::OrderedCollection.type
+  end
 
+  Post.has_one :activity_pub_object, class_name: "DiscourseActivityPubObject", as: :model
   Post.include DiscourseActivityPub::AP::ModelCallbacks
   Post.include DiscourseActivityPub::AP::ModelHelpers
   Guardian.prepend DiscourseActivityPubGuardianExtension
@@ -432,9 +439,7 @@ after_initialize do
     self.save_custom_fields(true)
   end
   add_to_class(:post, :before_perform_activity_pub_activity) do |performing_activity|
-    return performing_activity if self.activity_pub_published?
-
-    if performing_activity.delete?
+    if !self.activity_pub_published? && performing_activity.delete?
       self.clear_all_activity_pub_objects
       if is_first_post? && activity_pub_full_topic
         self.activity_pub_topic.posts.each { |post| post.clear_all_activity_pub_objects }
@@ -445,10 +450,17 @@ after_initialize do
       return nil
     end
 
-    if performing_activity.update?
+    if !self.activity_pub_published? && performing_activity.update?
       @performing_activity_object = activity_pub_object
       update_activity_pub_activity_object
       return nil
+    end
+
+    if performing_activity.create? && self.activity_pub_object&.ap&.tombstone?
+      self.activity_pub_object.restore_from_tombstone!
+      if is_first_post? && activity_pub_full_topic
+        self.topic.activity_pub_object&.restore_from_tombstone!
+      end
     end
 
     performing_activity
@@ -768,7 +780,7 @@ after_initialize do
     # Currently we're using skip_validations as an inverse flag for a "normal" post creation scenario.
     post.activity_pub_publish! if !post_opts[:skip_validations] && post.activity_pub_enabled
   end
-  on(:post_destroyed) { |post, opts, user| post.activity_pub_delete! }
+  on(:post_destroyed) { |post, opts, user| post.activity_pub_delete! if post.activity_pub_enabled }
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_local?
   end
@@ -776,6 +788,9 @@ after_initialize do
     if topic.activity_pub_enabled && topic.activity_pub_full_topic
       topic.create_activity_pub_collection!
     end
+  end
+  on(:topic_destroyed) do |topic, user|
+    topic.activity_pub_object.tombstone! if topic.activity_pub_enabled && topic.activity_pub_object
   end
   on(:first_post_moved) do |new_post, old_post|
     topic = new_post.topic
@@ -1272,6 +1287,7 @@ after_initialize do
         post "ap/actor" => "admin/actor#create", :constraints => { format: :json }
         get "ap/actor/:actor_id" => "admin/actor#show"
         put "ap/actor/:actor_id" => "admin/actor#update", :constraints => { format: :json }
+        delete "ap/actor/:actor_id" => "admin/actor#destroy"
         post "ap/actor/:actor_id/enable" => "admin/actor#enable"
         post "ap/actor/:actor_id/disable" => "admin/actor#disable"
         get "ap/log" => "admin/log#index"
