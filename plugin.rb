@@ -93,7 +93,6 @@ after_initialize do
   require_relative "app/models/discourse_activity_pub_collection"
   require_relative "app/jobs/discourse_activity_pub_process"
   require_relative "app/jobs/discourse_activity_pub_deliver"
-  require_relative "app/jobs/discourse_activity_pub_destroy_actor"
   require_relative "app/jobs/discourse_activity_pub_log_rotate"
   require_relative "app/jobs/discourse_activity_pub_publish"
   require_relative "app/jobs/discourse_activity_pub_track_delivery"
@@ -162,25 +161,34 @@ after_initialize do
   add_to_serializer(:site, :activity_pub_host) { DiscourseActivityPub.host }
 
   DiscourseActivityPubActor::ACTIVE_MODELS.each do |model_type|
-    model_type.constantize.has_one :activity_pub_actor,
-                                   class_name: "DiscourseActivityPubActor",
-                                   as: :model,
-                                   dependent: :destroy
-    model_type.constantize.has_many :activity_pub_followers,
-                                    through: :activity_pub_actor,
-                                    source: :followers,
-                                    class_name: "DiscourseActivityPubActor"
-    model_type.constantize.has_many :activity_pub_follows,
-                                    through: :activity_pub_actor,
-                                    source: :follows,
-                                    class_name: "DiscourseActivityPubActor"
+    klass = model_type.constantize
+    klass.has_one :activity_pub_actor,
+                  class_name: "DiscourseActivityPubActor",
+                  as: :model,
+                  dependent: :destroy
+    klass.has_many :activity_pub_followers,
+                   through: :activity_pub_actor,
+                   source: :followers,
+                   class_name: "DiscourseActivityPubActor"
+    klass.has_many :activity_pub_follows,
+                   through: :activity_pub_actor,
+                   source: :follows,
+                   class_name: "DiscourseActivityPubActor"
+
+    klass.include DiscourseActivityPub::AP::ModelCallbacks
 
     class_name = model_type.downcase.to_sym
 
+    add_to_class(class_name, :activity_pub_object) { activity_pub_actor }
     add_to_class(class_name, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
     add_to_class(class_name, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
     add_to_class(class_name, :activity_pub_enabled) do
       DiscourseActivityPub.enabled && !!activity_pub_actor&.enabled
+    end
+    add_to_class(class_name, :activity_pub_perform_activity?) do
+      return false if performing_activity_stop
+      return false unless DiscourseActivityPub.publishing_enabled && activity_pub_enabled
+      performing_activity&.delete?
     end
     add_to_class(class_name, :activity_pub_allowed?) do
       case model_type
@@ -190,11 +198,10 @@ after_initialize do
         true
       end
     end
-    add_to_class(class_name, :activity_pub_ready?) do
-      activity_pub_enabled && activity_pub_allowed? && !activity_pub_actor.tombstoned?
-    end
+    add_to_class(class_name, :activity_pub_ready?) { activity_pub_enabled && activity_pub_allowed? }
     add_to_class(class_name, :activity_pub_username) { activity_pub_actor.username }
     add_to_class(class_name, :activity_pub_name) { activity_pub_actor.name }
+    add_to_class(class_name, :activity_pub_published?) { activity_pub_actor.present? }
     add_to_class(class_name, :activity_pub_publish_state) do
       message = {
         model: {
@@ -216,9 +223,6 @@ after_initialize do
     add_to_class(class_name, :activity_pub_post_object_type) do
       activity_pub_actor&.post_object_type
     end
-    add_to_class(class_name, :activity_pub_default_object_type) do
-      DiscourseActivityPub::AP::Actor::Group.type
-    end
     add_to_class(class_name, :activity_pub_publication_type) do
       activity_pub_actor&.publication_type || "full_topic"
     end
@@ -231,7 +235,16 @@ after_initialize do
     add_to_class(class_name, :activity_pub_default_object_type) do
       DiscourseActivityPub::AP::Actor::Group.type
     end
+    add_to_class(class_name, :activity_pub_deleted?) { activity_pub_actor.tombstoned? }
     add_to_class(class_name, :activity_pub_follower_count) { activity_pub_followers.count }
+    add_to_class(class_name, :activity_pub_visibility) { "public" }
+    add_to_class(class_name, :activity_pub_delete!) { perform_activity_pub_activity(:delete) }
+    add_to_class(class_name, :performing_activity_after_perform) do
+      if performing_activity.delete?
+        activity_pub_actor.tombstone_objects!
+        activity_pub_actor.tombstone!
+      end
+    end
   end
 
   on(:site_setting_changed) do |name, old_val, new_val|
@@ -352,8 +365,17 @@ after_initialize do
 
     is_first_post? || activity_pub_full_topic
   end
-  add_to_class(:post, :activity_pub_publishing_enabled) do
-    DiscourseActivityPub.publishing_enabled && activity_pub_enabled
+  add_to_class(:post, :activity_pub_perform_activity?) do
+    return false if performing_activity_stop
+    return false unless DiscourseActivityPub.publishing_enabled && activity_pub_enabled
+    unless (
+             is_first_post? || activity_pub_topic_scheduled? || activity_pub_topic_published? ||
+               activity_pub_published?
+           )
+      return false
+    end
+    return false if self.activity_pub_deleted? && performing_activity.update?
+    performing_activity&.composition?
   end
   add_to_class(:post, :activity_pub_content) do
     return nil unless activity_pub_enabled
@@ -438,8 +460,8 @@ after_initialize do
     activity_pub_post_custom_field_names.each { |field_name| self.custom_fields[field_name] = nil }
     self.save_custom_fields(true)
   end
-  add_to_class(:post, :before_perform_activity_pub_activity) do |performing_activity|
-    if !self.activity_pub_published? && performing_activity.delete?
+  add_to_class(:post, :performing_activity_before_perform) do
+    if !self.activity_pub_published? && performing_activity&.delete?
       self.clear_all_activity_pub_objects
       if is_first_post? && activity_pub_full_topic
         self.activity_pub_topic.posts.each { |post| post.clear_all_activity_pub_objects }
@@ -447,23 +469,30 @@ after_initialize do
         topic&.activity_pub_publish_state
       end
       self.activity_pub_publish_state
-      return nil
+      @performing_activity_stop = true
     end
 
-    if !self.activity_pub_published? && performing_activity.update?
+    if !self.activity_pub_published? && performing_activity&.update?
       @performing_activity_object = activity_pub_object
-      update_activity_pub_activity_object
-      return nil
+      performing_activity_update_object
+      @performing_activity_stop = true
     end
 
-    if performing_activity.create? && self.activity_pub_object&.ap&.tombstone?
+    if performing_activity&.create? && self.activity_pub_object&.ap&.tombstone?
       self.activity_pub_object.restore_from_tombstone!
       if is_first_post? && activity_pub_full_topic
         self.topic.activity_pub_object&.restore_from_tombstone!
       end
     end
-
-    performing_activity
+  end
+  add_to_class(:post, :performing_activity_before_deliver) do
+    if !self.destroyed? && !activity_pub_published? && !performing_activity.create?
+      activity_pub_after_scheduled(scheduled_at: activity_pub_scheduled_at)
+      @performing_activity_skip_delivery = true
+    end
+  end
+  add_to_class(:post, :performing_activity_after_perform) do
+    performing_activity_object.tombstone! if performing_activity.delete?
   end
   add_to_class(:post, :activity_pub_object_type) do
     self.activity_pub_object&.ap_type || self.activity_pub_default_object_type
@@ -496,19 +525,12 @@ after_initialize do
     activity_pub_topic&.activity_pub_scheduled?
   end
   add_to_class(:post, :activity_pub_collection) { activity_pub_topic.activity_pub_object }
-  add_to_class(:post, :activity_pub_valid_activity?) do |activity, target_activity|
-    activity&.composition?
-  end
   add_to_class(:post, :activity_pub_visibility_on_create) do
     if is_first_post?
       activity_pub_topic&.activity_pub_taxonomy&.activity_pub_default_visibility
     else
       activity_pub_topic.first_post.activity_pub_visibility
     end
-  end
-  add_to_class(:post, :activity_pub_perform_activity?) do
-    is_first_post? || activity_pub_topic_scheduled? || activity_pub_topic_published? ||
-      activity_pub_published?
   end
   add_to_class(:post, :activity_pub_publish!) do
     return false if activity_pub_published?
@@ -562,6 +584,18 @@ after_initialize do
     @activity_pub_topic_trashed ||= Topic.with_deleted.find_by(id: self.topic_id)
   end
   add_to_class(:post, :activity_pub_object_id) { activity_pub_object&.ap_id }
+  add_to_class(:post, :performing_activity_delivery_delay=) do |delay|
+    @performing_activity_delivery_delay = delay
+  end
+  add_to_class(:post, :performing_activity_delivery_delay) do
+    return @performing_activity_delivery_delay if @performing_activity_delivery_delay.present?
+
+    if !self.destroyed? && !activity_pub_topic_published?
+      SiteSetting.activity_pub_delivery_delay_minutes.to_i
+    else
+      nil
+    end
+  end
 
   add_model_callback(:post, :after_destroy) do
     # We need these to create a Delete activity when the post is actually destroyed
@@ -708,25 +742,29 @@ after_initialize do
   PostAction.include DiscourseActivityPub::AP::ModelCallbacks
 
   add_to_class(:post_action, :activity_pub_enabled) { post.activity_pub_enabled }
-  add_to_class(:post_action, :activity_pub_publishing_enabled) do
-    post.activity_pub_publishing_enabled
-  end
   add_to_class(:post_action, :activity_pub_perform_activity?) do
-    post.activity_pub_perform_activity?
+    return false if performing_activity_stop
+    return false unless post.activity_pub_enabled
+    return false unless activity_pub_full_topic
+    performing_activity&.like? || (performing_activity&.undo? && performing_activity_target&.like?)
   end
   add_to_class(:post_action, :activity_pub_deleted?) { nil }
   add_to_class(:post_action, :activity_pub_published?) { !!post.activity_pub_published_at }
   add_to_class(:post_action, :activity_pub_visibility) { "public" }
   add_to_class(:post_action, :activity_pub_actor) { user.activity_pub_actor }
+  add_to_class(:post_action, :performing_activity_delivery_delay) do
+    post.performing_activity_delivery_delay
+  end
   add_to_class(:post_action, :activity_pub_taxonomy_actors) { post.activity_pub_taxonomy_actors }
   add_to_class(:post_action, :activity_pub_object) { post.activity_pub_object }
   add_to_class(:post_action, :activity_pub_full_topic) { post.activity_pub_full_topic }
   add_to_class(:post_action, :activity_pub_first_post) { post.activity_pub_first_post }
   add_to_class(:post_action, :activity_pub_topic_published?) { post.activity_pub_topic_published? }
   add_to_class(:post_action, :activity_pub_collection) { post.activity_pub_collection }
-  add_to_class(:post_action, :activity_pub_valid_activity?) do |activity, target_activity|
-    return false unless activity_pub_full_topic
-    activity && (activity.like? || activity.undo? && target_activity.like?)
+  add_to_class(:post_action, :performing_activity_before_deliver) do
+    if !self.destroyed? && !activity_pub_published? && !performing_activity.create?
+      @performing_activity_skip_delivery = true
+    end
   end
 
   User.has_one :activity_pub_actor,

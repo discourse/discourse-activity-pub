@@ -5,56 +5,37 @@ module DiscourseActivityPub
       extend ActiveSupport::Concern
 
       included do
-        attr_accessor :performing_activity,
-                      :performing_activity_object,
-                      :performing_activity_actor,
-                      :performing_activity_target_activity
-        attr_writer :performing_activity_delivery_delay
+        attr_accessor :performing_activity_stop,
+                      :performing_activity_skip_delivery,
+                      :performing_activity_delivery_delay
       end
 
-      def perform_activity_pub_activity(activity_type, target_activity_type = nil)
-        return false unless activity_pub_publishing_enabled
+      def perform_activity_pub_activity(activity_type, activity_target_type = nil)
+        @performing_activity_type = activity_type
+        @performing_activity_target_type = activity_target_type
 
-        @performing_activity = DiscourseActivityPub::AP::Object.from_type(activity_type)
-
-        if self.respond_to?(:before_perform_activity_pub_activity)
-          @performing_activity = before_perform_activity_pub_activity(performing_activity)
-          return true unless performing_activity
+        performing_activity_before_perform
+        unless activity_pub_perform_activity? && performing_activity_actor &&
+                 performing_activity_object
+          return false
         end
-
-        return false unless activity_pub_perform_activity?
-
-        @performing_activity_target_activity =
-          DiscourseActivityPub::AP::Object.from_type(target_activity_type) if target_activity_type
-        return false unless valid_activity_pub_activity?
-
-        return false unless ensure_activity_pub_actor
-
-        @performing_activity_object = get_performing_activity_object
-        return false unless performing_activity_object
-
-        @performing_activity_actor = get_performing_activity_actor
-        return false unless performing_activity_actor
 
         ActiveRecord::Base.transaction do
-          update_activity_pub_activity_object
-          create_activity_pub_activity
+          performing_activity_update_object
+          performing_activity_create_activity
         end
 
-        if performing_activity_pre_publication?
-          if self.respond_to?(:activity_pub_after_scheduled)
-            activity_pub_after_scheduled(scheduled_at: activity_pub_scheduled_at)
+        performing_activity_before_deliver
+
+        unless performing_activity_skip_delivery
+          if performing_activity_can_deliver?
+            performing_activity_deliver
+          else
+            performing_activity.stored.publish! if performing_activity.stored
           end
-          return true
         end
 
-        if performing_activity_can_deliver?
-          performing_activity_deliver
-        else
-          @performing_activity.stored.publish! if @performing_activity.stored
-        end
-
-        after_perform_activity_pub_activity
+        performing_activity_after_perform
         performing_activity_cleanup
 
         true
@@ -70,9 +51,7 @@ module DiscourseActivityPub
         @performing_activity_object = activity_pub_object
         @performing_activity_actor = activity_pub_actor
 
-        return unless performing_activity_can_deliver?
-
-        performing_activity_deliver
+        performing_activity_deliver if performing_activity_can_deliver?
         performing_activity_cleanup
 
         true
@@ -80,68 +59,70 @@ module DiscourseActivityPub
 
       protected
 
-      def valid_activity_pub_activity?
-        return false unless activity_pub_enabled
-        unless activity_pub_valid_activity?(
-                 performing_activity,
-                 performing_activity_target_activity,
-               )
-          return false
-        end
-
-        # We don't permit updates if object has been deleted.
-        return false if self.activity_pub_deleted? && performing_activity.update?
-
-        true
+      def performing_activity
+        @performing_activity ||=
+          DiscourseActivityPub::AP::Object.from_type(@performing_activity_type)
       end
 
-      def get_performing_activity_object
-        return nil unless performing_activity
+      def performing_activity_target
+        @performing_activity_target ||=
+          DiscourseActivityPub::AP::Object.from_type(@performing_activity_target_type)
+      end
 
-        case performing_activity.type.downcase.to_sym
-        when :update, :delete, :like
-          self.activity_pub_object
-        when :create
-          return self.activity_pub_object if self.activity_pub_object.present?
+      def performing_activity_object
+        @performing_activity_object ||=
+          begin
+            return nil unless performing_activity
 
-          attrs = { local: true }
-          if self.activity_pub_reply_to_object
-            attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
+            case performing_activity.type.downcase.to_sym
+            when :update, :delete, :like
+              self.activity_pub_object
+            when :create
+              return self.activity_pub_object if self.activity_pub_object.present?
+
+              attrs = { local: true }
+              if self.activity_pub_reply_to_object
+                attrs[:reply_to_id] = self.activity_pub_reply_to_object.ap_id
+              end
+              if self.activity_pub_full_topic
+                return nil unless self.topic.activity_pub_object
+                attrs[:collection_id] = self.topic.activity_pub_object.id
+                attrs[:attributed_to_id] = self.activity_pub_actor.ap_id
+              end
+              self.build_activity_pub_object(attrs)
+            when :undo
+              activity_pub_actor
+                .activities
+                .where(object_id: self.activity_pub_object.id)
+                .find_by(ap_type: performing_activity_target.type)
+            else
+              nil
+            end
           end
-          if self.activity_pub_full_topic
-            return nil unless self.topic.activity_pub_object
-            attrs[:collection_id] = self.topic.activity_pub_object.id
-            attrs[:attributed_to_id] = self.activity_pub_actor.ap_id
+      end
+
+      def performing_activity_actor
+        @performing_activity_actor ||=
+          begin
+            if (self.is_a?(Post) || self.is_a?(PostAction)) && self.activity_pub_full_topic
+              activity_user = performing_activity.update? ? acting_user : user
+              DiscourseActivityPub::ActorHandler.update_or_create_actor(activity_user)
+            else
+              self.activity_pub_actor
+            end
           end
-          self.build_activity_pub_object(attrs)
-        when :undo
-          activity_pub_actor
-            .activities
-            .where(object_id: self.activity_pub_object.id)
-            .find_by(ap_type: performing_activity_target_activity.type)
-        else
-          nil
-        end
       end
 
-      def get_performing_activity_actor
-        if !self.respond_to?(:acting_user) || acting_user.blank? || !performing_activity.update? ||
-             !self.activity_pub_full_topic
-          return self.activity_pub_actor
-        end
-
-        if acting_user.activity_pub_actor.blank?
-          DiscourseActivityPub::ActorHandler.update_or_create_actor(acting_user)
-        end
-
-        acting_user.activity_pub_actor
+      def performing_activity_before_perform
       end
 
-      def performing_activity_pre_publication?
-        !self.destroyed? && !activity_pub_published? && !performing_activity.create?
+      def performing_activity_before_deliver
       end
 
-      def update_activity_pub_activity_object
+      def performing_activity_after_perform
+      end
+
+      def performing_activity_update_object
         return unless performing_activity && performing_activity_object
 
         if performing_activity.create? || performing_activity.update?
@@ -151,7 +132,7 @@ module DiscourseActivityPub
         end
       end
 
-      def create_activity_pub_activity
+      def performing_activity_create_activity
         return unless performing_activity
 
         activity_attrs = {
@@ -217,8 +198,6 @@ module DiscourseActivityPub
       end
 
       def performing_activity_deliver
-        return unless performing_activity_can_deliver?
-
         performing_activity_deliveries.each do |delivery|
           DiscourseActivityPub::DeliveryHandler.perform(
             actor: delivery.actor,
@@ -229,16 +208,15 @@ module DiscourseActivityPub
         end
       end
 
-      def after_perform_activity_pub_activity
-        performing_activity_object.tombstone! if performing_activity.delete?
-      end
-
       def performing_activity_cleanup
+        @performing_activity_type = nil
+        @performing_activity_target_type = nil
         @performing_activity = nil
-        @performing_activity_target_activity = nil
+        @performing_activity_target = nil
         @performing_activity_object = nil
         @performing_activity_actor = nil
         @performing_activity_deliveries = nil
+        @performing_activity_skip_delivery = nil
         @performing_activity_delivery_delay = nil
       end
 
@@ -267,22 +245,6 @@ module DiscourseActivityPub
         end
 
         actor_ids.uniq
-      end
-
-      def performing_activity_delivery_delay
-        @performing_activity_delivery_delay ||=
-          begin
-            if !self.destroyed? && !activity_pub_topic_published?
-              SiteSetting.activity_pub_delivery_delay_minutes.to_i
-            else
-              nil
-            end
-          end
-      end
-
-      def ensure_activity_pub_actor
-        return self.activity_pub_actor.present? if self.activity_pub_first_post
-        DiscourseActivityPub::ActorHandler.update_or_create_actor(user)
       end
     end
   end

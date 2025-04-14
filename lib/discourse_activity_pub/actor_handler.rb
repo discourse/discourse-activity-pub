@@ -77,28 +77,6 @@ module DiscourseActivityPub
       actor.reload
     end
 
-    def destroy_actor
-      deleted_at = Time.now
-      sql = <<~SQL
-        UPDATE discourse_activity_pub_objects
-        SET ap_former_type = discourse_activity_pub_objects.ap_type,
-            ap_type = :ap_type,
-            deleted_at = :deleted_at
-        WHERE attributed_to_id = :actor_ap_id
-      SQL
-      DB.exec(
-        sql,
-        actor_ap_id: actor.ap_id,
-        ap_type: AP::Object::Tombstone.type,
-        deleted_at: deleted_at,
-      )
-      actor.update(
-        ap_former_type: actor.ap_type,
-        ap_type: AP::Object::Tombstone.type,
-        deleted_at: deleted_at,
-      )
-    end
-
     def success?
       errors.blank?
     end

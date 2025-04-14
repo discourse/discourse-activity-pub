@@ -72,8 +72,11 @@ module DiscourseActivityPub
       end
 
       def destroy
-        Jobs.enqueue(:discourse_activity_pub_destroy_actor, actor_id: @actor.id)
-        render json: success_json
+        if @actor.model.activity_pub_delete!
+          render json: success_json
+        else
+          render json: failed_json
+        end
       end
 
       def enable

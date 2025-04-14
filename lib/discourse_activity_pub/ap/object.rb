@@ -170,6 +170,7 @@ module DiscourseActivityPub
       end
 
       def self.from_type(type)
+        return unless type
         factory({ type: type.to_s.capitalize })
       end
 

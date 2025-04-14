@@ -2,6 +2,7 @@
 class DiscourseActivityPubActor < ActiveRecord::Base
   include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
+  include DiscourseActivityPub::AP::ObjectHelpers
   include DiscourseActivityPub::WebfingerActorAttributes
 
   APPLICATION_ACTOR_ID = -1

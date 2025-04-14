@@ -383,7 +383,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
         expect(response.status).to eq(200)
         expect(group_actor.reload.ap_type).to eq("Tombstone")
         expect(group_actor.reload.ap_former_type).to eq("Group")
-        expect(group_actor.reload.deleted_at).to eq_time(Time.now)
+        expect(group_actor.reload.deleted_at.to_datetime.to_i).to eq_time(Time.now.to_i)
       end
 
       it "deletes objects attributed to the group actor" do
@@ -391,7 +391,7 @@ RSpec.describe DiscourseActivityPub::Admin::ActorController do
         expect(response.status).to eq(200)
         expect(group_note.reload.ap_type).to eq("Tombstone")
         expect(group_note.reload.ap_former_type).to eq("Note")
-        expect(group_actor.reload.deleted_at).to eq_time(Time.now)
+        expect(group_actor.reload.deleted_at.to_datetime.to_i).to eq_time(Time.now.to_i)
       end
 
       it "does not delete objects announced by the group actor" do

@@ -40,7 +40,9 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   def before_deliver
     @context = :activities
-    after_published(get_published_at)
+    after_published(
+      self.published_at ? self.published_at.to_time.utc.iso8601 : Time.now.utc.iso8601,
+    )
   end
 
   def after_deliver(delivered = true)

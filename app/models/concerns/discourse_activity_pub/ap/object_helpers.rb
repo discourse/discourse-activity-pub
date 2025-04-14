@@ -4,14 +4,6 @@ module DiscourseActivityPub
     module ObjectHelpers
       extend ActiveSupport::Concern
 
-      def get_published_at
-        self.published_at ? self.published_at.to_time.utc.iso8601 : Time.now.utc.iso8601
-      end
-
-      def get_delivered_at
-        Time.now.utc.iso8601
-      end
-
       def tombstone!
         update(
           ap_former_type: self.ap_type,
@@ -26,6 +18,33 @@ module DiscourseActivityPub
           ap_former_type: nil,
           deleted_at: nil,
         )
+      end
+
+      def tombstone_objects!
+        sql = <<~SQL
+        UPDATE discourse_activity_pub_objects
+        SET ap_former_type = discourse_activity_pub_objects.ap_type,
+            ap_type = :ap_type,
+            deleted_at = :deleted_at
+        WHERE attributed_to_id = :actor_ap_id
+        SQL
+        DB.exec(
+          sql,
+          actor_ap_id: self.ap_id,
+          ap_type: AP::Object::Tombstone.type,
+          deleted_at: Time.now.utc.iso8601,
+        )
+      end
+
+      def restore_objects_from_tombstone!
+        sql = <<~SQL
+        UPDATE discourse_activity_pub_objects
+        SET ap_former_type = null,
+            ap_type = :ap_type,
+            deleted_at = null
+        WHERE attributed_to_id = :actor_ap_id
+        SQL
+        DB.exec(sql, actor_ap_id: self.ap_id, ap_type: self.model.activity_pub_default_object_type)
       end
     end
   end
