@@ -174,11 +174,9 @@ after_initialize do
                    through: :activity_pub_actor,
                    source: :follows,
                    class_name: "DiscourseActivityPubActor"
-
     klass.include DiscourseActivityPub::AP::ModelCallbacks
 
     class_name = model_type.downcase.to_sym
-
     add_to_class(class_name, :activity_pub_object) { activity_pub_actor }
     add_to_class(class_name, :activity_pub_url) { "#{DiscourseActivityPub.base_url}#{self.url}" }
     add_to_class(class_name, :activity_pub_icon_url) { DiscourseActivityPub.icon_url }
@@ -283,11 +281,10 @@ after_initialize do
     activity_pub_enabled && activity_pub_full_topic
   end
   add_to_class(:topic, :create_activity_pub_collection!) do
-    create_activity_pub_object!(
-      local: true,
-      ap_type: activity_pub_default_object_type,
-      name: activity_pub_name,
-    )
+    params = { local: true, ap_type: activity_pub_default_object_type, name: activity_pub_name }
+    attributed_to = DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user)
+    params[:attributed_to_id] = attributed_to.ap_id if attributed_to
+    create_activity_pub_object!(params)
   end
   add_to_class(:topic, :activity_pub_activities_collection) do
     activity_pub_object.activities_collection
@@ -767,10 +764,7 @@ after_initialize do
     end
   end
 
-  User.has_one :activity_pub_actor,
-               class_name: "DiscourseActivityPubActor",
-               as: :model,
-               dependent: :destroy
+  User.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
   User.has_many :activity_pub_authorizations,
                 -> { active },
                 class_name: "DiscourseActivityPubAuthorization"
@@ -782,9 +776,6 @@ after_initialize do
     if self.instance_variable_get(:@skip_email_validation).nil? && self.activity_pub_actor&.remote?
       self.instance_variable_set(:@skip_email_validation, true)
     end
-  end
-  add_model_callback(:user, :before_destroy) do
-    DiscourseActivityPubActor.where(model_id: self.id, model_type: "User").destroy_all
   end
 
   add_to_class(:user, :activity_pub_enabled) { DiscourseActivityPub.enabled }
@@ -818,7 +809,17 @@ after_initialize do
     # Currently we're using skip_validations as an inverse flag for a "normal" post creation scenario.
     post.activity_pub_publish! if !post_opts[:skip_validations] && post.activity_pub_enabled
   end
-  on(:post_destroyed) { |post, opts, user| post.activity_pub_delete! if post.activity_pub_enabled }
+  on(:post_destroyed) do |post, opts, user|
+    if post.activity_pub_enabled
+      object = DiscourseActivityPubObject.find_by(model_id: post.id, model_type: "Post")
+
+      if object&.local?
+        post.activity_pub_delete!
+      elsif object&.remote?
+        object.tombstone!
+      end
+    end
+  end
   on(:post_recovered) do |post, opts, user|
     post.perform_activity_pub_activity(:create) if post.activity_pub_local?
   end
@@ -878,11 +879,24 @@ after_initialize do
     end
   end
   on(:merging_users) do |source_user, target_user|
-    if source_user.reload.activity_pub_actor&.remote?
-      DiscourseActivityPubActor.where(id: source_user.activity_pub_actor.id).update_all(
-        model_id: nil,
-        model_type: nil,
-      )
+    actor = DiscourseActivityPubActor.find_by(model_id: source_user.id, model_type: "User")
+    if actor
+      update_args =
+        (
+          if actor.local?
+            { model_id: target_user.id, model_type: "User" }
+          else
+            { model_id: nil, model_type: nil }
+          end
+        )
+      actor.update_columns(update_args)
+    end
+  end
+  on(:user_destroyed) do |user|
+    actor = DiscourseActivityPubActor.find_by(model_id: user.id, model_type: "User")
+    if actor
+      actor.tombstone_objects!
+      actor.tombstone!
     end
   end
 
@@ -956,7 +970,12 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
-    DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
+    if activity.object.actor? && activity.object.stored.local?
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+            I18n.t("discourse_activity_pub.process.warning.actor_cannot_be_deleted")
+    elsif activity.object.object?
+      DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:update, :validate) do |activity|
@@ -1008,9 +1027,22 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:delete, :perform) do |activity|
-    post = activity.object.stored.model
-    PostDestroyer.new(post.user, post, force_destroy: true).destroy
-    activity.object.stored.destroy!
+    if activity.object.actor?
+      if activity.object.stored.model
+        UserDestroyer.new(Discourse.system_user).destroy(
+          activity.object.stored.model,
+          delete_posts: true,
+        )
+      else
+        activity.object.stored.tombstone!
+      end
+    elsif activity.object.object?
+      if activity.object.stored.model
+        PostDestroyer.new(Discourse.system_user, activity.object.stored.model).destroy
+      else
+        activity.object.stored.tombstone!
+      end
+    end
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:update, :perform) do |activity|
@@ -1161,7 +1193,9 @@ after_initialize do
     activity = opts[:parent]
 
     stored =
-      if activity&.composition? || (object.object? && activity&.announce?)
+      if activity&.delete? && object.actor?
+        DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
+      elsif activity&.composition? || (object.object? && activity&.announce?)
         DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
       elsif activity&.like?
         DiscourseActivityPubObject.find_by(ap_id: object.json[:id])

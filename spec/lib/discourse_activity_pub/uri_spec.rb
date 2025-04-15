@@ -34,13 +34,13 @@ RSpec.describe DiscourseActivityPub::URI do
 
     context "with an external uri" do
       it "returns false" do
-        expect(described_class.local?("http://external.com")).to eq(false)
+        expect(described_class.local?("http://remote.com")).to eq(false)
       end
     end
 
     context "with an external domain" do
       it "returns true" do
-        expect(described_class.local?("external.com")).to eq(false)
+        expect(described_class.local?("remote.com")).to eq(false)
       end
     end
 

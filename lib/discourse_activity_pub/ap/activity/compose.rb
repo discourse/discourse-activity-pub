@@ -10,7 +10,10 @@ module DiscourseActivityPub
 
         def validate_activity
           unless activity_host_matches_object_host?
-            raise DiscourseActivityPub::AP::Handlers::Warning
+            raise DiscourseActivityPub::AP::Handlers::Warning,
+                  I18n.t(
+                    "discourse_activity_pub.process.warning.activity_host_must_match_object_host",
+                  )
           end
           super
         end

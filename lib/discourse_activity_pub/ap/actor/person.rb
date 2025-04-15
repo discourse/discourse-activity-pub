@@ -20,7 +20,7 @@ module DiscourseActivityPub
             undo: %i[follow like],
             create: %i[note article],
             update: %i[note article],
-            delete: %i[note article],
+            delete: %i[note article person],
             like: %i[note article],
             announce: %i[note article],
           }

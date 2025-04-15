@@ -93,6 +93,7 @@ en:
         invalid_collection_item: "Invalid item"
         cannot_resolve_context: "Cannot resolve object context"
         cant_resolve_collection: "Cannot resolve collection"
+        actor_cannot_be_deleted: "Actor cannot be deleted"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"

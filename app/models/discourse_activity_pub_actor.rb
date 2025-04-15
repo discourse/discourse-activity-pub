@@ -78,6 +78,11 @@ class DiscourseActivityPubActor < ActiveRecord::Base
            primary_key: "ap_id",
            foreign_key: "attributed_to_id",
            dependent: :destroy
+  has_many :collections,
+           class_name: "DiscourseActivityPubCollection",
+           primary_key: "ap_id",
+           foreign_key: "attributed_to_id",
+           dependent: :destroy
 
   scope :local, -> { where(local: true) }
 
@@ -211,6 +216,36 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     else
       false
     end
+  end
+
+  def tombstone_objects!
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_objects
+    SET ap_former_type = discourse_activity_pub_objects.ap_type,
+        ap_type = :ap_type,
+        deleted_at = :deleted_at
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      ap_type: DiscourseActivityPub::AP::Object::Tombstone.type,
+      deleted_at: Time.now.utc.iso8601,
+    )
+
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_collections
+    SET ap_former_type = discourse_activity_pub_collections.ap_type,
+        ap_type = :ap_type,
+        deleted_at = :deleted_at
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      ap_type: DiscourseActivityPub::AP::Object::Tombstone.type,
+      deleted_at: Time.now.utc.iso8601,
+    )
   end
 
   def self.find_by_handle(raw_handle, local: false, refresh: false, types: [])

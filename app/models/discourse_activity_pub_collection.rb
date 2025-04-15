@@ -6,6 +6,10 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   include DiscourseActivityPub::AP::ObjectHelpers
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
+  belongs_to :attributed_to,
+             class_name: "DiscourseActivityPubActor",
+             primary_key: "ap_id",
+             foreign_key: "attributed_to_id"
 
   has_many :objects, class_name: "DiscourseActivityPubObject", foreign_key: "collection_id"
   has_many :activities, class_name: "DiscourseActivityPubActivity", through: :objects
