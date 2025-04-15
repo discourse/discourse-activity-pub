@@ -33,6 +33,7 @@ zh_CN:
   discourse_activity_pub:
     process:
       warning:
+        cant_find_post: "找不到帖子"
         post_is_deleted: "帖子被删除"
     topic:
       error:

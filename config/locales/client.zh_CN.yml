@@ -11,16 +11,22 @@ zh_CN:
         actor:
           save:
             success: 已保存
+            failed: 未保存
           enabled:
             label: 已启用
           disabled:
             label: 已禁用
           site_setting:
             title: 站点设置
+            activity_pub_enabled:
+              label: 插件已启用
+            login_required:
+              label: 需要登录
           username: 用户名
           name: 名称
           default_visibility: 公开范围
           table:
+            model: 模型
             auth_type: 类型
             actions: 操作
           category:
@@ -37,6 +43,9 @@ zh_CN:
           level: 级别
           message: 发送私信
           json:
+            label: JSON
+            show:
+              label: JSON
             copy:
               label: 复制
               success: 已复制！
@@ -48,13 +57,31 @@ zh_CN:
       status:
         label:
           active: 有效
+          not_active: 不活跃
       follow:
+        label: 关注
         domain:
           placeholder: 网域
+          btn_label: 关注
+          verifying: 正在验证域名...……
+      actor_follow:
+        label: 新关注
+        find:
+          btn_label: 查找
+        follow:
+          label: 关注
+        following:
+          label: 正在关注
+        follow_requested:
+          label: 关注请求
+      actor_unfollow:
+        label: 取消关注
+        modal_title: 确认取消关注
       actor_reject:
         label: 拒绝
       follow_table:
         user: 用户
+        followed_at: 关注
         follow_pending: 待处理
         actions: 操作
       visibility:
@@ -63,6 +90,9 @@ zh_CN:
       object_type:
         label:
           note: 备注
+      publication_type:
+        label:
+          first_post: 第一篇帖子
     user:
       discourse_activity_pub:
         auth_type: 类型
