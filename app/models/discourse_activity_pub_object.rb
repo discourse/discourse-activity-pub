@@ -200,6 +200,8 @@ end
 #  context          :string
 #  target           :string
 #  attributed_to_id :string
+#  deleted_at       :datetime
+#  ap_former_type   :string
 #
 # Indexes
 #

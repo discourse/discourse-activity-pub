@@ -162,10 +162,7 @@ after_initialize do
 
   DiscourseActivityPubActor::ACTIVE_MODELS.each do |model_type|
     klass = model_type.constantize
-    klass.has_one :activity_pub_actor,
-                  class_name: "DiscourseActivityPubActor",
-                  as: :model,
-                  dependent: :destroy
+    klass.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
     klass.has_many :activity_pub_followers,
                    through: :activity_pub_actor,
                    source: :followers,
@@ -239,8 +236,22 @@ after_initialize do
     add_to_class(class_name, :activity_pub_delete!) { perform_activity_pub_activity(:delete) }
     add_to_class(class_name, :performing_activity_after_perform) do
       if performing_activity.delete?
-        activity_pub_actor.tombstone_objects!
-        activity_pub_actor.tombstone!
+        if self.destroyed?
+          activity_pub_actor.destroy_objects!
+          activity_pub_actor.destroy!
+        else
+          activity_pub_actor.tombstone_objects!
+          activity_pub_actor.tombstone!
+        end
+      end
+    end
+    on("#{klass.to_s.downcase}_destroyed".to_sym) do |model|
+      actor = DiscourseActivityPubActor.find_by(model_id: model.id, model_type: klass.to_s)
+      if actor&.local?
+        model.activity_pub_delete!
+      elsif actor&.remote?
+        actor.destroy_objects!
+        actor.destroy!
       end
     end
   end

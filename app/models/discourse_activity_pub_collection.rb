@@ -158,19 +158,22 @@ end
 #
 # Table name: discourse_activity_pub_collections
 #
-#  id           :bigint           not null, primary key
-#  ap_id        :string           not null
-#  ap_key       :string
-#  ap_type      :string           not null
-#  local        :boolean
-#  model_id     :integer
-#  model_type   :string
-#  summary      :string
-#  published_at :datetime
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  name         :string
-#  audience     :string
+#  id               :bigint           not null, primary key
+#  ap_id            :string           not null
+#  ap_key           :string
+#  ap_type          :string           not null
+#  local            :boolean
+#  model_id         :integer
+#  model_type       :string
+#  summary          :string
+#  published_at     :datetime
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  name             :string
+#  audience         :string
+#  deleted_at       :datetime
+#  ap_former_type   :string
+#  attributed_to_id :string
 #
 # Indexes
 #

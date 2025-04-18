@@ -248,6 +248,11 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     )
   end
 
+  def destroy_objects!
+    objects.destroy_all
+    collections.destroy_all
+  end
+
   def self.find_by_handle(raw_handle, local: false, refresh: false, types: [])
     handle = DiscourseActivityPub::Webfinger::Handle.new(handle: raw_handle)
     return nil unless handle.valid?
@@ -373,6 +378,8 @@ end
 #  default_visibility :string
 #  publication_type   :string
 #  post_object_type   :string
+#  deleted_at         :datetime
+#  ap_former_type     :string
 #
 # Indexes
 #
