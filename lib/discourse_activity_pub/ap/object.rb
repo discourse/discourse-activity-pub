@@ -181,14 +181,14 @@ module DiscourseActivityPub
       end
 
       def self.resolve_and_store(raw_object, parent = nil)
-        object = resolve(raw_object)
+        object = resolve(raw_object, parent: parent)
         return unless object
         object.apply_handlers(type, :resolve, parent: parent)
         object.apply_handlers(type, :store, parent: parent)
         object
       end
 
-      def self.resolve(raw_object, resolve_attribution: true)
+      def self.resolve(raw_object, resolve_attribution: true, parent: nil)
         object_id = DiscourseActivityPub::JsonLd.resolve_id(raw_object)
         return process_failed(raw_object, "cant_resolve_#{base_type.downcase}") if object_id.blank?
 
@@ -202,9 +202,17 @@ module DiscourseActivityPub
           return object
         end
 
-        resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object)
+        resolve_opts = {}
+        resolve_opts[:force_request] = true if parent&.delete?
+        resolve_opts[:allowed_errors] = [410] if parent&.delete?
+
+        resolved_object = DiscourseActivityPub::JsonLd.resolve_object(raw_object, **resolve_opts)
         if resolved_object.blank?
-          return process_failed(raw_object, "cant_resolve_#{base_type.downcase}")
+          resolved_object =
+            DiscourseActivityPub::JsonLd.resolve_object(raw_object) if parent&.delete?
+          if resolved_object.blank?
+            return process_failed(raw_object, "cant_resolve_#{base_type.downcase}")
+          end
         end
 
         object = factory(resolved_object)

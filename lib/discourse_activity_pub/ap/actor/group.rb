@@ -17,7 +17,7 @@ module DiscourseActivityPub
             accept: [:follow],
             reject: [:follow],
             create: %i[note article],
-            delete: %i[note article group],
+            delete: %i[note article group tombstone],
             update: %i[note article],
             announce: %i[create update delete like undo ordered_collection note article],
             follow: %i[group person],

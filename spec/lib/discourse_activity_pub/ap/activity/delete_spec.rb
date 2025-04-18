@@ -11,6 +11,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
   describe "#process" do
     context "with a remote note" do
       let!(:object_json) { build_object_json }
+      let!(:tombstone_json) { build_object_json(id: object_json[:id], type: "Tombstone") }
       let!(:activity_json) do
         build_activity_json(
           object: object_json,
@@ -32,27 +33,54 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
         topic.create_activity_pub_collection!
       end
 
-      it "trashes the post" do
-        perform_process(activity_json)
-        expect(post.reload.trashed?).to be(true)
+      context "when object id returns a tombstone" do
+        before { stub_object_request(object_json, body: tombstone_json.to_json, status: 410) }
+
+        it "creates an activity" do
+          perform_process(activity_json)
+          expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+        end
+
+        it "trashes the post" do
+          perform_process(activity_json)
+          expect(post.reload.trashed?).to be(true)
+        end
+
+        it "tombstones the object" do
+          perform_process(activity_json)
+          expect(note.reload.tombstoned?).to be(true)
+        end
       end
 
-      it "tombstones the object" do
-        perform_process(activity_json)
-        expect(note.reload.tombstoned?).to be(true)
-      end
+      context "when object id returns a 404" do
+        before { stub_object_request(object_json, status: 404) }
 
-      it "creates an activity" do
-        perform_process(activity_json)
-        expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+        it "creates an activity" do
+          perform_process(activity_json)
+          expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+        end
+
+        it "deletes the post" do
+          perform_process(activity_json)
+          expect(Post.exists?(id: post.id)).to be(false)
+        end
+
+        it "deletes the object" do
+          perform_process(activity_json)
+          expect(DiscourseActivityPubObject.exists?(ap_id: object_json[:id])).to be(false)
+        end
       end
     end
 
     context "with a remote actor" do
+      let!(:user) { Fabricate(:user) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, local: false, model: user) }
+      let!(:actor_json) { actor.ap.json }
+      let!(:tombstone_json) { build_object_json(id: actor_json[:id], type: "Tombstone") }
       let!(:activity_json) do
         build_activity_json(
-          actor: actor.ap.json,
-          object: actor.ap.json,
+          actor: actor_json,
+          object: actor_json,
           type: "Delete",
           to: [category.activity_pub_actor.ap_id],
         )
@@ -60,8 +88,12 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
       before { toggle_activity_pub(category) }
 
-      context "with a person" do
-        let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+      context "when actor id returns a tombstone" do
+        before do
+          setup_logging
+          stub_object_request(actor_json, body: tombstone_json.to_json, status: 410)
+        end
+        after { teardown_logging }
 
         it "creates an activity" do
           perform_process(activity_json)
@@ -74,9 +106,88 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
           expect(actor.reload.ap_former_type).to eq("Person")
         end
 
-        context "with a user and posts" do
+        context "when the actor has posts" do
+          let!(:topic1) { Fabricate(:topic, category: category) }
+          let!(:collection1) do
+            Fabricate(
+              :discourse_activity_pub_ordered_collection,
+              model: topic1,
+              attributed_to: actor,
+              local: false,
+            )
+          end
+          let!(:topic2) { Fabricate(:topic, category: category) }
+          let!(:collection2) do
+            Fabricate(:discourse_activity_pub_ordered_collection, model: topic2)
+          end
+          let!(:post1) { Fabricate(:post, topic: topic1, post_number: 1, user: user) }
+          let!(:note1) do
+            Fabricate(
+              :discourse_activity_pub_object_note,
+              model: post1,
+              attributed_to: actor,
+              local: false,
+            )
+          end
+          let!(:post2) { Fabricate(:post, topic: topic1, post_number: 2, user: user) }
+          let!(:note2) do
+            Fabricate(
+              :discourse_activity_pub_object_note,
+              model: post2,
+              attributed_to: actor,
+              local: false,
+            )
+          end
+          let!(:post3) { Fabricate(:post, topic: topic2, post_number: 1) }
+          let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3) }
+          let!(:post4) { Fabricate(:post, topic: topic2, post_number: 2, user: user) }
+          let!(:note4) do
+            Fabricate(
+              :discourse_activity_pub_object_note,
+              model: post4,
+              attributed_to: actor,
+              local: false,
+            )
+          end
+
+          it "trashes the actor's posts" do
+            perform_process(activity_json)
+            expect(post1.reload.trashed?).to be(true)
+            expect(post2.reload.trashed?).to be(true)
+            expect(post3.reload.trashed?).to be(false)
+            expect(post4.reload.trashed?).to be(true)
+            expect(topic1.reload.trashed?).to be(true)
+            expect(topic2.reload.trashed?).to be(false)
+          end
+
+          it "tombstones the actors objects" do
+            perform_process(activity_json)
+            expect(note1.reload.tombstoned?).to be(true)
+            expect(note2.reload.tombstoned?).to be(true)
+            expect(note3.reload.tombstoned?).to be(false)
+            expect(note4.reload.tombstoned?).to be(true)
+            expect(collection1.reload.tombstoned?).to be(true)
+            expect(collection2.reload.tombstoned?).to be(false)
+          end
+        end
+      end
+
+      context "when actor id returns a 404" do
+        before { stub_object_request(actor_json, body: tombstone_json.to_json, status: 404) }
+
+        it "creates an activity" do
+          perform_process(activity_json)
+          expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+        end
+
+        it "deletes the actor" do
+          perform_process(activity_json)
+          expect(DiscourseActivityPubActor.exists?(id: actor.id)).to eq(false)
+        end
+
+        context "when the actor has posts" do
           let!(:user) { Fabricate(:user) }
-          let!(:topic1) { Fabricate(:topic) }
+          let!(:topic1) { Fabricate(:topic, category: category) }
           let!(:collection1) do
             Fabricate(
               :discourse_activity_pub_ordered_collection,
@@ -84,7 +195,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
               attributed_to: actor,
             )
           end
-          let!(:topic2) { Fabricate(:topic) }
+          let!(:topic2) { Fabricate(:topic, category: category) }
           let!(:collection2) do
             Fabricate(:discourse_activity_pub_ordered_collection, model: topic2)
           end
@@ -108,24 +219,24 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
             actor.save!
           end
 
-          it "tombstones the actor's objects" do
+          it "deletes the posts" do
             perform_process(activity_json)
-            expect(note1.reload.tombstoned?).to be(true)
-            expect(note2.reload.tombstoned?).to be(true)
-            expect(note3.reload.tombstoned?).to be(false)
-            expect(note4.reload.tombstoned?).to be(true)
-            expect(collection1.reload.tombstoned?).to be(true)
-            expect(collection2.reload.tombstoned?).to be(false)
+            expect(Post.exists?(post1.id)).to be(false)
+            expect(Post.exists?(post2.id)).to be(false)
+            expect(Post.exists?(post3.id)).to be(true)
+            expect(Post.exists?(post4.id)).to be(false)
+            expect(Topic.exists?(topic1.id)).to be(false)
+            expect(Topic.exists?(topic2.id)).to be(true)
           end
 
-          it "trashes the user's posts" do
+          it "deletes the post objects" do
             perform_process(activity_json)
-            expect(post1.reload.trashed?).to be(true)
-            expect(post2.reload.trashed?).to be(true)
-            expect(post3.reload.trashed?).to be(false)
-            expect(post4.reload.trashed?).to be(true)
-            expect(topic1.reload.trashed?).to be(true)
-            expect(topic2.reload.trashed?).to be(false)
+            expect(DiscourseActivityPubObject.exists?(note1.id)).to be(false)
+            expect(DiscourseActivityPubObject.exists?(note2.id)).to be(false)
+            expect(DiscourseActivityPubObject.exists?(note3.id)).to be(true)
+            expect(DiscourseActivityPubObject.exists?(note4.id)).to be(false)
+            expect(DiscourseActivityPubCollection.exists?(collection1.id)).to be(false)
+            expect(DiscourseActivityPubCollection.exists?(collection2.id)).to be(true)
           end
         end
       end

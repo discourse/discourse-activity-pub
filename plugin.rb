@@ -970,10 +970,10 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:delete, :validate) do |activity|
-    if activity.object.actor? && activity.object.stored.local?
+    if activity.object.stored.is_a?(DiscourseActivityPubActor) && activity.object.stored.local?
       raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
             I18n.t("discourse_activity_pub.process.warning.actor_cannot_be_deleted")
-    elsif activity.object.object?
+    elsif activity.object.stored.is_a?(DiscourseActivityPubObject)
       DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
     end
   end
@@ -1027,16 +1027,17 @@ after_initialize do
   end
 
   DiscourseActivityPub::AP::Activity.add_handler(:delete, :perform) do |activity|
-    if activity.object.actor?
+    if activity.object.stored.is_a?(DiscourseActivityPubActor)
       if activity.object.stored.model
         UserDestroyer.new(Discourse.system_user).destroy(
           activity.object.stored.model,
           delete_posts: true,
+          context: I18n.t("discourse_activity_pub.user.deleted", activity_id: activity.id),
         )
       else
         activity.object.stored.tombstone!
       end
-    elsif activity.object.object?
+    elsif activity.object.stored.is_a?(DiscourseActivityPubObject)
       if activity.object.stored.model
         PostDestroyer.new(Discourse.system_user, activity.object.stored.model).destroy
       else
@@ -1193,8 +1194,9 @@ after_initialize do
     activity = opts[:parent]
 
     stored =
-      if activity&.delete? && object.actor?
-        DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
+      if activity&.delete?
+        DiscourseActivityPubObject.find_by(ap_id: object.json[:id]) ||
+          DiscourseActivityPubActor.find_by(ap_id: object.json[:id])
       elsif activity&.composition? || (object.object? && activity&.announce?)
         DiscourseActivityPubObject.find_by(ap_id: object.json[:id])
       elsif activity&.like?
