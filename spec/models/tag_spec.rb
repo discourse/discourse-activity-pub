@@ -23,8 +23,7 @@ RSpec.describe Tag do
 
   describe "#activity_pub_publish_state" do
     it "publishes status to all users" do
-      message =
-        MessageBus.track_publish("/activity-pub") { tag.activity_pub_publish_state }.first
+      message = MessageBus.track_publish("/activity-pub") { tag.activity_pub_publish_state }.first
       expect(message.group_ids).to eq(nil)
     end
   end
