@@ -24,8 +24,6 @@ sq:
             label: Categories
           tag:
             label: Etiketat
-          model_type:
-            category: Kategori
         log:
           label: Ditari
           title: Ditari

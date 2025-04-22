@@ -25,9 +25,6 @@ gl:
             label: Categorías
           tag:
             label: Etiquetas
-          model_type:
-            category: Categoría
-            tag: Etiqueta
         log:
           label: Rexistros
           title: Rexistros

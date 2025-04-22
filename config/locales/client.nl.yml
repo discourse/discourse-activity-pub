@@ -27,9 +27,7 @@ nl:
             label: Categorieën
           tag:
             label: Tags
-          model_type:
-            category: Categorie
-            tag: Taggen
+            filter: filter tags
         log:
           label: Logs
           title: Logs

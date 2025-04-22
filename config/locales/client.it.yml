@@ -25,9 +25,7 @@ it:
             label: Categorie
           tag:
             label: Etichette
-          model_type:
-            category: Categoria
-            tag: Etichetta
+            filter: filtra etichette
         log:
           label: Log
           title: Log

@@ -25,9 +25,7 @@ he:
             label: קטגוריות
           tag:
             label: תגיות
-          model_type:
-            category: קטגוריה
-            tag: תגית
+            filter: סינון תגיות
         log:
           label: יומנים
           title: יומנים

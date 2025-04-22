@@ -25,9 +25,7 @@ uk:
             label: Розділи
           tag:
             label: Теґи
-          model_type:
-            category: Розділ
-            tag: Теґ
+            filter: фільтрація тегів
         log:
           label: Logs
           title: Logs

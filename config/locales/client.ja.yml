@@ -25,9 +25,7 @@ ja:
             label: カテゴリ
           tag:
             label: タグ
-          model_type:
-            category: カテゴリ
-            tag: タグ
+            filter: タグをフィルタする
         log:
           label: ログ
           title: ログ

@@ -27,9 +27,7 @@ tr_TR:
             label: Kategoriler
           tag:
             label: Etiketler
-          model_type:
-            category: Kategori
-            tag: Etiket
+            filter: etiketleri filtrele
         log:
           label: Günlükler
           title: Günlükler

@@ -13,9 +13,6 @@ cs:
       discourse_activity_pub:
         label: ActivityPub
         actor:
-          add:
-            title: Přidat aktéra ActivityPub
-            label: Přidat aktéra
           save:
             title: Uložit aktéra ActivityPub
             label: Uložit aktéra
@@ -63,10 +60,7 @@ cs:
             label: Štítky
             title: Aktéři štítků
             none: Vyberte štítek
-          model_type:
-            none: Vyberte model
-            category: Kategorie
-            tag: Štítek
+            filter: filtrovat štítky
         log:
           label: Protokoly
           title: Protokoly

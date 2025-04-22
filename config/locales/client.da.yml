@@ -25,9 +25,7 @@ da:
             label: Kategorier
           tag:
             label: Mærker
-          model_type:
-            category: Kategori
-            tag: Mærke
+            filter: filtrer mærker
         log:
           label: Logs
           title: Logs

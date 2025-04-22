@@ -27,9 +27,7 @@ pt_BR:
             label: Categorias
           tag:
             label: Etiquetas
-          model_type:
-            category: Categoria
-            tag: Etiqueta
+            filter: filtrar etiquetas
         log:
           label: Registros
           title: Registros

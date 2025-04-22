@@ -25,8 +25,6 @@ pt:
             label: Categorias
           tag:
             label: Etiquetas
-          model_type:
-            category: Categoria
         log:
           label: Logs
           title: Logs

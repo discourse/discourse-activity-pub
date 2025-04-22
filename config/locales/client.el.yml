@@ -25,8 +25,7 @@ el:
             label: Κατηγορίες
           tag:
             label: Ετικέτες
-          model_type:
-            category: Κατηγορία
+            filter: φιλτράρισμα ετικετών
         log:
           label: Αρχεία καταγραφής
           title: Αρχεία καταγραφής
