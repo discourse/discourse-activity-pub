@@ -63,9 +63,15 @@ Discourse::Application.routes.append do
   scope constraints: AdminConstraint.new do
     get "/admin/plugins/ap" => "admin/plugins#index"
     get "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#index"
-    post "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#create", :constraints => { format: :json }
+    post "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#create",
+         :constraints => {
+           format: :json,
+         }
     get "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#show"
-    put "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#update", :constraints => { format: :json }
+    put "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#update",
+        :constraints => {
+          format: :json,
+        }
     delete "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#destroy"
     post "/admin/plugins/ap/actor/:actor_id/enable" => "admin/discourse_activity_pub/actor#enable"
     post "/admin/plugins/ap/actor/:actor_id/disable" => "admin/discourse_activity_pub/actor#disable"

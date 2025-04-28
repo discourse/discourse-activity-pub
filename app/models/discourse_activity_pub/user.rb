@@ -1,10 +1,14 @@
+# frozen_string_literal: true
 module DiscourseActivityPub::User
   def self.prepended(user_class)
     user_class.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
     user_class.has_many :activity_pub_authorizations,
                         -> { active },
                         class_name: "DiscourseActivityPubAuthorization"
-    user_class.skip_callback :create, :after, :create_email_token, if: -> { self.skip_email_validation }
+    user_class.skip_callback :create,
+                             :after,
+                             :create_email_token,
+                             if: -> { self.skip_email_validation }
     user_class.before_validation :activity_pub_skip_email_validation
   end
 

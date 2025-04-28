@@ -192,7 +192,10 @@ module DiscourseActivityPub
 
     def update_actor_from_model
       username = model.activity_pub_username
-      username = DiscourseActivityPub::UsernameSuggester.suggest(username) if !valid_actor_username?(username)
+      username =
+        DiscourseActivityPub::UsernameSuggester.suggest(username) if !valid_actor_username?(
+        username,
+      )
 
       actor.username = username
       actor.name = model.activity_pub_name if model.activity_pub_name

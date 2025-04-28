@@ -12,6 +12,7 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
+import { i18n } from "discourse-i18n";
 import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
 import { default as Logs } from "../fixtures/logs-fixtures";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
@@ -363,8 +364,8 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
   test("deletes an actor", async function (assert) {
     await visit(`/admin/plugins/ap/actor/${actor.id}`);
 
-    let deleteRequests = 0
-    pretender.delete(`/admin/plugins/ap/actor/${actor.id}`, (request) => {
+    let deleteRequests = 0;
+    pretender.delete(`/admin/plugins/ap/actor/${actor.id}`, () => {
       deleteRequests += 1;
       return response({ success: true });
     });
@@ -374,7 +375,7 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
     assert.strictEqual(
       query(".dialog-body p").innerText.trim(),
-      I18n.t("admin.discourse_activity_pub.actor.delete.confirm", {
+      i18n("admin.discourse_activity_pub.actor.delete.confirm", {
         actor: actor.handle,
       }),
       "shows the right message"
@@ -382,11 +383,7 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
 
     await click("#dialog-holder .btn-primary");
 
-    assert.strictEqual(
-      deleteRequests,
-      1,
-      "sends a delete request"
-    );
+    assert.strictEqual(deleteRequests, 1, "sends a delete request");
     assert.strictEqual(
       currentURL(),
       "/admin/plugins/ap/actor",

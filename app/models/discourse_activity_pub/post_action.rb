@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module DiscourseActivityPub::PostAction
   def self.prepended(post_action_class)
     post_action_class.include DiscourseActivityPub::AP::ModelCallbacks

@@ -109,13 +109,10 @@ module Admin::DiscourseActivityPub
 
       if handler.success?
         render json:
-                  success_json.merge(
-                    actor:
-                      DiscourseActivityPub::DetailedActorSerializer.new(
-                        actor,
-                        root: false,
-                      ).as_json,
-                  )
+                 success_json.merge(
+                   actor:
+                     DiscourseActivityPub::DetailedActorSerializer.new(actor, root: false).as_json,
+                 )
       else
         render json: failed_json.merge(errors: handler.errors.map(&:message)), status: 400
       end
@@ -126,7 +123,7 @@ module Admin::DiscourseActivityPub
         return render_error("username_required", 400)
       end
       if actor_params[:publication_type] == "full_topic" &&
-            actor_params[:default_visibility] == "private"
+           actor_params[:default_visibility] == "private"
         render_error("full_topic_must_be_public", 400)
       end
     end
@@ -143,7 +140,7 @@ module Admin::DiscourseActivityPub
 
     def find_model
       if (actor_params[:model_id].blank? && actor_params[:model_name].blank?) ||
-            actor_params[:model_type].blank?
+           actor_params[:model_type].blank?
         return render_error("invalid_model", 400)
       end
 
@@ -162,9 +159,8 @@ module Admin::DiscourseActivityPub
     end
 
     def render_error(key, status)
-      render json:
-                failed_json.merge(errors: [I18n.t("discourse_activity_pub.actor.error.#{key}")]),
-              status: status
+      render json: failed_json.merge(errors: [I18n.t("discourse_activity_pub.actor.error.#{key}")]),
+             status: status
     end
 
     def actor_params

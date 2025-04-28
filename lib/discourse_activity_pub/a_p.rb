@@ -17,7 +17,7 @@ module DiscourseActivityPub
       object: %i[article note tombstone],
       activity: %i[accept announce create delete follow like reject undo update],
       actor: %i[application group organization person service],
-      collection: %i[ordered_collection ordered_collection_page collection_page]
+      collection: %i[ordered_collection ordered_collection_page collection_page],
     }
   end
 end

@@ -2,14 +2,7 @@
 module DiscourseActivityPub::Post
   module ClassMethods
     def activity_pub_custom_fields
-      %i[
-        delivered_at
-        scheduled_at
-        published_at
-        deleted_at
-        updated_at
-        visibility
-      ]
+      %i[delivered_at scheduled_at published_at deleted_at updated_at visibility]
     end
 
     def activity_pub_custom_field_names
@@ -69,7 +62,7 @@ module DiscourseActivityPub::Post
   end
 
   def activity_pub_full_topic
-    @activity_pub_full_topic ||= activity_pub_topic&.activity_pub_full_topic    
+    @activity_pub_full_topic ||= activity_pub_topic&.activity_pub_full_topic
   end
 
   def activity_pub_first_post
@@ -121,7 +114,9 @@ module DiscourseActivityPub::Post
   end
 
   def activity_pub_update_custom_fields(args = {})
-    return nil if !activity_pub_enabled || (args.keys & self.class.activity_pub_custom_fields).empty?
+    if !activity_pub_enabled || (args.keys & self.class.activity_pub_custom_fields).empty?
+      return nil
+    end
     args.keys.each { |key| custom_fields["activity_pub_#{key}"] = args[key] }
     save_custom_fields(true)
     activity_pub_publish_state
@@ -198,7 +193,9 @@ module DiscourseActivityPub::Post
   def before_clear_all_activity_pub_objects
     return if self.destroyed?
 
-    self.class.activity_pub_custom_field_names.each { |field_name| self.custom_fields[field_name] = nil }
+    self.class.activity_pub_custom_field_names.each do |field_name|
+      self.custom_fields[field_name] = nil
+    end
     self.save_custom_fields(true)
   end
 

@@ -133,9 +133,7 @@ module DiscourseActivityPub
     end
 
     def self.delete_users_posts(user, destroy: false)
-      user.posts.find_each do |post|
-        delete_post(post, destroy: destroy)
-      end
+      user.posts.find_each { |post| delete_post(post, destroy: destroy) }
     end
 
     def self.ensure_activity_has_post(activity)

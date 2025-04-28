@@ -108,8 +108,8 @@ module Jobs
                 object.announce!(from_actor.id)
                 object
               rescue PG::UniqueViolation,
-                    ActiveRecord::RecordNotUnique,
-                    ActiveRecord::RecordInvalid => e
+                     ActiveRecord::RecordNotUnique,
+                     ActiveRecord::RecordInvalid => e
                 log_failure(message: e.message, json: nil)
                 false
               end

@@ -19,7 +19,12 @@ module DiscourseActivityPub
       end
 
       def supported_object_types
-        %w[DiscourseActivityPubActivity DiscourseActivityPubActor DiscourseActivityPubObject DiscourseActivityPubCollection]
+        %w[
+          DiscourseActivityPubActivity
+          DiscourseActivityPubActor
+          DiscourseActivityPubObject
+          DiscourseActivityPubCollection
+        ]
       end
     end
   end

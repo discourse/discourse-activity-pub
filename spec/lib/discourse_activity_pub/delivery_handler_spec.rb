@@ -139,7 +139,10 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
               from_actor_id: group.id,
               send_to: person.inbox,
             }
-            Jobs.expects(:cancel_scheduled_job).with(Jobs::DiscourseActivityPub::Deliver, job_args).once
+            Jobs
+              .expects(:cancel_scheduled_job)
+              .with(Jobs::DiscourseActivityPub::Deliver, job_args)
+              .once
             perform_delivery
           end
 

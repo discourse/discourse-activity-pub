@@ -57,7 +57,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
         it "creates an activity" do
           perform_process(activity_json)
-          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(true)
+          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(
+            true,
+          )
         end
 
         it "deletes the post" do
@@ -177,7 +179,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
         it "does not create activity" do
           perform_process(activity_json)
-          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(false)
+          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(
+            false,
+          )
         end
 
         it "deletes the actor" do
@@ -193,7 +197,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
               :discourse_activity_pub_ordered_collection,
               model: topic1,
               attributed_to: actor,
-              local: false
+              local: false,
             )
           end
           let!(:topic2) { Fabricate(:topic, category: category) }
@@ -202,11 +206,21 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
           end
           let!(:post1) { Fabricate(:post, topic: topic1, post_number: 1, user: user) }
           let!(:note1) do
-            Fabricate(:discourse_activity_pub_object_note, model: post1, attributed_to: actor, local: false)
+            Fabricate(
+              :discourse_activity_pub_object_note,
+              model: post1,
+              attributed_to: actor,
+              local: false,
+            )
           end
           let!(:post2) { Fabricate(:post, topic: topic1, post_number: 2, user: user) }
           let!(:note2) do
-            Fabricate(:discourse_activity_pub_object_note, model: post2, attributed_to: actor, local: false)
+            Fabricate(
+              :discourse_activity_pub_object_note,
+              model: post2,
+              attributed_to: actor,
+              local: false,
+            )
           end
           let!(:post3) { Fabricate(:post, topic: topic2, post_number: 1) }
           let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3) }
@@ -282,7 +296,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
       it "does not create an activity" do
         perform_process(activity_json)
-        expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(false)
+        expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(
+          false,
+        )
       end
 
       it "does not tombstone the actor" do

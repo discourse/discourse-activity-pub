@@ -3,7 +3,9 @@ module DiscourseActivityPub::Topic
   def self.prepended(topic_class)
     topic_class.include DiscourseActivityPub::AP::ModelHelpers
     topic_class.include DiscourseActivityPub::AP::ModelCallbacks
-    topic_class.has_one :activity_pub_object, class_name: "DiscourseActivityPubCollection", as: :model
+    topic_class.has_one :activity_pub_object,
+                        class_name: "DiscourseActivityPubCollection",
+                        as: :model
     topic_class.after_destroy :cache_activity_pub_after_destroy
   end
 
@@ -82,7 +84,7 @@ module DiscourseActivityPub::Topic
   def activity_pub_objects_collection
     activity_pub_object.objects_collection
   end
-  
+
   def activity_pub_name
     self.title
   end
@@ -92,7 +94,7 @@ module DiscourseActivityPub::Topic
   end
 
   def activity_pub_remote?
-    !activity_pub_local? 
+    !activity_pub_local?
   end
 
   def activity_pub_publish!

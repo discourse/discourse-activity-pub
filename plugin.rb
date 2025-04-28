@@ -32,7 +32,7 @@ after_initialize do
   ##
   ## Discourse model integration
   ##
-  %w(Category Tag).each do |model_type|
+  %w[Category Tag].each do |model_type|
     klass = model_type.constantize
     klass.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
     klass.has_many :activity_pub_followers,
@@ -214,11 +214,9 @@ after_initialize do
     :activity_pub_object_id,
     include_condition: -> { object.activity_pub_enabled },
   ) { object.activity_pub_object_id }
-  add_to_serializer(
-    :web_hook_topic_view,
-    :activity_pub_enabled,
-    include_condition: -> { false }
-  ) { false }
+  add_to_serializer(:web_hook_topic_view, :activity_pub_enabled, include_condition: -> { false }) do
+    false
+  end
   add_to_serializer(:topic_view, :activity_pub_enabled) { object.topic.activity_pub_enabled }
   add_to_serializer(
     :topic_view,
@@ -336,7 +334,8 @@ after_initialize do
       end
 
       if post.is_first_post?
-        topic_object = DiscourseActivityPubCollection.find_by(model_id: post.topic_id, model_type: "Topic")
+        topic_object =
+          DiscourseActivityPubCollection.find_by(model_id: post.topic_id, model_type: "Topic")
 
         if topic_object&.local?
           post.topic.activity_pub_delete!
@@ -561,10 +560,15 @@ after_initialize do
   activity_pub_on(:delete, :perform) do |activity|
     destroy = !!activity.object.cache["delete_object"]
 
-    if activity.object.stored.is_a?(DiscourseActivityPubActor) && activity.object.stored.model&.is_a?(User)
-      DiscourseActivityPub::PostHandler.delete_users_posts(activity.object.stored.model, destroy: destroy)
+    if activity.object.stored.is_a?(DiscourseActivityPubActor) &&
+         activity.object.stored.model.is_a?(User)
+      DiscourseActivityPub::PostHandler.delete_users_posts(
+        activity.object.stored.model,
+        destroy: destroy,
+      )
       DiscourseActivityPub::ActorHandler.delete_user(activity.object.stored.model, destroy: destroy)
-    elsif activity.object.stored.is_a?(DiscourseActivityPubObject) && activity.object.stored.model&.is_a?(Post)
+    elsif activity.object.stored.is_a?(DiscourseActivityPubObject) &&
+          activity.object.stored.model.is_a?(Post)
       DiscourseActivityPub::PostHandler.delete_post(activity.object.stored.model, destroy: destroy)
     else
       activity.object.stored.tombstone!

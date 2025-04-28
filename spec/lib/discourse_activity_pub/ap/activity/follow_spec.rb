@@ -84,7 +84,9 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Follow do
                 from_actor_id: response_activity.actor.id,
                 send_to: response_activity.object.actor.inbox,
               }
-              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, args: args)).to eq(true)
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, args: args)).to eq(
+                true,
+              )
             end
           end
 

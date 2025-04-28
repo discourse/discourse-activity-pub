@@ -6,7 +6,10 @@ import { service } from "@ember/service";
 import discourseLater from "discourse/lib/later";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
-import { updateSiteActor, removeSiteActor } from "../lib/activity-pub-utilities";
+import {
+  removeSiteActor,
+  updateSiteActor,
+} from "../lib/activity-pub-utilities";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShow extends Controller {
@@ -100,9 +103,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
           if (result?.success) {
             this.loading = false;
             removeSiteActor(this.actor);
-            return this.router.transitionTo(
-              "adminPlugins.activityPub.actor"
-            );
+            return this.router.transitionTo("adminPlugins.activityPub.actor");
           } else {
             this.loading = false;
             this.deleteFailed = true;

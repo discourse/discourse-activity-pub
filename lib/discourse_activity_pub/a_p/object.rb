@@ -184,7 +184,7 @@ module DiscourseActivityPub
           end
           sub_types.each do |sub_type|
             if _type == sub_type.to_s
-              klass = "#{base_type.to_s}/#{sub_type.to_s}"
+              klass = "#{base_type}/#{sub_type}"
               break
             end
           end
@@ -215,7 +215,7 @@ module DiscourseActivityPub
         end
 
         resolve_opts = {}
-        
+
         if parent&.delete?
           resolve_opts[:force_request] = true
           resolve_opts[:allowed_errors] = [410]
@@ -241,9 +241,7 @@ module DiscourseActivityPub
           return process_failed(resolved_object["id"], "object_not_supported")
         end
 
-        if parent&.delete? && delete_object
-          object.cache["delete_object"] = true
-        end
+        object.cache["delete_object"] = true if parent&.delete? && delete_object
 
         if resolve_attribution && object.json[:attributedTo]
           attributed_to = Actor.resolve_and_store(object.json[:attributedTo])
