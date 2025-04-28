@@ -46,3 +46,29 @@ DiscourseActivityPub::Engine.routes.draw do
     post "users/inbox" => "shared_inboxes#create"
   end
 end
+
+Discourse::Application.routes.append do
+  mount ::DiscourseActivityPub::Engine, at: "ap"
+
+  get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+  post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger/handle#validate",
+       :defaults => {
+         format: :json,
+       }
+  get "u/:username/preferences/activity-pub" => "users#preferences",
+      :constraints => {
+        username: RouteFormat.username,
+      }
+
+  scope constraints: AdminConstraint.new do
+    get "/admin/plugins/ap" => "admin/plugins#index"
+    get "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#index"
+    post "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#create", :constraints => { format: :json }
+    get "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#show"
+    put "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#update", :constraints => { format: :json }
+    delete "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#destroy"
+    post "/admin/plugins/ap/actor/:actor_id/enable" => "admin/discourse_activity_pub/actor#enable"
+    post "/admin/plugins/ap/actor/:actor_id/disable" => "admin/discourse_activity_pub/actor#disable"
+    get "/admin/plugins/ap/log" => "admin/discourse_activity_pub/log#index"
+  end
+end

@@ -6,7 +6,7 @@ import { service } from "@ember/service";
 import discourseLater from "discourse/lib/later";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
-import { updateSiteActor } from "../lib/activity-pub-utilities";
+import { updateSiteActor, removeSiteActor } from "../lib/activity-pub-utilities";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShow extends Controller {
@@ -18,7 +18,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @tracked tags = [];
   @tracked showForm = false;
   @tracked enabled = this.actor.enabled;
-  @tracked saving = false;
+  @tracked loading = false;
   @tracked saveResponse = null;
   @tracked actor;
 
@@ -37,6 +37,10 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
 
   get canSave() {
     return this.showForm;
+  }
+
+  get canDelete() {
+    return this.showForm && !this.actor.isNew;
   }
 
   get containerClass() {
@@ -60,13 +64,13 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
 
   @action
   saveActor() {
-    this.saving = true;
+    this.loading = true;
     this.actor.save().then((result) => {
       if (result?.success) {
         updateSiteActor(result.actor);
 
         if (this.actor.isNew) {
-          this.saving = false;
+          this.loading = false;
           return this.router.transitionTo(
             "adminPlugins.activityPub.actorShow",
             result.actor
@@ -80,7 +84,34 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
       discourseLater(() => {
         this.saveResponse = null;
       }, 3000);
-      this.saving = false;
+      this.loading = false;
+    });
+  }
+
+  @action
+  deleteActor() {
+    this.dialog.yesNoConfirm({
+      message: i18n("admin.discourse_activity_pub.actor.delete.confirm", {
+        actor: this.actor.handle,
+      }),
+      didConfirm: async () => {
+        this.loading = true;
+        this.actor.delete().then((result) => {
+          if (result?.success) {
+            this.loading = false;
+            removeSiteActor(this.actor);
+            return this.router.transitionTo(
+              "adminPlugins.activityPub.actor"
+            );
+          } else {
+            this.loading = false;
+            this.deleteFailed = true;
+            discourseLater(() => {
+              this.deleteFailed = false;
+            }, 3000);
+          }
+        });
+      },
     });
   }
 

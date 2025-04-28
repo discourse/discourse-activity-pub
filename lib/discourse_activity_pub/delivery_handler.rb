@@ -74,13 +74,12 @@ module DiscourseActivityPub
         object_type: object.class.name,
       }
 
-      Jobs.cancel_scheduled_job(:discourse_activity_pub_deliver, args)
-
+      Jobs.cancel_scheduled_job(Jobs::DiscourseActivityPub::Deliver, args)
       if delay.to_i > 0
-        Jobs.enqueue_in(delay.to_i.minutes, :discourse_activity_pub_deliver, args)
+        Jobs.enqueue_in(delay.to_i.minutes, Jobs::DiscourseActivityPub::Deliver, args)
         @scheduled_at = (Time.now.utc + delay.to_i.minutes).iso8601
       else
-        Jobs.enqueue(:discourse_activity_pub_deliver, args)
+        Jobs.enqueue(Jobs::DiscourseActivityPub::Deliver, args)
       end
     end
 

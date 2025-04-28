@@ -150,7 +150,7 @@
 
   <div class="activity-pub-actor-gutter">
     {{#if this.showForm}}
-      <ConditionalLoadingSpinner @condition={{this.saving}} @size="small" />
+      <ConditionalLoadingSpinner @condition={{this.loading}} @size="small" />
       {{#if this.saveResponse}}
         <span class="activity-pub-actor-save-response {{this.saveResponse}}">
           {{#if this.saveSuccess}}
@@ -161,6 +161,21 @@
             {{i18n "admin.discourse_activity_pub.actor.save.failed"}}
           {{/if}}
         </span>
+      {{/if}}
+      {{#if this.deleteFailed}}
+        <span class="activity-pub-actor-delete-failed">
+          {{d-icon "xmark"}}
+          {{i18n "admin.discourse_activity_pub.actor.delete.failed"}}
+        </span>
+      {{/if}}
+      {{#if this.canDelete}}
+        <DButton
+          @action={{action "deleteActor"}}
+          @label="admin.discourse_activity_pub.actor.delete.label"
+          @title="admin.discourse_activity_pub.actor.delete.title"
+          class="activity-pub-delete-actor btn-danger"
+          @disabled={{this.loading}}
+        />
       {{/if}}
       <DButton
         @action={{action "saveActor"}}

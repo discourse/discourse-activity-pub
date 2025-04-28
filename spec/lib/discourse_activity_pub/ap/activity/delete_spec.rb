@@ -57,17 +57,17 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
         it "creates an activity" do
           perform_process(activity_json)
-          expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(true)
         end
 
         it "deletes the post" do
           perform_process(activity_json)
-          expect(Post.exists?(id: post.id)).to be(false)
+          expect(Post.unscoped.exists?(id: post.id)).to be(false)
         end
 
         it "deletes the object" do
           perform_process(activity_json)
-          expect(DiscourseActivityPubObject.exists?(ap_id: object_json[:id])).to be(false)
+          expect(DiscourseActivityPubObject.unscoped.exists?(ap_id: object_json[:id])).to be(false)
         end
       end
     end
@@ -175,14 +175,14 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
       context "when actor id returns a 404" do
         before { stub_object_request(actor_json, body: tombstone_json.to_json, status: 404) }
 
-        it "creates an activity" do
+        it "does not create activity" do
           perform_process(activity_json)
-          expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(false)
         end
 
         it "deletes the actor" do
           perform_process(activity_json)
-          expect(DiscourseActivityPubActor.exists?(id: actor.id)).to eq(false)
+          expect(DiscourseActivityPubActor.unscoped.exists?(id: actor.id)).to eq(false)
         end
 
         context "when the actor has posts" do
@@ -193,6 +193,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
               :discourse_activity_pub_ordered_collection,
               model: topic1,
               attributed_to: actor,
+              local: false
             )
           end
           let!(:topic2) { Fabricate(:topic, category: category) }
@@ -201,11 +202,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
           end
           let!(:post1) { Fabricate(:post, topic: topic1, post_number: 1, user: user) }
           let!(:note1) do
-            Fabricate(:discourse_activity_pub_object_note, model: post1, attributed_to: actor)
+            Fabricate(:discourse_activity_pub_object_note, model: post1, attributed_to: actor, local: false)
           end
           let!(:post2) { Fabricate(:post, topic: topic1, post_number: 2, user: user) }
           let!(:note2) do
-            Fabricate(:discourse_activity_pub_object_note, model: post2, attributed_to: actor)
+            Fabricate(:discourse_activity_pub_object_note, model: post2, attributed_to: actor, local: false)
           end
           let!(:post3) { Fabricate(:post, topic: topic2, post_number: 1) }
           let!(:note3) { Fabricate(:discourse_activity_pub_object_note, model: post3) }
@@ -221,22 +222,22 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
           it "deletes the posts" do
             perform_process(activity_json)
-            expect(Post.exists?(post1.id)).to be(false)
-            expect(Post.exists?(post2.id)).to be(false)
-            expect(Post.exists?(post3.id)).to be(true)
-            expect(Post.exists?(post4.id)).to be(false)
-            expect(Topic.exists?(topic1.id)).to be(false)
-            expect(Topic.exists?(topic2.id)).to be(true)
+            expect(Post.unscoped.exists?(post1.id)).to be(false)
+            expect(Post.unscoped.exists?(post2.id)).to be(false)
+            expect(Post.unscoped.exists?(post3.id)).to be(true)
+            expect(Post.unscoped.exists?(post4.id)).to be(false)
+            expect(Topic.unscoped.exists?(topic1.id)).to be(false)
+            expect(Topic.unscoped.exists?(topic2.id)).to be(true)
           end
 
           it "deletes the post objects" do
             perform_process(activity_json)
-            expect(DiscourseActivityPubObject.exists?(note1.id)).to be(false)
-            expect(DiscourseActivityPubObject.exists?(note2.id)).to be(false)
-            expect(DiscourseActivityPubObject.exists?(note3.id)).to be(true)
-            expect(DiscourseActivityPubObject.exists?(note4.id)).to be(false)
-            expect(DiscourseActivityPubCollection.exists?(collection1.id)).to be(false)
-            expect(DiscourseActivityPubCollection.exists?(collection2.id)).to be(true)
+            expect(DiscourseActivityPubObject.unscoped.exists?(note1.id)).to be(false)
+            expect(DiscourseActivityPubObject.unscoped.exists?(note2.id)).to be(false)
+            expect(DiscourseActivityPubObject.unscoped.exists?(note3.id)).to be(true)
+            expect(DiscourseActivityPubObject.unscoped.exists?(note4.id)).to be(false)
+            expect(DiscourseActivityPubCollection.unscoped.exists?(collection1.id)).to be(false)
+            expect(DiscourseActivityPubCollection.unscoped.exists?(collection2.id)).to be(true)
           end
         end
       end
@@ -281,7 +282,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
 
       it "does not create an activity" do
         perform_process(activity_json)
-        expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(false)
+        expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(false)
       end
 
       it "does not tombstone the actor" do

@@ -23,7 +23,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
       },
       at: (delay || SiteSetting.activity_pub_delivery_delay_minutes).to_i.minutes.from_now,
     }
-    expect(job_enqueued?(job: :discourse_activity_pub_deliver, **args)).to eq(enqueued)
+    expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, **args)).to eq(enqueued)
   end
 
   def expect_log(message)
@@ -69,7 +69,10 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
     end
 
     context "when delivery actor is ready" do
-      before { toggle_activity_pub(category) }
+      before do
+        toggle_activity_pub(category)
+        post.reload
+      end
 
       context "with publishing disabled" do
         before { SiteSetting.login_required = true }
@@ -136,7 +139,7 @@ RSpec.describe DiscourseActivityPub::DeliveryHandler do
               from_actor_id: group.id,
               send_to: person.inbox,
             }
-            Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, job_args).once
+            Jobs.expects(:cancel_scheduled_job).with(Jobs::DiscourseActivityPub::Deliver, job_args).once
             perform_delivery
           end
 

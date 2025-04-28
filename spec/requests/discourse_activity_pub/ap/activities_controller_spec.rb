@@ -67,6 +67,7 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
           end
         )
       toggle_activity_pub(category)
+      activity.base_object.model.reload
     end
 
     it "returns activity json" do

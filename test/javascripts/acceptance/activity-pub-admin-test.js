@@ -312,6 +312,9 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     server.get(`/admin/plugins/ap/actor/${actor.id}`, () =>
       helper.response(actor)
     );
+    server.get("/admin/plugins/ap/actor", () =>
+      helper.response(categoryActors)
+    );
   });
 
   test("edits an actor", async function (assert) {
@@ -354,6 +357,46 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     assert.true(
       siteActors.category.some((a) => a.name === updatedActor.name),
       "updates the site actor"
+    );
+  });
+
+  test("deletes an actor", async function (assert) {
+    await visit(`/admin/plugins/ap/actor/${actor.id}`);
+
+    let deleteRequests = 0
+    pretender.delete(`/admin/plugins/ap/actor/${actor.id}`, (request) => {
+      deleteRequests += 1;
+      return response({ success: true });
+    });
+
+    await click(".activity-pub-delete-actor");
+
+    assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
+    assert.strictEqual(
+      query(".dialog-body p").innerText.trim(),
+      I18n.t("admin.discourse_activity_pub.actor.delete.confirm", {
+        actor: actor.handle,
+      }),
+      "shows the right message"
+    );
+
+    await click("#dialog-holder .btn-primary");
+
+    assert.strictEqual(
+      deleteRequests,
+      1,
+      "sends a delete request"
+    );
+    assert.strictEqual(
+      currentURL(),
+      "/admin/plugins/ap/actor",
+      "returns to actor index"
+    );
+
+    const siteActors = Site.currentProp("activity_pub_actors");
+    assert.true(
+      siteActors.category.every((a) => a.name !== actor.name),
+      "removes the site actor"
     );
   });
 });

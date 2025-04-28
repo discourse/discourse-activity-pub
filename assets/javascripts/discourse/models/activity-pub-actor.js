@@ -58,6 +58,12 @@ class ActivityPubActor extends EmberObject {
 
     return ajax(path, { type, data }).catch(popupAjaxError);
   }
+
+  delete() {
+    return ajax(`${actorAdminPath}/${this.id}`, {
+      type: "DELETE"
+    }).catch(popupAjaxError);
+  }
 }
 
 ActivityPubActor.reopenClass({

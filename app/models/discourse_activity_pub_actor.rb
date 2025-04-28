@@ -8,9 +8,9 @@ class DiscourseActivityPubActor < ActiveRecord::Base
   APPLICATION_ACTOR_ID = -1
   APPLICATION_ACTOR_USERNAME = "discourse.internal"
   SERIALIZED_FIELDS = %i[enabled username name default_visibility publication_type post_object_type]
-  ACTIVE_MODELS = %w[Category Tag]
+  GROUP_MODELS = %w[Category Tag]
 
-  scope :active, -> { where(model_type: ACTIVE_MODELS, enabled: true) }
+  scope :active, -> { where(model_type: GROUP_MODELS, enabled: true) }
 
   belongs_to :model, polymorphic: true, optional: true
   belongs_to :category,

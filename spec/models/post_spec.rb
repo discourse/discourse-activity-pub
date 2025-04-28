@@ -471,12 +471,12 @@ RSpec.describe Post do
 
       it "clears associated jobs" do
         job1_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
-        Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job1_args).once
+        Jobs.expects(:cancel_scheduled_job).with(Jobs::DiscourseActivityPub::Deliver, **job1_args).once
         job2_args = {
           object_id: topic.activity_pub_object.id,
           object_type: "DiscourseActivityPubCollection",
         }
-        Jobs.expects(:cancel_scheduled_job).with(:discourse_activity_pub_deliver, **job2_args).once
+        Jobs.expects(:cancel_scheduled_job).with(Jobs::DiscourseActivityPub::Deliver, **job2_args).once
         perform_delete
       end
 
@@ -639,14 +639,14 @@ RSpec.describe Post do
             }
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job1_args,
                 at: delay.minutes.from_now,
               ),
             ).to eq(true)
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job2_args,
                 at: delay.minutes.from_now,
               ),
@@ -860,7 +860,7 @@ RSpec.describe Post do
             job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
             Jobs
               .expects(:cancel_scheduled_job)
-              .with(:discourse_activity_pub_deliver, **job_args)
+              .with(Jobs::DiscourseActivityPub::Deliver, **job_args)
               .once
             perform_delete
           end
@@ -921,10 +921,10 @@ RSpec.describe Post do
                 from_actor_id: category.activity_pub_actor.id,
                 send_to: follower2.inbox,
               }
-              expect(job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args)).to eq(
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, args: job1_args)).to eq(
                 true,
               )
-              expect(job_enqueued?(job: :discourse_activity_pub_deliver, args: job2_args)).to eq(
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, args: job2_args)).to eq(
                 true,
               )
             end
@@ -1090,14 +1090,14 @@ RSpec.describe Post do
             }
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job1_args,
                 at: delay.minutes.from_now,
               ),
             ).to eq(true)
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job2_args,
                 at: delay.minutes.from_now,
               ),
@@ -1305,7 +1305,7 @@ RSpec.describe Post do
             job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
             Jobs
               .expects(:cancel_scheduled_job)
-              .with(:discourse_activity_pub_deliver, **job_args)
+              .with(Jobs::DiscourseActivityPub::Deliver, **job_args)
               .once
             perform_delete
           end
@@ -1366,10 +1366,10 @@ RSpec.describe Post do
                 from_actor_id: tag.activity_pub_actor.id,
                 send_to: follower2.inbox,
               }
-              expect(job_enqueued?(job: :discourse_activity_pub_deliver, args: job1_args)).to eq(
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, args: job1_args)).to eq(
                 true,
               )
-              expect(job_enqueued?(job: :discourse_activity_pub_deliver, args: job2_args)).to eq(
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Deliver, args: job2_args)).to eq(
                 true,
               )
             end
@@ -1509,14 +1509,14 @@ RSpec.describe Post do
             }
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job1_args,
                 at: delay.minutes.from_now,
               ),
             ).to eq(true)
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job2_args,
                 at: delay.minutes.from_now,
               ),
@@ -1560,14 +1560,14 @@ RSpec.describe Post do
             }
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job1_args,
                 at: delay.minutes.from_now,
               ),
             ).to eq(true)
             expect(
               job_enqueued?(
-                job: :discourse_activity_pub_deliver,
+                job: Jobs::DiscourseActivityPub::Deliver,
                 args: job2_args,
                 at: delay.minutes.from_now,
               ),
@@ -1704,7 +1704,21 @@ RSpec.describe Post do
                   note.model.save_custom_fields(true)
                 end
 
-                include_examples "post publication delete"
+                it "creates the right activity" do
+                  perform_delete
+                  expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(true)
+                end
+
+                it "destroys the associated objects" do
+                  perform_delete
+                  expect(DiscourseActivityPubObject.unscoped.exists?(note.id)).to eq(false)
+                  expect(DiscourseActivityPubCollection.unscoped.exists?(topic.activity_pub_object.id)).to eq(false)
+                end
+
+                it "does not destroy associated activities" do
+                  perform_delete
+                  expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+                end
               end
             end
           end
@@ -2095,7 +2109,7 @@ RSpec.describe Post do
                 job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
                 Jobs
                   .expects(:cancel_scheduled_job)
-                  .with(:discourse_activity_pub_deliver, **job_args)
+                  .with(Jobs::DiscourseActivityPub::Deliver, **job_args)
                   .once
                 perform_delete
               end
@@ -2311,7 +2325,21 @@ RSpec.describe Post do
                   note.model.save_custom_fields(true)
                 end
 
-                include_examples "post publication delete"
+                it "creates the right activity" do
+                  perform_delete
+                  expect(post.activity_pub_actor.activities.where(ap_type: "Delete").exists?).to eq(true)
+                end
+
+                it "destroys the associated objects" do
+                  perform_delete
+                  expect(DiscourseActivityPubObject.unscoped.exists?(note.id)).to eq(false)
+                  expect(DiscourseActivityPubCollection.unscoped.exists?(topic.activity_pub_object.id)).to eq(false)
+                end
+
+                it "does not destroy associated activities" do
+                  perform_delete
+                  expect(DiscourseActivityPubActivity.exists?(id: create.id)).to eq(true)
+                end
               end
             end
           end
@@ -2734,7 +2762,7 @@ RSpec.describe Post do
                 job_args = { object_id: create.id, object_type: "DiscourseActivityPubActivity" }
                 Jobs
                   .expects(:cancel_scheduled_job)
-                  .with(:discourse_activity_pub_deliver, **job_args)
+                  .with(Jobs::DiscourseActivityPub::Deliver, **job_args)
                   .once
                 perform_delete
               end

@@ -19,6 +19,11 @@ en:
             label: Save Actor
             success: Saved
             failed: Not Saved
+          delete:
+            title: Delete ActivityPub actor
+            label: Delete Actor
+            failed: Not Deleted
+            confirm: Are you sure you want to delete %{actor}?
           edit:
             title: Edit ActivityPub actor
             label: Edit Actor

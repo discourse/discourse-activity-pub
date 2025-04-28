@@ -129,7 +129,7 @@ en:
     user:
       error:
         failed_to_create: "Failed to create user for %{actor_id}: %{message}"
-      deleted: "User destroyed by ActivityPub Delete Activity: %{activity_id}"
+      deleted: "User destroyed by ActivityPub Delete Activity: %{username}"
 
     object:
       note:

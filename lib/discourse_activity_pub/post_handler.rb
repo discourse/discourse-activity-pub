@@ -21,10 +21,10 @@ module DiscourseActivityPub
       end
 
       if category_id
-        category = Category.find_by(id: category_id)
+        category = ::Category.find_by(id: category_id)
         return nil unless can_create_topic?(category)
       end
-      tag = Tag.find_by(id: tag_id) if tag_id
+      tag = ::Tag.find_by(id: tag_id) if tag_id
 
       new_topic = !object.reply_to_id && !topic_id && (category || tag)
       reply_to = object.in_reply_to_post
@@ -66,7 +66,7 @@ module DiscourseActivityPub
 
       ActiveRecord::Base.transaction(requires_new: true) do
         begin
-          post_creator = PostCreator.new(user, params)
+          post_creator = ::PostCreator.new(user, params)
           post = post_creator.create!
         rescue PG::UniqueViolation,
                ActiveRecord::RecordNotUnique,
@@ -126,6 +126,16 @@ module DiscourseActivityPub
         topic_id: topic_id,
         reply_to_post_number: reply_to_post_number,
       )
+    end
+
+    def self.delete_post(post, destroy: false)
+      ::PostDestroyer.new(::Discourse.system_user, post, force_destroy: destroy).destroy
+    end
+
+    def self.delete_users_posts(user, destroy: false)
+      user.posts.find_each do |post|
+        delete_post(post, destroy: destroy)
+      end
     end
 
     def self.ensure_activity_has_post(activity)
