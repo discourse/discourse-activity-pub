@@ -27,9 +27,7 @@ de:
             label: Kategorien
           tag:
             label: Schlagwörter
-          model_type:
-            category: Kategorie
-            tag: Schlagwort
+            filter: schlagwörter filtern
         log:
           label: Protokolle
           title: Protokolle

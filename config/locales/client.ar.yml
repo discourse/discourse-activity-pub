@@ -25,9 +25,7 @@ ar:
             label: الفئات
           tag:
             label: الوسوم
-          model_type:
-            category: الفئة
-            tag: الوسم
+            filter: تصفية الوسوم
         log:
           label: السجلات
           title: السجلات

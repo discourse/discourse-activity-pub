@@ -25,9 +25,7 @@ fa_IR:
             label: دسته‌بندی‌ها
           tag:
             label: برچسب‌ها
-          model_type:
-            category: دسته‌بندی
-            tag: برچسب
+            filter: فیلتر کردن برچسب‌ها
         log:
           label: گزارش‌ها
           title: گزارش‌ها

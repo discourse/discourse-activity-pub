@@ -29,9 +29,7 @@ fi:
             label: Luokat
           tag:
             label: Tunnisteet
-          model_type:
-            category: Kategoria
-            tag: Tunniste
+            filter: suodata tunnisteita
         log:
           label: Lokit
           title: Lokit

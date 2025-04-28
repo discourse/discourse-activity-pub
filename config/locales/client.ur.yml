@@ -23,9 +23,6 @@ ur:
             label: اقسام
           tag:
             label: ٹیگز
-          model_type:
-            category: زمرہ
-            tag: ٹیگ
         log:
           label: لاگز
           title: لاگز

@@ -25,9 +25,7 @@ hu:
             label: Kategóriák
           tag:
             label: Címkék
-          model_type:
-            category: Kategória
-            tag: Címke
+            filter: címkék szűrése
         log:
           label: Naplók
           title: Naplók

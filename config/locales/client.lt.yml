@@ -25,9 +25,6 @@ lt:
             label: Kategorijos
           tag:
             label: Žymos
-          model_type:
-            category: Kategorija
-            tag: Žymėti
         log:
           label: Įrašai
           title: Įrašai

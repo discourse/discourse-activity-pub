@@ -24,8 +24,7 @@ id:
             label: Kategori
           tag:
             label: Label
-          model_type:
-            category: Kategori
+            filter: filter tag
         log:
           label: Log
           title: Log

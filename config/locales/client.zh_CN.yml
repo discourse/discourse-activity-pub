@@ -33,9 +33,7 @@ zh_CN:
             label: 类别
           tag:
             label: 标签
-          model_type:
-            category: 类别
-            tag: 标签
+            filter: 筛选标签
         log:
           label: 日志
           title: 日志

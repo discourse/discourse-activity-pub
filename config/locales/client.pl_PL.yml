@@ -25,9 +25,7 @@ pl_PL:
             label: Kategorie
           tag:
             label: Tagi
-          model_type:
-            category: Kategoria
-            tag: Tag
+            filter: filtruj tagi
         log:
           label: Logi
           title: Logi

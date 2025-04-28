@@ -25,8 +25,6 @@ ca:
             label: Categories
           tag:
             label: Etiquetes
-          model_type:
-            category: Categoria
         log:
           label: Registres
           title: Registres

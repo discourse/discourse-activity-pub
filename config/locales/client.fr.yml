@@ -27,9 +27,7 @@ fr:
             label: Catégories
           tag:
             label: Étiquettes
-          model_type:
-            category: Catégorie
-            tag: Étiquette
+            filter: filtrer les étiquettes
         log:
           label: Journaux
           title: Journaux

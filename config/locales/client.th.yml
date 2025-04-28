@@ -22,8 +22,6 @@ th:
             label: หมวดหมู่
           tag:
             label: ป้าย
-          model_type:
-            category: หมวดหมู่
         log:
           created_at: ถูกสร้างเมื่อ
           message: ข้อความ

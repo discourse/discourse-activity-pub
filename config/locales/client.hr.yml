@@ -25,9 +25,6 @@ hr:
             label: Kategorije
           tag:
             label: Oznake
-          model_type:
-            category: Kategorija
-            tag: Označiti
         log:
           label: Zapisi
           title: Zapisi

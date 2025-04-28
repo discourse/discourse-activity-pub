@@ -25,9 +25,7 @@ ru:
             label: Категории
           tag:
             label: Теги
-          model_type:
-            category: Категория
-            tag: Тег
+            filter: фильтрация тегов
         log:
           label: Журнал событий
           title: Журнал событий
