@@ -7,26 +7,54 @@
 de:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse Activity Pub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Kategorie ActivityPub Actor hinzufügen
+              label: Kategorie Actor hinzufügen
           save:
+            title: ActivityPub Actor speichern
+            label: Actor speichern
             success: Gespeichert
+            failed: Nicht gespeichert
+          edit:
+            title: ActivityPub Actor bearbeiten
+            label: Actor bearbeiten
           enabled:
+            title: ActivityPub Actor aktiviert
             label: Aktiviert
           disabled:
+            title: ActivityPub Actor deaktiviert
             label: Deaktiviert
           site_setting:
             title: Website-Einstellungen
+            activity_pub_enabled:
+              label: Plug-in ist aktiviert
+              title: Das ActivityPub-Plug-in wird durch die Website-Einstellung „activity pub enabled“ aktiviert.
+            login_required:
+              label: Anmeldung ist erforderlich
+              title: Gemäß der Website-Einstellung „login required“ ist eine Anmeldung erforderlich.
           username: Benutzername
+          username_description: "%{min_length} bis %{max_length} Buchstaben, Zahlen, Bindestriche oder Unterstriche."
           name: Name
           default_visibility: Sichtbarkeit
           table:
+            actor: Actor
+            model: Modell
             auth_type: Art
             actions: Aktionen
           category:
             label: Kategorien
+            title: Kategorie Actor
+            none: Wähle eine Kategorie
           tag:
             label: Schlagwörter
+            none: Wähle ein Schlagwort
             filter: schlagwörter filtern
         log:
           label: Protokolle
@@ -35,23 +63,42 @@ de:
           level: Stufe
           message: Nachricht
           json:
+            label: JSON
+            show:
+              label: JSON
             copy:
               label: Kopieren
               success: Kopiert!
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Föderation
+          title: Entdecke die ActivityPub-Föderation dieser Community
+        title: Föderation
+        description: Diese Kategorien und Schlagwörter unterstützen die ActivityPub-Föderation. Wenn du Mastodon oder andere ActivityPub-Plattformen nutzt, kannst du ihnen folgen, um ihre Themen und Beiträge in deinem Feed zu sehen.
         categories: Kategorien
         tags: Schlagwörter
       status:
         label:
           active: Aktiv
+      discovery:
+        label: Föderation
+        description: Föderation für %{model_name}
+      banner:
+        text: Folge %{model_name} auf jedem Dienst, der Föderation unterstützt
+        responsive_text: Föderiert
       follow:
         domain:
+          label: Mastodon
           placeholder: domain
+      actor_follow:
+        find:
+          description: "z.B. @announcements@meta.discourse.org"
       actor_reject:
         label: Ablehnen
       follow_table:
+        actor: Actor
         user: Benutzer
         follow_pending: ausstehend
         actions: Aktionen
@@ -61,14 +108,24 @@ de:
       object_type:
         label:
           note: Hinweis
+      publication_type:
+        label:
+          first_post: Erster Beitrag
+          full_topic: Ganzes Thema
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actor: Actor
         auth_type: Art
         actions: Aktionen
         authorize:
           auth_type:
+            mastodon:
+              title: Mastodon
+              placeholder: z. B. mastodon.social
             discourse:
               title: Discourse
+              placeholder: z. B. meta.discourse.org
         authorize_button:
           label: Genehmigen
         remove_authorization_button:

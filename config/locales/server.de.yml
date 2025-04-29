@@ -30,13 +30,42 @@ de:
           attributes:
             model_type:
               invalid: "ist nicht gültig"
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub ist nicht aktiviert"
     process:
       warning:
+        invalid_create_actor: "Der Actor kann keine Beiträge erstellen"
         post_is_deleted: "Beitrag gelöscht"
+        actor_does_not_accept_new_topics: "Actor akzeptiert keine neuen Themen."
     category:
       error:
         category_not_found: "Kategorie nicht gefunden"
     topic:
       error:
         topic_not_found: "Thema nicht gefunden"
+    bulk:
+      process:
+        info:
+          created_actors:
+            one: "%{count} Actor erstellt."
+            other: "%{count} Actor erstellt."
+          updated_actors:
+            one: "%{count} Actor aktualisiert."
+            other: "%{count} Actor aktualisiert."
+      publish:
+        warning:
+          actor_not_found: "Actor nicht gefunden"
+          actor_not_ready: "Actor ist nicht bereit"
+          actor_model_not_supported: "Modell des Actors wird nicht unterstützt"
+        info:
+          created_actors:
+            one: "%{count} Actor erstellt."
+            other: "%{count} Actor erstellt."
+          updated_actors:
+            one: "%{count} Actor aktualisiert."
+            other: "%{count} Actor aktualisiert."
+  site_settings:
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Anzahl der POST-Anfragen, die pro Minute an den Posteingang eines Actors gesendet werden können."
