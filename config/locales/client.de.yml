@@ -17,6 +17,9 @@ de:
             category:
               title: Kategorie ActivityPub Actor hinzufügen
               label: Kategorie Actor hinzufügen
+            tag:
+              title: Schlagwort ActivityPub Actor hinzufügen
+              label: Schlagwort Actor hinzufügen
           save:
             title: ActivityPub Actor speichern
             label: Actor speichern
@@ -36,13 +39,16 @@ de:
             activity_pub_enabled:
               label: Plug-in ist aktiviert
               title: Das ActivityPub-Plug-in wird durch die Website-Einstellung „activity pub enabled“ aktiviert.
+              description: Eingehende Aktivitäten, die an aktivierte Actor gerichtet sind, werden verarbeitet.
             login_required:
               label: Anmeldung ist erforderlich
               title: Gemäß der Website-Einstellung „login required“ ist eine Anmeldung erforderlich.
+              description: Nur ausgehende Follow-Anfragen und die Attribute aktivierter Actor werden veröffentlicht.
           username: Benutzername
           username_description: "%{min_length} bis %{max_length} Buchstaben, Zahlen, Bindestriche oder Unterstriche."
           name: Name
           default_visibility: Sichtbarkeit
+          default_visibility_description: Alle Beiträge werden mit dieser Sichtbarkeit über ActivityPub veröffentlicht.
           table:
             actor: Actor
             model: Modell
@@ -54,6 +60,7 @@ de:
             none: Wähle eine Kategorie
           tag:
             label: Schlagwörter
+            title: Schlagwort Actor
             none: Wähle ein Schlagwort
             filter: schlagwörter filtern
         log:
@@ -64,10 +71,13 @@ de:
           message: Nachricht
           json:
             label: JSON
+            title: Aktivitäts-JSON
             show:
               label: JSON
+              title: Aktivitäts-JSON anzeigen
             copy:
               label: Kopieren
+              title: Kopiere das JSON in die Zwischenablage.
               success: Kopiert!
   js:
     discourse_activity_pub:
@@ -79,39 +89,170 @@ de:
         description: Diese Kategorien und Schlagwörter unterstützen die ActivityPub-Föderation. Wenn du Mastodon oder andere ActivityPub-Plattformen nutzt, kannst du ihnen folgen, um ihre Themen und Beiträge in deinem Feed zu sehen.
         categories: Kategorien
         tags: Schlagwörter
+        actor:
+          follower_count:
+            one: "%{count} Follower"
+            other: "%{count} Follower"
       status:
+        title:
+          publishing_disabled: Die Veröffentlichung über ActivityPub ist durch die Website-Einstellung „login required“ deaktiviert. Eingehende Aktivitäten und ausgehende Folgebeziehungen sind aktiviert.
+          plugin_disabled: Das ActivityPub-Plug-in ist deaktiviert
+          category_read_restricted: ActivityPub funktioniert nicht mit privaten Kategorien
+          model_disabled: ActivityPub ist für diesen %{model_type} deaktiviert
+          model_not_ready: ActivityPub ist für diesen %{model_type} nicht bereit
+          model_not_active: ActivityPub ist für diesen %{model_type} nicht aktiv
+          model_active:
+            first_post: Der erste Beitrag eines neuen Themas wird %{delay_minutes} Minuten nach der Veröffentlichung im Forum veröffentlicht
         label:
           active: Aktiv
+          not_active: Nicht aktiv
+          publishing_disabled: Veröffentlichung deaktiviert
       discovery:
         label: Föderation
         description: Föderation für %{model_name}
+        followers: Follower
+        follows: Folgebeziehungen
       banner:
         text: Folge %{model_name} auf jedem Dienst, der Föderation unterstützt
         responsive_text: Föderiert
+        public_full_topic: Jeder Beitrag aus jedem Thema wird öffentlich über ActivityPub veröffentlicht.
+        public_first_post: Der erste Beitrag aus jedem Thema wird öffentlich über ActivityPub veröffentlicht.
+        followers_only_full_topic: Jeder Beitrag aus jedem Thema wird nur für ActivityPub-Follower veröffentlicht.
+        followers_only_first_post: Der erste Beitrag aus jedem Thema wird nur für ActivityPub-Follower veröffentlicht.
+      handle:
+        label: Auf anderen ActivityPub-Diensten
+        description: Benutze diesen Handle, um diese Kategorie zu finden und ihr zu folgen.
       follow:
+        label: Folgen
+        title: Folge %{actor} über ActivityPub
         domain:
           label: Mastodon
           placeholder: domain
+          btn_label: Folgen
+          btn_title: Folge auf dieser Mastodon-Domain
+          description: Domain deines Mastodon-Kontos
+          verifying: Domain wird überprüft ...
+          invalid: keine gültige Mastodon-Domain
       actor_follow:
+        label: Neue Folgebeziehung
+        title: Neue Folgebeziehung für %{actor} über ActivityPub
         find:
+          label: Finde einen Actor, dem du folgen kannst
+          btn_label: Finden
+          btn_title: Finde den Handle
           description: "z.B. @announcements@meta.discourse.org"
+          validating: Handle wird validiert …
+          invalid: kein gültiger Handle
+          finding: Finde Actor ...
+          not_found: '"%{handle}" konnte nicht gefunden werden'
+        follow:
+          label: Folgen
+          title: 'Erstelle eine Folgebeziehung zu „%{follow_actor}“ für %{actor}'
+        following:
+          label: Gefolgt
+          title: '%{actor} folgt %{follow_actor}'
+        follow_requested:
+          label: Folgen angefragt
+          title: '%{actor} hat angefragt, %{follow_actor} zu folgen'
+      actor_unfollow:
+        label: Nicht mehr folgen
+        title: Beende Folgebeziehung für %{actor} über ActivityPub
+        modal_title: Bestätige das Beenden der Folgebeziehung
+        confirm: Möchtest du wirklich, dass %{actor} %{followed_actor} nicht mehr folgt?
       actor_reject:
         label: Ablehnen
+        title: Ablehnen des Folgens von %{actor} über ActivityPub
+        modal_title: Bestätige die Ablehnung der Folgebeziehung
+        confirm: Möchtest du wirklich ablehnen, dass %{follower} %{actor} folgt?
       follow_table:
         actor: Actor
         user: Benutzer
+        followed_at: Gefolgt
         follow_pending: ausstehend
         actions: Aktionen
       visibility:
         label:
+          private: Nur für Follower
           public: Öffentlich
+        description:
+          private: "%{object_type} richtet sich an Follower."
       object_type:
         label:
           note: Hinweis
+          collection: Collection
+          ordered_collection: Ordered Collection
       publication_type:
         label:
           first_post: Erster Beitrag
           full_topic: Ganzes Thema
+      copy_uri:
+        copied: URI kopiert!
+    post:
+      discourse_activity_pub:
+        info:
+          label: "Beitragsinformationen"
+          group_actors: "Gruppen-Actor"
+          attributes: Beitragsattribute
+          status: Beitragsstatus
+        status:
+          published: "Der Beitrag wurde am %{datetime} über ActivityPub veröffentlicht."
+          scheduled: "Die Veröffentlichung des Beitrags über ActivityPub ist für %{datetime} geplant."
+          scheduled_past: "Die Veröffentlichung des Beitrags über ActivityPub war für %{datetime} geplant."
+          deleted: "Der Beitrag wurde am %{datetime} über ActivityPub gelöscht."
+          updated: "Der Beitrag wurde am %{datetime} über ActivityPub aktualisiert."
+          published_remote: "Der Beitrag wurde von %{actor} am %{datetime} über ActivityPub veröffentlicht."
+          not_published: "Der Beitrag wurde nicht über ActivityPub veröffentlicht."
+          delivered: "Der Beitrag wurde am %{datetime} über ActivityPub zugestellt."
+        info_status:
+          published: "Der Beitrag wurde am %{datetime} veröffentlicht."
+          scheduled: "Die Veröffentlichung des Beitrags ist für %{datetime} geplant."
+          scheduled_past: "Die Veröffentlichung des Beitrags war für %{datetime} geplant."
+          deleted: "Der Beitrag wurde am %{datetime} gelöscht."
+          updated: "Der Beitrag wurde am %{datetime} aktualisiert."
+          published_remote: "Der Beitrag wurde am %{datetime} veröffentlicht."
+          not_published: "Der Beitrag ist nicht veröffentlicht."
+          delivered: "Der Beitrag wurde am %{datetime} zugestellt."
+        actions:
+          publish:
+            label: "Beitrag #%{post_number} veröffentlichen"
+            description:
+              followers: "Veröffentliche Beitrag #%{post_number} und stelle ihn den Followern der Gruppen-Actor zu."
+              no_followers: "Veröffentliche Beitrag #%{post_number} ohne ihn zuzustellen, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
+          deliver:
+            description:
+              followers: "Stelle Beitrag #%{post_number} an die Follower der Gruppen-Actor zu."
+              no_followers: "Die Zustellung für Beitrag #%{post_number} ist deaktiviert, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
+              delivered: "Beitrag #%{post_number} wurde gerade den Followern der Gruppen-Actor zugestellt."
+          schedule:
+            description:
+              followers: "Veröffentliche Beitrag #%{post_number} und stelle ihn in %{minutes} Minuten den Followern der Gruppen-Actor zu."
+              no_followers: "Für Beitrag #%{post_number} ist keine Planung aktiv, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
+    topic:
+      discourse_activity_pub:
+        info:
+          label: Themeninfo
+          group_actors: "Gruppen-Actor"
+        status:
+          scheduled: Die Veröffentlichung des Themas über ActivityPub ist für %{datetime} geplant.
+          scheduled_past: Die Veröffentlichung des Themas über ActivityPub war für %{datetime} geplant.
+          published: Das Thema wurde am %{datetime} über ActivityPub veröffentlicht.
+          published_remote: Das Thema wurde von %{actor} am %{datetime} über ActivityPub veröffentlicht.
+          deleted: Das Thema wurde am %{datetime} über ActivityPub gelöscht.
+          not_published: Das Thema wurde nicht über ActivityPub veröffentlicht.
+        info_status:
+          scheduled: "Die Veröffentlichung desThemas ist für %{datetime} geplant."
+          scheduled_past: "Die Veröffentlichung des Themas war für %{datetime} geplant."
+          published: "Das Thema wurde am %{datetime} veröffentlicht."
+          published_remote: "Das Thema wurde am %{datetime} veröffentlicht."
+          deleted: "Das Thema wurde am %{datetime} gelöscht."
+          not_published: "Das Thema ist nicht veröffentlicht."
+        actors:
+          label: Themen Actor
+        publish:
+          label: Alle Beiträge veröffentlichen
+          description:
+            unpublished: "Veröffentliche %{count} unveröffentlichte Beiträge im Thema #%{topic_id}. Diese werden nicht an die Follower der Gruppen-Actor übermittelt."
+            published: "„Alle Beiträge veröffentlichen“ ist deaktiviert. Alle Beiträge im Thema #%{topic_id} sind bereits veröffentlicht."
     user:
       discourse_activity_pub:
         title: ActivityPub
@@ -120,6 +261,8 @@ de:
         actions: Aktionen
         authorize:
           auth_type:
+            none:
+              placeholder: "gib eine Domain ein"
             mastodon:
               title: Mastodon
               placeholder: z. B. mastodon.social
