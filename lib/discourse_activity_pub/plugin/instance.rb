@@ -7,7 +7,7 @@ module DiscourseActivityPub
           activity,
           action,
           priority,
-        ) { |activity, opts = {}| block.call(activity, opts) }
+        ) { |_activity, opts = {}| block.call(_activity, opts) }
       end
     end
   end

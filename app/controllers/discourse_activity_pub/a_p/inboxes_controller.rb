@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::ActorsController
+  requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
   before_action :validate_json
   before_action :ensure_verified_signature, if: :require_signed_requests?
 

@@ -42,6 +42,7 @@ RSpec.describe Category do
 
   describe "#activity_pub_delete!" do
     let!(:category_actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
+    let!(:note1) { Fabricate(:discourse_activity_pub_object_note, attributed_to: category_actor) }
     let!(:follower1) { Fabricate(:discourse_activity_pub_actor_person) }
     let!(:follow1) do
       Fabricate(:discourse_activity_pub_follow, follower: follower1, followed: category_actor)
@@ -66,12 +67,19 @@ RSpec.describe Category do
       )
       category.activity_pub_delete!
     end
+
+    context "when category is not destroyed" do
+      it "tombstones associated objects" do
+        category.activity_pub_delete!
+        expect(category_actor.reload.tombstoned?).to eq(true)
+        expect(note1.reload.tombstoned?).to eq(true)
+      end
+    end
   end
 
   describe "destroy!" do
     let!(:category_actor) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
     let!(:note1) { Fabricate(:discourse_activity_pub_object_note, attributed_to: category_actor) }
-    let!(:note2) { Fabricate(:discourse_activity_pub_object_note, attributed_to: category_actor) }
 
     before { toggle_activity_pub(category) }
 
@@ -79,7 +87,6 @@ RSpec.describe Category do
       category.destroy!
       expect(DiscourseActivityPubActor.exists?(category_actor.id)).to eq(false)
       expect(DiscourseActivityPubObject.exists?(note1.id)).to eq(false)
-      expect(DiscourseActivityPubObject.exists?(note2.id)).to eq(false)
     end
 
     it "calls activity_pub_delete!" do

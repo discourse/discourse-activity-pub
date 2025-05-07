@@ -7,7 +7,7 @@ module Admin::DiscourseActivityPub
     include DiscourseActivityPub::EnabledVerification
 
     before_action :ensure_site_enabled
-    before_action :find_actor, only: %i[show update destroy enable disable]
+    before_action :find_actor, only: %i[show update delete enable disable]
     before_action :find_model, only: [:create]
     before_action :validate_actor_params, only: %i[create update]
 
@@ -75,8 +75,8 @@ module Admin::DiscourseActivityPub
       update_or_create
     end
 
-    def destroy
-      if @actor.model.activity_pub_delete!
+    def delete
+      if @actor.tombstoned? ? @actor.destroy! : @actor.model.activity_pub_delete!
         render json: success_json
       else
         render json: failed_json
@@ -130,7 +130,7 @@ module Admin::DiscourseActivityPub
 
     def find_actor
       @actor =
-        DiscourseActivityPubActor.find_by(
+        DiscourseActivityPubActor.unscoped.find_by(
           id: params[:actor_id],
           model_type: DiscourseActivityPubActor::GROUP_MODELS,
         )

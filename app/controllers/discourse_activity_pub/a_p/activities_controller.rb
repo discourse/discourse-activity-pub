@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::ActivitiesController < DiscourseActivityPub::AP::ObjectsController
+  requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
   before_action :ensure_activity_exists
   before_action :ensure_object_exists
   before_action :ensure_can_access_activity

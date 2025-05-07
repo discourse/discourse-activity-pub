@@ -71,10 +71,11 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
       context "when it is tombstoned" do
         before { actor.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type) }
 
-        it "returns an actor not found error" do
+        it "returns the actor" do
           get "/admin/plugins/ap/actor/#{actor.id}.json"
-          expect(response.status).to eq(404)
-          expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["id"]).to eq(actor.id)
+          expect(response.parsed_body["ap_type"]).to eq("Tombstone")
         end
       end
     end
@@ -341,7 +342,7 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
     end
   end
 
-  describe "#destroy" do
+  describe "#delete" do
     before do
       Jobs.run_immediately!
       freeze_time
@@ -356,7 +357,7 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
       end
     end
 
-    context "with a group actor" do
+    context "with a supported actor" do
       let!(:category) { Fabricate(:category) }
       let!(:group_actor) do
         Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true)
@@ -378,22 +379,46 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
         )
       end
 
-      it "deletes the actor" do
-        delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
-        expect(response.status).to eq(200)
-        expect(DiscourseActivityPubActor.unscoped.exists?(group_actor.id)).to eq(false)
+      context "when not tombstoned" do
+        it "tombstones the actor" do
+          delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+          expect(response.status).to eq(200)
+          expect(DiscourseActivityPubActor.unscoped.find(group_actor.id).ap_type).to eq("Tombstone")
+        end
+
+        it "destroys objects attributed to the actor" do
+          delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+          expect(response.status).to eq(200)
+          expect(DiscourseActivityPubObject.unscoped.find(group_note.id).ap_type).to eq("Tombstone")
+        end
+
+        it "does not tombstone objects announced by the actor" do
+          delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+          expect(response.status).to eq(200)
+          expect(person_note.reload.ap_type).to eq("Note")
+        end
       end
 
-      it "deletes objects attributed to the actor" do
-        delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
-        expect(response.status).to eq(200)
-        expect(DiscourseActivityPubObject.unscoped.exists?(group_note.id)).to eq(false)
-      end
+      context "when tombstoned" do
+        before { group_actor.update(ap_type: "Tombstone") }
 
-      it "does not delete objects announced by the actor" do
-        delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
-        expect(response.status).to eq(200)
-        expect(person_note.reload.ap_type).to eq("Note")
+        it "destroys the actor" do
+          delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+          expect(response.status).to eq(200)
+          expect(DiscourseActivityPubActor.unscoped.exists?(group_actor.id)).to eq(false)
+        end
+
+        it "destroys objects attributed to the actor" do
+          delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+          expect(response.status).to eq(200)
+          expect(DiscourseActivityPubObject.unscoped.exists?(group_note.id)).to eq(false)
+        end
+
+        it "does not destroy objects announced by the actor" do
+          delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
+          expect(response.status).to eq(200)
+          expect(person_note.reload.ap_type).to eq("Note")
+        end
       end
     end
   end

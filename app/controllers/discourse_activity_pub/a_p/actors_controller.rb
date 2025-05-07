@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::ObjectsController
+  requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
   before_action :ensure_actor_exists
   before_action :ensure_can_access_actor
   before_action :ensure_can_access_actor_model

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DiscourseActivityPub::AP::CollectionsController < DiscourseActivityPub::AP::ObjectsController
+  requires_plugin DiscourseActivityPub::PLUGIN_NAME
+
   before_action :ensure_collection_exists
   before_action :ensure_can_access_collection
 
