@@ -12,9 +12,9 @@ module DiscourseActivityPub
         )
       end
 
-      def restore_from_tombstone!
+      def restore_tombstoned!
         self.update(
-          ap_type: self.model.activity_pub_default_object_type,
+          ap_type: self.ap_former_type || self.model.activity_pub_default_object_type,
           ap_former_type: nil,
           deleted_at: nil,
         )

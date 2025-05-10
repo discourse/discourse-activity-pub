@@ -49,10 +49,10 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
       context "when an actor is tombstoned" do
         before { actor2.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type) }
 
-        it "does not return the actor" do
+        it "returns the actor" do
           get "/admin/plugins/ap/actor.json?model_type=category"
           expect(response.status).to eq(200)
-          expect(response.parsed_body["actors"].size).to eq(1)
+          expect(response.parsed_body["actors"].size).to eq(2)
         end
       end
     end
@@ -418,6 +418,66 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
           delete "/admin/plugins/ap/actor/#{group_actor.id}.json"
           expect(response.status).to eq(200)
           expect(person_note.reload.ap_type).to eq("Note")
+        end
+      end
+    end
+  end
+
+  describe "#restore" do
+    context "when the actor cant be found" do
+      it "returns a 404" do
+        post "/admin/plugins/ap/actor/30/restore.json"
+        expect(response.status).to eq(404)
+        expect(response.parsed_body["errors"]).to include(actor_error("actor_not_found"))
+      end
+    end
+
+    context "with a supported actor" do
+      let!(:category) { Fabricate(:category) }
+      let!(:group_actor) do
+        Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true)
+      end
+      let!(:group_note) do
+        Fabricate(:discourse_activity_pub_object_note, attributed_to: group_actor)
+      end
+      let!(:topic) { Fabricate(:topic, category: category) }
+      let!(:post1) { Fabricate(:post, topic: topic) }
+      let!(:person_actor) { Fabricate(:discourse_activity_pub_actor_person) }
+      let!(:person_note) do
+        Fabricate(:discourse_activity_pub_object_note, attributed_to: person_actor, model: post1)
+      end
+      let!(:person_note_announce) do
+        Fabricate(
+          :discourse_activity_pub_activity_announce,
+          object: person_note,
+          actor: group_actor,
+        )
+      end
+
+      context "when not tombstoned" do
+        it "returns a 400" do
+          post "/admin/plugins/ap/actor/#{group_actor.id}/restore.json"
+          expect(response.status).to eq(400)
+          expect(response.parsed_body["errors"]).to include(actor_error("actor_cant_be_restored"))
+        end
+      end
+
+      context "when tombstoned" do
+        before do
+          group_actor.update(ap_type: "Tombstone", ap_former_type: "Group")
+          group_note.update(ap_type: "Tombstone", ap_former_type: "Article")
+        end
+
+        it "restores the actor" do
+          post "/admin/plugins/ap/actor/#{group_actor.id}/restore.json"
+          expect(response.status).to eq(200)
+          expect(DiscourseActivityPubActor.find(group_actor.id).ap_type).to eq("Group")
+        end
+
+        it "restores objects attributed to the actor" do
+          post "/admin/plugins/ap/actor/#{group_actor.id}/restore.json"
+          expect(response.status).to eq(200)
+          expect(DiscourseActivityPubObject.find(group_note.id).ap_type).to eq("Article")
         end
       end
     end

@@ -73,6 +73,11 @@ Discourse::Application.routes.append do
           format: :json,
         }
     delete "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#delete"
+    post "/admin/plugins/ap/actor/:actor_id/restore" =>
+           "admin/discourse_activity_pub/actor#restore",
+         :constraints => {
+           format: :json,
+         }
     post "/admin/plugins/ap/actor/:actor_id/enable" => "admin/discourse_activity_pub/actor#enable"
     post "/admin/plugins/ap/actor/:actor_id/disable" => "admin/discourse_activity_pub/actor#disable"
     get "/admin/plugins/ap/log" => "admin/discourse_activity_pub/log#index"

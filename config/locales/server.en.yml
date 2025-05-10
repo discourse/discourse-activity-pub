@@ -122,6 +122,7 @@ en:
         cant_unschedule_post: "Can't unschedule post"
         not_first_post: "Post is not the first post"
         failed_to_create: "Failed to create post for %{object_id}: %{message}"
+      deleted: "Received a Delete for the %{object_type} associated with the post."
     topic:
       error:
         topic_not_found: "Topic not found"
@@ -150,6 +151,7 @@ en:
         full_topic_must_be_public: "Full topic publication requires public publication."
         user_not_authorized: "User not authorized"
         not_following_actor: "Target actor is not following the actor"
+        actor_cant_be_restored: "Actor cannot be restored"
       warning:
         cant_create_model_for_actor_type: "Cannot create a model for %{actor_type} %{actor_id}"
         cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"

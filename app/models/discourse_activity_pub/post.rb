@@ -218,9 +218,9 @@ module DiscourseActivityPub::Post
     end
 
     if performing_activity&.create? && self.activity_pub_object&.ap&.tombstone?
-      self.activity_pub_object.restore_from_tombstone!
+      self.activity_pub_object.restore_tombstoned!
       if is_first_post? && activity_pub_full_topic
-        self.topic.activity_pub_object&.restore_from_tombstone!
+        self.topic.activity_pub_object&.restore_tombstoned!
       end
     end
   end

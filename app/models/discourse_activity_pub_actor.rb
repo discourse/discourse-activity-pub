@@ -209,6 +209,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     save_model_changes
   end
 
+  def restore!
+    return false if !tombstoned? || !model || model.destroyed?
+    restore_tombstoned_objects!
+    restore_tombstoned!
+  end
+
   def save_model_changes
     if save!
       model.activity_pub_publish_state
@@ -245,6 +251,34 @@ class DiscourseActivityPubActor < ActiveRecord::Base
       actor_ap_id: self.ap_id,
       ap_type: DiscourseActivityPub::AP::Object::Tombstone.type,
       deleted_at: Time.now.utc.iso8601,
+    )
+  end
+
+  def restore_tombstoned_objects!
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_objects
+    SET ap_former_type = null,
+        ap_type = COALESCE(discourse_activity_pub_objects.ap_former_type, :default_ap_type),
+        deleted_at = null
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      default_ap_type: DiscourseActivityPub::AP::Object::Note.type,
+    )
+
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_collections
+    SET ap_former_type = null,
+        ap_type = COALESCE(discourse_activity_pub_collections.ap_former_type, :default_ap_type),
+        deleted_at = null
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      default_ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
     )
   end
 

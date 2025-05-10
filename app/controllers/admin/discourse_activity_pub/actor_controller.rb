@@ -7,7 +7,7 @@ module Admin::DiscourseActivityPub
     include DiscourseActivityPub::EnabledVerification
 
     before_action :ensure_site_enabled
-    before_action :find_actor, only: %i[show update delete enable disable]
+    before_action :find_actor, only: %i[show update delete restore enable disable]
     before_action :find_model, only: [:create]
     before_action :validate_actor_params, only: %i[create update]
 
@@ -21,7 +21,7 @@ module Admin::DiscourseActivityPub
         return render_error("invalid_model", 400)
       end
 
-      actors = DiscourseActivityPubActor.where(model_type: model_type, local: true)
+      actors = DiscourseActivityPubActor.unscoped.where(model_type: model_type, local: true)
 
       actors = actors.joins(:category) if model_type == "Category"
       actors = actors.joins(:tag) if model_type == "Tag"
@@ -78,6 +78,18 @@ module Admin::DiscourseActivityPub
     def delete
       if @actor.tombstoned? ? @actor.destroy! : @actor.model.activity_pub_delete!
         render json: success_json
+      else
+        render json: failed_json
+      end
+    end
+
+    def restore
+      if !@actor.tombstoned? || !@actor.model || @actor.model.destroyed?
+        return render_error("actor_cant_be_restored", 400)
+      end
+
+      if @actor.restore!
+        render json: success_json.merge(actor_ap_type: @actor.reload.ap_type)
       else
         render json: failed_json
       end

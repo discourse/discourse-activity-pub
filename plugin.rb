@@ -559,19 +559,23 @@ after_initialize do
   end
   activity_pub_on(:delete, :perform) do |activity|
     destroy = !!activity.object.cache["delete_object"]
+    stored = activity.object.stored
+    delete_users_posts = stored.is_a?(DiscourseActivityPubActor) && stored.model.is_a?(User)
+    delete_posts = stored.is_a?(DiscourseActivityPubObject) && stored.model.is_a?(Post)
 
-    if activity.object.stored.is_a?(DiscourseActivityPubActor) &&
-         activity.object.stored.model.is_a?(User)
-      DiscourseActivityPub::PostHandler.delete_users_posts(
-        activity.object.stored.model,
-        destroy: destroy,
-      )
-      DiscourseActivityPub::ActorHandler.delete_user(activity.object.stored.model, destroy: destroy)
-    elsif activity.object.stored.is_a?(DiscourseActivityPubObject) &&
-          activity.object.stored.model.is_a?(Post)
-      DiscourseActivityPub::PostHandler.delete_post(activity.object.stored.model, destroy: destroy)
+    if delete_users_posts || delete_posts
+      reason = I18n.t("discourse_activity_pub.post.deleted", object_type: activity.object.type)
+      args = { destroy: destroy, context: "#{DiscourseActivityPub::Logger::PREFIX} #{reason}" }
+      if delete_users_posts
+        user = stored.model
+        DiscourseActivityPub::PostHandler.delete_users_posts(user, **args)
+        DiscourseActivityPub::ActorHandler.delete_user(user, destroy: destroy)
+      elsif delete_posts
+        post = stored.model
+        DiscourseActivityPub::PostHandler.delete_post(post, **args)
+      end
     else
-      activity.object.stored.tombstone!
+      stored.tombstone!
     end
   end
   activity_pub_on(:update, :perform) do |activity|

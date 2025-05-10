@@ -128,12 +128,17 @@ module DiscourseActivityPub
       )
     end
 
-    def self.delete_post(post, destroy: false)
-      ::PostDestroyer.new(::Discourse.system_user, post, force_destroy: destroy).destroy
+    def self.delete_post(post, destroy: false, context: nil)
+      ::PostDestroyer.new(
+        ::Discourse.system_user,
+        post,
+        force_destroy: destroy,
+        context: context,
+      ).destroy
     end
 
-    def self.delete_users_posts(user, destroy: false)
-      user.posts.find_each { |post| delete_post(post, destroy: destroy) }
+    def self.delete_users_posts(user, destroy: false, context: nil)
+      user.posts.find_each { |post| delete_post(post, destroy: destroy, context: context) }
     end
 
     def self.ensure_activity_has_post(activity)
