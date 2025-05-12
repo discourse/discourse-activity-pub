@@ -16,6 +16,7 @@ export const actorClientPath = "/ap/local/actor";
 
 class ActivityPubActor extends EmberObject {
   @equal("id", newActor.id) isNew;
+  @equal("ap_type", "Tombstone") isDeleted;
 
   disable() {
     if (this.isNew) {
@@ -60,6 +61,18 @@ class ActivityPubActor extends EmberObject {
   }
 
   delete() {
+    return ajax(`${actorAdminPath}/${this.id}`, {
+      type: "DELETE",
+    }).catch(popupAjaxError);
+  }
+
+  restore() {
+    return ajax(`${actorAdminPath}/${this.id}/restore`, {
+      type: "POST",
+    }).catch(popupAjaxError);
+  }
+
+  destroy() {
     return ajax(`${actorAdminPath}/${this.id}`, {
       type: "DELETE",
     }).catch(popupAjaxError);

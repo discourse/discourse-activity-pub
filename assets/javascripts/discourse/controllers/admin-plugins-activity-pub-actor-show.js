@@ -1,15 +1,10 @@
 import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
 import { action } from "@ember/object";
-import { equal } from "@ember/object/computed";
 import { service } from "@ember/service";
-import discourseLater from "discourse/lib/later";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
-import {
-  removeSiteActor,
-  updateSiteActor,
-} from "../lib/activity-pub-utilities";
+import { updateSiteActor } from "../lib/activity-pub-utilities";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShow extends Controller {
@@ -22,7 +17,6 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @tracked showForm = false;
   @tracked enabled = this.actor.enabled;
   @tracked loading = false;
-  @tracked saveResponse = null;
   @tracked actor;
 
   modelTypes = [
@@ -36,14 +30,12 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     },
   ];
 
-  @equal("saveResponse", "success") saveSuccess;
-
   get canSave() {
-    return this.showForm;
+    return this.showForm && !this.actor.isDeleted;
   }
 
   get canDelete() {
-    return this.showForm && !this.actor.isNew;
+    return this.showForm && !this.actor.isNew && !this.actor.isDeleted;
   }
 
   get containerClass() {
@@ -56,7 +48,11 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   }
 
   get enabledLabel() {
-    let key = this.enabled ? "enabled" : "disabled";
+    let key = this.actor.isDeleted
+      ? "deleted"
+      : this.enabled
+      ? "enabled"
+      : "disabled";
     return `admin.discourse_activity_pub.actor.${key}.label`;
   }
 
@@ -71,7 +67,6 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     this.actor.save().then((result) => {
       if (result?.success) {
         updateSiteActor(result.actor);
-
         if (this.actor.isNew) {
           this.loading = false;
           return this.router.transitionTo(
@@ -80,13 +75,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
           );
         }
         this.actor = ActivityPubActor.create(result.actor);
-        this.saveResponse = "success";
-      } else {
-        this.saveResponse = "failed";
       }
-      discourseLater(() => {
-        this.saveResponse = null;
-      }, 3000);
       this.loading = false;
     });
   }
@@ -96,21 +85,17 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     this.dialog.yesNoConfirm({
       message: i18n("admin.discourse_activity_pub.actor.delete.confirm", {
         actor: this.actor.handle,
+        model: this.actor.model.name,
       }),
       didConfirm: async () => {
         this.loading = true;
         this.actor.delete().then((result) => {
           if (result?.success) {
-            this.loading = false;
-            removeSiteActor(this.actor);
+            this.actor.set("ap_type", "Tombstone");
+            updateSiteActor(this.actor);
             return this.router.transitionTo("adminPlugins.activityPub.actor");
-          } else {
-            this.loading = false;
-            this.deleteFailed = true;
-            discourseLater(() => {
-              this.deleteFailed = false;
-            }, 3000);
           }
+          this.loading = false;
         });
       },
     });

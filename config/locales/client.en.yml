@@ -17,16 +17,46 @@ en:
           save: 
             title: Save ActivityPub actor
             label: Save Actor
-            success: Saved
-            failed: Not Saved
           delete:
             title: Delete ActivityPub actor
             label: Delete Actor
             failed: Not Deleted
-            confirm: Are you sure you want to delete %{actor}?
+            confirm: |
+              Are you sure you want to delete %{actor}?
+              <ul>
+              <li>%{actor} will not be available to the fediverse.</li>
+              <li>Posts authored by %{actor} will be deleted.</li>
+              <li>Other "%{model}" posts will not be affected.</li>
+              </ul>
+              You can restore deleted actors and posts.
+          restore:
+            title: Restore ActivityPub actor
+            label: Restore
+            confirm:
+              Are you sure you want to restore %{actor}?
+              <ul>
+              <li>%{actor} will be available to the fediverse.</li>
+              <li>Posts authored by %{actor} will not be restored.</li>
+              <li>Other "%{model}" posts will not be affected.</li>
+              </ul>
+              Deleted posts can be restored in the post admin menu.
+          destroy:
+            title: Destroy ActivityPub actor
+            label: Destroy
+            confirm: |
+              Are you sure you want to destroy %{actor}?
+              <ul>
+              <li>%{actor} will be destroyed.</li>
+              <li>Posts authored by %{actor} will be destroyed.</li>
+              <li>Other "%{model}" posts will not be affected.</li>
+              </ul>
+              You cannot restore destroyed actors and posts.
           edit:
             title: Edit ActivityPub actor
-            label: Edit Actor
+            label: Edit
+          deleted:
+            title: ActivityPub actor deleted
+            label: Deleted
           enabled:
             title: ActivityPub actor enabled
             label: Enabled
@@ -57,6 +87,7 @@ en:
             actor: Actor
             model: Model
             auth_type: Type
+            status: Status
             actions: Actions
           category:
             label: Categories
