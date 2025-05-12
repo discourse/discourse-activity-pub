@@ -16,8 +16,6 @@ register_svg_icon "user-check"
 register_svg_icon "circle-arrow-up"
 register_svg_icon "circle-arrow-down"
 
-add_admin_route "admin.discourse_activity_pub.label", "activityPub"
-
 module ::DiscourseActivityPub
   PLUGIN_NAME = "discourse-activity-pub"
 end
@@ -30,7 +28,50 @@ require_relative "validators/activity_pub_signed_requests_validator.rb"
 
 after_initialize do
   ##
-  ## Discourse model integration
+  ## Discourse routes
+  ##
+
+  add_admin_route "admin.discourse_activity_pub.label", "activityPub"
+  Discourse::Application.routes.append do
+    mount ::DiscourseActivityPub::Engine, at: "ap"
+
+    get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+    post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger/handle#validate",
+         :defaults => {
+           format: :json,
+         }
+    get "u/:username/preferences/activity-pub" => "users#preferences",
+        :constraints => {
+          username: RouteFormat.username,
+        }
+
+    scope constraints: AdminConstraint.new do
+      get "/admin/plugins/ap" => "admin/plugins#index"
+      get "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#index"
+      post "/admin/plugins/ap/actor" => "admin/discourse_activity_pub/actor#create",
+           :constraints => {
+             format: :json,
+           }
+      get "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#show"
+      put "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#update",
+          :constraints => {
+            format: :json,
+          }
+      delete "/admin/plugins/ap/actor/:actor_id" => "admin/discourse_activity_pub/actor#delete"
+      post "/admin/plugins/ap/actor/:actor_id/restore" =>
+             "admin/discourse_activity_pub/actor#restore",
+           :constraints => {
+             format: :json,
+           }
+      post "/admin/plugins/ap/actor/:actor_id/enable" => "admin/discourse_activity_pub/actor#enable"
+      post "/admin/plugins/ap/actor/:actor_id/disable" =>
+             "admin/discourse_activity_pub/actor#disable"
+      get "/admin/plugins/ap/log" => "admin/discourse_activity_pub/log#index"
+    end
+  end
+
+  ##
+  ## Discourse models
   ##
 
   %w[Category Tag].each do |model_type|
@@ -144,7 +185,7 @@ after_initialize do
   PostAction.prepend DiscourseActivityPub::PostAction
 
   ##
-  ## Discourse serialization integration
+  ## Discourse serialization
   ##
 
   add_permitted_post_create_param(:activity_pub_visibility)
@@ -428,7 +469,7 @@ after_initialize do
   end
 
   ##
-  ## Discourse authentication integration
+  ## Discourse authentication
   ##
 
   add_user_api_key_scope(:read, methods: :get, actions: "discourse_activity_pub/actor#find_by_user")
