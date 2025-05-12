@@ -71,7 +71,8 @@ module(
       assert.ok(status, "has the right class");
       assert
         .dom(status)
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.publishing_disabled"),
           "has the right title"
         );
@@ -106,7 +107,8 @@ module(
       assert.ok(status, "has the right class");
       assert
         .dom(status)
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.plugin_disabled"),
           "has the right title"
         );
@@ -147,7 +149,8 @@ module(
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "category",
         }),
@@ -191,7 +194,8 @@ module(
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
@@ -226,7 +230,8 @@ module(
 
       const status = query(".activity-pub-actor-status.active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
@@ -269,7 +274,8 @@ module(
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
@@ -339,7 +345,8 @@ module(
       assert.ok(status, "has the right class");
       assert
         .dom(status)
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.publishing_disabled"),
           "has the right title"
         );
@@ -374,7 +381,8 @@ module(
       assert.ok(status, "has the right class");
       assert
         .dom(status)
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.plugin_disabled"),
           "has the right title"
         );
@@ -415,7 +423,8 @@ module(
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "tag",
         }),
@@ -459,7 +468,8 @@ module(
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
@@ -494,7 +504,8 @@ module(
 
       const status = query(".activity-pub-actor-status.active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
@@ -537,7 +548,8 @@ module(
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert.dom(status).hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
