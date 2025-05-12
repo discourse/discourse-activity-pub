@@ -64,7 +64,8 @@ module(
         .hasClass("publishing-disabled", "has the right class");
       assert
         .dom(".activity-pub-actor-status")
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.publishing_disabled"),
           "has the right title"
         );
@@ -93,7 +94,8 @@ module(
         .hasClass("not-active", "has the right class");
       assert
         .dom(status)
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.plugin_disabled"),
           "has the right title"
         );
@@ -128,7 +130,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "category",
         }),
@@ -166,7 +169,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
@@ -195,7 +199,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
@@ -232,7 +237,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
@@ -293,7 +299,8 @@ module(
         .hasClass("publishing-disabled", "has the right class");
       assert
         .dom(".activity-pub-actor-status")
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.publishing_disabled"),
           "has the right title"
         );
@@ -322,7 +329,8 @@ module(
         .hasClass("not-active", "has the right class");
       assert
         .dom(".activity-pub-actor-status")
-        .hasTitle(
+        .hasAttribute(
+          "title",
           i18n("discourse_activity_pub.status.title.plugin_disabled"),
           "has the right title"
         );
@@ -357,7 +365,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "tag",
         }),
@@ -395,7 +404,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
@@ -424,7 +434,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
@@ -461,7 +472,8 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasTitle(
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
