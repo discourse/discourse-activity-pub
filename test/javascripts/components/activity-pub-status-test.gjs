@@ -562,7 +562,10 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+          <ActivityPubActorStatus
+            @model={{self.composer}}
+            @modelType="composer"
+          />
         </template>
       );
 
