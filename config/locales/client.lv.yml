@@ -24,8 +24,6 @@ lv:
             label: Sadaļas
           tag:
             label: Birkas
-          model_type:
-            category: Sadaļa
         log:
           label: Žurnāls
           title: Žurnāls

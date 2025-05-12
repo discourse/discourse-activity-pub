@@ -7,6 +7,8 @@ module DiscourseActivityPub
       include HasErrors
       include Handlers
 
+      ATTACHMENT_TYPES = %w[Image Document]
+
       attr_writer :json
       attr_writer :attributed_to
       attr_writer :context
@@ -54,8 +56,16 @@ module DiscourseActivityPub
         self.type == Tombstone.type
       end
 
+      def attachment?
+        ATTACHMENT_TYPES.include?(type)
+      end
+
       def url
-        stored.respond_to?(:url) && stored&.url
+        if stored
+          stored.respond_to?(:url) && stored&.url
+        elsif json.present?
+          Link.new(json[:url])
+        end
       end
 
       def audience
@@ -99,7 +109,11 @@ module DiscourseActivityPub
       end
 
       def name
-        stored.respond_to?(:name) && stored&.name
+        if stored.present?
+          stored.respond_to?(:name) && stored&.name
+        elsif json.present?
+          json[:name]
+        end
       end
 
       def context
@@ -112,6 +126,17 @@ module DiscourseActivityPub
 
       def delivered_to
         @delivered_to ||= []
+      end
+
+      def attachment
+        if stored.respond_to?(:attachment)
+          @attachment ||= (stored.attachment || []).map { |a| a.ap }
+        elsif json.present? && json[:attachment].present?
+          json[:attachment].each_with_object([]) do |attachment_json, result|
+            obj = AP::Object.factory(attachment_json)
+            result << obj if obj.present?
+          end
+        end
       end
 
       def cache

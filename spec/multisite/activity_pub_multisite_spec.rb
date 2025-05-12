@@ -21,6 +21,10 @@ RSpec.describe "ActivityPub Multisite", type: :multisite do
       stub_object_request(read_integration_json("case_2", "actor_2"))
       stub_object_request(read_integration_json("case_2", "actor_3"))
       stub_object_request(read_integration_json("case_2", "context_1"))
+      stub_request(
+        :get,
+        "https://community.nodebb.org/assets/uploads/files/1738535378096-1000007220.jpg",
+      ).to_return(status: 200)
 
       6.times do |index|
         process_json(read_integration_json("case_2", "received_#{index + 1}"), actor)

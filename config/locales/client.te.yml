@@ -25,9 +25,7 @@ te:
             label: వర్గాలు
           tag:
             label: ట్యాగులు
-          model_type:
-            category: వర్గం
-            tag: ట్యాగ్
+            filter: ఫిల్టర్ ట్యాగ్‌లు
         log:
           label: లాగులు
           title: లాగులు

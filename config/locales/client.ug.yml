@@ -25,9 +25,7 @@ ug:
             label: سەھىپە
           tag:
             label: بەلگە
-          model_type:
-            category: سەھىپە
-            tag: بەلگە
+            filter: بەلگە سۈزگۈچ
         log:
           label: خاتىرە
           title: خاتىرە

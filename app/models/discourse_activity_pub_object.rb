@@ -7,12 +7,21 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
   belongs_to :collection, class_name: "DiscourseActivityPubCollection", foreign_key: "collection_id"
+  belongs_to :reply_to,
+             class_name: "DiscourseActivityPubObject",
+             primary_key: "ap_id",
+             foreign_key: "reply_to_id"
+  belongs_to :attributed_to,
+             class_name: "DiscourseActivityPubActor",
+             primary_key: "ap_id",
+             foreign_key: "attributed_to_id"
 
-  has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
   has_one :create_activity,
           -> { where(ap_type: DiscourseActivityPub::AP::Activity::Create.type) },
           class_name: "DiscourseActivityPubActivity",
           foreign_key: "object_id"
+
+  has_many :activities, class_name: "DiscourseActivityPubActivity", foreign_key: "object_id"
   has_many :announcements,
            class_name: "DiscourseActivityPubActivity",
            through: :activities,
@@ -21,20 +30,11 @@ class DiscourseActivityPubObject < ActiveRecord::Base
            -> { likes },
            class_name: "DiscourseActivityPubActivity",
            foreign_key: "object_id"
-
-  belongs_to :reply_to,
-             class_name: "DiscourseActivityPubObject",
-             primary_key: "ap_id",
-             foreign_key: "reply_to_id"
   has_many :replies,
            class_name: "DiscourseActivityPubObject",
            primary_key: "ap_id",
            foreign_key: "reply_to_id"
-
-  belongs_to :attributed_to,
-             class_name: "DiscourseActivityPubActor",
-             primary_key: "ap_id",
-             foreign_key: "attributed_to_id"
+  has_many :attachments, class_name: "DiscourseActivityPubAttachment", foreign_key: "object_id"
 
   def url
     if local?
@@ -157,6 +157,10 @@ class DiscourseActivityPubObject < ActiveRecord::Base
     else
       super
     end
+  end
+
+  def attachment
+    self.attachments
   end
 
   def likes_collection

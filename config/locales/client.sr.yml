@@ -24,8 +24,6 @@ sr:
             label: Kategorije
           tag:
             label: Tagovi
-          model_type:
-            category: Kategorija
         log:
           label: Logovi
           title: Logovi

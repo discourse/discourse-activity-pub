@@ -335,6 +335,29 @@ RSpec.describe Jobs::DiscourseActivityPub::Deliver do
           end
         end
       end
+
+      context "when object has attachments" do
+        let!(:topic) { Fabricate(:topic, category: group.model) }
+        let!(:post) { Fabricate(:post, topic: topic) }
+        let!(:note) { Fabricate(:discourse_activity_pub_object_note, local: true, model: post) }
+        let!(:attachment1) { Fabricate(:discourse_activity_pub_attachment, object: note) }
+        let!(:attachment2) { Fabricate(:discourse_activity_pub_attachment, object: note) }
+        let!(:activity) do
+          Fabricate(:discourse_activity_pub_activity_create, object: note, actor: group)
+        end
+
+        it "publishes the attachments" do
+          json = published_json(activity)
+          expect(json[:object][:attachment].size).to eq(2)
+          expect(json[:object][:attachment].first[:url]).to eq(attachment1.url)
+          expect(json[:object][:attachment].second[:url]).to eq(attachment2.url)
+        end
+
+        it "performs the right request" do
+          expect_request(body: published_json(activity), actor_id: group.id, uri: person.inbox)
+          execute_job(object_id: activity.id, from_actor_id: activity.actor.id)
+        end
+      end
     end
   end
 end

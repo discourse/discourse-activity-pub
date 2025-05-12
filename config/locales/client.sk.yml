@@ -27,9 +27,7 @@ sk:
             label: Kategórie
           tag:
             label: Značky
-          model_type:
-            category: Kategória
-            tag: Značka
+            filter: značky filtra
         log:
           label: Logy
           title: Logy

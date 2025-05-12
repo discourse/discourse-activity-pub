@@ -373,6 +373,20 @@ module DiscourseActivityPub::Post
     end
   end
 
+  def activity_pub_attachments
+    uploads
+      .where(extension: FileHelper.supported_images)
+      .map do |upload|
+        DiscourseActivityPub::AP::Object::Image.new(
+          json: {
+            name: upload.original_filename,
+            url: UrlHelper.absolute(upload.url),
+            mediaType: MiniMime.lookup_by_extension(upload.extension).content_type,
+          },
+        )
+      end
+  end
+
   def cache_activity_pub_after_destroy
     @activity_pub_enabled = self.activity_pub_enabled
     @activity_pub_actor = self.activity_pub_actor

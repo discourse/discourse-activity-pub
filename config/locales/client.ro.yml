@@ -26,9 +26,6 @@ ro:
             label: Categorii
           tag:
             label: Etichete
-          model_type:
-            category: Categorie
-            tag: Etichetă
         log:
           label: Jurnale
           title: Jurnale

@@ -25,9 +25,7 @@ zh_TW:
             label: 分類
           tag:
             label: 標記
-          model_type:
-            category: 分類
-            tag: 標記
+            filter: 篩選標籤
         log:
           label: 紀錄
           title: 紀錄

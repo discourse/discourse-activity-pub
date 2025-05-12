@@ -778,6 +778,32 @@ after_initialize do
                     object_id: object.json[:id],
                   )
           end
+
+          if object.json[:attachment].present?
+            object.json[:attachment].each do |json|
+              attachment = DiscourseActivityPub::AP::Object.factory(json)
+              if attachment
+                # Some platforms (e.g. Mastodon) put attachment url media types on the attachment itself,
+                # instead of on a Link object in the url attribute. Technically this violates the specification,
+                # but we need to support it nevertheless. See further https://www.w3.org/TR/activitystreams-vocabulary/#dfn-mediatype
+                media_type = attachment.url.media_type || attachment.media_type
+                name = attachment.url.name || attachment.name
+
+                begin
+                  DiscourseActivityPubAttachment.create(
+                    object_id: object.stored.id,
+                    object_type: "DiscourseActivityPubObject",
+                    ap_type: attachment.type,
+                    url: attachment.url.href,
+                    name: name,
+                    media_type: media_type,
+                  )
+                rescue ActiveRecord::RecordInvalid => error
+                  # fail silently if an attachment does not validate
+                end
+              end
+            end
+          end
         end
       end
     end

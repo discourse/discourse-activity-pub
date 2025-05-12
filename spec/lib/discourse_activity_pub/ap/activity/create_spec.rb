@@ -426,5 +426,241 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         end
       end
     end
+
+    context "with a Note with attachments" do
+      let!(:delivered_to) { category.activity_pub_actor.ap_id }
+      let!(:follow) do
+        Fabricate(
+          :discourse_activity_pub_follow,
+          follower: category.activity_pub_actor,
+          followed: actor,
+        )
+      end
+
+      before { stub_object_request(actor) }
+
+      context "with supported attachment types" do
+        let!(:attachment_url_1) { "https://example.com/files/cats.png" }
+        let!(:attachment_url_2) { "https://example.com/files/dogs.jpeg" }
+        let!(:attachment_url_3) { "https://example.com/files/autodesk-dog.3ds" }
+        let!(:attachment_name_1) { "A cool cat" }
+        let!(:attachments_with_supported_mediatypes) do
+          [
+            {
+              type: "Document",
+              mediaType: "image/png",
+              url: attachment_url_1,
+              name: attachment_name_1,
+            },
+            { type: "Image", mediaType: "image/jpeg", url: attachment_url_2 },
+          ]
+        end
+        let!(:attachments_with_unsupported_mediatypes) do
+          [
+            {
+              type: "Document",
+              mediaType: "image/png",
+              url: attachment_url_1,
+              name: attachment_name_1,
+            },
+            { type: "Image", mediaType: "image/x-3ds", url: attachment_url_3 },
+          ]
+        end
+        let!(:attachments_with_invalid_mediatypes) do
+          [
+            {
+              type: "Document",
+              mediaType: "image/png",
+              url: attachment_url_1,
+              name: attachment_name_1,
+            },
+            { type: "Image", mediaType: "invalid-type", url: attachment_url_3 },
+          ]
+        end
+        let!(:attachments_with_link_objects) do
+          [
+            {
+              type: "Document",
+              url: {
+                type: "Link",
+                href: attachment_url_1,
+                mediaType: "image/png",
+                name: attachment_name_1,
+              },
+            },
+            { type: "Image", mediaType: "image/jpeg", url: attachment_url_2 },
+          ]
+        end
+
+        context "with supported media types" do
+          let!(:new_post_json) do
+            build_activity_json(
+              actor: actor,
+              object:
+                build_object_json(
+                  name: "My cool topic title",
+                  attributed_to: actor,
+                  attachments: attachments_with_supported_mediatypes,
+                ),
+              type: "Create",
+            )
+          end
+
+          it "creates records for all attachments" do
+            perform_process(new_post_json, delivered_to)
+            object =
+              DiscourseActivityPubObject.find_by(ap_type: "Note", attributed_to_id: actor.ap_id)
+            expect(object.attachments.size).to eq(2)
+            expect(object.attachments.first.ap_type).to eq("Document")
+            expect(object.attachments.first.url).to eq(attachment_url_1)
+            expect(object.attachments.first.media_type).to eq("image/png")
+            expect(object.attachments.second.ap_type).to eq("Image")
+            expect(object.attachments.second.url).to eq(attachment_url_2)
+            expect(object.attachments.second.media_type).to eq("image/jpeg")
+          end
+
+          it "adds the attachment urls the post" do
+            perform_process(new_post_json, delivered_to)
+            post =
+              Post.find_by(
+                raw:
+                  "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>\n<img src=\"#{attachment_url_2}\" alt=\"\"/>",
+              )
+            expect(post.present?).to be(true)
+          end
+        end
+
+        context "with supported and unsupported media types" do
+          let!(:new_post_json) do
+            build_activity_json(
+              actor: actor,
+              object:
+                build_object_json(
+                  name: "My cool topic title",
+                  attributed_to: actor,
+                  attachments: attachments_with_unsupported_mediatypes,
+                ),
+              type: "Create",
+            )
+          end
+
+          it "creates records for all attachments" do
+            perform_process(new_post_json, delivered_to)
+            object =
+              DiscourseActivityPubObject.find_by(ap_type: "Note", attributed_to_id: actor.ap_id)
+            expect(object.attachments.size).to eq(2)
+            expect(object.attachments.first.ap_type).to eq("Document")
+            expect(object.attachments.first.url).to eq(attachment_url_1)
+            expect(object.attachments.first.media_type).to eq("image/png")
+            expect(object.attachments.second.ap_type).to eq("Image")
+            expect(object.attachments.second.url).to eq(attachment_url_3)
+            expect(object.attachments.second.media_type).to eq("image/x-3ds")
+          end
+
+          it "adds urls for attachments with supported media types to the post" do
+            perform_process(new_post_json, delivered_to)
+            post =
+              Post.find_by(
+                raw:
+                  "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>",
+              )
+            expect(post.present?).to be(true)
+          end
+        end
+
+        context "with supported and invalid media types" do
+          let!(:new_post_json) do
+            build_activity_json(
+              actor: actor,
+              object:
+                build_object_json(
+                  name: "My cool topic title",
+                  attributed_to: actor,
+                  attachments: attachments_with_invalid_mediatypes,
+                ),
+              type: "Create",
+            )
+          end
+
+          it "creates records for attachments with valid media types" do
+            perform_process(new_post_json, delivered_to)
+            object =
+              DiscourseActivityPubObject.find_by(ap_type: "Note", attributed_to_id: actor.ap_id)
+            expect(object.attachments.size).to eq(1)
+            expect(object.attachments.first.ap_type).to eq("Document")
+            expect(object.attachments.first.url).to eq(attachment_url_1)
+            expect(object.attachments.first.media_type).to eq("image/png")
+          end
+
+          it "adds urls for attachments with supported media types to the post" do
+            perform_process(new_post_json, delivered_to)
+            post =
+              Post.find_by(
+                raw:
+                  "#{new_post_json[:object][:content]}\n<img src=\"#{attachment_url_1}\" alt=\"#{attachment_name_1}\"/>",
+              )
+            expect(post.present?).to be(true)
+          end
+        end
+
+        context "with Link objects" do
+          let!(:new_post_json) do
+            build_activity_json(
+              actor: actor,
+              object:
+                build_object_json(
+                  name: "My cool topic title",
+                  attributed_to: actor,
+                  attachments: attachments_with_link_objects,
+                ),
+              type: "Create",
+            )
+          end
+
+          it "creates records for all attachments" do
+            perform_process(new_post_json, delivered_to)
+            object =
+              DiscourseActivityPubObject.find_by(ap_type: "Note", attributed_to_id: actor.ap_id)
+            expect(object.attachments.size).to eq(2)
+            expect(object.attachments.first.ap_type).to eq("Document")
+            expect(object.attachments.first.url).to eq(attachment_url_1)
+            expect(object.attachments.first.media_type).to eq("image/png")
+            expect(object.attachments.second.ap_type).to eq("Image")
+            expect(object.attachments.second.url).to eq(attachment_url_2)
+            expect(object.attachments.second.media_type).to eq("image/jpeg")
+          end
+        end
+      end
+
+      context "with unsupported attachment types" do
+        let!(:object_with_unsupported_attachment_json) do
+          build_object_json(
+            name: "My cool topic title",
+            attributed_to: actor,
+            attachments: [
+              { type: "PropertyValue", name: "Homepage", value: "https://myhomepage.com" },
+            ],
+          )
+        end
+        let!(:new_post_json) do
+          build_activity_json(
+            actor: actor,
+            object: object_with_unsupported_attachment_json,
+            type: "Create",
+          )
+        end
+
+        it "does not create attachments" do
+          expect { perform_process(new_post_json, delivered_to) }.not_to change {
+            DiscourseActivityPubAttachment.count
+          }
+        end
+
+        it "does not add anything to the post" do
+          perform_process(new_post_json, delivered_to)
+          expect(Post.exists?(raw: new_post_json[:object][:content])).to be(true)
+        end
+      end
+    end
   end
 end

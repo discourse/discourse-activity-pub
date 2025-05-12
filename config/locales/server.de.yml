@@ -30,13 +30,162 @@ de:
           attributes:
             model_type:
               invalid: "ist nicht gültig"
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub ist nicht aktiviert"
+    request:
+      error:
+        json_not_valid: "Ungültiges JSON-LD"
+        not_found: "Kein Objekt gefunden"
+        not_available: "ActivityPub ist für dieses Modell nicht verfügbar"
+        bad_request: "Ungültige Anfrage"
+        not_authorized: "Nicht autorisiert"
+        forbidden: "Verboten"
+        not_signed: "Anfrage nicht signiert"
+        missing_signature_params: "Inkompatible Anfragesignatur. Schlüssel-ID und Signatur sind erforderlich"
+        unsupported_signature_algorithm: "Nicht unterstützter Signaturalgorithmus (nur rsa-sha256 und hs2019 werden unterstützt)"
+        stale_request: "Datum der Anfrage außerhalb des akzeptablen Zeitfensters"
+        invalid_signature_key: "Ungültiger Signaturschlüssel"
+        signature_parse_failed: "Fehler beim Parsen der Signatur"
     process:
       warning:
+        cant_create_actor: "Actor konnte nicht erstellt werden"
+        cant_find_object: "Objekt konnte nicht gefunden werden"
+        invalid_create_actor: "Der Actor kann keine Beiträge erstellen"
         post_is_deleted: "Beitrag gelöscht"
+        actor_does_not_accept_new_topics: "Actor akzeptiert keine neuen Themen."
+        only_followed_actors_create_new_topics: "Nur Actor, denen gefolgt wird, können neue Themen erstellen."
+        actor_already_following: "Der Actor folgt diesem Objekt bereits"
+        invalid_collection_item: "Ungültiges Element"
+        cant_resolve_collection: "Collection kann nicht aufgelöst werden"
+      error:
+        failed_to_respond_to_follow: "Antworten auf Folgebeziehung fehlgeschlagen: %{activity_id}"
+        failed_to_save_object: "Fehler beim Speichern des Objekts: %{object_id}"
+        failed_to_save_collection: "Fehler beim Speichern der Collection: %{collection_id}"
+      info:
+        shared_inbox: "gemeinsame Inbox"
     category:
       error:
         category_not_found: "Kategorie nicht gefunden"
+    post:
+      error:
+        post_not_found: "Beitrag nicht gefunden"
+        cant_publish_post: "Beitrag kann nicht veröffentlicht werden"
+        not_first_post: "Beitrag ist nicht der erste Beitrag"
     topic:
       error:
         topic_not_found: "Thema nicht gefunden"
+        cant_publish_topic: "Thema kann nicht veröffentlicht werden"
+    object:
+      note:
+        link_to_forum: Diskutiere dies in unserem Forum.
+    actor:
+      followers:
+        summary: "Follower von %{actor}"
+      outbox:
+        summary: "Aktivitäten von %{actor}"
+      error:
+        actor_not_found: "Actor nicht gefunden"
+        invalid_model: "Ungültiges Modell"
+        model_not_found: "Modell nicht gefunden"
+        target_actor_not_found: "Ziel-Actor nicht gefunden"
+        not_following_target_actor: "Der Actor folgt dem Ziel-Actor nicht"
+        cant_follow_target_actor: "Der Actor kann dem Ziel-Actor nicht folgen"
+        not_following_actor: "Der Ziel-Actor folgt dem Actor nicht"
+      warning:
+        invalid_username: "Der Benutzername muss %{min_length} bis %{max_length} Buchstaben, Zahlen, Bindestriche oder Unterstriche enthalten."
+        username_taken: "Dieser Benutzername ist auf diesem Server bereits vergeben."
+    auth:
+      error:
+        invalid_domain: "Ungültige ActivityPub-Domain"
+        invalid_redirect_params: "Ungültige Umleitungsparameter"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} konnte die Outbox von %{target_actor} nicht verarbeiten"
+          actors_not_ready: "Actor sind nicht bereit"
+          not_following_target: "%{actor} folgt nicht %{target_actor}"
+          outbox_response_invalid: "Outbox von %{target_actor} hat eine ungültige Antwort zurückgegeben"
+        info:
+          started: "%{actor} hat mit der Verarbeitung der Aktivitäten von %{target_actor} begonnen."
+          finished: "%{actor} hat die Verarbeitung der Aktivitäten von %{target_actor} abgeschlossen."
+          created_actors:
+            one: "%{count} Actor erstellt."
+            other: "%{count} Actor erstellt."
+          updated_actors:
+            one: "%{count} Actor aktualisiert."
+            other: "%{count} Actor aktualisiert."
+          created_objects:
+            one: "%{count} Objekt erstellt."
+            other: "%{count} Objekte erstellt."
+          updated_objects:
+            one: "%{count} Objekt aktualisiert."
+            other: "%{count} Objekte aktualisiert."
+          created_collections:
+            one: "%{count} Collection erstellt."
+            other: "%{count} Collections erstellt."
+          updated_collections:
+            one: "%{count} Collection aktualisiert."
+            other: "%{count} Collections aktualisiert."
+          created_activities:
+            one: "%{count} Aktivität erstellt."
+            other: "%{count} Aktivitäten erstellt."
+          updated_activities:
+            one: "%{count} Aktivität aktualisiert."
+            other: "%{count} Aktivitäten aktualisiert."
+          created_users:
+            one: "%{count} Benutzer erstellt."
+            other: "%{count} Benutzer erstellt."
+          updated_users:
+            one: "%{count} Benutzer aktualisiert."
+            other: "%{count} Benutzer aktualisiert."
+          created_topics:
+            one: "%{count} Thema erstellt."
+            other: "%{count} Themen erstellt."
+          updated_topics:
+            one: "%{count} Thema aktualisiert."
+            other: "%{count} Themen aktualisiert."
+          created_replies:
+            one: "%{count} Antwort erstellt."
+            other: "%{count} Antworten erstellt."
+          updated_replies:
+            one: "%{count} Antwort aktualisiert."
+            other: "%{count} Antworten aktualisiert."
+      publish:
+        warning:
+          publish_did_not_start: "Massenveröffentlichung der Aktivitäten von %{target} fehlgeschlagen"
+          actor_not_found: "Actor nicht gefunden"
+          actor_not_ready: "Actor ist nicht bereit"
+          actor_model_not_supported: "Modell des Actors wird nicht unterstützt"
+        info:
+          started: "Mit der Veröffentlichung der Aktivitäten von %{target} begonnen."
+          finished: "Veröffentlichung der Aktivitäten von %{target} abgeschlossen."
+          created_actors:
+            one: "%{count} Actor erstellt."
+            other: "%{count} Actor erstellt."
+          updated_actors:
+            one: "%{count} Actor aktualisiert."
+            other: "%{count} Actor aktualisiert."
+          created_objects:
+            one: "%{count} Objekt erstellt."
+            other: "%{count} Objekte erstellt."
+          updated_objects:
+            one: "%{count} Objekt aktualisiert."
+            other: "%{count} Objekte aktualisiert."
+          created_collections:
+            one: "%{count} Collection erstellt."
+            other: "%{count} Collections erstellt."
+          updated_collections:
+            one: "%{count} Collection aktualisiert."
+            other: "%{count} Collections aktualisiert."
+          created_activities:
+            one: "%{count} Aktivität erstellt."
+            other: "%{count} Aktivitäten erstellt."
+          updated_activities:
+            one: "%{count} Aktivität aktualisiert."
+            other: "%{count} Aktivitäten aktualisiert."
+  site_settings:
+    activity_pub_enabled: "Aktiviere das ActivityPub-Plug-in."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Anzahl der POST-Anfragen, die pro Minute an die Inbox eines Actors gesendet werden können."

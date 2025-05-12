@@ -25,9 +25,6 @@ ko:
             label: 카테고리
           tag:
             label: 태그
-          model_type:
-            category: 카테고리
-            tag: 태그
         log:
           label: 로그
           title: 로그

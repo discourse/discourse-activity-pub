@@ -25,9 +25,7 @@ sv:
             label: Kategorier
           tag:
             label: Taggar
-          model_type:
-            category: Kategori
-            tag: Tagg
+            filter: filtrera taggar
         log:
           label: Loggar
           title: Loggar

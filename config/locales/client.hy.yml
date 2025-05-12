@@ -23,8 +23,6 @@ hy:
             label: Կատեգորիաներ
           tag:
             label: Պիտակներ
-          model_type:
-            category: Կատեգորիա
         log:
           label: Գրառումներ
           title: Գրառումներ

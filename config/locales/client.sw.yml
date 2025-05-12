@@ -25,8 +25,6 @@ sw:
             label: Kategoria
           tag:
             label: Lebo
-          model_type:
-            category: Kategoria
         log:
           label: Batli
           title: Batli

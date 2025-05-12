@@ -22,8 +22,6 @@ be:
             label: катэгорыі
           tag:
             label: тэгі
-          model_type:
-            category: катэгорыя
         log:
           label: Логі
           title: Логі

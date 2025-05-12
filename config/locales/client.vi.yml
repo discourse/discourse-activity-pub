@@ -23,8 +23,6 @@ vi:
             label: Danh mục
           tag:
             label: Thẻ
-          model_type:
-            category: Danh mục
         log:
           label: Log
           title: Log
