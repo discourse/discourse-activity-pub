@@ -2,17 +2,13 @@ import { click, currentURL, triggerEvent, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import Category from "discourse/models/category";
 import Site from "discourse/models/site";
-import {
-  acceptance,
-  exists,
-  query,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { i18n } from "discourse-i18n";
-import { default as Actors } from "../fixtures/actors-fixtures";
-import { default as Followers } from "../fixtures/followers-fixtures";
-import { default as Follows } from "../fixtures/follows-fixtures";
-import { default as SiteActors } from "../fixtures/site-actors-fixtures";
+import Actors from "../fixtures/actors-fixtures";
+import Followers from "../fixtures/followers-fixtures";
+import Follows from "../fixtures/follows-fixtures";
+import SiteActors from "../fixtures/site-actors-fixtures";
 
 const actorPath = `/ap/local/actor/2`;
 const followsPath = `${actorPath}/follows`;
@@ -31,10 +27,9 @@ acceptance(
     test("with a non-category route", async function (assert) {
       await visit("/latest");
 
-      assert.notOk(
-        exists(".activity-pub-discovery"),
-        "the discovery button is not visible"
-      );
+      assert
+        .dom(".activity-pub-discovery")
+        .doesNotExist("the discovery button is not visible");
     });
 
     test("with a category route without category enabled", async function (assert) {
@@ -42,10 +37,9 @@ acceptance(
 
       await visit(category.url);
 
-      assert.notOk(
-        exists(".activity-pub-category-nav.visible"),
-        "the activitypub nav button is not visible"
-      );
+      assert
+        .dom(".activity-pub-category-nav.visible")
+        .doesNotExist("the ActivityPub nav button is not visible");
     });
 
     test("with a category route with category enabled", async function (assert) {
@@ -54,10 +48,9 @@ acceptance(
 
       await visit(category.url);
 
-      assert.notOk(
-        exists(".activity-pub-category-nav.visible"),
-        "the activitypub nav button is not visible"
-      );
+      assert
+        .dom(".activity-pub-category-nav.visible")
+        .doesNotExist("the ActivityPub nav button is not visible");
     });
   }
 );
@@ -111,10 +104,9 @@ acceptance(
 
       await visit("/latest");
 
-      assert.notOk(
-        exists(".activity-pub-category-nav.visible"),
-        "the activitypub nav button is not visible"
-      );
+      assert
+        .dom(".activity-pub-category-nav.visible")
+        .doesNotExist("the ActivityPub nav button is not visible");
     });
 
     test("with a category without an activity pub actor", async function (assert) {
@@ -124,10 +116,9 @@ acceptance(
 
       await visit(category.url);
 
-      assert.notOk(
-        exists(".activity-pub-category-nav.visible"),
-        "the activitypub nav button is not visible"
-      );
+      assert
+        .dom(".activity-pub-category-nav.visible")
+        .doesNotExist("the ActivityPub nav button is not visible");
     });
 
     test("with a category with an activity pub actor", async function (assert) {
@@ -137,19 +128,16 @@ acceptance(
 
       await visit(category.url);
 
-      assert.ok(
-        exists(".activity-pub-route-nav.visible"),
-        "the activitypub nav button is visible"
-      );
+      assert
+        .dom(".activity-pub-route-nav.visible")
+        .exists("the ActivityPub nav button is visible");
 
       await click(".activity-pub-route-nav");
 
-      assert.ok(
-        exists(".activity-pub-banner"),
-        "the activitypub category banner is visible"
-      );
-      assert.strictEqual(
-        query(".activity-pub-banner-text .desktop").textContent.trim(),
+      assert
+        .dom(".activity-pub-banner")
+        .exists("the ActivityPub category banner is visible");
+      assert.dom(".activity-pub-banner-text .desktop").hasText(
         i18n("discourse_activity_pub.banner.text", {
           model_name: "Cat 2",
         }),
@@ -157,11 +145,12 @@ acceptance(
       );
 
       await triggerEvent(".fk-d-tooltip__trigger", "pointermove");
-      assert.equal(
-        query(".fk-d-tooltip__inner-content").textContent.trim(),
-        i18n("discourse_activity_pub.banner.public_first_post"),
-        "shows the right category banner tip"
-      );
+      assert
+        .dom(".fk-d-tooltip__inner-content")
+        .hasText(
+          i18n("discourse_activity_pub.banner.public_first_post"),
+          "shows the right category banner tip"
+        );
     });
 
     test("when routing from a category with an actor to one without", async function (assert) {
@@ -170,19 +159,17 @@ acceptance(
 
       await visit(category.url);
 
-      assert.ok(
-        exists(".activity-pub-route-nav.visible"),
-        "the activitypub nav button is visible"
-      );
+      assert
+        .dom(".activity-pub-route-nav.visible")
+        .exists("the ActivityPub nav button is visible");
 
       const categoryDrop = selectKit(".category-drop");
       await categoryDrop.expand();
       await categoryDrop.selectRowByValue(7);
 
-      assert.notOk(
-        exists(".activity-pub-route-nav.visible"),
-        "the activitypub nav button is not visible"
-      );
+      assert
+        .dom(".activity-pub-route-nav.visible")
+        .doesNotExist("the ActivityPub nav button is not visible");
     });
 
     test("when routing from a tag with an actor to one without", async function (assert) {
@@ -193,19 +180,17 @@ acceptance(
 
       await visit("/tag/monkey");
 
-      assert.ok(
-        exists(".activity-pub-route-nav.visible"),
-        "the activitypub nav button is visible"
-      );
+      assert
+        .dom(".activity-pub-route-nav.visible")
+        .exists("the ActivityPub nav button is visible");
 
       const tagDrop = selectKit(".tag-drop");
       await tagDrop.expand();
       await tagDrop.selectRowByName("dog");
 
-      assert.notOk(
-        exists(".activity-pub-route-nav.visible"),
-        "the activitypub nav button is not visible"
-      );
+      assert
+        .dom(".activity-pub-route-nav.visible")
+        .doesNotExist("the ActivityPub nav button is not visible");
     });
   }
 );
@@ -230,16 +215,15 @@ acceptance(
       await visit(category.url);
       await click(".activity-pub-route-nav");
 
-      assert.notOk(
-        exists(".activity-pub-banner"),
-        "the activitypub banner is not visible"
-      );
+      assert
+        .dom(".activity-pub-banner")
+        .doesNotExist("the ActivityPub banner is not visible");
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub followers route with publishing disabled",
+  "Discourse Activity Pub | Discovery ActivityPub followers route with publishing disabled",
   function (needs) {
     needs.user();
     needs.site({
@@ -261,7 +245,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub followers route without followers",
+  "Discourse Activity Pub | Discovery ActivityPub followers route without followers",
   function (needs) {
     needs.user();
     needs.site({
@@ -279,21 +263,18 @@ acceptance(
     test("with activity pub ready", async function (assert) {
       await visit(followersPath);
 
-      assert.notOk(
-        exists(".activity-pub-follow-table.followers"),
-        "the activitypub followers table is not visible"
-      );
-      assert.equal(
-        query(".activity-pub-followers-container").innerText,
-        i18n("search.no_results"),
-        "no results shown"
-      );
+      assert
+        .dom(".activity-pub-follow-table.followers")
+        .doesNotExist("the ActivityPub followers table is not visible");
+      assert
+        .dom(".activity-pub-followers-container")
+        .hasText(i18n("search.no_results"), "no results shown");
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub followers route with followers",
+  "Discourse Activity Pub | Discovery ActivityPub followers route with followers",
   function (needs) {
     needs.user();
     needs.site({
@@ -311,64 +292,52 @@ acceptance(
     test("with activity pub ready", async function (assert) {
       await visit(followersPath);
 
-      assert.ok(
-        exists(".activity-pub-follow-table.followers"),
-        "the activitypub followers table is visible"
-      );
+      assert
+        .dom(".activity-pub-follow-table.followers")
+        .exists("the ActivityPub followers table is visible");
       assert.strictEqual(
         document.querySelectorAll(".activity-pub-follow-table-row").length,
         2,
         "followers are visible"
       );
-      assert.ok(
-        query(".activity-pub-actor-image img").src.includes(
-          "/images/avatar.png"
-        ),
-        "follower image is visible"
-      );
-      assert.equal(
-        query(".activity-pub-actor-name").innerText,
-        "Angus",
-        "follower name is visible"
-      );
-      assert.equal(
-        query(".activity-pub-actor-handle").innerText,
-        "@angus_ap@test.local",
-        "follower handle is visible"
-      );
-      assert.ok(
-        query(".activity-pub-follow-table-user a.avatar").href.includes(
-          "/u/angus"
-        ),
-        "follower user avatar is visible"
-      );
-      assert.equal(
-        query(".activity-pub-follow-table-followed-at").innerText,
-        "Feb 8, 2013",
-        "follower followed at is visible"
-      );
-      assert.ok(
-        exists(".activity-pub-follow-btn"),
-        "the activitypub follow btn is visible"
-      );
+      assert
+        .dom(".activity-pub-actor-image img")
+        .hasAttribute(
+          "src",
+          /\/images\/avatar\.png/,
+          "follower image is visible"
+        );
+      assert
+        .dom(".activity-pub-actor-name")
+        .hasText("Angus", "follower name is visible");
+      assert
+        .dom(".activity-pub-actor-handle")
+        .hasText("@angus_ap@test.local", "follower handle is visible");
+      assert
+        .dom(".activity-pub-follow-table-user a.avatar")
+        .hasAttribute("href", /\/u\/angus/, "follower user avatar is visible");
+      assert
+        .dom(".activity-pub-follow-table-followed-at")
+        .hasText("Feb 8, 2013", "follower followed at is visible");
+      assert
+        .dom(".activity-pub-follow-btn")
+        .exists("the ActivityPub follow btn is visible");
       await click(".activity-pub-follow-btn");
-      assert.ok(
-        exists(".modal.activity-pub-follow-modal"),
-        "it shows the activitypub follow modal"
-      );
-      assert.equal(
-        query("#discourse-modal-title").innerText,
+      assert
+        .dom(".modal.activity-pub-follow-modal")
+        .exists("shows the ActivityPub follow modal");
+      assert.dom("#discourse-modal-title").hasText(
         i18n("discourse_activity_pub.follow.title", {
           actor: "Cat 2",
         }),
-        "activitypub modal has the right title"
+        "ActivityPub modal has the right title"
       );
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub follows route with no admin actor permission",
+  "Discourse Activity Pub | Discovery ActivityPub follows route with no admin actor permission",
   function (needs) {
     needs.user();
     needs.site({
@@ -388,56 +357,45 @@ acceptance(
     test("with activity pub ready", async function (assert) {
       await visit("/ap/local/actor/1/follows");
 
-      assert.ok(
-        exists(".activity-pub-follow-table.follows"),
-        "the activitypub follows table is visible"
-      );
+      assert
+        .dom(".activity-pub-follow-table.follows")
+        .exists("the ActivityPub follows table is visible");
       assert.strictEqual(
         document.querySelectorAll(".activity-pub-follow-table-row").length,
         2,
         "follows are visible"
       );
-      assert.ok(
-        query(".activity-pub-actor-image img").src.includes(
-          "/images/avatar.png"
-        ),
-        "follower image is visible"
-      );
-      assert.equal(
-        query(".activity-pub-actor-name").innerText,
-        "Angus",
-        "follower name is visible"
-      );
-      assert.equal(
-        query(".activity-pub-actor-handle").innerText,
-        "@angus_ap@test.local",
-        "follow handle is visible"
-      );
-      assert.ok(
-        query(".activity-pub-follow-table-user a.avatar").href.includes(
-          "/u/angus"
-        ),
-        "follow user avatar is visible"
-      );
-      assert.equal(
-        query(".activity-pub-follow-table-followed-at").innerText,
-        "Feb 8, 2013",
-        "follower followed at is visible"
-      );
-      assert.notOk(
-        exists(".activity-pub-actor-follow-btn"),
-        "the activitypub actor follow btn is not visible"
-      );
-      assert.notOk(
-        exists(".activity-pub-actor-unfollow-btn"),
-        "the activitypub actor unfollow btn is not visible"
-      );
+      assert
+        .dom(".activity-pub-actor-image img")
+        .hasAttribute(
+          "src",
+          /\/images\/avatar\.png/,
+          "follower image is visible"
+        );
+      assert
+        .dom(".activity-pub-actor-name")
+        .hasText("Angus", "follower name is visible");
+      assert
+        .dom(".activity-pub-actor-handle")
+        .hasText("@angus_ap@test.local", "follow handle is visible");
+      assert
+        .dom(".activity-pub-follow-table-user a.avatar")
+        .hasAttribute("href", /\/u\/angus/, "follow user avatar is visible");
+      assert
+        .dom(".activity-pub-follow-table-followed-at")
+        .hasText("Feb 8, 2013", "follower followed at is visible");
+      assert
+        .dom(".activity-pub-actor-follow-btn")
+        .doesNotExist("the ActivityPub actor follow btn is not visible");
+      assert
+        .dom(".activity-pub-actor-unfollow-btn")
+        .doesNotExist("the ActivityPub actor unfollow btn is not visible");
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub subcategory follows route with admin actor permission",
+  "Discourse Activity Pub | Discovery ActivityPub subcategory follows route with admin actor permission",
   function (needs) {
     needs.user();
     needs.site({
@@ -457,16 +415,15 @@ acceptance(
     test("with activity pub ready", async function (assert) {
       await visit("/ap/local/actor/3/follows");
 
-      assert.ok(
-        exists(".activity-pub-follows-container"),
-        "the activitypub follows route is visible"
-      );
+      assert
+        .dom(".activity-pub-follows-container")
+        .exists("the ActivityPub follows route is visible");
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub category follows route with admin actor permission with followers",
+  "Discourse Activity Pub | Discovery ActivityPub category follows route with admin actor permission with followers",
   function (needs) {
     needs.user();
     needs.site({
@@ -484,75 +441,60 @@ acceptance(
     test("with activity pub ready", async function (assert) {
       await visit(followsPath);
 
-      assert.ok(
-        exists(".activity-pub-follow-table.follows"),
-        "the activitypub follows table is visible"
-      );
+      assert
+        .dom(".activity-pub-follow-table.follows")
+        .exists("the ActivityPub follows table is visible");
       assert.strictEqual(
         document.querySelectorAll(".activity-pub-follow-table-row").length,
         2,
         "follows are visible"
       );
-      assert.ok(
-        query(".activity-pub-actor-image img").src.includes(
-          "/images/avatar.png"
-        ),
-        "follower image is visible"
-      );
-      assert.equal(
-        query(".activity-pub-actor-name").innerText,
-        "Angus",
-        "follower name is visible"
-      );
-      assert.equal(
-        query(".activity-pub-actor-handle").innerText,
-        "@angus_ap@test.local",
-        "follow handle is visible"
-      );
-      assert.ok(
-        query(".activity-pub-follow-table-user a.avatar").href.includes(
-          "/u/angus"
-        ),
-        "follow user avatar is visible"
-      );
-      assert.equal(
-        query(".activity-pub-follow-table-followed-at").innerText,
-        "Feb 8, 2013",
-        "follower followed at is visible"
-      );
+      assert
+        .dom(".activity-pub-actor-image img")
+        .hasAttribute(
+          "src",
+          /\/images\/avatar\.png/,
+          "follower image is visible"
+        );
+      assert
+        .dom(".activity-pub-actor-name")
+        .hasText("Angus", "follower name is visible");
+      assert
+        .dom(".activity-pub-actor-handle")
+        .hasText("@angus_ap@test.local", "follow handle is visible");
+      assert
+        .dom(".activity-pub-follow-table-user a.avatar")
+        .hasAttribute("href", /\/u\/angus/, "follow user avatar is visible");
+      assert
+        .dom(".activity-pub-follow-table-followed-at")
+        .hasText("Feb 8, 2013", "follower followed at is visible");
 
-      assert.ok(
-        exists(".activity-pub-actor-follow-btn"),
-        "the activitypub actor follow btn is visible"
-      );
+      assert
+        .dom(".activity-pub-actor-follow-btn")
+        .exists("the ActivityPub actor follow btn is visible");
       await click(".activity-pub-actor-follow-btn");
-      assert.ok(
-        exists(".modal.activity-pub-actor-follow-modal"),
-        "it shows the activitypub actor follow modal"
-      );
-      assert.equal(
-        query("#discourse-modal-title").innerText,
+      assert
+        .dom(".modal.activity-pub-actor-follow-modal")
+        .exists("shows the ActivityPub actor follow modal");
+      assert.dom("#discourse-modal-title").hasText(
         i18n("discourse_activity_pub.actor_follow.title", {
           actor: "Cat 2",
         }),
-        "activitypub actor follow modal has the right title"
+        "ActivityPub actor follow modal has the right title"
       );
 
-      assert.ok(
-        exists(".activity-pub-actor-unfollow-btn"),
-        "the activitypub actor unfollow btn is visible"
-      );
+      assert
+        .dom(".activity-pub-actor-unfollow-btn")
+        .exists("the ActivityPub actor unfollow btn is visible");
       await click(".activity-pub-actor-unfollow-btn");
-      assert.ok(
-        exists(".modal.activity-pub-actor-unfollow-modal"),
-        "it shows the activitypub actor unfollow modal"
-      );
-      assert.equal(
-        query("#discourse-modal-title").innerText,
+      assert
+        .dom(".modal.activity-pub-actor-unfollow-modal")
+        .exists("shows the ActivityPub actor unfollow modal");
+      assert.dom("#discourse-modal-title").hasText(
         i18n("discourse_activity_pub.actor_unfollow.modal_title", {
           actor: "Cat 2",
         }),
-        "activitypub actor unfollow modal has the right title"
+        "ActivityPub actor unfollow modal has the right title"
       );
     });
   }
