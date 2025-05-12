@@ -1,5 +1,4 @@
 import { click, fillIn, render } from "@ember/test-helpers";
-import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import sinon from "sinon";
 import DiscourseURL from "discourse/lib/url";
@@ -9,6 +8,7 @@ import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { query } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
+import ActivityPubFollowDomain from "discourse/plugins/repo/discourse/components/activity-pub-follow-domain";
 import { default as Mastodon } from "../fixtures/mastodon-fixtures";
 
 const mastodonAboutPath = "api/v2/instance";
@@ -27,12 +27,16 @@ module(
       this.model = category;
     });
 
-    const template = hbs`<ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />`;
-
     test("with a non domain input", async function (assert) {
+      const self = this;
+
       let domain = "notADomain";
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+        </template>
+      );
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
 
@@ -44,13 +48,19 @@ module(
     });
 
     test("with a non activitypub domain", async function (assert) {
+      const self = this;
+
       let domain = "google.com";
 
       pretender.get(`https://${domain}/${mastodonAboutPath}`, () => {
         return response(404, "not found");
       });
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+        </template>
+      );
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
 
@@ -62,6 +72,8 @@ module(
     });
 
     test("with an activitypub domain", async function (assert) {
+      const self = this;
+
       let domain = "mastodon.social";
 
       pretender.get(`https://${domain}/${mastodonAboutPath}`, () => {
@@ -72,7 +84,11 @@ module(
         .stub(DiscourseURL, "redirectAbsolute")
         .returns(null);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+        </template>
+      );
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
 

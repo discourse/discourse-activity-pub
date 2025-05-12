@@ -1,6 +1,5 @@
 import { getOwner } from "@ember/application";
 import { render } from "@ember/test-helpers";
-import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import Site from "discourse/models/site";
@@ -12,6 +11,7 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
+import ActivityPubActorStatus from "discourse/plugins/repo/discourse/components/activity-pub-actor-status";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
 
 function setSite(context, attrs = {}) {
@@ -48,9 +48,9 @@ module(
   "Discourse Activity Pub | Component | activity-pub-actor-status with category",
   function (hooks) {
     setupRenderingTest(hooks);
-    const template = hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`;
-
     test("with publishing disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
@@ -58,7 +58,14 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.publishing-disabled");
       assert.ok(status, "has the right class");
@@ -75,6 +82,8 @@ module(
     });
 
     test("with plugin disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
@@ -82,7 +91,14 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
@@ -99,6 +115,8 @@ module(
     });
 
     test("with activity pub disabled on category", async function (assert) {
+      const self = this;
+
       const categoryActors = cloneJSON(SiteActors.category);
       setSite(this, {
         activity_pub_enabled: true,
@@ -114,7 +132,14 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
@@ -133,6 +158,8 @@ module(
     });
 
     test("with activity pub not ready on category", async function (assert) {
+      const self = this;
+
       const categoryActors = cloneJSON(SiteActors.category);
       setSite(this, {
         activity_pub_enabled: true,
@@ -149,7 +176,14 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
@@ -168,6 +202,8 @@ module(
     });
 
     test("with active activity pub", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -175,7 +211,14 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.active");
       assert.ok(status, "has the right class");
@@ -194,6 +237,8 @@ module(
     });
 
     test("updates correctly after messageBus message", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -201,7 +246,14 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
       await publishToMessageBus("/activity-pub", {
         model: {
           id: this.category.id,
@@ -228,7 +280,7 @@ module(
     });
 
     test("when in the composer", async function (assert) {
-      const composerTemplate = hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`;
+      const self = this;
 
       setSite(this, {
         activity_pub_enabled: true,
@@ -240,7 +292,14 @@ module(
         categoryId: this.category.id,
       });
 
-      await render(composerTemplate);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.composer}}
+            @modelType="composer"
+          />
+        </template>
+      );
 
       const label = query(".activity-pub-actor-status .label");
       assert.strictEqual(
@@ -256,9 +315,9 @@ module(
   "Discourse Activity Pub | Component | activity-pub-actor-status with tag",
   function (hooks) {
     setupRenderingTest(hooks);
-    const template = hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`;
-
     test("with publishing disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
@@ -266,7 +325,11 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.publishing-disabled");
       assert.ok(status, "has the right class");
@@ -283,6 +346,8 @@ module(
     });
 
     test("with plugin disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
@@ -290,7 +355,14 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
@@ -307,6 +379,8 @@ module(
     });
 
     test("with activity pub disabled on tag", async function (assert) {
+      const self = this;
+
       const tagActors = cloneJSON(SiteActors.tag);
       setSite(this, {
         activity_pub_enabled: true,
@@ -322,7 +396,14 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
@@ -341,6 +422,8 @@ module(
     });
 
     test("with activity pub not ready on tag", async function (assert) {
+      const self = this;
+
       const tagActors = cloneJSON(SiteActors.tag);
       setSite(this, {
         activity_pub_enabled: true,
@@ -357,7 +440,14 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.not-active");
       assert.ok(status, "has the right class");
@@ -376,6 +466,8 @@ module(
     });
 
     test("with active activity pub", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -383,7 +475,14 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
 
       const status = query(".activity-pub-actor-status.active");
       assert.ok(status, "has the right class");
@@ -402,6 +501,8 @@ module(
     });
 
     test("updates correctly after messageBus message", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -409,7 +510,14 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
+      );
       await publishToMessageBus("/activity-pub", {
         model: {
           id: this.tag.id,
@@ -436,7 +544,7 @@ module(
     });
 
     test("when in the composer", async function (assert) {
-      const composerTemplate = hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`;
+      const self = this;
 
       setSite(this, {
         activity_pub_enabled: true,
@@ -448,7 +556,14 @@ module(
         tags: [this.tag.name],
       });
 
-      await render(composerTemplate);
+      await render(
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.composer}}
+            @modelType="composer"
+          />
+        </template>
+      );
 
       const label = query(".activity-pub-actor-status .label");
       assert.strictEqual(

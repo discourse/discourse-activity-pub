@@ -1,18 +1,16 @@
 import { click, fillIn, render, triggerKeyEvent } from "@ember/test-helpers";
-import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import sinon from "sinon";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { exists, query } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
+import ActivityPubAuthorize from "discourse/plugins/repo/discourse/components/activity-pub-authorize";
 
 module(
   "Discourse Activity Pub | Component | activity-pub-authorize",
   function (hooks) {
     setupRenderingTest(hooks);
-
-    const template = hbs`<ActivityPubAuthorize />`;
 
     test("verifies a domain", async function (assert) {
       let domain = "test.com";
@@ -29,7 +27,7 @@ module(
         return response({ success: true });
       });
 
-      await render(template);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -69,7 +67,7 @@ module(
         return response({ success: true });
       });
 
-      await render(template);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -90,7 +88,7 @@ module(
         return response({ success: true });
       });
 
-      await render(template);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -124,7 +122,7 @@ module(
 
       const openStub = sinon.stub(window, "open").returns(null);
 
-      await render(template);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();

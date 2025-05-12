@@ -1,6 +1,10 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import didInsert from "@ember/render-modifiers/modifiers/did-insert";
+import didUpdate from "@ember/render-modifiers/modifiers/did-update";
+import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
+import icon from "discourse/helpers/d-icon";
 import { bind } from "discourse/lib/decorators";
 import getURL from "discourse/lib/get-url";
 import { i18n } from "discourse-i18n";
@@ -110,4 +114,19 @@ export default class ActivityPubNavItem extends Component {
   get active() {
     return this.router.currentRouteName.includes(`activityPub.actor`);
   }
+
+  <template>
+    <a
+      class={{this.classes}}
+      href={{this.href}}
+      title={{this.title}}
+      {{didInsert this.setup}}
+      {{didUpdate this.changeCategory @category}}
+      {{didUpdate this.changeTag @tag}}
+      {{willDestroy this.teardown}}
+    >
+      {{icon "discourse-activity-pub"}}
+      {{i18n "discourse_activity_pub.discovery.label"}}
+    </a>
+  </template>
 }
