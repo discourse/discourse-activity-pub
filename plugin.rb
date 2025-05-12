@@ -32,6 +32,7 @@ after_initialize do
   ##
   ## Discourse model integration
   ##
+
   %w[Category Tag].each do |model_type|
     klass = model_type.constantize
     klass.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
@@ -289,7 +290,7 @@ after_initialize do
   end
 
   ##
-  ## Discourse event integration
+  ## Discourse events
   ##
 
   on(:site_setting_changed) do |name, old_val, new_val|
