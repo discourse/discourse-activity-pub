@@ -17,7 +17,6 @@ export default class ActivityPubNavItem extends Component {
   @service router;
   @service messageBus;
   @service site;
-  @service currentUser;
 
   @tracked visible = false;
   @tracked actor;
