@@ -2,7 +2,6 @@ import { click, render } from "@ember/test-helpers";
 import { module, skip } from "qunit";
 import MountWidget from "discourse/components/mount-widget";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import { exists } from "discourse/tests/helpers/qunit-helpers";
 
 module("Discourse Activity Pub | Component | Widget | post", function (hooks) {
   setupRenderingTest(hooks);
@@ -25,10 +24,9 @@ module("Discourse Activity Pub | Component | Widget | post", function (hooks) {
     );
 
     await click(".post-menu-area .show-post-admin-menu");
-    assert.ok(
-      exists(".post-admin-menu button.change-owner"),
-      "the change owner button is visible"
-    );
+    assert
+      .dom(".post-admin-menu button.change-owner")
+      .exists("the change owner button is visible");
   });
 
   skip("activity pub topic", async function (assert) {
@@ -49,9 +47,8 @@ module("Discourse Activity Pub | Component | Widget | post", function (hooks) {
     );
 
     await click(".post-menu-area .show-post-admin-menu");
-    assert.ok(
-      !exists(".post-admin-menu button.change-owner"),
-      "the change owner button is not visible"
-    );
+    assert
+      .dom(".post-admin-menu button.change-owner")
+      .doesNotExist("the change owner button is not visible");
   });
 });

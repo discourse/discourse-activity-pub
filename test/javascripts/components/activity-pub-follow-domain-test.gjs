@@ -6,10 +6,9 @@ import Category from "discourse/models/category";
 import Site from "discourse/models/site";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
-import { query } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
 import ActivityPubFollowDomain from "discourse/plugins/repo/discourse/components/activity-pub-follow-domain";
-import { default as Mastodon } from "../fixtures/mastodon-fixtures";
+import Mastodon from "../fixtures/mastodon-fixtures";
 
 const mastodonAboutPath = "api/v2/instance";
 
@@ -40,14 +39,15 @@ module(
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
 
-      assert.strictEqual(
-        query(".activity-pub-follow-domain-footer.error").textContent.trim(),
-        i18n("discourse_activity_pub.follow.domain.invalid"),
-        "displays an invalid message"
-      );
+      assert
+        .dom(".activity-pub-follow-domain-footer.error")
+        .hasText(
+          i18n("discourse_activity_pub.follow.domain.invalid"),
+          "displays an invalid message"
+        );
     });
 
-    test("with a non activitypub domain", async function (assert) {
+    test("with a non ActivityPub domain", async function (assert) {
       const self = this;
 
       let domain = "google.com";
@@ -64,14 +64,15 @@ module(
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
 
-      assert.strictEqual(
-        query(".activity-pub-follow-domain-footer.error")?.textContent.trim(),
-        i18n("discourse_activity_pub.follow.domain.invalid"),
-        "displays an invalid message"
-      );
+      assert
+        .dom(".activity-pub-follow-domain-footer.error")
+        .hasText(
+          i18n("discourse_activity_pub.follow.domain.invalid"),
+          "displays an invalid message"
+        );
     });
 
-    test("with an activitypub domain", async function (assert) {
+    test("with an ActivityPub domain", async function (assert) {
       const self = this;
 
       let domain = "mastodon.social";
@@ -97,7 +98,7 @@ module(
       )}`;
       assert.true(
         openStub.calledWith(url),
-        "it loads the mastodon authorize interaction route in a new tab"
+        "loads the mastodon authorize interaction route in a new tab"
       );
     });
   }

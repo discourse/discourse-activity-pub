@@ -6,15 +6,11 @@ import pretender, {
   parsePostData,
   response,
 } from "discourse/tests/helpers/create-pretender";
-import {
-  acceptance,
-  exists,
-  query,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
-import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
-import { default as Logs } from "../fixtures/logs-fixtures";
-import { default as SiteActors } from "../fixtures/site-actors-fixtures";
+import AdminActors from "../fixtures/admin-actors-fixtures";
+import Logs from "../fixtures/logs-fixtures";
+import SiteActors from "../fixtures/site-actors-fixtures";
 
 const categoryActors =
   AdminActors["/admin/plugins/ap/actor?model_type=category"];
@@ -58,24 +54,19 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
     });
 
     await visit("/admin/plugins/ap/actor");
-    assert.ok(
-      exists(".activity-pub-actor-table"),
-      "the actors table is visible"
-    );
-    assert.strictEqual(
-      document.querySelectorAll(".activity-pub-actor-table-row").length,
-      2,
-      "actors are visible"
-    );
-    assert.ok(
-      exists(".activity-pub-actor-edit-btn"),
-      "the actor edit btn is visible"
-    );
+    assert
+      .dom(".activity-pub-actor-table")
+      .exists("the actors table is visible");
+    assert
+      .dom(".activity-pub-actor-table-row")
+      .exists({ count: 2 }, "actors are visible");
+    assert
+      .dom(".activity-pub-actor-edit-btn")
+      .exists("the actor edit btn is visible");
     await click(".activity-pub-actor-edit-btn");
-    assert.ok(
-      exists(".admin-plugins.activity-pub.actor-show"),
-      "it routes to actor show"
-    );
+    assert
+      .dom(".admin-plugins.activity-pub.actor-show")
+      .exists("routes to actor show");
   });
 
   test("actor controls", async function (assert) {
@@ -98,10 +89,9 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
     });
 
     await visit("/admin/plugins/ap/actor");
-    assert.ok(
-      exists(".activity-pub-add-actor.category"),
-      "the add category actor button is visible"
-    );
+    assert
+      .dom(".activity-pub-add-actor.category")
+      .exists("the add category actor button is visible");
     await click(".activity-pub-add-actor");
     assert.strictEqual(
       queryParams.model_type,
@@ -110,10 +100,9 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
     );
 
     await visit("/admin/plugins/ap/actor?model_type=tag");
-    assert.ok(
-      exists(".activity-pub-add-actor.tag"),
-      "the add tag actor button is visible"
-    );
+    assert
+      .dom(".activity-pub-add-actor.tag")
+      .exists("the add tag actor button is visible");
     await click(".activity-pub-add-actor");
     assert.strictEqual(
       queryParams.model_type,
@@ -139,28 +128,24 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
   test("creates a new actor", async function (assert) {
     await visit("/admin/plugins/ap/actor/new");
 
-    assert.ok(
-      exists(".activity-pub-actor-add"),
-      "add actor container is visible"
-    );
-    assert.ok(
-      exists(".activity-pub-new-actor-model"),
-      "actor model controls are visible"
-    );
+    assert
+      .dom(".activity-pub-actor-add")
+      .exists("add actor container is visible");
+    assert
+      .dom(".activity-pub-new-actor-model")
+      .exists("actor model controls are visible");
 
-    assert.ok(
-      exists(".activity-pub-category-chooser"),
-      "activity pub category chooser is visible"
-    );
+    assert
+      .dom(".activity-pub-category-chooser")
+      .exists("activity pub category chooser is visible");
 
     const categories = selectKit(".activity-pub-category-chooser");
     await categories.expand();
     await categories.selectRowByValue(6);
 
-    assert.ok(
-      exists(".activity-pub-actor-form"),
-      "activity pub actor form is visible"
-    );
+    assert
+      .dom(".activity-pub-actor-form")
+      .exists("activity pub actor form is visible");
 
     const actor = {
       username: "ap_username",
@@ -218,23 +203,20 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
   test("creates a new actor with a tag model", async function (assert) {
     await visit("/admin/plugins/ap/actor/new?model_type=tag");
 
-    assert.ok(
-      exists(".activity-pub-actor-add"),
-      "add actor container is visible"
-    );
-    assert.ok(
-      exists(".activity-pub-new-actor-model"),
-      "actor model controls are visible"
-    );
+    assert
+      .dom(".activity-pub-actor-add")
+      .exists("add actor container is visible");
+    assert
+      .dom(".activity-pub-new-actor-model")
+      .exists("actor model controls are visible");
 
     const tags = selectKit(".activity-pub-actor-add .tag-chooser");
     await tags.expand();
     await tags.selectRowByName("dog");
 
-    assert.ok(
-      exists(".activity-pub-actor-form"),
-      "activity pub actor form is visible"
-    );
+    assert
+      .dom(".activity-pub-actor-form")
+      .exists("activity pub actor form is visible");
 
     const actor = {
       username: "ap_dog",
@@ -293,10 +275,9 @@ acceptance("Discourse Activity Pub | Admin | New Actor", function (needs) {
       siteActors.tag.some((a) => a.name === createdActor.name),
       "adds the actor to site actors"
     );
-    assert.ok(
-      query(".activity-pub-actor-status.active"),
-      "actor has the right status"
-    );
+    assert
+      .dom(".activity-pub-actor-status")
+      .hasClass("active", "actor has the right status");
   });
 });
 
@@ -317,16 +298,13 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
   test("edits an actor", async function (assert) {
     await visit(`/admin/plugins/ap/actor/${actor.id}`);
 
-    assert.ok(
-      exists(".activity-pub-actor-edit"),
-      "edit actor container is visible"
-    );
-    assert.ok(exists(".activity-pub-actor-model"), "actor model is visible");
-    assert.strictEqual(
-      query(".activity-pub-handle .handle").innerText.trim(),
-      actor.handle,
-      "shows the right handle"
-    );
+    assert
+      .dom(".activity-pub-actor-edit")
+      .exists("edit actor container is visible");
+    assert.dom(".activity-pub-actor-model").exists("actor model is visible");
+    assert
+      .dom(".activity-pub-handle .handle")
+      .hasText(actor.handle, "shows the right handle");
 
     const updates = {
       name: "Updated name",
@@ -372,31 +350,26 @@ acceptance("Discourse Activity Pub | Admin | Logs", function (needs) {
   test("displays logs", async function (assert) {
     await visit("/admin/plugins/ap/log");
 
-    assert.ok(exists(".activity-pub-log-table"), "log table is visible");
-    assert.strictEqual(
-      document.querySelectorAll(".activity-pub-log-row").length,
-      2,
-      "logs are visible"
-    );
-    assert.ok(
-      exists(
+    assert.dom(".activity-pub-log-table").exists("log table is visible");
+    assert
+      .dom(".activity-pub-log-row")
+      .exists({ count: 2 }, "logs are visible");
+    assert
+      .dom(
         ".activity-pub-log-row:nth-of-type(1) .activity-pub-log-show-json-btn"
-      ),
-      "shows show json button if log has json"
-    );
-    assert.notOk(
-      exists(
+      )
+      .exists("shows show json button if log has json");
+    assert
+      .dom(
         ".activity-pub-log-row:nth-of-type(2) .activity-pub-log-show-json-btn"
-      ),
-      "does not show json button if log does not have json"
-    );
+      )
+      .doesNotExist("does not show json button if log does not have json");
 
     await click(
       ".activity-pub-log-row:nth-of-type(1) .activity-pub-log-show-json-btn"
     );
-    assert.ok(
-      exists(".modal.activity-pub-json-modal"),
-      "it shows the log json modal"
-    );
+    assert
+      .dom(".modal.activity-pub-json-modal")
+      .exists("shows the log json modal");
   });
 });
