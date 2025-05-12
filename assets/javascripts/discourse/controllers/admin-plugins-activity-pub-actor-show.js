@@ -51,8 +51,8 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     let key = this.actor.isDeleted
       ? "deleted"
       : this.enabled
-      ? "enabled"
-      : "disabled";
+        ? "enabled"
+        : "disabled";
     return `admin.discourse_activity_pub.actor.${key}.label`;
   }
 

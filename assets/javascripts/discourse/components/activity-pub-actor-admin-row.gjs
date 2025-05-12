@@ -24,8 +24,8 @@ export default class ActivityPubActorAdminRow extends Component {
     return this.actor.isDeleted
       ? "deleted"
       : this.actor.enabled
-      ? "enabled"
-      : "disabled";
+        ? "enabled"
+        : "disabled";
   }
 
   get statusLabel() {
