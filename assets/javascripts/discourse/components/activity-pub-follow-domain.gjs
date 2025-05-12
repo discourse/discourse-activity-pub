@@ -3,7 +3,6 @@ import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
-import { service } from "@ember/service";
 import { Promise } from "rsvp";
 import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
@@ -25,8 +24,6 @@ const mastodonFollowUrl = (domain, handle) => {
 const mastodonAboutPath = "api/v2/instance";
 
 export default class ActivityPubFollowDomain extends Component {
-  @service site;
-
   @tracked verifying = false;
   @tracked error = null;
 

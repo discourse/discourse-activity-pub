@@ -1,13 +1,10 @@
 import Component from "@glimmer/component";
-import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
 import icon from "discourse/helpers/d-icon";
 import getURL from "discourse/lib/get-url";
 import { i18n } from "discourse-i18n";
 
 export default class ActivityPubSiteSettingNotice extends Component {
-  @service siteSettings;
-
   get containerClass() {
     return `activity-pub-site-setting ${dasherize(this.args.setting)}`;
   }
