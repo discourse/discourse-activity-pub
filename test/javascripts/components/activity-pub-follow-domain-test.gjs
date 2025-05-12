@@ -7,7 +7,7 @@ import Site from "discourse/models/site";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { i18n } from "discourse-i18n";
-import ActivityPubFollowDomain from "discourse/plugins/repo/discourse/components/activity-pub-follow-domain";
+import ActivityPubFollowDomain from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-follow-domain";
 import Mastodon from "../fixtures/mastodon-fixtures";
 
 const mastodonAboutPath = "api/v2/instance";

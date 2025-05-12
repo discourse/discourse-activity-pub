@@ -4,7 +4,7 @@ import sinon from "sinon";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
-import ActivityPubAuthorize from "discourse/plugins/repo/discourse/components/activity-pub-authorize";
+import ActivityPubAuthorize from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-authorize";
 
 module(
   "Discourse Activity Pub | Component | activity-pub-authorize",

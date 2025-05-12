@@ -3,7 +3,7 @@ import { render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import Site from "discourse/models/site";
-import AppEvents from "discourse/services/app-events";
+// import AppEvents from "discourse/services/app-events";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import {
   currentUser,
@@ -11,7 +11,7 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
-import ActivityPubActorStatus from "discourse/plugins/repo/discourse/components/activity-pub-actor-status";
+import ActivityPubActorStatus from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-actor-status";
 import SiteActors from "../fixtures/site-actors-fixtures";
 
 function setSite(context, attrs = {}) {
@@ -38,7 +38,7 @@ function setTag(context) {
 
 function setComposer(context, opts = {}) {
   opts.user ??= currentUser();
-  opts.appEvents = AppEvents.create();
+  // opts.appEvents = AppEvents.create();
   const store = getOwner(context).lookup("service:store");
   const composer = store.createRecord("composer", opts);
   context.set("composer", composer);
