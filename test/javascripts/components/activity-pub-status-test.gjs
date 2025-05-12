@@ -310,12 +310,12 @@ module(
         </template>
       );
 
-      const label = query(".activity-pub-actor-status .label");
-      assert.strictEqual(
-        label.innerText.trim(),
-        i18n("discourse_activity_pub.visibility.label.public"),
-        "has the right label text"
-      );
+      assert
+        .dom(".activity-pub-actor-status .label")
+        .hasText(
+          i18n("discourse_activity_pub.visibility.label.public"),
+          "has the right label text"
+        );
     });
   }
 );
