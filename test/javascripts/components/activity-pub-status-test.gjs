@@ -370,10 +370,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus
-            @model={{self.category}}
-            @modelType="category"
-          />
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
         </template>
       );
 
@@ -414,10 +411,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus
-            @model={{self.category}}
-            @modelType="category"
-          />
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
         </template>
       );
 
@@ -459,10 +453,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus
-            @model={{self.category}}
-            @modelType="category"
-          />
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
         </template>
       );
 
@@ -495,10 +486,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus
-            @model={{self.category}}
-            @modelType="category"
-          />
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
         </template>
       );
 
@@ -531,10 +519,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus
-            @model={{self.category}}
-            @modelType="category"
-          />
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
         </template>
       );
       await publishToMessageBus("/activity-pub", {
@@ -578,10 +563,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubActorStatus
-            @model={{self.composer}}
-            @modelType="composer"
-          />
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
         </template>
       );
 
