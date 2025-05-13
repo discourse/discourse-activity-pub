@@ -32,6 +32,11 @@ export default class ActivityPubPostActions extends Component {
     this.status = status;
   }
 
+  willDestroy() {
+    super.willDestroy(...arguments);
+    this.appEvents.off("activity-pub:post-updated", this, "postUpdated");
+  }
+
   postUpdated(postId, postProps) {
     if (this.post.id === postId) {
       this.post.setProperties(postProps);

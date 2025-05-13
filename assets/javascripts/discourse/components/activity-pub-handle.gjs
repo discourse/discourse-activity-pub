@@ -1,16 +1,12 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
-import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import icon from "discourse/helpers/d-icon";
 import discourseLater from "discourse/lib/later";
 import { clipboardCopy } from "discourse/lib/utilities";
 
 export default class ActivityPubHandle extends Component {
-  @service site;
-  @service siteSettings;
-
   @tracked copied = false;
 
   get showLink() {

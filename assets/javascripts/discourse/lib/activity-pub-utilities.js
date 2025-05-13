@@ -10,29 +10,22 @@ function getStatusDatetimeFormat(infoStatus = false) {
 }
 
 export function buildHandle({ actor, model, site }) {
-  if ((!actor && !model) || (model && !site)) {
-    return undefined;
-  } else {
-    const username = actor ? actor.username : model.activity_pub_username;
-    const domain = actor ? actor.domain : site.activity_pub_host;
-    return `@${username}@${domain}`;
+  if (actor) {
+    return `@${actor.username}@${actor.domain}`;
+  } else if (model && site) {
+    return `@${model.activity_pub_username}@${site.activity_pub_host}`;
   }
 }
 
 export function showStatusToUser(user, siteSettings) {
-  if (!siteSettings) {
-    return false;
-  }
   const groupIds = siteSettings.activity_pub_post_status_visibility_groups
     .split("|")
     .map(Number);
-  if (groupIds.includes(AUTO_GROUPS.everyone.id)) {
-    return true;
-  }
-  if (!user) {
-    return false;
-  }
-  return user.groups.some((group) => groupIds.includes(group.id));
+
+  return (
+    groupIds.includes(AUTO_GROUPS.everyone.id) ||
+    user?.groups.some((group) => groupIds.includes(group.id))
+  );
 }
 
 export function activityPubPostStatus(post) {

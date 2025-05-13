@@ -1,8 +1,10 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { Input } from "@ember/component";
+import { on } from "@ember/modifier";
 import { action } from "@ember/object";
-import { service } from "@ember/service";
 import { Promise } from "rsvp";
+import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 import DiscourseURL from "discourse/lib/url";
 import { extractDomainFromUrl, hostnameValid } from "discourse/lib/utilities";
@@ -22,8 +24,6 @@ const mastodonFollowUrl = (domain, handle) => {
 const mastodonAboutPath = "api/v2/instance";
 
 export default class ActivityPubFollowDomain extends Component {
-  @service site;
-
   @tracked verifying = false;
   @tracked error = null;
 
@@ -88,4 +88,37 @@ export default class ActivityPubFollowDomain extends Component {
       this.error = i18n("discourse_activity_pub.follow.domain.invalid");
     }
   }
+
+  <template>
+    <div class="activity-pub-follow-domain">
+      <label>{{i18n "discourse_activity_pub.follow.domain.label"}}</label>
+      <div class="activity-pub-follow-domain-controls inline-form">
+        <Input
+          {{on "keyup" this.onKeyup}}
+          @value={{this.domain}}
+          placeholder={{i18n
+            "discourse_activity_pub.follow.domain.placeholder"
+          }}
+          id="activity_pub_follow_domain_input"
+        />
+        <DButton
+          @icon="up-right-from-square"
+          @action={{action "follow"}}
+          @label="discourse_activity_pub.follow.domain.btn_label"
+          @title="discourse_activity_pub.follow.domain.btn_title"
+          @disabled={{this.verifying}}
+          id="activity_pub_follow_domain_button"
+        />
+      </div>
+      <div class={{this.footerClass}}>
+        {{#if this.error}}
+          {{this.error}}
+        {{else if this.verifying}}
+          {{i18n "discourse_activity_pub.follow.domain.verifying"}}
+        {{else}}
+          {{i18n "discourse_activity_pub.follow.domain.description"}}
+        {{/if}}
+      </div>
+    </div>
+  </template>
 }
