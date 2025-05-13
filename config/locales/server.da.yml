@@ -5,6 +5,13 @@
 # https://translate.discourse.org/
 
 da:
+  activerecord:
+    errors:
+      models:
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "er ikke gyldig"
   discourse_activity_pub:
     category:
       error:

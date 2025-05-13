@@ -26,6 +26,10 @@ zh_CN:
           attributes:
             credentials:
               invalid: "无效"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "无效"
         discourse_activity_pub:
           attributes:
             model_type:

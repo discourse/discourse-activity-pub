@@ -26,6 +26,10 @@ ja:
           attributes:
             credentials:
               invalid: "は有効ではありあません"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "は有効ではありあません"
         discourse_activity_pub:
           attributes:
             model_type:
