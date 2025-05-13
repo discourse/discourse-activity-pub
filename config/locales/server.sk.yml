@@ -26,6 +26,10 @@ sk:
           attributes:
             credentials:
               invalid: "nie je platné"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "nie je platné"
         discourse_activity_pub:
           attributes:
             model_type:
