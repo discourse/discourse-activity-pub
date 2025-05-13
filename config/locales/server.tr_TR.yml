@@ -26,6 +26,10 @@ tr_TR:
           attributes:
             credentials:
               invalid: "geçerli değil"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "geçerli değil"
         discourse_activity_pub:
           attributes:
             model_type:

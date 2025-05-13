@@ -26,6 +26,10 @@ fi:
           attributes:
             credentials:
               invalid: "ei ole kelvollinen"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "ei ole kelvollinen"
         discourse_activity_pub:
           attributes:
             model_type:

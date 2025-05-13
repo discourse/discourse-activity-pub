@@ -26,6 +26,10 @@ te:
           attributes:
             credentials:
               invalid: "చెల్లుబాటు కాదు"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "చెల్లుబాటు కాదు"
         discourse_activity_pub:
           attributes:
             model_type:

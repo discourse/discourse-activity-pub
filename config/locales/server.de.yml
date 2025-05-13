@@ -26,6 +26,10 @@ de:
           attributes:
             credentials:
               invalid: "ist nicht gültig"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "ist nicht gültig"
         discourse_activity_pub:
           attributes:
             model_type:

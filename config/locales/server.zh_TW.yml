@@ -26,6 +26,10 @@ zh_TW:
           attributes:
             credentials:
               invalid: "無效"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "無效"
         discourse_activity_pub:
           attributes:
             model_type:

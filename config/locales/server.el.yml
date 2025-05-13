@@ -26,6 +26,10 @@ el:
           attributes:
             credentials:
               invalid: "δεν είναι έγκυρο"
+        discourse_activity_pub_attachment:
+          attributes:
+            media_type:
+              invalid: "δεν είναι έγκυρο"
         discourse_activity_pub:
           attributes:
             model_type:
