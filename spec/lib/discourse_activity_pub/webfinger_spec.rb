@@ -31,7 +31,7 @@ RSpec.describe DiscourseActivityPub::Webfinger do
     end
 
     context "with a remote domain" do
-      let!(:domain) { "external.com" }
+      let!(:domain) { "remote.com" }
       let!(:handle) { build_handle(domain) }
 
       context "with an inaccessible remote" do
@@ -68,7 +68,7 @@ RSpec.describe DiscourseActivityPub::Webfinger do
     end
 
     context "with a remote handle" do
-      let!(:domain) { "external.com" }
+      let!(:domain) { "remote.com" }
       let!(:handle) { build_handle(domain) }
 
       context "with an inaccessible remote" do

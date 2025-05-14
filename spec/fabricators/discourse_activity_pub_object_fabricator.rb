@@ -6,7 +6,7 @@ Fabricator(:discourse_activity_pub_object) do
 
   before_create do |object|
     if !object.local && !object.ap_id
-      object.ap_id = "https://external.com/object/#{ap_type.downcase}/#{SecureRandom.hex(8)}"
+      object.ap_id = "https://remote.com/object/#{ap_type.downcase}/#{SecureRandom.hex(8)}"
     end
   end
 end

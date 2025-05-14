@@ -103,5 +103,18 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
         end
       end
     end
+
+    context "when actor is tombstoned" do
+      before do
+        group.update(ap_type: DiscourseActivityPub::AP::Object::Tombstone.type)
+        setup_logging
+      end
+      after { teardown_logging }
+
+      it "returns a not found error" do
+        get_object(group)
+        expect_request_error(response, "not_found", 404)
+      end
+    end
   end
 end

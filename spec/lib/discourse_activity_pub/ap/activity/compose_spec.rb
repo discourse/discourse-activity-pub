@@ -45,9 +45,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
           setup_logging
 
           @mismatched_json = activity_json.dup
-          @mismatched_json[
-            :id
-          ] = "https://other-external.com/activity/update/#{SecureRandom.hex(8)}"
+          @mismatched_json[:id] = "https://other-remote.com/activity/update/#{SecureRandom.hex(8)}"
 
           process_json(@mismatched_json)
         end

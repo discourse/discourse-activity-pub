@@ -123,12 +123,12 @@ def build_actor_json(
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: "https://external.com/u/#{preferredUsername}/#{SecureRandom.hex(8)}",
+    id: "https://remote.com/u/#{preferredUsername}/#{SecureRandom.hex(8)}",
     name: name,
     preferredUsername: preferredUsername,
     type: type,
-    inbox: "https://external.com/u/#{preferredUsername}/inbox",
-    outbox: "https://external.com/u/#{preferredUsername}/outbox",
+    inbox: "https://remote.com/u/#{preferredUsername}/inbox",
+    outbox: "https://remote.com/u/#{preferredUsername}/outbox",
   }
   _json[:publicKey] = {
     id: "#{_json[:id]}#main-key",
@@ -155,7 +155,7 @@ def build_object_json(
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: id || "https://external.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
+    id: id || "https://remote.com/object/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     content: content,
     inReplyTo: in_reply_to,
@@ -190,7 +190,7 @@ def build_activity_json(
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: id || "https://external.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
+    id: id || "https://remote.com/activity/#{type.downcase}/#{SecureRandom.hex(8)}",
     type: type,
     actor:
       if actor.respond_to?(:ap)
@@ -228,7 +228,7 @@ def build_collection_json(
 )
   _json = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: "https://external.com/collection/#{SecureRandom.hex(8)}",
+    id: "https://remote.com/collection/#{SecureRandom.hex(8)}",
     type: type,
   }
   _json[:items] = items if type == "Collection"

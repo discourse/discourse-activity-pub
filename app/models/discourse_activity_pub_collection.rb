@@ -6,6 +6,10 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
   include DiscourseActivityPub::AP::ObjectHelpers
 
   belongs_to :model, -> { unscope(where: :deleted_at) }, polymorphic: true, optional: true
+  belongs_to :attributed_to,
+             class_name: "DiscourseActivityPubActor",
+             primary_key: "ap_id",
+             foreign_key: "attributed_to_id"
 
   has_many :objects, class_name: "DiscourseActivityPubObject", foreign_key: "collection_id"
   has_many :activities, class_name: "DiscourseActivityPubActivity", through: :objects
@@ -40,7 +44,9 @@ class DiscourseActivityPubCollection < ActiveRecord::Base
 
   def before_deliver
     @context = :activities
-    after_published(get_published_at)
+    after_published(
+      self.published_at ? self.published_at.to_time.utc.iso8601 : Time.now.utc.iso8601,
+    )
   end
 
   def after_deliver(delivered = true)
@@ -152,19 +158,22 @@ end
 #
 # Table name: discourse_activity_pub_collections
 #
-#  id           :bigint           not null, primary key
-#  ap_id        :string           not null
-#  ap_key       :string
-#  ap_type      :string           not null
-#  local        :boolean
-#  model_id     :integer
-#  model_type   :string
-#  summary      :string
-#  published_at :datetime
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  name         :string
-#  audience     :string
+#  id               :bigint           not null, primary key
+#  ap_id            :string           not null
+#  ap_key           :string
+#  ap_type          :string           not null
+#  local            :boolean
+#  model_id         :integer
+#  model_type       :string
+#  summary          :string
+#  published_at     :datetime
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  name             :string
+#  audience         :string
+#  deleted_at       :datetime
+#  ap_former_type   :string
+#  attributed_to_id :string
 #
 # Indexes
 #
