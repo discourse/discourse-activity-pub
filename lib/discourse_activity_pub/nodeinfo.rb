@@ -20,9 +20,9 @@ module DiscourseActivityPub
         links: [
           {
             rel: "http://nodeinfo.diaspora.software/ns/schema/#{SUPPORTED_VERSION}",
-            href: "#{Discourse.base_url_no_prefix}/nodeinfo/#{SUPPORTED_VERSION}"
-          }
-        ]
+            href: "#{Discourse.base_url_no_prefix}/nodeinfo/#{SUPPORTED_VERSION}",
+          },
+        ],
       }.as_json
     end
   end

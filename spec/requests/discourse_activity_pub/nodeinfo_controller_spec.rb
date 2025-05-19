@@ -19,8 +19,12 @@ RSpec.describe DiscourseActivityPub::NodeinfoController do
         expect(response.status).to eq(200)
 
         body = JSON.parse(response.body)
-        expect(body["links"][0]["rel"]).to eq("http://nodeinfo.diaspora.software/ns/schema/#{DiscourseActivityPub::Nodeinfo::SUPPORTED_VERSION}")
-        expect(body["links"][0]["href"]).to eq("http://test.localhost/nodeinfo/#{DiscourseActivityPub::Nodeinfo::SUPPORTED_VERSION}")
+        expect(body["links"][0]["rel"]).to eq(
+          "http://nodeinfo.diaspora.software/ns/schema/#{DiscourseActivityPub::Nodeinfo::SUPPORTED_VERSION}",
+        )
+        expect(body["links"][0]["href"]).to eq(
+          "http://test.localhost/nodeinfo/#{DiscourseActivityPub::Nodeinfo::SUPPORTED_VERSION}",
+        )
       end
     end
   end
