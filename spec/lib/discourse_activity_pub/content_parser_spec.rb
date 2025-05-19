@@ -83,6 +83,14 @@ RSpec.describe DiscourseActivityPub::ContentParser do
       expect(described_class.get_content(post)).to eq("<p>#{content}</p>")
     end
 
+    it "handles local dates" do
+      content = '[date=2019-10-16 time=14:00:00 format="LLLL" timezone="America/New_York"]'
+      post = Fabricate(:post, raw: content)
+      expect(described_class.get_content(post)).to eq(
+        "<p>Wednesday, October 16, 2019 6:00 PM (UTC)</p>",
+      )
+    end
+
     context "with Article" do
       it "returns all cooked content" do
         Post.any_instance.stubs(:activity_pub_object_type).returns("Article")
