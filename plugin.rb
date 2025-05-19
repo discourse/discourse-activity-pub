@@ -36,6 +36,7 @@ after_initialize do
     mount ::DiscourseActivityPub::Engine, at: "ap"
 
     get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
+    get ".well-known/nodeinfo" => "discourse_activity_pub/nodeinfo#index"
     post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger/handle#validate",
          :defaults => {
            format: :json,
