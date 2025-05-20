@@ -76,7 +76,7 @@ module DiscourseActivityPub
       "#{actor.ap_id}#main-key"
     end
 
-    def valid_content_type?(value, allow_text_html: false)
+    def valid_content_type?(value)
       return false if value.blank?
       type = value.split(";").first.strip
 
