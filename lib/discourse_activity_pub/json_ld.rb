@@ -7,6 +7,7 @@ module DiscourseActivityPub
     REQUIRED_PROPERTIES = %w[id type]
     LD_CONTENT_TYPE = "application/ld+json"
     ACTIVITY_CONTENT_TYPE = "application/activity+json"
+    TEXT_HTML_TYPE = "text/html"
     CONTENT_TYPES = [LD_CONTENT_TYPE, ACTIVITY_CONTENT_TYPE]
     PUBLIC_COLLECTION_IDS = %w[https://www.w3.org/ns/activitystreams#Public as:Public Public]
 
@@ -75,18 +76,23 @@ module DiscourseActivityPub
       "#{actor.ap_id}#main-key"
     end
 
-    def valid_content_type?(value)
+    def valid_content_type?(value, allow_text_html: false)
       return false if value.blank?
       type = value.split(";").first.strip
 
       # technically we should require a profile=ACTIVITY_STREAMS_CONTEXT here too
       # see https://www.w3.org/TR/activitypub/#delivery
-      CONTENT_TYPES.include?(type)
+      # see also https://github.com/mastodon/mastodon/issues/34632
+      CONTENT_TYPES.include?(type) || (allow_text_html && type == TEXT_HTML_TYPE)
     end
 
     def valid_accept?(value)
       return false if value.blank?
-      value.split(",").compact.collect(&:strip).all? { |v| valid_content_type?(v) }
+      value
+        .split(",")
+        .compact
+        .collect(&:strip)
+        .all? { |v| valid_content_type?(v, allow_text_html: true) }
     end
 
     def content_type_header

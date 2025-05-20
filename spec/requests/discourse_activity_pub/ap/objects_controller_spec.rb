@@ -92,6 +92,20 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
     end
   end
 
+  context "with text/html in the Accept Header" do
+    it "returns the object" do
+      get_object(
+        object,
+        headers: {
+          "Accept" =>
+            'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams", text/html;q=0.1',
+        },
+      )
+      expect(response.status).to eq(200)
+      expect(parsed_body).to eq(object.ap.json)
+    end
+  end
+
   describe "#show" do
     context "when not requested from a browser" do
       it "returns object json with addressing" do
