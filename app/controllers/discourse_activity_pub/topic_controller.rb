@@ -26,7 +26,7 @@ module DiscourseActivityPub
     end
 
     def find_topic
-      @topic = Topic.find_by(id: params[:topic_id])
+      @topic = ::Topic.find_by(id: params[:topic_id])
       render_topic_error("topic_not_found", 400) if @topic.blank?
     end
 

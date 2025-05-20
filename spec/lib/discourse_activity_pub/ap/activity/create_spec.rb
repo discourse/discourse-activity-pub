@@ -18,7 +18,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
 
     context "with Note inReplyTo to a Note" do
       let!(:original_object) { Fabricate(:discourse_activity_pub_object_note, model: post) }
-      let(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
+      let(:reply_external_url) { "https://remote.com/object/note/#{SecureRandom.hex(8)}" }
       let(:reply_json) do
         build_activity_json(
           actor: actor,
@@ -63,7 +63,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             ap_type: "Note",
             model_id: Post.find_by(raw: reply_json[:object][:content]).id,
             model_type: "Post",
-            domain: "external.com",
+            domain: "remote.com",
           ).size,
         ).to be(1)
       end
@@ -78,7 +78,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
           attributed_to: remote_reply_actor_json[:id],
         )
       end
-      let(:reply_external_url) { "https://external.com/object/note/#{SecureRandom.hex(8)}" }
+      let(:reply_external_url) { "https://remote.com/object/note/#{SecureRandom.hex(8)}" }
       let(:reply_actor_json) { build_actor_json }
       let(:reply_json) do
         build_activity_json(

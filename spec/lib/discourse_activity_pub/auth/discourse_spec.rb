@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::Auth::Discourse do
-  let!(:domain1) { "external.com" }
+  let!(:domain1) { "remote.com" }
   let!(:redirect_uri) do
     "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::Discourse::REDIRECT_PATH}"
   end

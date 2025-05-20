@@ -59,7 +59,7 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
     end
 
     context "when actor has icon" do
-      fab!(:external_origin) { "https://external.com" }
+      fab!(:external_origin) { "https://remote.com" }
 
       before do
         actor.icon_url = "#{external_origin}/logo.png"

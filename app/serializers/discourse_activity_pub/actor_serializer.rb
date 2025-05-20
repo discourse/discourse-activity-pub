@@ -3,6 +3,7 @@
 module DiscourseActivityPub
   class ActorSerializer < BasicActorSerializer
     attributes :name,
+               :ap_type,
                :model_id,
                :model_type,
                :model_name,

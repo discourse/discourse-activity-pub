@@ -8,10 +8,8 @@ module DiscourseActivityPub
       attr_reader :actor, :topic
       attr_accessor :published_at, :result
 
-      ACTOR_MODEL_TYPES = %w[category tag]
-
       def initialize(actor_id: nil, topic_id: nil)
-        @topic = Topic.find_by(id: topic_id)
+        @topic = ::Topic.find_by(id: topic_id)
         @actor = topic ? topic.activity_pub_actor : DiscourseActivityPubActor.find_by(id: actor_id)
       end
 
@@ -20,7 +18,9 @@ module DiscourseActivityPub
 
         return log_publish_failed("actor_not_found") if !actor
         return log_publish_failed("actor_not_ready") if !actor&.ready?
-        if !ACTOR_MODEL_TYPES.include?(actor.model_type.downcase)
+        if !DiscourseActivityPubActor::GROUP_MODELS.map(&:downcase).include?(
+             actor.model_type.downcase,
+           )
           return log_publish_failed("actor_model_not_supported")
         end
 
@@ -62,7 +62,7 @@ module DiscourseActivityPub
       end
 
       def create_collections_from_topics
-        topics = Topic
+        topics = ::Topic
 
         if category_actor?
           topics =
@@ -96,7 +96,7 @@ module DiscourseActivityPub
       end
 
       def create_actors_from_users
-        users = User.real.joins(posts: :topic)
+        users = ::User.real.joins(posts: :topic)
 
         if category_actor?
           users =
@@ -131,7 +131,7 @@ module DiscourseActivityPub
       end
 
       def create_objects_from_posts
-        posts = Post.joins(:topic)
+        posts = ::Post.joins(:topic)
 
         if category_actor?
           posts =
@@ -162,13 +162,13 @@ module DiscourseActivityPub
 
         if posts.any?
           objects, post_custom_fields = build_objects_and_post_custom_fields(posts)
-          PostCustomField.upsert_all(post_custom_fields) if post_custom_fields.any?
+          ::PostCustomField.upsert_all(post_custom_fields) if post_custom_fields.any?
           create_objects(objects)
         end
       end
 
       def create_activities_from_posts
-        posts = Post.joins(:topic)
+        posts = ::Post.joins(:topic)
 
         if category_actor?
           posts =

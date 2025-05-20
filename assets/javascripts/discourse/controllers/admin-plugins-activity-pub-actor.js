@@ -1,5 +1,5 @@
 import { tracked } from "@glimmer/tracking";
-import Controller, { inject as controller } from "@ember/controller";
+import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { notEmpty } from "@ember/object/computed";
 import { service } from "@ember/service";
@@ -10,7 +10,6 @@ import ActivityPubActor, { newActor } from "../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActor extends Controller {
   @service router;
-  @controller("adminPlugins.activityPub.actorShow") actorShowController;
 
   @tracked order = "";
   @tracked asc = null;
@@ -62,11 +61,7 @@ export default class AdminPluginsActivityPubActor extends Controller {
   }
 
   @action
-  editActor(actor) {
-    this.router
-      .transitionTo("adminPlugins.activityPub.actorShow", actor)
-      .then(() => {
-        this.actorShowController.set("showForm", true);
-      });
+  removeActor(actorId) {
+    this.actors.removeObject(this.actors.findBy("id", actorId));
   }
 }

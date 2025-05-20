@@ -150,25 +150,25 @@
 
   <div class="activity-pub-actor-gutter">
     {{#if this.showForm}}
-      <ConditionalLoadingSpinner @condition={{this.saving}} @size="small" />
-      {{#if this.saveResponse}}
-        <span class="activity-pub-actor-save-response {{this.saveResponse}}">
-          {{#if this.saveSuccess}}
-            {{d-icon "check"}}
-            {{i18n "admin.discourse_activity_pub.actor.save.success"}}
-          {{else}}
-            {{d-icon "xmark"}}
-            {{i18n "admin.discourse_activity_pub.actor.save.failed"}}
-          {{/if}}
-        </span>
+      <ConditionalLoadingSpinner @condition={{this.loading}} @size="small" />
+      {{#if this.canDelete}}
+        <DButton
+          @action={{action "deleteActor"}}
+          @label="admin.discourse_activity_pub.actor.delete.label"
+          @title="admin.discourse_activity_pub.actor.delete.title"
+          class="activity-pub-delete-actor"
+          @disabled={{this.loading}}
+        />
       {{/if}}
-      <DButton
-        @action={{action "saveActor"}}
-        @label="admin.discourse_activity_pub.actor.save.label"
-        @title="admin.discourse_activity_pub.actor.save.title"
-        class="activity-pub-save-actor btn-primary"
-        @disabled={{not this.canSave}}
-      />
+      {{#if this.canSave}}
+        <DButton
+          @action={{action "saveActor"}}
+          @label="admin.discourse_activity_pub.actor.save.label"
+          @title="admin.discourse_activity_pub.actor.save.title"
+          class="activity-pub-save-actor btn-primary"
+          @disabled={{this.loading}}
+        />
+      {{/if}}
     {{/if}}
   </div>
 </div>
