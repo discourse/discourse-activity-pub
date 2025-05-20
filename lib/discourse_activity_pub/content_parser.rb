@@ -17,6 +17,8 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
     quotes
     upload-protocol
     watched-words
+    discourse-local-dates
+    text-post-process
   ]
 
   # Compare with https://docs.joinmastodon.org/spec/activitypub/#sanitization
@@ -127,11 +129,12 @@ class DiscourseActivityPub::ContentParser < Nokogiri::XML::SAX::Document
         text,
         opts.merge(features_override: MARKDOWN_FEATURES, markdown_it_rules: MARKDOWN_IT_RULES),
       )
-    scrubbed_html(html)
-  end
 
-  def self.scrubbed_html(html)
     doc = Nokogiri::HTML5.fragment(html)
+
+    # Support custom handling in plugins, e.g. local dates.
+    DiscourseEvent.trigger(:reduce_excerpt, doc, opts)
+
     scrubber =
       Loofah::Scrubber.new do |node|
         node.remove if node.name == "script"
