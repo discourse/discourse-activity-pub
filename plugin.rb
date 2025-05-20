@@ -37,6 +37,10 @@ after_initialize do
 
     get ".well-known/webfinger" => "discourse_activity_pub/webfinger#index"
     get ".well-known/nodeinfo" => "discourse_activity_pub/nodeinfo#index"
+    get "/nodeinfo/:version" => "discourse_activity_pub/nodeinfo#show",
+        :constraints => {
+          version: /[0-9\.]+/,
+        }
     post "/webfinger/handle/validate" => "discourse_activity_pub/webfinger/handle#validate",
          :defaults => {
            format: :json,
@@ -184,6 +188,7 @@ after_initialize do
     add_to_class(:post, field_name.to_sym) { custom_fields[field_name] }
   end
   PostAction.prepend DiscourseActivityPub::PostAction
+  Statistics.singleton_class.prepend DiscourseActivityPub::Statistics
 
   ##
   ## Discourse serialization

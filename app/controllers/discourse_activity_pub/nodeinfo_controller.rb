@@ -11,7 +11,13 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
 
     def index
-      render json: Nodeinfo.index, content_type: Nodeinfo::CONTENT_TYPE
+      render json: Nodeinfo.index, content_type: "application/jrd+json"
+    end
+
+    def show
+      nodeinfo = Nodeinfo.new(params[:version])
+      raise Discourse::NotFound unless nodeinfo.supported_version?
+      render_serialized(nodeinfo, NodeinfoSerializer, root: false)
     end
   end
 end
