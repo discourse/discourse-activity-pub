@@ -86,7 +86,9 @@ module DiscourseActivityPub
 
     def valid_accept?(value)
       return false if value.blank?
-      value.split(",").compact.collect(&:strip).all? { |v| valid_content_type?(v) }
+
+      # see also https://github.com/mastodon/mastodon/issues/34632
+      value.split(",").compact.collect(&:strip).any? { |v| valid_content_type?(v) }
     end
 
     def content_type_header

@@ -86,8 +86,22 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
       after { teardown_logging }
 
       it "returns bad request" do
-        get_from_outbox(group, headers: { "Accept" => "application/json" })
+        get_from_outbox(group, headers: { "Accept" => "text/html" })
         expect_request_error(response, "bad_request", 400)
+      end
+    end
+
+    context "with valid and invalid Accept headers" do
+      it "returns the object" do
+        get_object(
+          object,
+          headers: {
+            "Accept" =>
+              'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams", text/html;q=0.1',
+          },
+        )
+        expect(response.status).to eq(200)
+        expect(parsed_body).to eq(object.ap.json)
       end
     end
   end
