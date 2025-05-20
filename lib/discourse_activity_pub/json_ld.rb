@@ -7,7 +7,6 @@ module DiscourseActivityPub
     REQUIRED_PROPERTIES = %w[id type]
     LD_CONTENT_TYPE = "application/ld+json"
     ACTIVITY_CONTENT_TYPE = "application/activity+json"
-    TEXT_HTML_TYPE = "text/html"
     CONTENT_TYPES = [LD_CONTENT_TYPE, ACTIVITY_CONTENT_TYPE]
     PUBLIC_COLLECTION_IDS = %w[https://www.w3.org/ns/activitystreams#Public as:Public Public]
 
