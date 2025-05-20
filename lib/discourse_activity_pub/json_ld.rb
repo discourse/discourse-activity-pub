@@ -82,17 +82,14 @@ module DiscourseActivityPub
 
       # technically we should require a profile=ACTIVITY_STREAMS_CONTEXT here too
       # see https://www.w3.org/TR/activitypub/#delivery
-      # see also https://github.com/mastodon/mastodon/issues/34632
-      CONTENT_TYPES.include?(type) || (allow_text_html && type == TEXT_HTML_TYPE)
+      CONTENT_TYPES.include?(type)
     end
 
     def valid_accept?(value)
       return false if value.blank?
-      value
-        .split(",")
-        .compact
-        .collect(&:strip)
-        .all? { |v| valid_content_type?(v, allow_text_html: true) }
+
+      # see also https://github.com/mastodon/mastodon/issues/34632
+      value.split(",").compact.collect(&:strip).any? { |v| valid_content_type?(v) }
     end
 
     def content_type_header
