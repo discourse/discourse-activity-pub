@@ -105,6 +105,10 @@ de:
       error:
         invalid_domain: "Ungültige ActivityPub-Domain"
         invalid_redirect_params: "Ungültige Umleitungsparameter"
+        failed_to_verify_client: "Der Client konnte nicht verifiziert werden. Bitte versuche, ihn erneut zu verifizieren."
+        failed_to_get_token: "Token konnte nicht abgerufen werden"
+        failed_to_decrypt_payload: "Payload konnte nicht entschlüsselt werden"
+        failed_to_verify_nonce: "Nonce konnte nicht verifiziert werden"
     bulk:
       process:
         warning:
@@ -193,3 +197,9 @@ de:
   site_settings:
     activity_pub_enabled: "Aktiviere das ActivityPub-Plug-in."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Anzahl der POST-Anfragen, die pro Minute an die Inbox eines Actors gesendet werden können."
+    activity_pub_allowed_request_origins: "Liste der Domains, die ActivityPub-Anfragen stellen dürfen."
+    activity_pub_blocked_request_origins: "Liste der Domains, die keine ActivityPub-Anfragen stellen dürfen."
+    activity_pub_delivery_delay_minutes: "Anzahl der Minuten, um die Zustellung von ActivityPub-Aktivitäten zu verzögern (Lösch-Aktivitäten werden sofort zugestellt)."
+    activity_pub_verbose_logging: "Aktiviere ausführliche ActivityPub-Protokolle."
+    activity_pub_object_logging: "Alle ein- und ausgehenden ActivityPub-Objekte in den Protokollen ausgeben (erfordert „verbose logging“)."
+    activity_pub_logs_max_days_old: "Wie viele Tage die ActivityPub-Protokolle aufbewahrt werden."

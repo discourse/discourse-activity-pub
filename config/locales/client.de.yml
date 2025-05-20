@@ -232,6 +232,7 @@ de:
         info:
           label: Themeninfo
           group_actors: "Gruppen-Actor"
+          status: Status des Themas
         status:
           scheduled: Die Veröffentlichung des Themas über ActivityPub ist für %{datetime} geplant.
           scheduled_past: Die Veröffentlichung des Themas über ActivityPub war für %{datetime} geplant.
@@ -246,6 +247,12 @@ de:
           published_remote: "Das Thema wurde am %{datetime} veröffentlicht."
           deleted: "Das Thema wurde am %{datetime} gelöscht."
           not_published: "Das Thema ist nicht veröffentlicht."
+        posts_status:
+          label: Status der Beiträge
+          published: Alle Beiträge in diesem Thema sind veröffentlicht.
+          some_published: "%{count} von %{total} Beiträgen in diesem Thema sind veröffentlicht."
+          none_published: Keine Beiträge in diesem Thema sind veröffentlicht.
+          scheduled: Die Veröffentlichung dieses Themas ist geplant.
         actors:
           label: Themen Actor
         publish:
