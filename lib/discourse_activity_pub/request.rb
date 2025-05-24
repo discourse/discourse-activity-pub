@@ -6,25 +6,28 @@ module DiscourseActivityPub
 
     SUCCESS_CODES = [200, 201, 202]
     REDIRECT_CODES = [301, 302, 307, 308]
+    ALLOWED_ERRORS = [410]
+
     TIMEOUT = 60
     REQUEST_TARGET_HEADER = "(request-target)"
     CREATED_HEADER = "(created)"
     EXPIRES_HEADER = "(expires)"
     SIGNAUTRE_ALGORITHM = "hs2019"
 
-    attr_accessor :uri, :headers, :body, :expects, :middlewares
+    attr_accessor :uri, :headers, :body, :expects, :middlewares, :allowed_errors
     attr_writer :actor
 
-    def initialize(actor_id: nil, uri: "", headers: {}, body: nil)
+    def initialize(actor_id: nil, uri: "", headers: {}, body: nil, allowed_errors: [])
       @actor = DiscourseActivityPubActor.find_by(id: actor_id) if actor_id
       @uri = DiscourseActivityPub::URI.parse(uri)
       @headers = default_headers.merge(headers)
       @body = body
+      @allowed_errors = allowed_errors
     end
 
     def get_json_ld
       @headers.merge!({ "Accept" => content_type_header })
-      @expects = SUCCESS_CODES + REDIRECT_CODES
+      @expects = SUCCESS_CODES + REDIRECT_CODES + allowed_errors
       @middlewares = Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower]
 
       response = perform(:get)
@@ -119,8 +122,8 @@ module DiscourseActivityPub
         .join(",")
     end
 
-    def self.get_json_ld(uri: "", headers: {})
-      self.new(uri: uri, headers: headers).get_json_ld
+    def self.get_json_ld(uri: "", headers: {}, allowed_errors: [])
+      self.new(uri: uri, headers: headers, allowed_errors: allowed_errors).get_json_ld
     end
 
     def self.post_json_ld(actor_id: nil, uri: "", headers: {}, body: nil)

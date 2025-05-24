@@ -54,7 +54,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           post_to_inbox(group, body: post_body)
           expect(response.status).to eq(202)
           expect(
-            job_enqueued?(job: :discourse_activity_pub_process, args: { json: post_body }),
+            job_enqueued?(job: Jobs::DiscourseActivityPub::Process, args: { json: post_body }),
           ).to eq(true)
         end
 

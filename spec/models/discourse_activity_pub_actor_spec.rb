@@ -172,7 +172,7 @@ RSpec.describe DiscourseActivityPubActor do
     end
 
     context "without a stored actor" do
-      let!(:handle) { "username@external.com" }
+      let!(:handle) { "username@remote.com" }
 
       context "when local param is true" do
         it "does not call resolve_and_store_by_handle" do
@@ -194,7 +194,7 @@ RSpec.describe DiscourseActivityPubActor do
 
   describe "#resolve_and_store_by_handle" do
     let!(:actor) { build_actor_json }
-    let!(:handle) { "#{actor[:preferredUsername]}@external.com" }
+    let!(:handle) { "#{actor[:preferredUsername]}@remote.com" }
 
     context "when handle cant be webfingered" do
       before do

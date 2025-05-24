@@ -15,7 +15,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
 
       actor = DiscourseActivityPubActor.find_by(ap_id: json["id"])
       expect(actor.present?).to eq(true)
-      expect(actor.domain).to eq("external.com")
+      expect(actor.domain).to eq("remote.com")
       expect(actor.ap_type).to eq(json["type"])
       expect(actor.inbox).to eq(json["inbox"])
       expect(actor.outbox).to eq(json["outbox"])
@@ -51,7 +51,7 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       perform
 
       original_id = json["id"]
-      new_id = "https://external.com/u/bob"
+      new_id = "https://remote.com/u/bob"
       perform(id: new_id)
 
       expect(DiscourseActivityPubActor.exists?(ap_id: original_id)).to eq(true)

@@ -95,7 +95,7 @@ class DiscourseActivityPubObject < ActiveRecord::Base
 
   def after_deliver(delivered = true)
     if delivered && model.respond_to?(:activity_pub_after_deliver)
-      args = { delivered_at: get_delivered_at }
+      args = { delivered_at: Time.now.utc.iso8601 }
       model.activity_pub_after_deliver(args)
     end
   end
@@ -204,6 +204,8 @@ end
 #  context          :string
 #  target           :string
 #  attributed_to_id :string
+#  deleted_at       :datetime
+#  ap_former_type   :string
 #
 # Indexes
 #
