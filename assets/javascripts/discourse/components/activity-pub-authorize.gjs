@@ -1,10 +1,15 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { Input } from "@ember/component";
+import { fn, hash } from "@ember/helper";
+import { on } from "@ember/modifier";
 import { action } from "@ember/object";
+import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import getURL from "discourse/lib/get-url";
 import { i18n } from "discourse-i18n";
+import ComboBox from "select-kit/components/combo-box";
 
 const supportedAuthTypes = ["discourse", "mastodon"];
 
@@ -121,4 +126,60 @@ export default class ActivityPubAuthorize extends Component {
   authorizeDomain() {
     window.open(getURL(`/ap/auth/authorize/${this.authType}`), "_self");
   }
+
+  <template>
+    <div class={{this.containerClass}}>
+      <div class="controls">
+        <ComboBox
+          @id="user_activity_pub_authorize_auth_type"
+          class="activity-pub-authorize-auth-type"
+          @content={{this.authTypes}}
+          @value={{this.authType}}
+          @onChange={{fn (mut this.authType)}}
+          @disabled={{this.verifiedDomain}}
+          @options={{hash
+            none="user.discourse_activity_pub.authorize.auth_type.none.label"
+          }}
+        />
+        {{#if this.verifiedDomain}}
+          <span class="activity-pub-authorize-verified-domain">
+            <span>{{this.domain}}</span>
+            <DButton
+              @icon="xmark"
+              @action={{action "clearDomain"}}
+              @title="user.discourse_activity_pub.clear_domain_button.title"
+              id="user_activity_pub_authorize_clear_domain"
+              class="activity-pub-authorize-clear-domain"
+            />
+          </span>
+        {{else}}
+          <Input
+            @value={{this.domain}}
+            disabled={{this.verifyingDomain}}
+            placeholder={{this.placeholder}}
+            id="user_activity_pub_authorize_domain"
+            {{on "keydown" this.onDomainKeyDown}}
+          />
+        {{/if}}
+        <DButton
+          @icon="check"
+          @action={{action "verifyDomain"}}
+          @label="user.discourse_activity_pub.verify_domain_button.label"
+          @title="user.discourse_activity_pub.verify_domain_button.title"
+          @disabled={{this.verifyDisabled}}
+          id="user_activity_pub_authorize_verify_domain"
+          class={{this.verifyBtnClass}}
+        />
+        <DButton
+          @icon="fingerprint"
+          @action={{action "authorizeDomain"}}
+          @label="user.discourse_activity_pub.authorize_button.label"
+          @title="user.discourse_activity_pub.authorize_button.title"
+          @disabled={{this.authorizeDisabled}}
+          id="user_activity_pub_authorize_authorize_domain"
+          class={{this.authorizeBtnClass}}
+        />
+      </div>
+    </div>
+  </template>
 }
