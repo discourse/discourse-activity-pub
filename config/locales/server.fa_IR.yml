@@ -34,6 +34,9 @@ fa_IR:
           attributes:
             model_type:
               invalid: "معتبر نیست"
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "اکتیویتی‌پاب"
   discourse_activity_pub:
     process:
       warning:

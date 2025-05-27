@@ -7,8 +7,16 @@
 fa_IR:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "اکتیویتی‌پاب Discourse"
       discourse_activity_pub:
+        label: اکتیویتی‌پاب
         actor:
+          add:
+            category:
+              title: افزودن دسته‌بندی بازیگر اکتیویتی‌پاب
+              label: افزودن دسته‌بندی بازیگر
           save:
             success: ذخیره شد
           enabled:
@@ -19,6 +27,8 @@ fa_IR:
           name: نام
           default_visibility: قابل مشاهده
           table:
+            actor: بازیگر
+            model: مدل
             auth_type: نوع
             actions: عملیات
           category:
