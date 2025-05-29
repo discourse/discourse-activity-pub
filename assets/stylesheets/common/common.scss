@@ -185,7 +185,6 @@ section.activity-pub-actor-setting {
 .activity-pub-topic-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
 
   span,
   a {
@@ -627,6 +626,11 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-topic-modal {
+  .control-group {
+    .controls + .controls {
+      margin-top: 9px;
+    }
+  }
   .control-group:not(:last-child) {
     margin-bottom: 1.3em;
   }
