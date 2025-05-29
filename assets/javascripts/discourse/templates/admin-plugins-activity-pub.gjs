@@ -7,7 +7,7 @@ import AdminNav from "admin/components/admin-nav";
 
 export default RouteTemplate(
   <template>
-    {{#AdminNav}}
+    <AdminNav>
       <li>
         <LinkTo
           @route="adminPlugins.activityPub.actor"
@@ -41,7 +41,7 @@ export default RouteTemplate(
           <span>{{i18n @controller.addActorLabel}}</span>
         </LinkTo>
       </li>
-    {{/AdminNav}}
+    </AdminNav>
 
     <div class="admin-container">
       {{outlet}}
