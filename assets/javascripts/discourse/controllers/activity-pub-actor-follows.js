@@ -13,6 +13,14 @@ export default class ActivityPubActorFollows extends Controller {
 
   @notEmpty("actors") hasActors;
 
+  get tableClass() {
+    let result = "activity-pub-follow-table follows";
+    if (this.actor?.can_admin) {
+      result += " show-controls";
+    }
+    return result;
+  }
+
   @action
   loadMore() {
     if (!this.loadMoreUrl || this.total <= this.actors.length) {

@@ -83,7 +83,7 @@ module DiscourseActivityPub
     end
 
     def follows
-      guardian.ensure_can_admin!(@actor)
+      guardian.ensure_can_see!(@actor.model)
 
       actors.each { |actor| actor.followed_at = actor.follow_followers&.first&.followed_at }
 

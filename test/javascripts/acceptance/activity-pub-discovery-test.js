@@ -368,7 +368,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub follows route with no create follow permission",
+  "Discourse Activity Pub | Discovery activitypub follows route with no admin actor permission",
   function (needs) {
     needs.user();
     needs.site({
@@ -380,17 +380,64 @@ acceptance(
       server.get("/ap/local/actor/1", () =>
         helper.response(Actors["/ap/local/actor/1"])
       );
+      server.get("/ap/local/actor/1/follows.json", () =>
+        helper.response(Follows["/ap/local/actor/1/follows"])
+      );
     });
 
-    test("returns 404", async function (assert) {
+    test("with activity pub ready", async function (assert) {
       await visit("/ap/local/actor/1/follows");
-      assert.strictEqual(currentURL(), "/404");
+
+      assert.ok(
+        exists(".activity-pub-follow-table.follows"),
+        "the activitypub follows table is visible"
+      );
+      assert.strictEqual(
+        document.querySelectorAll(".activity-pub-follow-table-row").length,
+        2,
+        "follows are visible"
+      );
+      assert.ok(
+        query(".activity-pub-actor-image img").src.includes(
+          "/images/avatar.png"
+        ),
+        "follower image is visible"
+      );
+      assert.equal(
+        query(".activity-pub-actor-name").innerText,
+        "Angus",
+        "follower name is visible"
+      );
+      assert.equal(
+        query(".activity-pub-actor-handle").innerText,
+        "@angus_ap@test.local",
+        "follow handle is visible"
+      );
+      assert.ok(
+        query(".activity-pub-follow-table-user a.avatar").href.includes(
+          "/u/angus"
+        ),
+        "follow user avatar is visible"
+      );
+      assert.equal(
+        query(".activity-pub-follow-table-followed-at").innerText,
+        "Feb 8, 2013",
+        "follower followed at is visible"
+      );
+      assert.notOk(
+        exists(".activity-pub-actor-follow-btn"),
+        "the activitypub actor follow btn is not visible"
+      );
+      assert.notOk(
+        exists(".activity-pub-actor-unfollow-btn"),
+        "the activitypub actor unfollow btn is not visible"
+      );
     });
   }
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub subcategory follows route with edit permission",
+  "Discourse Activity Pub | Discovery activitypub subcategory follows route with admin actor permission",
   function (needs) {
     needs.user();
     needs.site({
@@ -419,7 +466,7 @@ acceptance(
 );
 
 acceptance(
-  "Discourse Activity Pub | Discovery activitypub category follows route with edit permission with followers",
+  "Discourse Activity Pub | Discovery activitypub category follows route with admin actor permission with followers",
   function (needs) {
     needs.user();
     needs.site({
