@@ -139,13 +139,14 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
 
     assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
     assert.dom(".dialog-body p").hasHtml(
-      i18n("admin.discourse_activity_pub.actor.destroy.confirm", {
+      i18n("admin.discourse_activity_pub.actor.destroy.confirm.message", {
         actor: deletedActor.handle,
         model: deletedActor.model.name,
+        model_type: deletedActor.model_type,
       })
     );
 
-    await click("#dialog-holder .btn-primary");
+    await click("#dialog-holder .btn-danger");
 
     assert.strictEqual(destroyRequests, 1, "sends a destroy request");
     assert.dom(".activity-pub-actor-table-row").exists({ count: 1 });
@@ -181,16 +182,6 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
     });
 
     await click(".activity-pub-restore-actor-btn");
-
-    assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
-    assert.dom(".dialog-body p").hasHtml(
-      i18n("admin.discourse_activity_pub.actor.restore.confirm", {
-        actor: deletedActor.handle,
-        model: deletedActor.model.name,
-      })
-    );
-
-    await click("#dialog-holder .btn-primary");
 
     assert.strictEqual(restoreRequests, 1, "sends a restore request");
     assert.dom(".activity-pub-actor-table-row").exists({ count: 2 });
@@ -504,13 +495,14 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
 
     assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
     assert.dom(".dialog-body p").hasHtml(
-      i18n("admin.discourse_activity_pub.actor.delete.confirm", {
+      i18n("admin.discourse_activity_pub.actor.delete.confirm.message", {
         actor: actor.handle,
         model: actor.model.name,
+        model_type: actor.model_type,
       })
     );
 
-    await click("#dialog-holder .btn-primary");
+    await click("#dialog-holder .btn-danger");
 
     assert.strictEqual(deleteRequests, 1, "sends a delete request");
     assert.strictEqual(
