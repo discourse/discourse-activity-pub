@@ -16,6 +16,7 @@ const icons = {
   public: "globe",
   private: "lock",
   actor: "user",
+  topicActor: "user-group",
 };
 
 export default class ActivityPubAttribute extends Component {
@@ -35,10 +36,16 @@ export default class ActivityPubAttribute extends Component {
     });
   }
 
+  get actor() {
+    return (
+      this.args.attribute === "actor" || this.args.attribute === "topicActor"
+    );
+  }
+
   get icon() {
     let key = this.args.value?.toLowerCase() || "note";
-    if (this.args.attribute === "actor") {
-      key = "actor";
+    if (this.actor) {
+      key = this.args.attribute;
     }
     return icons[key];
   }
@@ -47,7 +54,7 @@ export default class ActivityPubAttribute extends Component {
     if (!this.args.value) {
       return "";
     }
-    if (this.args.attribute === "actor") {
+    if (this.actor) {
       return this.args.value;
     } else {
       return i18n(
@@ -59,9 +66,10 @@ export default class ActivityPubAttribute extends Component {
   }
 
   get classes() {
-    let classes = `activity-pub-attribute ${dasherize(
-      this.args.attribute
-    )} ${this.args.value?.toLowerCase()}`;
+    let classes = `activity-pub-attribute ${dasherize(this.args.attribute)}`;
+    if (!this.actor && this.args.value) {
+      classes += ` ${dasherize(this.args.value)}`;
+    }
     if (this.args.uri) {
       classes += " copiable";
     }

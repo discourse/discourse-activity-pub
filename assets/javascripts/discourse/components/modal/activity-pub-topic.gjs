@@ -1,15 +1,14 @@
 import Component from "@glimmer/component";
-import { action } from "@ember/object";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
 import ActivityPubAttributes from "../activity-pub-attributes";
+import ActivityPubPostActions from "../activity-pub-post-actions";
 import ActivityPubPostInfo from "../activity-pub-post-info";
+import ActivityPubTopicActions from "../activity-pub-topic-actions";
 import ActivityPubTopicInfo from "../activity-pub-topic-info";
-import ActivityPubTopicAdminModal from "./activity-pub-topic-admin";
 
-export default class ActivityPubTopicInfoModal extends Component {
+export default class ActivityPubTopicModal extends Component {
   @service modal;
   @service currentUser;
 
@@ -22,23 +21,13 @@ export default class ActivityPubTopicInfoModal extends Component {
   }
 
   get title() {
-    return i18n("topic.discourse_activity_pub.info.title", {
+    return i18n("topic.discourse_activity_pub.title", {
       topic_id: this.topic.id,
     });
   }
 
   get canAdmin() {
     return this.currentUser?.staff;
-  }
-
-  @action
-  showAdmin() {
-    this.modal.show(ActivityPubTopicAdminModal, {
-      model: {
-        firstPost: this.firstPost,
-        topic: this.topic,
-      },
-    });
   }
 
   <template>
@@ -49,14 +38,14 @@ export default class ActivityPubTopicInfoModal extends Component {
     >
       <:body>
         <div class="control-group">
-          <label>{{i18n "topic.discourse_activity_pub.info.status"}}</label>
+          <label>{{i18n "discourse_activity_pub.model.status"}}</label>
           <div class="controls">
             <ActivityPubTopicInfo @topic={{this.topic}} />
             <ActivityPubPostInfo @post={{this.firstPost}} />
           </div>
         </div>
         <div class="control-group">
-          <label>{{i18n "topic.discourse_activity_pub.info.attributes"}}</label>
+          <label>{{i18n "discourse_activity_pub.model.attributes"}}</label>
           <div class="controls">
             <ActivityPubAttributes
               @topic={{this.topic}}
@@ -64,18 +53,20 @@ export default class ActivityPubTopicInfoModal extends Component {
             />
           </div>
         </div>
-      </:body>
-
-      <:footer>
         {{#if this.canAdmin}}
-          <DButton
-            @icon="gear"
-            @label="topic.discourse_activity_pub.admin.label"
-            @action={{this.showAdmin}}
-            class="show-admin"
-          />
+          <div class="control-group">
+            <label>{{i18n "discourse_activity_pub.model.actions"}}</label>
+            <div class="controls">
+              {{#if this.topic.activity_pub_full_topic}}
+                <ActivityPubTopicActions @topic={{this.topic}} />
+              {{/if}}
+            </div>
+            <div class="controls">
+              <ActivityPubPostActions @post={{this.firstPost}} />
+            </div>
+          </div>
         {{/if}}
-      </:footer>
+      </:body>
     </DModal>
   </template>
 }

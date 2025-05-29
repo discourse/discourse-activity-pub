@@ -6,8 +6,8 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import RenderGlimmer from "discourse/widgets/render-glimmer";
 import { i18n } from "discourse-i18n";
 import ActivityPubTopicMap from "../components/activity-pub-topic-map";
-import ActivityPubPostAdminModal from "../components/modal/activity-pub-post-admin";
-import ActivityPubTopicAdminModal from "../components/modal/activity-pub-topic-admin";
+import ActivityPubPostModal from "../components/modal/activity-pub-post";
+import ActivityPubTopicModal from "../components/modal/activity-pub-topic";
 import {
   activityPubPostStatus,
   showStatusToUser,
@@ -89,10 +89,10 @@ export default {
             secondaryAction: "closeAdminMenu",
             icon: "discourse-activity-pub",
             className: "show-activity-pub-post-admin",
-            label: "post.discourse_activity_pub.admin.menu_label",
+            label: "discourse_activity_pub.model.menu",
             position: "second-last-hidden",
             action: async (post) => {
-              modal.show(ActivityPubPostAdminModal, {
+              modal.show(ActivityPubPostModal, {
                 model: {
                   post,
                 },
@@ -110,10 +110,9 @@ export default {
           return {
             icon: "discourse-activity-pub",
             className: "show-activity-pub-topic-admin",
-            title: "topic.discourse_activity_pub.admin.title",
-            label: "topic.discourse_activity_pub.admin.menu_label",
+            label: "discourse_activity_pub.model.menu",
             action: async () => {
-              modal.show(ActivityPubTopicAdminModal, {
+              modal.show(ActivityPubTopicModal, {
                 model: {
                   topic,
                   firstPost,
