@@ -11,12 +11,6 @@ export default class ActivityPubActorFollows extends DiscourseRoute {
 
   afterModel(_, transition) {
     const actor = this.modelFor("activityPub.actor");
-
-    if (!actor.can_admin) {
-      this.router.replaceWith("/404");
-      return;
-    }
-
     return ActivityPubActor.list(
       actor.id,
       transition.to.queryParams,
