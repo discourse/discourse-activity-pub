@@ -21,36 +21,28 @@ en:
             title: Delete ActivityPub actor
             label: Delete Actor
             failed: Not Deleted
-            confirm: |
-              Are you sure you want to delete %{actor}?
-              <ul>
-              <li>%{actor} will not be available to the fediverse.</li>
-              <li>Posts authored by %{actor} will be deleted.</li>
-              <li>Other "%{model}" posts will not be affected.</li>
-              </ul>
-              You can restore deleted actors and posts.
+            confirm:
+              title: "Are you sure you want to delete %{actor}?"
+              message: |
+                <ul>
+                <li>%{actor} will no longer be available to the fediverse.</li>
+                <li>The %{model} %{model_type} will not be deleted.</li>
+                <li>You can restore deleted actors.</li>
+                </ul>
           restore:
             title: Restore ActivityPub actor
             label: Restore
-            confirm:
-              Are you sure you want to restore %{actor}?
-              <ul>
-              <li>%{actor} will be available to the fediverse.</li>
-              <li>Posts authored by %{actor} will not be restored.</li>
-              <li>Other "%{model}" posts will not be affected.</li>
-              </ul>
-              Deleted posts can be restored in the post admin menu.
           destroy:
             title: Destroy ActivityPub actor
             label: Destroy
-            confirm: |
-              Are you sure you want to destroy %{actor}?
-              <ul>
-              <li>%{actor} will be destroyed.</li>
-              <li>Posts authored by %{actor} will be destroyed.</li>
-              <li>Other "%{model}" posts will not be affected.</li>
-              </ul>
-              You cannot restore destroyed actors and posts.
+            confirm:
+              title: Are you sure you want to destroy %{actor}?
+              message: |
+                <ul>
+                <li>%{actor} will be destroyed.</li>
+                <li>The %{model} %{model_type} will not be destroyed.</li>
+                <li>You cannot restore destroyed actors.</li>
+                </ul>
           edit:
             title: Edit ActivityPub actor
             label: Edit

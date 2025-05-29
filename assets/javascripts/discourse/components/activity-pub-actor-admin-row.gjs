@@ -47,31 +47,31 @@ export default class ActivityPubActorAdminRow extends Component {
 
   @action
   restoreActor() {
-    this.dialog.yesNoConfirm({
-      message: i18n("admin.discourse_activity_pub.actor.restore.confirm", {
-        actor: this.actor.handle,
-        model: this.actor.model.name,
-      }),
-      didConfirm: async () => {
-        this.loading = true;
-        this.actor.restore().then((result) => {
-          if (result?.success) {
-            this.actor.set("ap_type", result.actor_ap_type);
-            updateSiteActor(this.actor);
-          }
-          this.loading = false;
-        });
-      },
+    this.loading = true;
+    this.actor.restore().then((result) => {
+      if (result?.success) {
+        this.actor.set("ap_type", result.actor_ap_type);
+        updateSiteActor(this.actor);
+      }
+      this.loading = false;
     });
   }
 
   @action
   destroyActor() {
-    this.dialog.yesNoConfirm({
-      message: i18n("admin.discourse_activity_pub.actor.destroy.confirm", {
+    this.dialog.deleteConfirm({
+      title: i18n("admin.discourse_activity_pub.actor.destroy.confirm.title", {
         actor: this.actor.handle,
-        model: this.actor.model.name,
       }),
+      message: i18n(
+        "admin.discourse_activity_pub.actor.destroy.confirm.message",
+        {
+          actor: this.actor.handle,
+          model: this.actor.model.name,
+          model_type: this.actor.model_type,
+        }
+      ),
+      confirmButtonLabel: "admin.discourse_activity_pub.actor.destroy.label",
       didConfirm: async () => {
         this.loading = true;
         this.actor.destroy().then((result) => {

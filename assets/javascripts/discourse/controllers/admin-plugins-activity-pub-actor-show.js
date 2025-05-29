@@ -82,11 +82,18 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
 
   @action
   deleteActor() {
-    this.dialog.yesNoConfirm({
-      message: i18n("admin.discourse_activity_pub.actor.delete.confirm", {
+    this.dialog.deleteConfirm({
+      title: i18n("admin.discourse_activity_pub.actor.delete.confirm.title", {
         actor: this.actor.handle,
-        model: this.actor.model.name,
       }),
+      message: i18n(
+        "admin.discourse_activity_pub.actor.delete.confirm.message",
+        {
+          actor: this.actor.handle,
+          model: this.actor.model.name,
+          model_type: this.actor.model_type,
+        }
+      ),
       didConfirm: async () => {
         this.loading = true;
         this.actor.delete().then((result) => {
