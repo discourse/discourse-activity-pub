@@ -409,4 +409,87 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
       end
     end
   end
+
+  describe "#delete_user" do
+    let!(:user) { Fabricate(:user) }
+
+    context "without an associated actor" do
+      it "does nothing" do
+        expect(described_class.delete_user(user)).to eq(false)
+        expect(user.reload.active?).to eq(true)
+      end
+
+      context "with a destroy flag" do
+        it "does nothing" do
+          expect(described_class.delete_user(user)).to eq(false)
+          expect(user.reload.active?).to eq(true)
+        end
+      end
+    end
+
+    context "with a local actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user, local: true) }
+
+      before { user.reload }
+
+      it "tombstones the actor" do
+        expect(described_class.delete_user(user)).to eq(true)
+        expect(user.activity_pub_actor.tombstoned?).to eq(true)
+      end
+
+      it "deactivates the user" do
+        expect(described_class.delete_user(user)).to eq(true)
+        expect(user.active?).to eq(false)
+      end
+
+      context "with a destroy flag" do
+        it "does not destroy the user" do
+          expect(described_class.delete_user(user, destroy: true)).to eq(true)
+          expect(user.reload.persisted?).to eq(true)
+        end
+
+        context "when the user is staged" do
+          before { user.update!(staged: true) }
+
+          it "does not destroy the user" do
+            expect(described_class.delete_user(user, destroy: true)).to eq(true)
+            expect(user.reload.persisted?).to eq(true)
+          end
+        end
+      end
+    end
+
+    context "with a remote actor" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user, local: false) }
+
+      before { user.reload }
+
+      it "tombstones the actor" do
+        expect(described_class.delete_user(user)).to eq(true)
+        expect(user.activity_pub_actor.tombstoned?).to eq(true)
+      end
+
+      it "deactivates the user" do
+        expect(described_class.delete_user(user)).to eq(true)
+        expect(user.active?).to eq(false)
+      end
+
+      context "with a destroy flag" do
+        it "does not destroy a normal user" do
+          expect(described_class.delete_user(user, destroy: true)).to eq(true)
+          expect(user.reload.persisted?).to eq(true)
+        end
+
+        context "when the user is staged" do
+          before { user.update!(staged: true) }
+
+          it "destroys the user" do
+            expect { described_class.delete_user(user, destroy: true) }.to change { User.count }.by(
+              -1,
+            )
+          end
+        end
+      end
+    end
+  end
 end

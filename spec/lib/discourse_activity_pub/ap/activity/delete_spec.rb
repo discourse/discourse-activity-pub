@@ -177,16 +177,33 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
       context "when actor id returns a 404" do
         before { stub_object_request(actor_json, body: tombstone_json.to_json, status: 404) }
 
-        it "does not create activity" do
-          perform_process(activity_json)
-          expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(
-            false,
-          )
+        context "when the user is not staged" do
+          it "creates an activity" do
+            perform_process(activity_json)
+            expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+          end
+
+          it "tombstones the actor" do
+            perform_process(activity_json)
+            expect(actor.reload.ap_type).to eq("Tombstone")
+            expect(actor.reload.ap_former_type).to eq("Person")
+          end
         end
 
-        it "deletes the actor" do
-          perform_process(activity_json)
-          expect(DiscourseActivityPubActor.unscoped.exists?(id: actor.id)).to eq(false)
+        context "when the user is staged" do
+          before { actor.model.update!(staged: true) }
+
+          it "does not create an activity" do
+            perform_process(activity_json)
+            expect(DiscourseActivityPubActivity.unscoped.exists?(ap_id: activity_json[:id])).to be(
+              false,
+            )
+          end
+
+          it "deletes the actor" do
+            perform_process(activity_json)
+            expect(DiscourseActivityPubActor.unscoped.exists?(id: actor.id)).to eq(false)
+          end
         end
 
         context "when the actor has posts" do

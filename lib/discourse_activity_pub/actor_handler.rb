@@ -122,7 +122,9 @@ module DiscourseActivityPub
     end
 
     def self.delete_user(user, destroy: false)
-      if destroy
+      return false if user.activity_pub_actor.blank?
+
+      if destroy && user.activity_pub_actor.remote? && user.staged?
         user_destroyer = ::UserDestroyer.new(Discourse.system_user)
         user_destroyer.destroy(
           user,
