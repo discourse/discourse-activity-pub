@@ -12,6 +12,7 @@ import {
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
+import { i18n } from "discourse-i18n";
 import { default as AdminActors } from "../fixtures/admin-actors-fixtures";
 import { default as Logs } from "../fixtures/logs-fixtures";
 import { default as SiteActors } from "../fixtures/site-actors-fixtures";
@@ -46,11 +47,14 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
   needs.site({
     activity_pub_enabled: true,
     activity_pub_publishing_enabled: true,
+    activity_pub_actors: cloneJSON(SiteActors),
   });
 
   test("lists category actors", async function (assert) {
     pretender.get("/admin/plugins/ap/actor", (request) => {
       if (request.queryParams.model_type === "category") {
+        // The second actor in the list is deleted.
+        categoryActors.actors[1].ap_type = "Tombstone";
         return response(categoryActors);
       } else {
         return response(tagActors);
@@ -65,16 +69,134 @@ acceptance("Discourse Activity Pub | Admin | Index", function (needs) {
     assert.strictEqual(
       document.querySelectorAll(".activity-pub-actor-table-row").length,
       2,
-      "actors are visible"
+      "enabled and deleted actors are visible"
     );
     assert.ok(
-      exists(".activity-pub-actor-edit-btn"),
-      "the actor edit btn is visible"
+      exists(
+        ".activity-pub-actor-table-row:nth-of-type(1) .activity-pub-edit-actor-btn"
+      ),
+      "the edit btn is visible for enabled actors"
     );
-    await click(".activity-pub-actor-edit-btn");
+    assert.notOk(
+      exists(
+        ".activity-pub-actor-table-row:nth-of-type(2) .activity-pub-edit-actor-btn"
+      ),
+      "the edit btn is not visible for deleted actors"
+    );
+    assert.notOk(
+      exists(
+        ".activity-pub-actor-table-row:nth-of-type(1) .activity-pub-destroy-actor-btn"
+      ),
+      "the destroy btn is not visible for enabled actors"
+    );
+    assert.ok(
+      exists(
+        ".activity-pub-actor-table-row:nth-of-type(2) .activity-pub-destroy-actor-btn"
+      ),
+      "the destroy btn is visible for deleted actors"
+    );
+    assert.notOk(
+      exists(
+        ".activity-pub-actor-table-row:nth-of-type(1) .activity-pub-restore-actor-btn"
+      ),
+      "the restore btn is not visible for enabled actors"
+    );
+    assert.ok(
+      exists(
+        ".activity-pub-actor-table-row:nth-of-type(2) .activity-pub-restore-actor-btn"
+      ),
+      "the restore btn is visible for deleted actors"
+    );
+
+    await click(".activity-pub-edit-actor-btn");
     assert.ok(
       exists(".admin-plugins.activity-pub.actor-show"),
-      "it routes to actor show"
+      "edit button routes to actor show"
+    );
+  });
+
+  test("destroy actor", async function (assert) {
+    pretender.get("/admin/plugins/ap/actor", (request) => {
+      if (request.queryParams.model_type === "category") {
+        // The second actor in the list is deleted.
+        categoryActors.actors[1].ap_type = "Tombstone";
+        return response(categoryActors);
+      } else {
+        return response(tagActors);
+      }
+    });
+
+    await visit("/admin/plugins/ap/actor");
+
+    let deletedActor = categoryActors.actors[1];
+    let destroyRequests = 0;
+    pretender.delete(`/admin/plugins/ap/actor/${deletedActor.id}`, () => {
+      destroyRequests += 1;
+      return response({ success: true });
+    });
+
+    await click(".activity-pub-destroy-actor-btn");
+
+    assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
+    assert.dom(".dialog-body p").hasHtml(
+      i18n("admin.discourse_activity_pub.actor.destroy.confirm.message", {
+        actor: deletedActor.handle,
+        model: deletedActor.model.name,
+        model_type: deletedActor.model_type,
+      })
+    );
+
+    await click("#dialog-holder .btn-danger");
+
+    assert.strictEqual(destroyRequests, 1, "sends a destroy request");
+    assert.dom(".activity-pub-actor-table-row").exists({ count: 1 });
+    assert
+      .dom(`.activity-pub-actor-table-row[data-actor-id='${deletedActor.id}']`)
+      .doesNotExist();
+
+    const siteActors = Site.currentProp("activity_pub_actors");
+    assert.true(
+      siteActors.category.every((a) => a.name !== deletedActor.name),
+      "removes the site actor"
+    );
+  });
+
+  test("restore actor", async function (assert) {
+    pretender.get("/admin/plugins/ap/actor", (request) => {
+      if (request.queryParams.model_type === "category") {
+        // The second actor in the list is deleted.
+        categoryActors.actors[1].ap_type = "Tombstone";
+        return response(categoryActors);
+      } else {
+        return response(tagActors);
+      }
+    });
+
+    await visit("/admin/plugins/ap/actor");
+
+    let deletedActor = categoryActors.actors[1];
+    let restoreRequests = 0;
+    pretender.post(`/admin/plugins/ap/actor/${deletedActor.id}/restore`, () => {
+      restoreRequests += 1;
+      return response({ success: true, actor_ap_type: "Group" });
+    });
+
+    await click(".activity-pub-restore-actor-btn");
+
+    assert.strictEqual(restoreRequests, 1, "sends a restore request");
+    assert.dom(".activity-pub-actor-table-row").exists({ count: 2 });
+    assert
+      .dom(
+        `.activity-pub-actor-table-row[data-actor-id='${deletedActor.id}'] .activity-pub-actor-table-status span`
+      )
+      .hasText("Disabled");
+
+    const siteActors = Site.currentProp("activity_pub_actors");
+    assert.true(
+      siteActors.category.some(
+        (a) => a.name === deletedActor.name && a.ap_type === "Group"
+      ),
+      "restores the site actor"
     );
   });
 
@@ -312,6 +434,9 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     server.get(`/admin/plugins/ap/actor/${actor.id}`, () =>
       helper.response(actor)
     );
+    server.get("/admin/plugins/ap/actor", () =>
+      helper.response(categoryActors)
+    );
   });
 
   test("edits an actor", async function (assert) {
@@ -354,6 +479,44 @@ acceptance("Discourse Activity Pub | Admin | Edit Actor", function (needs) {
     assert.true(
       siteActors.category.some((a) => a.name === updatedActor.name),
       "updates the site actor"
+    );
+  });
+
+  test("deletes an actor", async function (assert) {
+    await visit(`/admin/plugins/ap/actor/${actor.id}`);
+
+    let deleteRequests = 0;
+    pretender.delete(`/admin/plugins/ap/actor/${actor.id}`, () => {
+      deleteRequests += 1;
+      return response({ success: true });
+    });
+
+    await click(".activity-pub-delete-actor");
+
+    assert.ok(exists("#dialog-holder"), "confirmation dialog is visible");
+    assert.dom(".dialog-body p").hasHtml(
+      i18n("admin.discourse_activity_pub.actor.delete.confirm.message", {
+        actor: actor.handle,
+        model: actor.model.name,
+        model_type: actor.model_type,
+      })
+    );
+
+    await click("#dialog-holder .btn-danger");
+
+    assert.strictEqual(deleteRequests, 1, "sends a delete request");
+    assert.strictEqual(
+      currentURL(),
+      "/admin/plugins/ap/actor",
+      "returns to actor index"
+    );
+
+    const siteActors = Site.currentProp("activity_pub_actors");
+    assert.true(
+      siteActors.category.some(
+        (a) => a.name === actor.name && a.ap_type === "Tombstone"
+      ),
+      "tombstones the site actor"
     );
   });
 });

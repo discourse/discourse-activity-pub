@@ -95,7 +95,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
   end
 
   def publish!
-    _published_at = get_published_at
+    _published_at = self.published_at ? self.published_at.to_time.utc.iso8601 : Time.now.utc.iso8601
     self.update(published_at: _published_at) if !self.published_at
     after_published(_published_at, self)
   end

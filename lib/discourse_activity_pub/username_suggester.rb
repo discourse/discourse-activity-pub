@@ -52,8 +52,8 @@ module DiscourseActivityPub
       attempt = username
       until (DiscourseActivityPubActor.username_unique?(attempt) || i > 100)
         suffix = (i + offset).to_s
-        max_length = User.username_length.end - suffix.length
-        attempt = "#{UserNameSuggester.truncate(username, max_length)}#{suffix}"
+        max_length = ::User.username_length.end - suffix.length
+        attempt = "#{::UserNameSuggester.truncate(username, max_length)}#{suffix}"
         i += 1
       end
 

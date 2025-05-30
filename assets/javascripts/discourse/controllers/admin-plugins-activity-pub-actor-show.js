@@ -1,9 +1,7 @@
 import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
 import { action } from "@ember/object";
-import { equal } from "@ember/object/computed";
 import { service } from "@ember/service";
-import discourseLater from "discourse/lib/later";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
 import { updateSiteActor } from "../lib/activity-pub-utilities";
@@ -18,8 +16,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @tracked tags = [];
   @tracked showForm = false;
   @tracked enabled = this.actor.enabled;
-  @tracked saving = false;
-  @tracked saveResponse = null;
+  @tracked loading = false;
   @tracked actor;
 
   modelTypes = [
@@ -33,10 +30,12 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     },
   ];
 
-  @equal("saveResponse", "success") saveSuccess;
-
   get canSave() {
-    return this.showForm;
+    return this.showForm && !this.actor.isDeleted;
+  }
+
+  get canDelete() {
+    return this.showForm && !this.actor.isNew && !this.actor.isDeleted;
   }
 
   get containerClass() {
@@ -49,7 +48,11 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   }
 
   get enabledLabel() {
-    let key = this.enabled ? "enabled" : "disabled";
+    let key = this.actor.isDeleted
+      ? "deleted"
+      : this.enabled
+        ? "enabled"
+        : "disabled";
     return `admin.discourse_activity_pub.actor.${key}.label`;
   }
 
@@ -60,27 +63,48 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
 
   @action
   saveActor() {
-    this.saving = true;
+    this.loading = true;
     this.actor.save().then((result) => {
       if (result?.success) {
         updateSiteActor(result.actor);
-
         if (this.actor.isNew) {
-          this.saving = false;
+          this.loading = false;
           return this.router.transitionTo(
             "adminPlugins.activityPub.actorShow",
             result.actor
           );
         }
         this.actor = ActivityPubActor.create(result.actor);
-        this.saveResponse = "success";
-      } else {
-        this.saveResponse = "failed";
       }
-      discourseLater(() => {
-        this.saveResponse = null;
-      }, 3000);
-      this.saving = false;
+      this.loading = false;
+    });
+  }
+
+  @action
+  deleteActor() {
+    this.dialog.deleteConfirm({
+      title: i18n("admin.discourse_activity_pub.actor.delete.confirm.title", {
+        actor: this.actor.handle,
+      }),
+      message: i18n(
+        "admin.discourse_activity_pub.actor.delete.confirm.message",
+        {
+          actor: this.actor.handle,
+          model: this.actor.model.name,
+          model_type: this.actor.model_type,
+        }
+      ),
+      didConfirm: async () => {
+        this.loading = true;
+        this.actor.delete().then((result) => {
+          if (result?.success) {
+            this.actor.set("ap_type", "Tombstone");
+            updateSiteActor(this.actor);
+            return this.router.transitionTo("adminPlugins.activityPub.actor");
+          }
+          this.loading = false;
+        });
+      },
     });
   }
 

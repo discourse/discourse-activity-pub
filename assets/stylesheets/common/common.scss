@@ -441,15 +441,15 @@ body.user-preferences-activity-pub-page {
 }
 
 .activity-pub-actor-table {
-  grid-template-columns: minmax(13em, 3fr) 150px 150px;
+  grid-template-columns: minmax(13em, 3fr) 150px 150px 230px;
 }
 
 .activity-pub-actor-table-actor {
   justify-content: flex-start;
 }
 
-.activity-pub-actor-table-actions,
-.activity-pub-actor-table-model {
+.activity-pub-actor-table-actions {
+  gap: 1em;
   justify-content: flex-end;
 
   .header-contents {

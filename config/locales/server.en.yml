@@ -97,6 +97,7 @@ en:
         invalid_collection_item: "Invalid item"
         cannot_resolve_context: "Cannot resolve object context"
         cant_resolve_collection: "Cannot resolve collection"
+        actor_cannot_be_deleted: "Actor cannot be deleted"
       error:
         failed_to_create_user: "Failed to create user for %{actor_id}"
         failed_to_create_post: "Failed to create post for %{object_id}"
@@ -125,6 +126,7 @@ en:
         cant_unschedule_post: "Can't unschedule post"
         not_first_post: "Post is not the first post"
         failed_to_create: "Failed to create post for %{object_id}: %{message}"
+      deleted: "Received a Delete for the %{object_type} associated with the post."
     topic:
       error:
         topic_not_found: "Topic not found"
@@ -132,6 +134,7 @@ en:
     user:
       error:
         failed_to_create: "Failed to create user for %{actor_id}: %{message}"
+      destroyed: "User destroyed by ActivityPub Delete Activity: %{username}"
 
     object:
       note:
@@ -152,6 +155,7 @@ en:
         full_topic_must_be_public: "Full topic publication requires public publication."
         user_not_authorized: "User not authorized"
         not_following_actor: "Target actor is not following the actor"
+        actor_cant_be_restored: "Actor cannot be restored"
       warning:
         cant_create_model_for_actor_type: "Cannot create a model for %{actor_type} %{actor_id}"
         cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
