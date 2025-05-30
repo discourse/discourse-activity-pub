@@ -129,7 +129,7 @@ module DiscourseActivityPub
         user_destroyer = ::UserDestroyer.new(Discourse.system_user)
         user_destroyer.destroy(
           user,
-          context: I18n.t("discourse_activity_pub.user.deleted", username: user.username),
+          context: I18n.t("discourse_activity_pub.user.destroyed", username: user.username),
         )
       else
         user.update!(active: false)
