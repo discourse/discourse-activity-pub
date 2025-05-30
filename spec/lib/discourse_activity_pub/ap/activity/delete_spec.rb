@@ -190,8 +190,13 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
           end
         end
 
-        context "when the user is staged" do
-          before { actor.model.update!(staged: true) }
+        context "when the user is staged by the ap plugin" do
+          before do
+            actor.model.update!(staged: true)
+            actor.model.custom_fields[:activity_pub_user] = true
+            actor.model.save_custom_fields(true)
+            UserEmail.where(user_id: actor.model.id).destroy_all
+          end
 
           it "does not create an activity" do
             perform_process(activity_json)

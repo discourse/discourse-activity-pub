@@ -175,6 +175,18 @@ after_initialize do
   end
 
   User.prepend DiscourseActivityPub::User
+  User.activity_pub_custom_fields.each do |field_name, field_type|
+    register_user_custom_field_type(field_name, field_type)
+    boolean = field_type == :boolean
+    method_name = boolean ? "#{field_name}?" : field_name
+    add_to_class(:user, method_name.to_sym) do
+      if boolean
+        ActiveModel::Type::Boolean.new.cast(custom_fields[field_name])
+      else
+        custom_fields[field_name]
+      end
+    end
+  end
   Guardian.prepend DiscourseActivityPub::Guardian
   Topic.prepend DiscourseActivityPub::Topic
   Post.prepend DiscourseActivityPub::Post

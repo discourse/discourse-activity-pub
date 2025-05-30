@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 module DiscourseActivityPub::User
+  module ClassMethods
+    def activity_pub_custom_fields
+      { activity_pub_user: :boolean }
+    end
+  end
+
   def self.prepended(user_class)
+    user_class.extend(ClassMethods)
     user_class.has_one :activity_pub_actor, class_name: "DiscourseActivityPubActor", as: :model
     user_class.has_many :activity_pub_authorizations,
                         -> { active },

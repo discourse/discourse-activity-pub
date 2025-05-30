@@ -124,7 +124,8 @@ module DiscourseActivityPub
     def self.delete_user(user, destroy: false)
       return false if user.activity_pub_actor.blank?
 
-      if destroy && user.activity_pub_actor.remote? && user.staged? && user.user_emails.blank?
+      if destroy && user.activity_pub_user? && user.activity_pub_actor.remote? && user.staged? &&
+           user.user_emails.blank?
         user_destroyer = ::UserDestroyer.new(Discourse.system_user)
         user_destroyer.destroy(
           user,
@@ -182,6 +183,9 @@ module DiscourseActivityPub
           )
           raise ActiveRecord::Rollback
         end
+
+        @model.custom_fields[:activity_pub_user] = true
+        @model.save_custom_fields(true)
       end
 
       actor.update(model_id: model.id, model_type: "User") if model.activity_pub_actor.blank?
