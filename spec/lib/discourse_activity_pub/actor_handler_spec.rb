@@ -424,6 +424,15 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
           expect(described_class.delete_user(user)).to eq(false)
           expect(user.reload.active?).to eq(true)
         end
+
+        context "when the user is staged" do
+          before { user.update!(staged: true) }
+
+          it "does not destroy the user" do
+            expect(described_class.delete_user(user, destroy: true)).to eq(false)
+            expect(user.reload.persisted?).to eq(true)
+          end
+        end
       end
     end
 
