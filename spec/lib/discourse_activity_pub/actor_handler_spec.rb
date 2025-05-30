@@ -489,8 +489,12 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
           expect(user.reload.persisted?).to eq(true)
         end
 
-        context "when the user is staged" do
-          before { user.update!(staged: true) }
+        context "when the user was staged by the AP plugin" do
+          before do
+            user.update!(staged: true)
+            # Users staged by the AP plugin don't have emails
+            user.user_emails.destroy_all
+          end
 
           it "destroys the user" do
             expect { described_class.delete_user(user, destroy: true) }.to change { User.count }.by(
