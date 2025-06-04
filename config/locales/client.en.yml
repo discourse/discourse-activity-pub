@@ -223,15 +223,16 @@ en:
           full_topic: Every post of every topic in this %{model_type} is published via ActivityPub and replies on other ActivityPub servers are imported as replies in Discourse.
       copy_uri:
         copied: URI Copied!
+      model:
+        actions: Actions
+        group_actors: Group Actors
+        attributes: Attributes
+        status: Status
+        menu: ActivityPub Actions...
 
     post:
       discourse_activity_pub:
-        info:
-          title: "ActivityPub Info for Post #%{post_number}"
-          label: "Post Info"
-          group_actors: "Group Actors"
-          attributes: Post Attributes
-          status: Post Status
+        title: "ActivityPub for Post #%{post_number}"
         status:
           published: "Post was published via ActivityPub on %{datetime}."
           scheduled: "Post is scheduled to be published via ActivityPub on %{datetime}."
@@ -250,12 +251,7 @@ en:
           published_remote: "Post was published on %{datetime}."
           not_published: "Post is not published."
           delivered: "Post was delivered on %{datetime}."
-        admin:
-          title: "ActivityPub Admin for Post #%{post_number}"
-          label: Post Admin
-          menu_label: ActivityPub Post Admin...
         actions:
-          label: "Post Actions"
           publish:
             label: "Publish Post #%{post_number}"
             description:
@@ -281,12 +277,7 @@ en:
 
     topic:
       discourse_activity_pub:
-        info:
-          title: "ActivityPub Info for Topic #%{topic_id}"
-          label: Topic Info
-          group_actors: "Group Actors"
-          attributes: Topic Attributes
-          status: Topic Status
+        title: "ActivityPub for Topic #%{topic_id}"
         status:
           scheduled: Topic is scheduled to be published via ActivityPub on %{datetime}.
           scheduled_past: Topic was scheduled to be published via ActivityPub on %{datetime}.
@@ -307,10 +298,6 @@ en:
           some_published: "%{count} of %{total} posts in this topic are published."
           none_published: No posts in this topic are published.
           scheduled: This topic is scheduled to be published.
-        admin:
-          title: "ActivityPub Admin for Topic #%{topic_id}"
-          label: Topic Admin
-          menu_label: ActivityPub Topic Admin...
         actions:
           label: Topic Actions
         actors:

@@ -8,7 +8,7 @@ import {
   activityPubPostStatus,
   activityPubPostStatusText,
 } from "../lib/activity-pub-utilities";
-import ActivityPubPostInfoModal from "./modal/activity-pub-post-info";
+import ActivityPubPostModal from "./modal/activity-pub-post";
 
 export default class ActivityPubPostStatus extends Component {
   @service modal;
@@ -40,7 +40,7 @@ export default class ActivityPubPostStatus extends Component {
 
   @action
   showInfoModal() {
-    this.modal.show(ActivityPubPostInfoModal, {
+    this.modal.show(ActivityPubPostModal, {
       model: {
         post: this.post,
       },

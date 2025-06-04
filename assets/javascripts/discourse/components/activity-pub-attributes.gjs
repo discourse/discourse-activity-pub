@@ -1,9 +1,10 @@
 import Component from "@glimmer/component";
+import { activityPubTopicActors } from "../lib/activity-pub-utilities";
 import ActivityPubAttribute from "./activity-pub-attribute";
 
 export default class ActivityPubAttributes extends Component {
   get topic() {
-    return this.args.topic;
+    return this.args.topic || this.post.topic;
   }
 
   get post() {
@@ -11,7 +12,11 @@ export default class ActivityPubAttributes extends Component {
   }
 
   get postActor() {
-    return this.post.topic.getActivityPubPostActor(this.post.id);
+    return this.topic.getActivityPubPostActor(this.post.id);
+  }
+
+  get topicActors() {
+    return activityPubTopicActors(this.topic);
   }
 
   <template>
@@ -38,6 +43,15 @@ export default class ActivityPubAttributes extends Component {
           @value={{this.postActor.actor.handle}}
           @uri={{this.postActor.actor.ap_id}}
         />
+      {{/if}}
+      {{#if this.topicActors}}
+        {{#each this.topicActors as |topicActor|}}
+          <ActivityPubAttribute
+            @attribute="topicActor"
+            @value={{topicActor.handle}}
+            @uri={{topicActor.ap_id}}
+          />
+        {{/each}}
       {{/if}}
     </div>
   </template>

@@ -5,7 +5,7 @@ import { service } from "@ember/service";
 import { dasherize } from "@ember/string";
 import dIcon from "discourse/helpers/d-icon";
 import { activityPubTopicStatusText } from "../lib/activity-pub-utilities";
-import ActivityPubTopicInfoModal from "./modal/activity-pub-topic-info";
+import ActivityPubTopicModal from "./modal/activity-pub-topic";
 
 export default class ActivityPubTopicStatus extends Component {
   @service modal;
@@ -46,7 +46,7 @@ export default class ActivityPubTopicStatus extends Component {
   async showInfoModal() {
     const topic = this.topic;
     const firstPost = await topic.firstPost();
-    this.modal.show(ActivityPubTopicInfoModal, { model: { topic, firstPost } });
+    this.modal.show(ActivityPubTopicModal, { model: { topic, firstPost } });
   }
 
   <template>
