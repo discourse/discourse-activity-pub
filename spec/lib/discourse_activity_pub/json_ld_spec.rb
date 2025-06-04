@@ -3,10 +3,10 @@
 RSpec.describe DiscourseActivityPub::JsonLd do
   let(:object) do
     {
-      id: "https://external.com/u/angus",
+      id: "https://remote.com/u/angus",
       type: "Person",
-      inbox: "https://external.com/u/angus/inbox",
-      outbox: "https://external.com/u/angus/outbox",
+      inbox: "https://remote.com/u/angus/inbox",
+      outbox: "https://remote.com/u/angus/outbox",
     }
   end
 
@@ -16,7 +16,7 @@ RSpec.describe DiscourseActivityPub::JsonLd do
     end
 
     it "performs a request on strings" do
-      ap_id = "https://external.com/u/angus"
+      ap_id = "https://remote.com/u/angus"
       DiscourseActivityPub::Request.expects(:get_json_ld).with(uri: ap_id).returns(nil)
       described_class.resolve_object(ap_id)
     end
@@ -56,7 +56,7 @@ RSpec.describe DiscourseActivityPub::JsonLd do
   end
 
   describe "#address_json" do
-    let!(:to_actor_id) { "https://external.com/u/angus" }
+    let!(:to_actor_id) { "https://remote.com/u/angus" }
 
     context "with nested json" do
       let!(:json) do

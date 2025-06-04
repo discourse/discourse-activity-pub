@@ -4,10 +4,10 @@ RSpec.describe DiscourseActivityPub::Request do
   let(:object) do
     {
       "@context": "https://www.w3.org/ns/activitystreams",
-      id: "https://external.com/u/angus",
+      id: "https://remote.com/u/angus",
       type: "Person",
-      inbox: "https://external.com/u/angus/inbox",
-      outbox: "https://external.com/u/angus/outbox",
+      inbox: "https://remote.com/u/angus/inbox",
+      outbox: "https://remote.com/u/angus/outbox",
     }.with_indifferent_access
   end
 
@@ -183,15 +183,15 @@ RSpec.describe DiscourseActivityPub::Request do
         id: "https://forum.com/c/announcements#activity/accept/#{SecureRandom.hex(8)}",
         type: "Accept",
         actor: "https://forum.com/c/announcements",
-        object: "https://external.com/activity/follow/#{SecureRandom.hex(8)}",
-        to: "https://external.com/u/angus/inbox",
+        object: "https://remote.com/activity/follow/#{SecureRandom.hex(8)}",
+        to: "https://remote.com/u/angus/inbox",
       }.with_indifferent_access
     end
     let(:post_headers) do
       {
         "Content-Type" => DiscourseActivityPub::JsonLd.content_type_header,
         "Digest" => "SHA-256=#{Digest::SHA256.base64digest(accept_json.to_json)}",
-        "Host" => "external.com",
+        "Host" => "remote.com",
         "Date" => Time.now.utc.httpdate,
       }
     end

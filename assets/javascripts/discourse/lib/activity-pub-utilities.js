@@ -162,3 +162,19 @@ export function updateSiteActor(newActor) {
 
   Site.currentProp("activity_pub_actors", actors);
 }
+
+export function removeSiteActor(actor) {
+  if (!actor) {
+    return;
+  }
+
+  const actors = Site.currentProp("activity_pub_actors");
+  if (!actors) {
+    return;
+  }
+
+  const modelType = actor.model_type.toLowerCase();
+  actors[modelType] = actors[modelType].filter((a) => a.id !== actor.id);
+
+  Site.currentProp("activity_pub_actors", actors);
+}

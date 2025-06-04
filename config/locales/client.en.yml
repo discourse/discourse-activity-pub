@@ -17,11 +17,38 @@ en:
           save: 
             title: Save ActivityPub actor
             label: Save Actor
-            success: Saved
-            failed: Not Saved
+          delete:
+            title: Delete ActivityPub actor
+            label: Delete Actor
+            failed: Not Deleted
+            confirm:
+              title: "Are you sure you want to delete %{actor}?"
+              message: |
+                <ul>
+                <li>%{actor} will no longer be available to the fediverse.</li>
+                <li>The %{model} %{model_type} will not be deleted.</li>
+                <li>You can restore deleted actors.</li>
+                </ul>
+          restore:
+            title: Restore ActivityPub actor
+            label: Restore
+          destroy:
+            title: Destroy ActivityPub actor
+            label: Destroy
+            confirm:
+              title: Are you sure you want to destroy %{actor}?
+              message: |
+                <ul>
+                <li>%{actor} will be destroyed.</li>
+                <li>The %{model} %{model_type} will not be destroyed.</li>
+                <li>You cannot restore destroyed actors.</li>
+                </ul>
           edit:
             title: Edit ActivityPub actor
-            label: Edit Actor
+            label: Edit
+          deleted:
+            title: ActivityPub actor deleted
+            label: Deleted
           enabled:
             title: ActivityPub actor enabled
             label: Enabled
@@ -52,6 +79,7 @@ en:
             actor: Actor
             model: Model
             auth_type: Type
+            status: Status
             actions: Actions
           category:
             label: Categories

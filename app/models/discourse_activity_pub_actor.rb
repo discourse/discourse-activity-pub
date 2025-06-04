@@ -2,14 +2,15 @@
 class DiscourseActivityPubActor < ActiveRecord::Base
   include DiscourseActivityPub::AP::IdentifierValidations
   include DiscourseActivityPub::AP::ModelValidations
+  include DiscourseActivityPub::AP::ObjectHelpers
   include DiscourseActivityPub::WebfingerActorAttributes
 
   APPLICATION_ACTOR_ID = -1
   APPLICATION_ACTOR_USERNAME = "discourse.internal"
   SERIALIZED_FIELDS = %i[enabled username name default_visibility publication_type post_object_type]
-  ACTIVE_MODELS = %w[Category Tag]
+  GROUP_MODELS = %w[Category Tag]
 
-  scope :active, -> { where(model_type: ACTIVE_MODELS, enabled: true) }
+  scope :active, -> { where(model_type: GROUP_MODELS, enabled: true) }
 
   belongs_to :model, polymorphic: true, optional: true
   belongs_to :category,
@@ -71,6 +72,16 @@ class DiscourseActivityPubActor < ActiveRecord::Base
            class_name: "DiscourseActivityPubActor",
            through: :follow_follows,
            source: :followed,
+           dependent: :destroy
+  has_many :objects,
+           class_name: "DiscourseActivityPubObject",
+           primary_key: "ap_id",
+           foreign_key: "attributed_to_id",
+           dependent: :destroy
+  has_many :collections,
+           class_name: "DiscourseActivityPubCollection",
+           primary_key: "ap_id",
+           foreign_key: "attributed_to_id",
            dependent: :destroy
 
   scope :local, -> { where(local: true) }
@@ -198,6 +209,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     save_model_changes
   end
 
+  def restore!
+    return false if !tombstoned? || !model || model.destroyed?
+    restore_tombstoned_objects!
+    restore_tombstoned!
+  end
+
   def save_model_changes
     if save!
       model.activity_pub_publish_state
@@ -205,6 +222,69 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     else
       false
     end
+  end
+
+  def tombstone_objects!
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_objects
+    SET ap_former_type = discourse_activity_pub_objects.ap_type,
+        ap_type = :ap_type,
+        deleted_at = :deleted_at
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      ap_type: DiscourseActivityPub::AP::Object::Tombstone.type,
+      deleted_at: Time.now.utc.iso8601,
+    )
+
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_collections
+    SET ap_former_type = discourse_activity_pub_collections.ap_type,
+        ap_type = :ap_type,
+        deleted_at = :deleted_at
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      ap_type: DiscourseActivityPub::AP::Object::Tombstone.type,
+      deleted_at: Time.now.utc.iso8601,
+    )
+  end
+
+  def restore_tombstoned_objects!
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_objects
+    SET ap_former_type = null,
+        ap_type = COALESCE(discourse_activity_pub_objects.ap_former_type, :default_ap_type),
+        deleted_at = null
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      default_ap_type: DiscourseActivityPub::AP::Object::Note.type,
+    )
+
+    sql = <<~SQL
+    UPDATE discourse_activity_pub_collections
+    SET ap_former_type = null,
+        ap_type = COALESCE(discourse_activity_pub_collections.ap_former_type, :default_ap_type),
+        deleted_at = null
+    WHERE attributed_to_id = :actor_ap_id
+    SQL
+    DB.exec(
+      sql,
+      actor_ap_id: self.ap_id,
+      default_ap_type: DiscourseActivityPub::AP::Collection::OrderedCollection.type,
+    )
+  end
+
+  def destroy_objects!
+    objects.destroy_all
+    collections.destroy_all
   end
 
   def self.find_by_handle(raw_handle, local: false, refresh: false, types: [])
@@ -332,6 +412,8 @@ end
 #  default_visibility :string
 #  publication_type   :string
 #  post_object_type   :string
+#  deleted_at         :datetime
+#  ap_former_type     :string
 #
 # Indexes
 #

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Jobs::DiscourseActivityPubDeliver do
+RSpec.describe Jobs::DiscourseActivityPub::Deliver do
   let!(:category) { Fabricate(:category) }
   let!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category) }
   let!(:topic) { Fabricate(:topic, category: category) }
@@ -109,7 +109,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
       after { teardown_logging }
 
       it "does not retry" do
-        expect_not_enqueued_with(job: :discourse_activity_pub_deliver) { execute_job }
+        expect_not_enqueued_with(job: Jobs::DiscourseActivityPub::Deliver) { execute_job }
       end
 
       it "logs the successful delivery" do
@@ -127,7 +127,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         execute_job
         expect(
           job_enqueued?(
-            job: :discourse_activity_pub_track_delivery,
+            job: Jobs::DiscourseActivityPub::TrackDelivery,
             args: {
               send_to: person.inbox,
               delivered: true,
@@ -152,14 +152,14 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         next_job_args = build_job_args(retry_count: retry_count + 1)
 
         expect_enqueued_with(
-          job: :discourse_activity_pub_deliver,
+          job: Jobs::DiscourseActivityPub::Deliver,
           args: next_job_args,
           at: delay.minutes.from_now,
         ) { execute_job(retry_count: retry_count) }
       end
 
       it "does not retry more than the maximum retry count" do
-        expect_not_enqueued_with(job: :discourse_activity_pub_deliver) do
+        expect_not_enqueued_with(job: Jobs::DiscourseActivityPub::Deliver) do
           execute_job(retry_count: described_class::MAX_RETRY_COUNT)
         end
       end
@@ -179,7 +179,7 @@ RSpec.describe Jobs::DiscourseActivityPubDeliver do
         execute_job
         expect(
           job_enqueued?(
-            job: :discourse_activity_pub_track_delivery,
+            job: Jobs::DiscourseActivityPub::TrackDelivery,
             args: {
               send_to: person.inbox,
               delivered: false,

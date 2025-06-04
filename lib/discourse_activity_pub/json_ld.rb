@@ -48,9 +48,13 @@ module DiscourseActivityPub
       raw_object.is_a?(String) ? raw_object : raw_object["id"]
     end
 
-    def resolve_object(raw_object)
+    def resolve_object(raw_object, opts = {})
       return unless raw_object
-      raw_object.is_a?(String) ? request_object(raw_object) : raw_object
+      return request_object(raw_object, opts.slice(:allowed_errors)) if raw_object.is_a?(String)
+      if opts[:force_request]
+        return request_object(resolve_id(raw_object), opts.slice(:allowed_errors))
+      end
+      raw_object
     end
 
     def base_object_id(raw_object)
@@ -63,8 +67,8 @@ module DiscourseActivityPub
       end
     end
 
-    def request_object(uri)
-      Request.get_json_ld(uri: uri)
+    def request_object(uri, opts = {})
+      Request.get_json_ld(uri: uri, **opts)
     end
 
     def json_ld_id(ap_base_type, ap_key)

@@ -105,7 +105,7 @@ module DiscourseActivityPub
     def self.find_user_by_stored_actor_id(actor_id)
       return nil unless actor_id
 
-      User
+      ::User
         .joins(:activity_pub_actor)
         .where("discourse_activity_pub_actors.ap_id = :actor_id", actor_id: actor_id)
         .first
@@ -121,15 +121,31 @@ module DiscourseActivityPub
       actor.save!
     end
 
+    def self.delete_user(user, destroy: false)
+      return false if user.activity_pub_actor.blank?
+
+      if destroy && user.activity_pub_user? && user.activity_pub_actor.remote? && user.staged? &&
+           user.user_emails.blank?
+        user_destroyer = ::UserDestroyer.new(Discourse.system_user)
+        user_destroyer.destroy(
+          user,
+          context: I18n.t("discourse_activity_pub.user.destroyed", username: user.username),
+        )
+      else
+        user.update!(active: false)
+        user.activity_pub_actor.tombstone!
+      end
+    end
+
     protected
 
     def update_avatar_from_icon
       return if !update_avatar?
 
-      icon_upload = Upload.find_by(user_id: model.id, origin: actor.icon_url)
+      icon_upload = ::Upload.find_by(user_id: model.id, origin: actor.icon_url)
 
       if !icon_upload
-        UserAvatar.import_url_for_user(actor.icon_url, model)
+        ::UserAvatar.import_url_for_user(actor.icon_url, model)
       elsif model.uploaded_avatar_id != icon_upload.id
         model.update!(uploaded_avatar_id: icon_upload.id)
       end
@@ -149,7 +165,7 @@ module DiscourseActivityPub
       unless model
         begin
           @model =
-            User.create!(
+            ::User.create!(
               username: UserNameSuggester.suggest(actor.username.presence || actor.id),
               name: actor.name,
               staged: true,
@@ -167,6 +183,9 @@ module DiscourseActivityPub
           )
           raise ActiveRecord::Rollback
         end
+
+        @model.custom_fields[:activity_pub_user] = true
+        @model.save_custom_fields(true)
       end
 
       actor.update(model_id: model.id, model_type: "User") if model.activity_pub_actor.blank?
@@ -179,7 +198,10 @@ module DiscourseActivityPub
 
     def update_actor_from_model
       username = model.activity_pub_username
-      username = UsernameSuggester.suggest(username) if !valid_actor_username?(username)
+      username =
+        DiscourseActivityPub::UsernameSuggester.suggest(username) if !valid_actor_username?(
+        username,
+      )
 
       actor.username = username
       actor.name = model.activity_pub_name if model.activity_pub_name
@@ -193,11 +215,11 @@ module DiscourseActivityPub
     end
 
     def can_admin_actor?
-      DiscourseActivityPubActor::ACTIVE_MODELS.include?(model_type) && opts.present?
+      DiscourseActivityPubActor::GROUP_MODELS.include?(model_type) && opts.present?
     end
 
     def valid_actor_username?(username)
-      UsernameValidator.new(username).valid_format?
+      DiscourseActivityPub::UsernameValidator.new(username).valid_format?
     end
 
     def unique_actor_username?(username)

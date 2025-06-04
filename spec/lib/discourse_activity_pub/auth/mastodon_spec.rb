@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DiscourseActivityPub::Auth::Mastodon do
-  let!(:domain1) { "external.com" }
+  let!(:domain1) { "remote.com" }
   let!(:redirect_uri) do
     "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::Mastodon::REDIRECT_PATH}"
   end
@@ -231,7 +231,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       it "returns an authorize url" do
         expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain1)).to eq(
           # https://docs.joinmastodon.org/methods/oauth/#query-parameters
-          "https://external.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
+          "https://remote.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
         )
       end
     end

@@ -12,7 +12,7 @@ RSpec.describe "ActivityPub Multisite", type: :multisite do
     end
 
     def process_json(json, actor)
-      Jobs::DiscourseActivityPubProcess.new.execute(json: json, delivered_to: actor.ap_id)
+      Jobs::DiscourseActivityPub::Process.new.execute(json: json, delivered_to: actor.ap_id)
     end
 
     def process_case(actor)

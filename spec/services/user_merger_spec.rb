@@ -55,15 +55,15 @@ RSpec.describe UserMerger do
         Fabricate(:discourse_activity_pub_activity_create, object: note2, actor: actor)
       end
 
-      it "destroys the actor" do
+      it "associates the target user with the actor" do
         merge_users!
-        expect(DiscourseActivityPubActor.exists?(actor.id)).to eq(false)
+        expect(actor.reload.model_id).to eq(target_user.id)
       end
 
-      it "destroys the actor's activities" do
+      it "does not destroy the actor's activities" do
         merge_users!
-        expect(DiscourseActivityPubActivity.exists?(activity1.id)).to eq(false)
-        expect(DiscourseActivityPubActivity.exists?(activity2.id)).to eq(false)
+        expect(DiscourseActivityPubActivity.exists?(activity1.id)).to eq(true)
+        expect(DiscourseActivityPubActivity.exists?(activity2.id)).to eq(true)
       end
 
       it "does not destroy objects of the actor's activities" do

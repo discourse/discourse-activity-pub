@@ -25,7 +25,7 @@ RSpec.describe PostActionCreator do
       context "with a user with an actor" do
         it "doesnt create a new actor" do
           perform_like(user2, post)
-          expect(DiscourseActivityPubActor.where(ap_type: "Person").size).to eq(2)
+          expect(DiscourseActivityPubActor.where(ap_type: "Person").size).to eq(3)
         end
 
         it "calls the like callback" do
