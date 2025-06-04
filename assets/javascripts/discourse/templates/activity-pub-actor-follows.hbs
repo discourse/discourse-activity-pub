@@ -4,7 +4,7 @@
   class="activity-pub-follows-container"
 >
   {{#if this.hasActors}}
-    <ResponsiveTable @className="activity-pub-follow-table follows">
+    <ResponsiveTable @className={{this.tableClass}}>
       <:header>
         <TableHeaderToggle
           @field="actor"
@@ -27,9 +27,11 @@
           @order={{this.order}}
           @asc={{this.asc}}
         />
-        <th
-          class="activity-pub-follow-table-actions directory-table__column-header"
-        ></th>
+        {{#if this.actor.can_admin}}
+          <th
+            class="activity-pub-follow-table-actions directory-table__column-header"
+          ></th>
+        {{/if}}
       </:header>
       <:body>
         {{#each this.actors as |actor|}}
@@ -57,16 +59,18 @@
                 {{i18n "discourse_activity_pub.follow_table.follow_pending"}}
               {{/if}}
             </div>
-            <div
-              class="directory-table__cell activity-pub-follow-table-actions"
-            >
-              <ActivityPubFollowBtn
-                @actor={{this.actor}}
-                @followedActor={{actor}}
-                @unfollow={{route-action "unfollow"}}
-                @type="actor_unfollow"
-              />
-            </div>
+            {{#if this.actor.can_admin}}
+              <div
+                class="directory-table__cell activity-pub-follow-table-actions"
+              >
+                <ActivityPubFollowBtn
+                  @actor={{this.actor}}
+                  @followedActor={{actor}}
+                  @unfollow={{route-action "unfollow"}}
+                  @type="actor_unfollow"
+                />
+              </div>
+            {{/if}}
           </div>
         {{/each}}
       </:body>

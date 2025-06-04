@@ -8,7 +8,7 @@ export default class ActivityPubNav extends Component {
   @service site;
 
   get showFollows() {
-    return this.args.actor.can_admin;
+    return this.site.activity_pub_publishing_enabled;
   }
 
   get showFollowers() {
@@ -20,7 +20,7 @@ export default class ActivityPubNav extends Component {
   }
 
   get showCreateFollow() {
-    return this.showFollows && this.onFollowsRoute;
+    return this.showFollows && this.onFollowsRoute && this.args.actor.can_admin;
   }
 
   <template>

@@ -96,51 +96,40 @@ RSpec.describe DiscourseActivityPub::ActorController do
       context "with activity pub enabled" do
         before { toggle_activity_pub(actor1.model) }
 
-        context "when user can't admin the actor" do
-          it "returns an invalid access error" do
-            get "/ap/local/actor/#{actor1.id}/follows.json"
-            expect(response.status).to eq(403)
-          end
+        it "returns follows" do
+          get "/ap/local/actor/#{actor1.id}/follows.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq(
+            [follower3.ap_id, follower2.ap_id],
+          )
         end
 
-        context "when user can admin the actor" do
-          before { user.update(admin: true) }
+        it "returns follows without users" do
+          get "/ap/local/actor/#{actor1.id}/follows.json"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["username"] }).to include("jenny_ap")
+        end
 
-          it "returns follows" do
-            get "/ap/local/actor/#{actor1.id}/follows.json"
-            expect(response.status).to eq(200)
-            expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq(
-              [follower3.ap_id, follower2.ap_id],
-            )
-          end
+        it "orders by user" do
+          get "/ap/local/actor/#{actor1.id}/follows.json?order=user"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f.dig("model", "username") }).to eq(
+            ["xavier_local", nil],
+          )
+        end
 
-          it "returns follows without users" do
-            get "/ap/local/actor/#{actor1.id}/follows.json"
-            expect(response.status).to eq(200)
-            expect(response.parsed_body["actors"].map { |f| f["username"] }).to include("jenny_ap")
-          end
+        it "orders by actor" do
+          get "/ap/local/actor/#{actor1.id}/follows.json?order=actor"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["username"] }).to eq(
+            %w[xavier_ap jenny_ap],
+          )
+        end
 
-          it "orders by user" do
-            get "/ap/local/actor/#{actor1.id}/follows.json?order=user"
-            expect(response.status).to eq(200)
-            expect(response.parsed_body["actors"].map { |f| f.dig("model", "username") }).to eq(
-              ["xavier_local", nil],
-            )
-          end
-
-          it "orders by actor" do
-            get "/ap/local/actor/#{actor1.id}/follows.json?order=actor"
-            expect(response.status).to eq(200)
-            expect(response.parsed_body["actors"].map { |f| f["username"] }).to eq(
-              %w[xavier_ap jenny_ap],
-            )
-          end
-
-          it "paginates" do
-            get "/ap/local/actor/#{actor1.id}/follows.json?limit=1&page=1"
-            expect(response.status).to eq(200)
-            expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq([follower2.ap_id])
-          end
+        it "paginates" do
+          get "/ap/local/actor/#{actor1.id}/follows.json?limit=1&page=1"
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq([follower2.ap_id])
         end
 
         context "with publishing disabled" do
