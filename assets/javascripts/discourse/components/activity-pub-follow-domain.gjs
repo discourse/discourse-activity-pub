@@ -1,9 +1,5 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-// We're using a hardcoded url here as mastodon will only webfinger this as
-// an ostatus template if the account is local, which is too limiting.
-// See https://docs.joinmastodon.org/spec/webfinger
-// See https://socialhub.activitypub.rocks/t/what-is-the-current-spec-for-remote-follow/2020
 import { Input } from "@ember/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
@@ -15,6 +11,10 @@ import DiscourseURL from "discourse/lib/url";
 import { extractDomainFromUrl, hostnameValid } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
 
+// We're using a hardcoded url here as mastodon will only webfinger this as
+// an ostatus template if the account is local, which is too limiting.
+// See https://docs.joinmastodon.org/spec/webfinger
+// See https://socialhub.activitypub.rocks/t/what-is-the-current-spec-for-remote-follow/2020
 const mastodonFollowUrl = (domain, handle) => {
   return `https://${domain}/authorize_interaction?uri=${encodeURIComponent(
     handle
