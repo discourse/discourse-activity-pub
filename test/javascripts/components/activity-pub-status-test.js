@@ -93,7 +93,7 @@ module(
         .dom(".activity-pub-actor-status")
         .hasClass("not-active", "has the right class");
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasAttribute(
           "title",
           i18n("discourse_activity_pub.status.title.plugin_disabled"),
