@@ -415,7 +415,7 @@ body.user-preferences-activity-pub-page {
   align-items: center;
   justify-content: space-between;
 
-  @media all and (max-width: 400px) {
+  @media all and (width <= 400px) {
     flex-flow: wrap;
     gap: 1em;
 

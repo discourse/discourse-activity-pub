@@ -1,10 +1,10 @@
 import { click, fillIn, render, triggerKeyEvent } from "@ember/test-helpers";
-import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import sinon from "sinon";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
+import ActivityPubAuthorize from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-authorize";
 
 module(
   "Discourse Activity Pub | Component | activity-pub-authorize",
@@ -26,7 +26,7 @@ module(
         return response({ success: true });
       });
 
-      await render(hbs`<ActivityPubAuthorize />`);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -62,7 +62,7 @@ module(
         return response({ success: true });
       });
 
-      await render(hbs`<ActivityPubAuthorize />`);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -83,7 +83,7 @@ module(
         return response({ success: true });
       });
 
-      await render(hbs`<ActivityPubAuthorize />`);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -113,7 +113,7 @@ module(
 
       const openStub = sinon.stub(window, "open").returns(null);
 
-      await render(hbs`<ActivityPubAuthorize />`);
+      await render(<template><ActivityPubAuthorize /></template>);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();

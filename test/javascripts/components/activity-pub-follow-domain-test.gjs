@@ -1,5 +1,4 @@
 import { click, fillIn, render } from "@ember/test-helpers";
-import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import sinon from "sinon";
 import DiscourseURL from "discourse/lib/url";
@@ -8,6 +7,7 @@ import Site from "discourse/models/site";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import { i18n } from "discourse-i18n";
+import ActivityPubFollowDomain from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-follow-domain";
 import Mastodon from "../fixtures/mastodon-fixtures";
 
 const mastodonAboutPath = "api/v2/instance";
@@ -27,10 +27,14 @@ module(
     });
 
     test("with a non domain input", async function (assert) {
+      const self = this;
+
       let domain = "notADomain";
 
       await render(
-        hbs`<ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />`
+        <template>
+          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+        </template>
       );
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
@@ -44,6 +48,8 @@ module(
     });
 
     test("with a non ActivityPub domain", async function (assert) {
+      const self = this;
+
       let domain = "google.com";
 
       pretender.get(`https://${domain}/${mastodonAboutPath}`, () => {
@@ -51,7 +57,9 @@ module(
       });
 
       await render(
-        hbs`<ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />`
+        <template>
+          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+        </template>
       );
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");
@@ -65,6 +73,8 @@ module(
     });
 
     test("with an ActivityPub domain", async function (assert) {
+      const self = this;
+
       let domain = "mastodon.social";
 
       pretender.get(`https://${domain}/${mastodonAboutPath}`, () => {
@@ -76,7 +86,9 @@ module(
         .returns(null);
 
       await render(
-        hbs`<ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />`
+        <template>
+          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+        </template>
       );
       await fillIn("#activity_pub_follow_domain_input", domain);
       await click("#activity_pub_follow_domain_button");

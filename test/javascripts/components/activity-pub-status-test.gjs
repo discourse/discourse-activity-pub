@@ -1,16 +1,15 @@
 import { getOwner } from "@ember/application";
 import { render } from "@ember/test-helpers";
-import hbs from "htmlbars-inline-precompile";
 import { module, test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import Site from "discourse/models/site";
-import AppEvents from "discourse/services/app-events";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import {
   currentUser,
   publishToMessageBus,
 } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
+import ActivityPubActorStatus from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-actor-status";
 import SiteActors from "../fixtures/site-actors-fixtures";
 
 function setSite(context, attrs = {}) {
@@ -37,7 +36,7 @@ function setTag(context) {
 
 function setComposer(context, opts = {}) {
   opts.user ??= currentUser();
-  opts.appEvents = AppEvents.create();
+  opts.appEvents = getOwner(context).lookup("service:app-events");
   const store = getOwner(context).lookup("service:store");
   const composer = store.createRecord("composer", opts);
   context.set("composer", composer);
@@ -48,6 +47,8 @@ module(
   function (hooks) {
     setupRenderingTest(hooks);
     test("with publishing disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
@@ -56,7 +57,12 @@ module(
       setCategory(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
       );
 
       assert
@@ -78,6 +84,8 @@ module(
     });
 
     test("with plugin disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
@@ -86,7 +94,12 @@ module(
       setCategory(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
       );
 
       assert
@@ -108,6 +121,8 @@ module(
     });
 
     test("with activity pub disabled on category", async function (assert) {
+      const self = this;
+
       const categoryActors = cloneJSON(SiteActors.category);
       setSite(this, {
         activity_pub_enabled: true,
@@ -124,7 +139,12 @@ module(
       setCategory(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
       );
 
       assert
@@ -146,6 +166,8 @@ module(
     });
 
     test("with activity pub not ready on category", async function (assert) {
+      const self = this;
+
       const categoryActors = cloneJSON(SiteActors.category);
       setSite(this, {
         activity_pub_enabled: true,
@@ -163,7 +185,12 @@ module(
       setCategory(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
       );
 
       assert
@@ -185,6 +212,8 @@ module(
     });
 
     test("with active activity pub", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -193,7 +222,12 @@ module(
       setCategory(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
       );
 
       assert
@@ -215,6 +249,8 @@ module(
     });
 
     test("updates correctly after messageBus message", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -223,7 +259,12 @@ module(
       setCategory(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.category}}
+            @modelType="category"
+          />
+        </template>
       );
       await publishToMessageBus("/activity-pub", {
         model: {
@@ -253,6 +294,8 @@ module(
     });
 
     test("when in the composer", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -264,7 +307,12 @@ module(
       });
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.composer}}
+            @modelType="composer"
+          />
+        </template>
       );
 
       assert
@@ -283,6 +331,8 @@ module(
     setupRenderingTest(hooks);
 
     test("with publishing disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: false,
@@ -291,7 +341,9 @@ module(
       setTag(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
       );
 
       assert
@@ -313,6 +365,8 @@ module(
     });
 
     test("with plugin disabled", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: false,
         activity_pub_publishing_enabled: true,
@@ -321,7 +375,9 @@ module(
       setTag(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
       );
 
       assert
@@ -343,6 +399,8 @@ module(
     });
 
     test("with activity pub disabled on tag", async function (assert) {
+      const self = this;
+
       const tagActors = cloneJSON(SiteActors.tag);
       setSite(this, {
         activity_pub_enabled: true,
@@ -359,7 +417,9 @@ module(
       setTag(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
       );
 
       assert
@@ -381,6 +441,8 @@ module(
     });
 
     test("with activity pub not ready on tag", async function (assert) {
+      const self = this;
+
       const tagActors = cloneJSON(SiteActors.tag);
       setSite(this, {
         activity_pub_enabled: true,
@@ -398,7 +460,9 @@ module(
       setTag(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
       );
 
       assert
@@ -420,6 +484,8 @@ module(
     });
 
     test("with active activity pub", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -428,7 +494,9 @@ module(
       setTag(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
       );
 
       assert
@@ -450,6 +518,8 @@ module(
     });
 
     test("updates correctly after messageBus message", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -458,7 +528,9 @@ module(
       setTag(this);
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+        <template>
+          <ActivityPubActorStatus @model={{self.tag}} @modelType="tag" />
+        </template>
       );
       await publishToMessageBus("/activity-pub", {
         model: {
@@ -488,6 +560,8 @@ module(
     });
 
     test("when in the composer", async function (assert) {
+      const self = this;
+
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -499,7 +573,12 @@ module(
       });
 
       await render(
-        hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`
+        <template>
+          <ActivityPubActorStatus
+            @model={{self.composer}}
+            @modelType="composer"
+          />
+        </template>
       );
 
       assert
