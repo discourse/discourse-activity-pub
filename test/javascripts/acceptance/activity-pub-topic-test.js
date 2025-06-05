@@ -6,12 +6,10 @@ import Site from "discourse/models/site";
 import topicFixtures from "discourse/tests/fixtures/topic";
 import {
   acceptance,
-  exists,
   publishToMessageBus,
-  query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
-import { default as SiteActors } from "../fixtures/site-actors-fixtures";
+import SiteActors from "../fixtures/site-actors-fixtures";
 
 const createdAt = moment().subtract(2, "days");
 const scheduledAt = moment().add(3, "minutes");
@@ -80,14 +78,12 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.notOk(
-        exists(".topic-map__activity-pub"),
-        "the topic map is not visible"
-      );
-      assert.notOk(
-        exists(".topic-post:nth-of-type(2) .post-info.activity-pub"),
-        "the post status is not visible"
-      );
+      assert
+        .dom(".topic-map__activity-pub")
+        .doesNotExist("the topic map is not visible");
+      assert
+        .dom(".topic-post:nth-of-type(2) .post-info.activity-pub")
+        .doesNotExist("the post status is not visible");
     });
   }
 );
@@ -119,10 +115,9 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.notOk(
-        exists(".topic-map__activity-pub"),
-        "the activity pub topic map is not visible"
-      );
+      assert
+        .dom(".topic-map__activity-pub")
+        .doesNotExist("the activity pub topic map is not visible");
     });
 
     test("When the plugin is enabled", async function (assert) {
@@ -134,11 +129,10 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(exists(".topic-map__activity-pub"), "the topic map is visible");
-      assert.ok(
-        exists(".topic-post:nth-of-type(3) .post-info.activity-pub"),
-        "is visible"
-      );
+      assert.dom(".topic-map__activity-pub").exists("the topic map is visible");
+      assert
+        .dom(".topic-post:nth-of-type(3) .post-info.activity-pub")
+        .exists("is visible");
     });
 
     test("post status update", async function (assert) {
@@ -161,14 +155,13 @@ acceptance(
       };
       await publishToMessageBus("/activity-pub", postStatusUpdate);
 
-      assert.ok(
-        exists(
+      assert
+        .dom(
           `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was deleted via ActivityPub on ${deletedAt.format(
             i18n("dates.time_short_day")
           )}.']`
-        ),
-        "shows the right post status text"
-      );
+        )
+        .exists("shows the right post status text");
     });
   }
 );
@@ -199,10 +192,9 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.notOk(
-        exists(".topic-map__activity-pub"),
-        "the activity pub topic map is not visible"
-      );
+      assert
+        .dom(".topic-map__activity-pub")
+        .doesNotExist("the activity pub topic map is not visible");
     });
 
     test("When the plugin is enabled", async function (assert) {
@@ -214,11 +206,10 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.ok(exists(".topic-map__activity-pub"), "the topic map is visible");
-      assert.ok(
-        exists(".topic-post:nth-of-type(3) .post-info.activity-pub"),
-        "is visible"
-      );
+      assert.dom(".topic-map__activity-pub").exists("the topic map is visible");
+      assert
+        .dom(".topic-post:nth-of-type(3) .post-info.activity-pub")
+        .exists("is visible");
     });
   }
 );
@@ -248,15 +239,14 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.strictEqual(
-        query(
-          ".topic-map__activity-pub .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic is scheduled to be published via ActivityPub on ${scheduledAt.format(
-          i18n("dates.time_short_day")
-        )}.`,
-        "shows the right status text"
-      );
+      assert
+        .dom(".topic-map__activity-pub .activity-pub-topic-status")
+        .hasText(
+          `Topic is scheduled to be published via ActivityPub on ${scheduledAt.format(
+            i18n("dates.time_short_day")
+          )}.`,
+          "shows the right status text"
+        );
     });
   }
 );
@@ -298,10 +288,9 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.notOk(
-        exists(".topic-map__activity-pub"),
-        "the topic map is not visible"
-      );
+      assert
+        .dom(".topic-map__activity-pub")
+        .doesNotExist("the topic map is not visible");
     });
 
     test("topic map", async function (assert) {
@@ -312,15 +301,14 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.strictEqual(
-        query(
-          ".topic-map__activity-pub .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic was published via ActivityPub on ${publishedAt.format(
-          i18n("dates.time_short_day")
-        )}.`,
-        "shows the right status text"
-      );
+      assert
+        .dom(".topic-map__activity-pub .activity-pub-topic-status")
+        .hasText(
+          `Topic was published via ActivityPub on ${publishedAt.format(
+            i18n("dates.time_short_day")
+          )}.`,
+          "shows the right status text"
+        );
     });
 
     test("topic status update", async function (assert) {
@@ -341,15 +329,14 @@ acceptance(
       };
       await publishToMessageBus("/activity-pub", topicStatusUpdate);
 
-      assert.strictEqual(
-        query(
-          ".topic-map__activity-pub .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic was deleted via ActivityPub on ${deletedAt.format(
-          i18n("dates.time_short_day")
-        )}.`,
-        "shows the right status text"
-      );
+      assert
+        .dom(".topic-map__activity-pub .activity-pub-topic-status")
+        .hasText(
+          `Topic was deleted via ActivityPub on ${deletedAt.format(
+            i18n("dates.time_short_day")
+          )}.`,
+          "shows the right status text"
+        );
     });
 
     test("topic modal", async function (assert) {
@@ -361,38 +348,34 @@ acceptance(
       await visit("/t/280");
 
       await click(".topic-map__activity-pub .activity-pub-topic-status");
-      assert.ok(exists(".activity-pub-topic-info-modal"), "shows the modal");
+      assert.dom(".activity-pub-topic-info-modal").exists("shows the modal");
 
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right topic status text"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-post-status"
-        ).innerText.trim(),
-        `Post was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right post status text"
-      );
-      assert.ok(
-        exists(
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-topic-status")
+        .hasText(
+          `Topic was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right topic status text"
+        );
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-post-status")
+        .hasText(
+          `Post was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right post status text"
+        );
+      assert
+        .dom(
           ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.collection"
-        ),
-        "shows the right topic object type attribute"
-      );
-      assert.ok(
-        exists(
+        )
+        .exists("shows the right topic object type attribute");
+      assert
+        .dom(
           ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.note"
-        ),
-        "shows the right post object type attribute"
-      );
+        )
+        .exists("shows the right post object type attribute");
 
       const topicStatusUpdate = {
         model: {
@@ -404,31 +387,29 @@ acceptance(
       };
       await publishToMessageBus("/activity-pub", topicStatusUpdate);
 
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic was deleted on ${deletedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "handles a status update"
-      );
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-topic-status")
+        .hasText(
+          `Topic was deleted on ${deletedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "handles a status update"
+        );
 
-      assert.ok(
-        query(".activity-pub-topic-actions .action.publish-all"),
-        "shows the publish all posts action"
-      );
-      assert.strictEqual(
-        query(
+      assert
+        .dom(".activity-pub-topic-actions .action.publish-all")
+        .exists("shows the publish all posts action");
+      assert
+        .dom(
           ".activity-pub-topic-actions .action.publish-all .action-description"
-        ).innerText.trim(),
-        `Publish 18 unpublished posts in Topic #280. Posts will not be delivered to the followers of the Group Actors.`,
-        "shows the right publish all description"
-      );
-      assert.ok(
-        query(".activity-pub-post-actions .action.deliver"),
-        "shows the post deliver action"
-      );
+        )
+        .hasText(
+          `Publish 18 unpublished posts in Topic #280. Posts will not be delivered to the followers of the Group Actors.`,
+          "shows the right publish all description"
+        );
+      assert
+        .dom(".activity-pub-post-actions .action.deliver")
+        .exists("shows the post deliver action");
 
       const topicActionStatusUpdate = {
         model: {
@@ -439,13 +420,14 @@ acceptance(
         },
       };
       await publishToMessageBus("/activity-pub", topicActionStatusUpdate);
-      assert.strictEqual(
-        query(
+      assert
+        .dom(
           ".activity-pub-topic-actions .action.publish-all .action-description"
-        ).innerText.trim(),
-        `Publish all posts is disabled. All posts in Topic #280 are already published.`,
-        "handles topic action status updates"
-      );
+        )
+        .hasText(
+          `Publish all posts is disabled. All posts in Topic #280 are already published.`,
+          "handles topic action status updates"
+        );
     });
 
     test("post modal", async function (assert) {
@@ -458,26 +440,20 @@ acceptance(
       await visit("/t/280");
 
       await click(".topic-post:nth-of-type(4) .activity-pub-post-status");
-      assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
+      assert.dom(".activity-pub-post-info-modal").exists("shows the modal");
 
-      assert.strictEqual(
-        query(
-          ".activity-pub-post-info-modal .activity-pub-post-status"
-        ).innerText.trim(),
-        "Post is not published.",
-        "shows the right status text"
-      );
-      assert.ok(
-        query(".activity-pub-post-actions .action.publish"),
-        "shows the publish post action"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-post-actions .action.publish .action-description"
-        ).innerText.trim(),
-        `Publish Post #3 without delivering it. The Group Actors have no followers to deliver to.`,
-        "shows the right publish description"
-      );
+      assert
+        .dom(".activity-pub-post-info-modal .activity-pub-post-status")
+        .hasText("Post is not published.", "shows the right status text");
+      assert
+        .dom(".activity-pub-post-actions .action.publish")
+        .exists("shows the publish post action");
+      assert
+        .dom(".activity-pub-post-actions .action.publish .action-description")
+        .hasText(
+          `Publish Post #3 without delivering it. The Group Actors have no followers to deliver to.`,
+          "shows the right publish description"
+        );
       const topicStatusUpdate = {
         model: {
           id: 280,
@@ -486,13 +462,12 @@ acceptance(
         },
       };
       await publishToMessageBus("/activity-pub", topicStatusUpdate);
-      assert.strictEqual(
-        query(
-          ".activity-pub-post-actions .action.publish .action-description"
-        ).innerText.trim(),
-        "Publish is disabled for Post #3. Topic #280 is not published.",
-        "handles topic status updates"
-      );
+      assert
+        .dom(".activity-pub-post-actions .action.publish .action-description")
+        .hasText(
+          "Publish is disabled for Post #3. Topic #280 is not published.",
+          "handles topic status updates"
+        );
     });
   }
 );
@@ -526,42 +501,37 @@ acceptance(
       await visit("/t/280");
 
       await click(".topic-map__activity-pub .activity-pub-topic-status");
-      assert.ok(exists(".activity-pub-topic-info-modal"), "shows the modal");
+      assert.dom(".activity-pub-topic-info-modal").exists("shows the modal");
 
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right topic status text"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-post-status"
-        ).innerText.trim(),
-        `Post was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right post status text"
-      );
-      assert.notOk(
-        exists(
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-topic-status")
+        .hasText(
+          `Topic was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right topic status text"
+        );
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-post-status")
+        .hasText(
+          `Post was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right post status text"
+        );
+      assert
+        .dom(
           ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.collection"
-        ),
-        "does not show a topic object type attribute"
-      );
-      assert.ok(
-        exists(
+        )
+        .doesNotExist("does not show a topic object type attribute");
+      assert
+        .dom(
           ".activity-pub-topic-info-modal .activity-pub-attribute.object-type.note"
-        ),
-        "shows the right post object type attribute"
-      );
-      assert.notOk(
-        query(".activity-pub-topic-actions .action.publish-all"),
-        "does not show the publish all posts action"
-      );
+        )
+        .exists("shows the right post object type attribute");
+      assert
+        .dom(".activity-pub-topic-actions .action.publish-all")
+        .doesNotExist("does not show the publish all posts action");
     });
   }
 );
@@ -604,21 +574,21 @@ acceptance(
 
       await visit("/t/280");
 
-      assert.strictEqual(
-        query(".activity-pub-topic-status").innerText.trim(),
-        `Topic was published via ActivityPub by @cat_1@test.local on ${publishedAt.format(
-          i18n("dates.time_short_day")
-        )}.`,
-        "shows the right topic status text"
-      );
-      assert.ok(
-        exists(
+      assert
+        .dom(".activity-pub-topic-status")
+        .hasText(
+          `Topic was published via ActivityPub by @cat_1@test.local on ${publishedAt.format(
+            i18n("dates.time_short_day")
+          )}.`,
+          "shows the right topic status text"
+        );
+      assert
+        .dom(
           `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was published via ActivityPub by actor1@domain.com on ${publishedAt.format(
             i18n("dates.time_short_day")
           )}.']`
-        ),
-        "shows the right post status text"
-      );
+        )
+        .exists("shows the right post status text");
     });
 
     test("ActivityPub topic info modal", async function (assert) {
@@ -630,35 +600,32 @@ acceptance(
       await visit("/t/280");
 
       await click(".topic-map__activity-pub .activity-pub-topic-status");
-      assert.ok(exists(".activity-pub-topic-info-modal"), "shows the modal");
+      assert.dom(".activity-pub-topic-info-modal").exists("shows the modal");
 
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-topic-status"
-        ).innerText.trim(),
-        `Topic was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right topic status text"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-post-status"
-        ).innerText.trim(),
-        `Post was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right post status text"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-topic-info-modal .activity-pub-post-status"
-        ).innerText.trim(),
-        `Post was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right post status text"
-      );
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-topic-status")
+        .hasText(
+          `Topic was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right topic status text"
+        );
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-post-status")
+        .hasText(
+          `Post was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right post status text"
+        );
+      assert
+        .dom(".activity-pub-topic-info-modal .activity-pub-post-status")
+        .hasText(
+          `Post was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right post status text"
+        );
     });
 
     test("ActivityPub post info modal", async function (assert) {
@@ -670,23 +637,18 @@ acceptance(
       await visit("/t/280");
 
       await click(".topic-post:nth-of-type(3) .activity-pub-post-status");
-      assert.ok(exists(".activity-pub-post-info-modal"), "shows the modal");
-      assert.strictEqual(
-        query(
-          ".activity-pub-post-info-modal .activity-pub-post-status"
-        ).innerText.trim(),
-        `Post was published on ${publishedAt.format(
-          i18n("dates.long_with_year")
-        )}.`,
-        "shows the right status text"
-      );
-      assert.strictEqual(
-        query(
-          ".activity-pub-post-info-modal .activity-pub-attribute.visibility"
-        ).innerText.trim(),
-        "Public",
-        "shows the right visibility text"
-      );
+      assert.dom(".activity-pub-post-info-modal").exists("shows the modal");
+      assert
+        .dom(".activity-pub-post-info-modal .activity-pub-post-status")
+        .hasText(
+          `Post was published on ${publishedAt.format(
+            i18n("dates.long_with_year")
+          )}.`,
+          "shows the right status text"
+        );
+      assert
+        .dom(".activity-pub-post-info-modal .activity-pub-attribute.visibility")
+        .hasText("Public", "shows the right visibility text");
     });
   }
 );

@@ -9,10 +9,9 @@ import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import {
   currentUser,
   publishToMessageBus,
-  query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
-import { default as SiteActors } from "../fixtures/site-actors-fixtures";
+import SiteActors from "../fixtures/site-actors-fixtures";
 
 function setSite(context, attrs = {}) {
   context.siteSettings.activity_pub_enabled = attrs.activity_pub_enabled;
@@ -48,8 +47,6 @@ module(
   "Discourse Activity Pub | Component | activity-pub-actor-status with category",
   function (hooks) {
     setupRenderingTest(hooks);
-    const template = hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`;
-
     test("with publishing disabled", async function (assert) {
       setSite(this, {
         activity_pub_enabled: true,
@@ -58,20 +55,26 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+      );
 
-      const status = query(".activity-pub-actor-status.publishing-disabled");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
-        i18n("discourse_activity_pub.status.title.publishing_disabled"),
-        "has the right title"
-      );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.publishing_disabled"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("publishing-disabled", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasAttribute(
+          "title",
+          i18n("discourse_activity_pub.status.title.publishing_disabled"),
+          "has the right title"
+        );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.publishing_disabled"),
+          "has the right label"
+        );
     });
 
     test("with plugin disabled", async function (assert) {
@@ -82,20 +85,26 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+      );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
-        i18n("discourse_activity_pub.status.title.plugin_disabled"),
-        "has the right title"
-      );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasAttribute(
+          "title",
+          i18n("discourse_activity_pub.status.title.plugin_disabled"),
+          "has the right title"
+        );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("with activity pub disabled on category", async function (assert) {
@@ -114,22 +123,26 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+      );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "category",
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("with activity pub not ready on category", async function (assert) {
@@ -149,22 +162,26 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+      );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("with active activity pub", async function (assert) {
@@ -175,22 +192,26 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+      );
 
-      const status = query(".activity-pub-actor-status.active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.active"),
+          "has the right label"
+        );
     });
 
     test("updates correctly after messageBus message", async function (assert) {
@@ -201,7 +222,9 @@ module(
       });
       setCategory(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
+      );
       await publishToMessageBus("/activity-pub", {
         model: {
           id: this.category.id,
@@ -211,25 +234,25 @@ module(
         },
       });
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("when in the composer", async function (assert) {
-      const composerTemplate = hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`;
-
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -240,14 +263,16 @@ module(
         categoryId: this.category.id,
       });
 
-      await render(composerTemplate);
-
-      const label = query(".activity-pub-actor-status .label");
-      assert.strictEqual(
-        label.innerText.trim(),
-        i18n("discourse_activity_pub.visibility.label.public"),
-        "has the right label text"
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`
       );
+
+      assert
+        .dom(".activity-pub-actor-status .label")
+        .hasText(
+          i18n("discourse_activity_pub.visibility.label.public"),
+          "has the right label text"
+        );
     });
   }
 );
@@ -256,7 +281,6 @@ module(
   "Discourse Activity Pub | Component | activity-pub-actor-status with tag",
   function (hooks) {
     setupRenderingTest(hooks);
-    const template = hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`;
 
     test("with publishing disabled", async function (assert) {
       setSite(this, {
@@ -266,20 +290,26 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+      );
 
-      const status = query(".activity-pub-actor-status.publishing-disabled");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
-        i18n("discourse_activity_pub.status.title.publishing_disabled"),
-        "has the right title"
-      );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.publishing_disabled"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("publishing-disabled", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasAttribute(
+          "title",
+          i18n("discourse_activity_pub.status.title.publishing_disabled"),
+          "has the right title"
+        );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.publishing_disabled"),
+          "has the right label"
+        );
     });
 
     test("with plugin disabled", async function (assert) {
@@ -290,20 +320,26 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+      );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
-        i18n("discourse_activity_pub.status.title.plugin_disabled"),
-        "has the right title"
-      );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasAttribute(
+          "title",
+          i18n("discourse_activity_pub.status.title.plugin_disabled"),
+          "has the right title"
+        );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("with activity pub disabled on tag", async function (assert) {
@@ -322,22 +358,26 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+      );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "tag",
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("with activity pub not ready on tag", async function (assert) {
@@ -357,22 +397,26 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+      );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("with active activity pub", async function (assert) {
@@ -383,22 +427,26 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+      );
 
-      const status = query(".activity-pub-actor-status.active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.active"),
+          "has the right label"
+        );
     });
 
     test("updates correctly after messageBus message", async function (assert) {
@@ -409,7 +457,9 @@ module(
       });
       setTag(this);
 
-      await render(template);
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
+      );
       await publishToMessageBus("/activity-pub", {
         model: {
           id: this.tag.id,
@@ -419,25 +469,25 @@ module(
         },
       });
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.strictEqual(
-        status.title,
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasAttribute(
+        "title",
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
         "has the right title"
       );
-      assert.strictEqual(
-        status.innerText.trim(),
-        i18n("discourse_activity_pub.status.label.not_active"),
-        "has the right label"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasText(
+          i18n("discourse_activity_pub.status.label.not_active"),
+          "has the right label"
+        );
     });
 
     test("when in the composer", async function (assert) {
-      const composerTemplate = hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`;
-
       setSite(this, {
         activity_pub_enabled: true,
         activity_pub_publishing_enabled: true,
@@ -448,14 +498,16 @@ module(
         tags: [this.tag.name],
       });
 
-      await render(composerTemplate);
-
-      const label = query(".activity-pub-actor-status .label");
-      assert.strictEqual(
-        label.innerText.trim(),
-        i18n("discourse_activity_pub.visibility.label.public"),
-        "has the right label text"
+      await render(
+        hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`
       );
+
+      assert
+        .dom(".activity-pub-actor-status .label")
+        .hasText(
+          i18n("discourse_activity_pub.visibility.label.public"),
+          "has the right label text"
+        );
     });
   }
 );
