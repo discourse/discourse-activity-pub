@@ -1,4 +1,4 @@
-import or from "truth-helpers/helpers/or";
+import { or } from "truth-helpers";
 import ActivityPubActorHandleLink from "./activity-pub-actor-handle-link";
 import ActivityPubActorImage from "./activity-pub-actor-image";
 
