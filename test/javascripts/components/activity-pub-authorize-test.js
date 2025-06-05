@@ -11,8 +11,6 @@ module(
   function (hooks) {
     setupRenderingTest(hooks);
 
-    const template = hbs`<ActivityPubAuthorize />`;
-
     test("verifies a domain", async function (assert) {
       let domain = "test.com";
       let authType = "discourse";
@@ -28,7 +26,7 @@ module(
         return response({ success: true });
       });
 
-      await render(template);
+      await render(hbs`<ActivityPubAuthorize />`);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -64,7 +62,7 @@ module(
         return response({ success: true });
       });
 
-      await render(template);
+      await render(hbs`<ActivityPubAuthorize />`);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -85,7 +83,7 @@ module(
         return response({ success: true });
       });
 
-      await render(template);
+      await render(hbs`<ActivityPubAuthorize />`);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
@@ -115,7 +113,7 @@ module(
 
       const openStub = sinon.stub(window, "open").returns(null);
 
-      await render(template);
+      await render(hbs`<ActivityPubAuthorize />`);
 
       const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
       await authTypes.expand();
