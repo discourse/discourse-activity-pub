@@ -9,7 +9,6 @@ import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import {
   currentUser,
   publishToMessageBus,
-  query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
 import SiteActors from "../fixtures/site-actors-fixtures";
@@ -60,16 +59,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
       );
 
-      const status = query(".activity-pub-actor-status.publishing-disabled");
-      assert.ok(status, "has the right class");
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
+        .hasClass("publishing-disabled", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
         .hasTitle(
           i18n("discourse_activity_pub.status.title.publishing_disabled"),
           "has the right title"
         );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.publishing_disabled"),
           "has the right label"
@@ -88,8 +88,9 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
       );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
       assert
         .dom(status)
         .hasTitle(
@@ -97,7 +98,7 @@ module(
           "has the right title"
         );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
@@ -124,16 +125,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
       );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasTitle(
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "category",
         }),
         "has the right title"
       );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
@@ -161,16 +163,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
       );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasTitle(
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
         "has the right title"
       );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
@@ -189,16 +192,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.category}} @modelType="category" />`
       );
 
-      const status = query(".activity-pub-actor-status.active");
-      assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasTitle(
         i18n("discourse_activity_pub.status.title.model_active.first_post", {
           delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
         }),
         "has the right title"
       );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.active"),
           "has the right label"
@@ -225,16 +229,17 @@ module(
         },
       });
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasTitle(
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "category",
         }),
         "has the right title"
       );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
@@ -256,12 +261,12 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.composer}} @modelType="composer" />`
       );
 
-      const label = query(".activity-pub-actor-status .label");
-      assert.strictEqual(
-        label.innerText.trim(),
-        i18n("discourse_activity_pub.visibility.label.public"),
-        "has the right label text"
-      );
+      assert
+        .dom(".activity-pub-actor-status .label")
+        .hasText(
+          i18n("discourse_activity_pub.visibility.label.public"),
+          "has the right label text"
+        );
     });
   }
 );
@@ -283,16 +288,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
       );
 
-      const status = query(".activity-pub-actor-status.publishing-disabled");
-      assert.ok(status, "has the right class");
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
+        .hasClass("publishing-disabled", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
         .hasTitle(
           i18n("discourse_activity_pub.status.title.publishing_disabled"),
           "has the right title"
         );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.publishing_disabled"),
           "has the right label"
@@ -311,16 +317,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
       );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert
+        .dom(".activity-pub-actor-status")
         .hasTitle(
           i18n("discourse_activity_pub.status.title.plugin_disabled"),
           "has the right title"
         );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
@@ -347,16 +354,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
       );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasTitle(
         i18n("discourse_activity_pub.status.title.model_disabled", {
           model_type: "tag",
         }),
         "has the right title"
       );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
@@ -384,16 +392,17 @@ module(
         hbs`<ActivityPubActorStatus @model={{this.tag}} @modelType="tag" />`
       );
 
-      const status = query(".activity-pub-actor-status.not-active");
-      assert.ok(status, "has the right class");
-      assert.dom(status).hasTitle(
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasClass("not-active", "has the right class");
+      assert.dom(".activity-pub-actor-status").hasTitle(
         i18n("discourse_activity_pub.status.title.model_not_ready", {
           model_type: "tag",
         }),
         "has the right title"
       );
       assert
-        .dom(status)
+        .dom(".activity-pub-actor-status")
         .hasText(
           i18n("discourse_activity_pub.status.label.not_active"),
           "has the right label"
