@@ -9,8 +9,12 @@ lv:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Saglabāts
+          restore:
+            label: Atjaunot
+          edit:
+            label: Rediģēt
+          deleted:
+            label: Dzēsts
           enabled:
             label: Ieslēgts
           disabled:
@@ -19,6 +23,7 @@ lv:
           name: Vārds
           table:
             auth_type: Tips
+            status: Statuss
             actions: Darbības
           category:
             label: Sadaļas
@@ -53,6 +58,9 @@ lv:
       visibility:
         label:
           public: Publisks
+      model:
+        actions: Darbības
+        status: Statuss
     user:
       discourse_activity_pub:
         auth_type: Tips

@@ -9,14 +9,17 @@ be:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Захавана
+          restore:
+            label: Restore
+          edit:
+            label: рэдагаваць
           disabled:
             label: Адключана
           username: Імя карыстальніка
           name: Імя
           table:
             auth_type: Тып
+            status: Статус
             actions: Дзеянні
           category:
             label: катэгорыі
@@ -50,6 +53,9 @@ be:
       visibility:
         label:
           public: грамадскага
+      model:
+        actions: Дзеянні
+        status: Статус
     user:
       discourse_activity_pub:
         auth_type: Тып

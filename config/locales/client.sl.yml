@@ -9,8 +9,10 @@ sl:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Shranjeno
+          edit:
+            label: Uredi
+          deleted:
+            label: Izbrisano
           enabled:
             label: Vključeno
           disabled:
@@ -20,6 +22,7 @@ sl:
           default_visibility: Vidljivost
           table:
             auth_type: Tip
+            status: Stanje
             actions: Akcije
           category:
             label: Kategorije
@@ -54,6 +57,9 @@ sl:
       visibility:
         label:
           public: Javno
+      model:
+        actions: Akcije
+        status: Stanje
     user:
       discourse_activity_pub:
         auth_type: Tip

@@ -9,8 +9,15 @@ he:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: נשמר
+          delete:
+            confirm:
+              title: "למחוק את %{actor}?"
+          restore:
+            label: שחזור
+          edit:
+            label: עריכה
+          deleted:
+            label: נמחק
           enabled:
             label: פעיל
           disabled:
@@ -20,6 +27,7 @@ he:
           default_visibility: חשיפה
           table:
             auth_type: סוג
+            status: מצב
             actions: פעולות
           category:
             label: קטגוריות
@@ -59,6 +67,9 @@ he:
       object_type:
         label:
           note: הערה
+      model:
+        actions: פעולות
+        status: מצב
     user:
       discourse_activity_pub:
         auth_type: סוג

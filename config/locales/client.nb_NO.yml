@@ -9,8 +9,12 @@ nb_NO:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Lagret
+          restore:
+            label: Gjenooprett
+          edit:
+            label: Endre
+          deleted:
+            label: Slettet
           enabled:
             label: Aktivert
           disabled:
@@ -20,6 +24,7 @@ nb_NO:
           default_visibility: Synlighet
           table:
             auth_type: Type
+            status: Status
             actions: Handlinger
           category:
             label: Kategorier
@@ -58,6 +63,9 @@ nb_NO:
       object_type:
         label:
           note: Merk
+      model:
+        actions: Handlinger
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Type

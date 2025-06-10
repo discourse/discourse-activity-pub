@@ -9,8 +9,13 @@ sk:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Uložené
+          delete:
+            confirm:
+              title: "Naozaj chcete odstrániť %{actor}?"
+          restore:
+            label: Obnoviť
+          edit:
+            label: Upraviť
           enabled:
             label: Povolené
           disabled:
@@ -22,6 +27,7 @@ sk:
           default_visibility: Viditeľnosť
           table:
             auth_type: Typ
+            status: Stav
             actions: Akcie
           category:
             label: Kategórie
@@ -61,6 +67,9 @@ sk:
       object_type:
         label:
           note: Poznámka
+      model:
+        actions: Akcie
+        status: Stav
     user:
       discourse_activity_pub:
         auth_type: Typ

@@ -9,8 +9,10 @@ id:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Tersimpan
+          edit:
+            label: Ubah
+          deleted:
+            label: Dihapus
           enabled:
             label: Diaktifkan
           disabled:
@@ -19,6 +21,7 @@ id:
           name: Nama
           table:
             auth_type: Tipe
+            status: Status
             actions: Aksi
           category:
             label: Kategori
@@ -54,6 +57,9 @@ id:
       visibility:
         label:
           public: Umum
+      model:
+        actions: Aksi
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Tipe

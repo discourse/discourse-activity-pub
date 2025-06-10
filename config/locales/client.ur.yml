@@ -9,8 +9,12 @@ ur:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: محفوظ کر لیا گیا
+          restore:
+            label: رِیسٹور
+          edit:
+            label: ترمیم کریں
+          deleted:
+            label: مٹائیں
           disabled:
             label: غیر فعال
           username: صارف نام
@@ -18,6 +22,7 @@ ur:
           default_visibility: نموداری
           table:
             auth_type: قِسم
+            status: سٹیٹس
             actions: عمل
           category:
             label: اقسام
@@ -53,6 +58,9 @@ ur:
       visibility:
         label:
           public: عوامی
+      model:
+        actions: عمل
+        status: سٹیٹس
     user:
       discourse_activity_pub:
         auth_type: قِسم

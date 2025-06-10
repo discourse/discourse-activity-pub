@@ -9,8 +9,15 @@ nl:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Opgeslagen
+          delete:
+            confirm:
+              title: "Weet je zeker dat je %{actor} wilt verwijderen?"
+          restore:
+            label: Herstellen
+          edit:
+            label: Bewerken
+          deleted:
+            label: Verwijderd
           enabled:
             label: Ingeschakeld
           disabled:
@@ -22,6 +29,7 @@ nl:
           default_visibility: Zichtbaarheid
           table:
             auth_type: Type
+            status: Status
             actions: Acties
           category:
             label: Categorieën
@@ -61,6 +69,9 @@ nl:
       object_type:
         label:
           note: Opmerking
+      model:
+        actions: Acties
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Type

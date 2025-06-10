@@ -9,8 +9,15 @@ ja:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: 保存済み
+          delete:
+            confirm:
+              title: "%{actor} を削除してもよろしいですか？"
+          restore:
+            label: 復元
+          edit:
+            label: 編集
+          deleted:
+            label: 削除済み
           enabled:
             label: 有効
           disabled:
@@ -20,6 +27,7 @@ ja:
           default_visibility: 表示状態
           table:
             auth_type: タイプ
+            status: ステータス
             actions: 操作
           category:
             label: カテゴリ
@@ -59,6 +67,9 @@ ja:
       object_type:
         label:
           note: 注意
+      model:
+        actions: 操作
+        status: ステータス
     user:
       discourse_activity_pub:
         auth_type: タイプ

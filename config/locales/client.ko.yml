@@ -9,8 +9,12 @@ ko:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: 저장되었습니다
+          restore:
+            label: 복구
+          edit:
+            label: 편집
+          deleted:
+            label: 삭제됨
           enabled:
             label: 활성화
           disabled:
@@ -20,6 +24,7 @@ ko:
           default_visibility: 시계
           table:
             auth_type: 유형
+            status: 상태
             actions: 작업
           category:
             label: 카테고리
@@ -55,6 +60,9 @@ ko:
       visibility:
         label:
           public: 공개
+      model:
+        actions: 작업
+        status: 상태
     user:
       discourse_activity_pub:
         auth_type: 유형

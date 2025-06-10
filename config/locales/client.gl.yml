@@ -9,8 +9,12 @@ gl:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Gardado
+          restore:
+            label: Restabelecer
+          edit:
+            label: Editar
+          deleted:
+            label: Eliminado
           enabled:
             label: Activado
           disabled:
@@ -20,6 +24,7 @@ gl:
           default_visibility: Visibilidade
           table:
             auth_type: Tipo
+            status: Estado
             actions: Accións
           category:
             label: Categorías
@@ -55,6 +60,9 @@ gl:
       visibility:
         label:
           public: Pública
+      model:
+        actions: Accións
+        status: Estado
     user:
       discourse_activity_pub:
         auth_type: Tipo

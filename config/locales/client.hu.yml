@@ -9,8 +9,15 @@ hu:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Mentve
+          delete:
+            confirm:
+              title: "Biztos, hogy törölni szeretné a(z) %{actor} csoportot?"
+          restore:
+            label: Visszaállítás
+          edit:
+            label: Szerkesztés
+          deleted:
+            label: Törölve
           enabled:
             label: Engedélyezed
           disabled:
@@ -20,6 +27,7 @@ hu:
           default_visibility: Láthatóság
           table:
             auth_type: Típus
+            status: Állapot
             actions: Műveletek
           category:
             label: Kategóriák
@@ -59,6 +67,9 @@ hu:
       object_type:
         label:
           note: Megjegyzés
+      model:
+        actions: Műveletek
+        status: Állapot
     user:
       discourse_activity_pub:
         auth_type: Típus

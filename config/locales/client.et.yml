@@ -9,8 +9,10 @@ et:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Salvestatud
+          restore:
+            label: Taasta
+          edit:
+            label: Muuda
           enabled:
             label: Sisse lülitatud
           disabled:
@@ -20,6 +22,7 @@ et:
           default_visibility: Nähtavus
           table:
             auth_type: Tüüp
+            status: Staatus
             actions: Tegevused
           category:
             label: Liigid
@@ -55,6 +58,9 @@ et:
       visibility:
         label:
           public: Avalik
+      model:
+        actions: Tegevused
+        status: Staatus
     user:
       discourse_activity_pub:
         auth_type: Tüüp

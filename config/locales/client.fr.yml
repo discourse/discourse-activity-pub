@@ -9,8 +9,15 @@ fr:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Enregistré
+          delete:
+            confirm:
+              title: "Voulez-vous vraiment supprimer %{actor} ?"
+          restore:
+            label: Restaurer
+          edit:
+            label: Modifier
+          deleted:
+            label: Supprimés
           enabled:
             label: Activé
           disabled:
@@ -22,6 +29,7 @@ fr:
           default_visibility: Visibilité
           table:
             auth_type: Type
+            status: Statut
             actions: Actions
           category:
             label: Catégories
@@ -61,6 +69,9 @@ fr:
       object_type:
         label:
           note: Note
+      model:
+        actions: Actions
+        status: Statut
     user:
       discourse_activity_pub:
         auth_type: Type

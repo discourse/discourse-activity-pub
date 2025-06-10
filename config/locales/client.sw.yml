@@ -9,8 +9,10 @@ sw:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Imehifadhiwa
+          restore:
+            label: Rejesha
+          edit:
+            label: Hariri
           enabled:
             label: Imeruhusiwa
           disabled:
@@ -52,6 +54,8 @@ sw:
       visibility:
         label:
           public: Umma
+      model:
+        actions: Vitendo
     user:
       discourse_activity_pub:
         auth_type: Aina

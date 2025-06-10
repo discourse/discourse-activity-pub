@@ -9,8 +9,15 @@ ru:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Сохранено
+          delete:
+            confirm:
+              title: "Действительно удалить группу «%{actor}»?"
+          restore:
+            label: Восстановить
+          edit:
+            label: Отредактировать
+          deleted:
+            label: Удалённые
           enabled:
             label: Включено
           disabled:
@@ -20,6 +27,7 @@ ru:
           default_visibility: Видимость
           table:
             auth_type: Тип опроса
+            status: Статус
             actions: Действия
           category:
             label: Категории
@@ -59,6 +67,9 @@ ru:
       object_type:
         label:
           note: Примечание
+      model:
+        actions: Темы
+        status: Статус
     user:
       discourse_activity_pub:
         auth_type: Тип опроса

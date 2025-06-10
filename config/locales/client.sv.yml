@@ -9,8 +9,15 @@ sv:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Sparad
+          delete:
+            confirm:
+              title: "Är du säker på att du vill radera %{actor}?"
+          restore:
+            label: Återställ
+          edit:
+            label: Redigera
+          deleted:
+            label: Raderade
           enabled:
             label: Aktiverad
           disabled:
@@ -20,6 +27,7 @@ sv:
           default_visibility: Synlighet
           table:
             auth_type: Typ
+            status: Status
             actions: Åtgärder
           category:
             label: Kategorier
@@ -56,6 +64,9 @@ sv:
       visibility:
         label:
           public: Publikt
+      model:
+        actions: Åtgärder
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Typ

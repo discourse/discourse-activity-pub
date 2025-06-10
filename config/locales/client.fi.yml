@@ -9,8 +9,15 @@ fi:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Tallennettu
+          delete:
+            confirm:
+              title: "Haluatko varmasti poistaa ryhmän %{actor}?"
+          restore:
+            label: Palauta
+          edit:
+            label: Muokkaa
+          deleted:
+            label: Poistettu
           enabled:
             label: Käytössä
           disabled:
@@ -24,6 +31,7 @@ fi:
           default_visibility: Näkyvyys
           table:
             auth_type: Tyyppi
+            status: Tila
             actions: Toiminnot
           category:
             label: Luokat
@@ -64,6 +72,9 @@ fi:
       object_type:
         label:
           note: Huomautus
+      model:
+        actions: Toiminnot
+        status: Tila
     user:
       discourse_activity_pub:
         auth_type: Tyyppi

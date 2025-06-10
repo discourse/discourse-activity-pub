@@ -9,9 +9,15 @@ zh_CN:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: 已保存
-            failed: 未保存
+          delete:
+            confirm:
+              title: "确定要删除“%{actor}”吗？"
+          restore:
+            label: 恢复
+          edit:
+            label: 编辑
+          deleted:
+            label: 已删除
           enabled:
             label: 已启用
           disabled:
@@ -28,6 +34,7 @@ zh_CN:
           table:
             model: 模型
             auth_type: 类型
+            status: 状态
             actions: 操作
           category:
             label: 类别
@@ -91,6 +98,9 @@ zh_CN:
       publication_type:
         label:
           first_post: 第一篇帖子
+      model:
+        actions: 操作
+        status: 状态
     user:
       discourse_activity_pub:
         auth_type: 类型

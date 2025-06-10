@@ -16,11 +16,16 @@ cs:
           save:
             title: Uložit aktéra ActivityPub
             label: Uložit aktéra
-            success: Uloženo
-            failed: Neuloženo
+          delete:
+            confirm:
+              title: "Jste si jisti, že chcete odstranit %{actor}?"
+          restore:
+            label: Obnovit
           edit:
             title: Upravit aktéra ActivityPub
-            label: Upravit aktéra
+            label: Upravit
+          deleted:
+            label: Smazáno
           enabled:
             title: Aktér ActivityPub povolen
             label: Zapnuto
@@ -51,6 +56,7 @@ cs:
             actor: Aktér
             model: Model
             auth_type: Typ
+            status: Stav
             actions: Akce
           category:
             label: Kategorie
@@ -123,6 +129,9 @@ cs:
       publication_type:
         description:
           full_topic: Každý příspěvek každého tématu v tomto %{model_type} je zveřejněn prostřednictvím ActivityPub a odpovědi na jiných serverech ActivityPub jsou importovány jako odpovědi v Discourse.
+      model:
+        actions: Akce
+        status: Stav
     user:
       discourse_activity_pub:
         auth_type: Typ
