@@ -9,8 +9,12 @@ da:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Gemt
+          restore:
+            label: Genetabler
+          edit:
+            label: Rediger
+          deleted:
+            label: Slettet
           enabled:
             label: Aktiveret
           disabled:
@@ -20,6 +24,7 @@ da:
           default_visibility: Synlighed
           table:
             auth_type: Type
+            status: Status
             actions: Handlinger
           category:
             label: Kategorier
@@ -56,6 +61,9 @@ da:
       visibility:
         label:
           public: Offentlig
+      model:
+        actions: Handlinger
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Type

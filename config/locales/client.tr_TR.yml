@@ -9,8 +9,15 @@ tr_TR:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Kaydedildi
+          delete:
+            confirm:
+              title: "%{actor} adlı grubu silmek istediğinizden emin misiniz?"
+          restore:
+            label: Geri Yükle
+          edit:
+            label: Düzenle
+          deleted:
+            label: Silindi
           enabled:
             label: Etkin
           disabled:
@@ -22,6 +29,7 @@ tr_TR:
           default_visibility: Görünürlük
           table:
             auth_type: Tür
+            status: Durum
             actions: Eylemler
           category:
             label: Kategoriler
@@ -61,6 +69,9 @@ tr_TR:
       object_type:
         label:
           note: Not
+      model:
+        actions: Eylemler
+        status: Durum
     user:
       discourse_activity_pub:
         auth_type: Tür

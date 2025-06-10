@@ -9,8 +9,15 @@ pl_PL:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Zapisano
+          delete:
+            confirm:
+              title: "Czy na pewno chcesz usunąć %{actor}?"
+          restore:
+            label: Przywróć
+          edit:
+            label: Edytuj
+          deleted:
+            label: Usunięty
           enabled:
             label: Włączona
           disabled:
@@ -20,6 +27,7 @@ pl_PL:
           default_visibility: Widoczność
           table:
             auth_type: Typ
+            status: Status
             actions: Akcje
           category:
             label: Kategorie
@@ -59,6 +67,9 @@ pl_PL:
       object_type:
         label:
           note: Uwaga
+      model:
+        actions: Akcje
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Typ

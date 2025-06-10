@@ -9,8 +9,12 @@ pt:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Guardado
+          restore:
+            label: Restaurar
+          edit:
+            label: Editar
+          deleted:
+            label: Eliminado
           enabled:
             label: Ativado
           disabled:
@@ -20,6 +24,7 @@ pt:
           default_visibility: Visibilidade
           table:
             auth_type: Tipo
+            status: Estado
             actions: Ações
           category:
             label: Categorias
@@ -54,6 +59,9 @@ pt:
       visibility:
         label:
           public: Público
+      model:
+        actions: Ações
+        status: Estado
     user:
       discourse_activity_pub:
         auth_type: Tipo

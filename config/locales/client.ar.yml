@@ -9,8 +9,15 @@ ar:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: تم الحفظ
+          delete:
+            confirm:
+              title: "هل تريد بالتأكيد حذف المجموعة %{actor}؟"
+          restore:
+            label: استعادة
+          edit:
+            label: تعديل
+          deleted:
+            label: تم الحذف
           enabled:
             label: مفعَّلة
           disabled:
@@ -20,6 +27,7 @@ ar:
           default_visibility: الرؤية
           table:
             auth_type: النوع
+            status: الحالة
             actions: الإجراءات
           category:
             label: الفئات
@@ -59,6 +67,9 @@ ar:
       object_type:
         label:
           note: ملاحظة
+      model:
+        actions: الإجراءات
+        status: الحالة
     user:
       discourse_activity_pub:
         auth_type: النوع

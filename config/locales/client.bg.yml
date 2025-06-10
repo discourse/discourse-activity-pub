@@ -9,8 +9,12 @@ bg:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Запазено
+          restore:
+            label: Възстанови
+          edit:
+            label: Редактирай
+          deleted:
+            label: Изтрита
           enabled:
             label: Да е включен
           disabled:
@@ -20,6 +24,7 @@ bg:
           default_visibility: Видимост
           table:
             auth_type: Тип
+            status: Статус
             actions: Действия
           category:
             label: Категории
@@ -54,6 +59,9 @@ bg:
       visibility:
         label:
           public: Публични
+      model:
+        actions: Действия
+        status: Статус
     user:
       discourse_activity_pub:
         auth_type: Тип

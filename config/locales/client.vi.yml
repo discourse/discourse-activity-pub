@@ -9,8 +9,12 @@ vi:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Lưu trữ
+          restore:
+            label: Khôi phục
+          edit:
+            label: Sửa
+          deleted:
+            label: Đã xóa
           disabled:
             label: Vô hiệu hóa
           username: Tên tài khoản
@@ -18,6 +22,7 @@ vi:
           default_visibility: Khả năng hiển thị
           table:
             auth_type: Loại
+            status: Trạng thái
             actions: Hành động
           category:
             label: Danh mục
@@ -52,6 +57,9 @@ vi:
       visibility:
         label:
           public: Công khai
+      model:
+        actions: Hành động
+        status: Trạng thái
     user:
       discourse_activity_pub:
         auth_type: Loại

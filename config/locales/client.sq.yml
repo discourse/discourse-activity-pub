@@ -9,8 +9,10 @@ sq:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: U ruajt
+          restore:
+            label: Rikthe
+          edit:
+            label: Redaktoni
           enabled:
             label: Aktivizuar
           disabled:
@@ -19,6 +21,7 @@ sq:
           name: Emri
           table:
             auth_type: Lloji
+            status: Status
             actions: Veprimet
           category:
             label: Categories
@@ -56,6 +59,9 @@ sq:
       object_type:
         label:
           note: Shënim
+      model:
+        actions: Veprimet
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Lloji

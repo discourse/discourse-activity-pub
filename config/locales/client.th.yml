@@ -9,14 +9,17 @@ th:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: บันทึกแล้ว
+          edit:
+            label: แก้ไข
+          deleted:
+            label: ลบ
           disabled:
             label: ปิดใช้งานแล้ว
           username: ชื่อผู้ใช้
           name: ชื่อ
           table:
             auth_type: ชนิด
+            status: สถานะ
             actions: การกระทำ
           category:
             label: หมวดหมู่
@@ -49,6 +52,9 @@ th:
       visibility:
         label:
           public: สาธารณะ
+      model:
+        actions: การกระทำ
+        status: สถานะ
     user:
       discourse_activity_pub:
         auth_type: ชนิด

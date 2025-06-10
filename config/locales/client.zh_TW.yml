@@ -9,8 +9,15 @@ zh_TW:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: 已儲存
+          delete:
+            confirm:
+              title: "您確定要刪除 %{actor}嗎？"
+          restore:
+            label: 還原
+          edit:
+            label: 編輯
+          deleted:
+            label: 刪除
           enabled:
             label: 啟用
           disabled:
@@ -20,6 +27,7 @@ zh_TW:
           default_visibility: 能見度
           table:
             auth_type: 類型
+            status: 狀態
             actions: 動作
           category:
             label: 分類
@@ -56,6 +64,9 @@ zh_TW:
       visibility:
         label:
           public: 公開
+      model:
+        actions: 動作
+        status: 狀態
     user:
       discourse_activity_pub:
         auth_type: 類型

@@ -9,8 +9,12 @@ hr:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Spremljeno
+          restore:
+            label: Obnovi
+          edit:
+            label: Uredi
+          deleted:
+            label: Izbrisao
           enabled:
             label: Omogućeno
           disabled:
@@ -20,6 +24,7 @@ hr:
           default_visibility: Vidljivost
           table:
             auth_type: Tip
+            status: Statust
             actions: Akcije
           category:
             label: Kategorije
@@ -54,6 +59,9 @@ hr:
       visibility:
         label:
           public: Javnost
+      model:
+        actions: Akcije
+        status: Statust
     user:
       discourse_activity_pub:
         auth_type: Tip

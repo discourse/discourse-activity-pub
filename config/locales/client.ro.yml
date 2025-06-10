@@ -9,8 +9,12 @@ ro:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Salvat
+          restore:
+            label: Restabilire
+          edit:
+            label: Modifică
+          deleted:
+            label: Șters
           enabled:
             label: Activat
           disabled:
@@ -21,6 +25,7 @@ ro:
           name: Nume
           table:
             auth_type: Tip
+            status: Stare
             actions: Acțiuni
           category:
             label: Categorii
@@ -58,6 +63,9 @@ ro:
       object_type:
         label:
           note: Notă
+      model:
+        actions: Acțiuni
+        status: Stare
     user:
       discourse_activity_pub:
         auth_type: Tip

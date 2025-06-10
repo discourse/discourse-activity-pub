@@ -23,11 +23,23 @@ de:
           save:
             title: ActivityPub Actor speichern
             label: Actor speichern
-            success: Gespeichert
-            failed: Nicht gespeichert
+          delete:
+            title: ActivityPub Actor löschen
+            label: Actor löschen
+            failed: Nicht gelöscht
+            confirm:
+              title: "Möchtest du %{actor} wirklich löschen?"
+          restore:
+            title: ActivityPub Actor wiederherstellen
+            label: Wiederherstellen
+          destroy:
+            title: ActivityPub Actor zerstören
+            label: Zerstören
           edit:
             title: ActivityPub Actor bearbeiten
-            label: Actor bearbeiten
+            label: Bearbeiten
+          deleted:
+            label: Gelöscht
           enabled:
             title: ActivityPub Actor aktiviert
             label: Aktiviert
@@ -53,6 +65,7 @@ de:
             actor: Actor
             model: Modell
             auth_type: Art
+            status: Status
             actions: Aktionen
           category:
             label: Kategorien
@@ -187,13 +200,12 @@ de:
           full_topic: Ganzes Thema
       copy_uri:
         copied: URI kopiert!
+      model:
+        actions: Aktionen
+        group_actors: Gruppen-Actor
+        status: Status
     post:
       discourse_activity_pub:
-        info:
-          label: "Beitragsinformationen"
-          group_actors: "Gruppen-Actor"
-          attributes: Beitragsattribute
-          status: Beitragsstatus
         status:
           published: "Der Beitrag wurde am %{datetime} über ActivityPub veröffentlicht."
           scheduled: "Die Veröffentlichung des Beitrags über ActivityPub ist für %{datetime} geplant."
@@ -229,10 +241,6 @@ de:
               no_followers: "Für Beitrag #%{post_number} ist keine Planung aktiv, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
     topic:
       discourse_activity_pub:
-        info:
-          label: Themeninfo
-          group_actors: "Gruppen-Actor"
-          status: Status des Themas
         status:
           scheduled: Die Veröffentlichung des Themas über ActivityPub ist für %{datetime} geplant.
           scheduled_past: Die Veröffentlichung des Themas über ActivityPub war für %{datetime} geplant.

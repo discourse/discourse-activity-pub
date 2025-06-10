@@ -9,8 +9,12 @@ hy:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Պահված է
+          restore:
+            label: Վերականգնել
+          edit:
+            label: Խմբագրել
+          deleted:
+            label: Ջնջված է
           disabled:
             label: Անջատված
           username: Օգտանուն
@@ -18,6 +22,7 @@ hy:
           default_visibility: Տեսանելիություն
           table:
             auth_type: Տիպը
+            status: Ստատուս
             actions: Գործողություններ
           category:
             label: Կատեգորիաներ
@@ -53,6 +58,9 @@ hy:
       visibility:
         label:
           public: Հանրային
+      model:
+        actions: Գործողություններ
+        status: Ստատուս
     user:
       discourse_activity_pub:
         auth_type: Տիպը

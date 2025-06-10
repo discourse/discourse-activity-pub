@@ -9,8 +9,13 @@ ug:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: ساقلاندى
+          delete:
+            confirm:
+              title: "%{actor} نى راستتىنلا ئۆچۈرەمسىز؟"
+          restore:
+            label: ئەسلىگە كەلتۈر
+          edit:
+            label: تەھرىر
           enabled:
             label: قوزغىتىلدى
           disabled:
@@ -20,6 +25,7 @@ ug:
           default_visibility: كۆرۈنۈشچانلىقى
           table:
             auth_type: تىپى
+            status: ھالەت
             actions: مەشغۇلات
           category:
             label: سەھىپە
@@ -59,6 +65,9 @@ ug:
       object_type:
         label:
           note: ئەسكەرتىش
+      model:
+        actions: مەشغۇلات
+        status: ھالەت
     user:
       discourse_activity_pub:
         auth_type: تىپى

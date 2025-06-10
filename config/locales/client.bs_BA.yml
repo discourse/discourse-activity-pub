@@ -9,8 +9,12 @@ bs_BA:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Spašeno
+          restore:
+            label: Restore
+          edit:
+            label: Edit
+          deleted:
+            label: Isbrisano
           enabled:
             label: Omogućen
           disabled:
@@ -20,6 +24,7 @@ bs_BA:
           default_visibility: Vidljivost
           table:
             auth_type: Tip
+            status: Status
             actions: Akcije
           category:
             label: Kategorije
@@ -54,6 +59,9 @@ bs_BA:
       visibility:
         label:
           public: Javno
+      model:
+        actions: Akcije
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Tip

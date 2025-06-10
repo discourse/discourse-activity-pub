@@ -9,8 +9,12 @@ lt:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Išsaugota
+          restore:
+            label: Atkurti
+          edit:
+            label: Redaguoti
+          deleted:
+            label: Ištrinta
           enabled:
             label: Galimas
           disabled:
@@ -20,6 +24,7 @@ lt:
           default_visibility: Matomumas
           table:
             auth_type: Tipas
+            status: Statusas
             actions: Veiksmai
           category:
             label: Kategorijos
@@ -55,6 +60,9 @@ lt:
       visibility:
         label:
           public: Vieša
+      model:
+        actions: Veiksmai
+        status: Statusas
     user:
       discourse_activity_pub:
         auth_type: Tipas

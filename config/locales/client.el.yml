@@ -9,8 +9,12 @@ el:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Αποθηκεύτηκε!
+          restore:
+            label: Επαναφορά
+          edit:
+            label: Επεξεργασία
+          deleted:
+            label: Διαγράφηκε
           enabled:
             label: Ενεργοποιημένα
           disabled:
@@ -20,6 +24,7 @@ el:
           default_visibility: Ορατότητα
           table:
             auth_type: Τύπος
+            status: Κατάσταση
             actions: Ενέργειες
           category:
             label: Κατηγορίες
@@ -59,6 +64,9 @@ el:
       object_type:
         label:
           note: Σημείωση
+      model:
+        actions: Ενέργειες
+        status: Κατάσταση
     user:
       discourse_activity_pub:
         auth_type: Τύπος

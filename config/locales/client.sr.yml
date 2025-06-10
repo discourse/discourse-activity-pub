@@ -9,8 +9,10 @@ sr:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Sačuvano
+          restore:
+            label: Obnovi
+          edit:
+            label: Izmeni
           enabled:
             label: Omogućeno
           disabled:
@@ -19,6 +21,7 @@ sr:
           name: Ime foruma
           table:
             auth_type: Tip
+            status: Status
             actions: Akcije
           category:
             label: Kategorije
@@ -49,6 +52,9 @@ sr:
         user: Korisnik
         follow_pending: u toku
         actions: Akcije
+      model:
+        actions: Akcije
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Tip

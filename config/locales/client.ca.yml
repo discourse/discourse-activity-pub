@@ -9,8 +9,12 @@ ca:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Desat
+          restore:
+            label: Restaura
+          edit:
+            label: Edita
+          deleted:
+            label: Suprimit
           enabled:
             label: Activat
           disabled:
@@ -20,6 +24,7 @@ ca:
           default_visibility: Visibilitat
           table:
             auth_type: Tipus
+            status: Estat
             actions: Accions
           category:
             label: Categories
@@ -55,6 +60,9 @@ ca:
       visibility:
         label:
           public: Públic
+      model:
+        actions: Accions
+        status: Estat
     user:
       discourse_activity_pub:
         auth_type: Tipus

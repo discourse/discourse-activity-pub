@@ -17,8 +17,15 @@ fa_IR:
             category:
               title: افزودن دسته‌بندی بازیگر اکتیویتی‌پاب
               label: افزودن دسته‌بندی بازیگر
-          save:
-            success: ذخیره شد
+          delete:
+            confirm:
+              title: "آیا مطمئنید که می‌خواهید %{actor} را حذف کنید؟"
+          restore:
+            label: بازیابی
+          edit:
+            label: ویرایش
+          deleted:
+            label: حذف شده
           enabled:
             label: فعال شده
           disabled:
@@ -30,6 +37,7 @@ fa_IR:
             actor: بازیگر
             model: مدل
             auth_type: نوع
+            status: وضعیت
             actions: عملیات
           category:
             label: دسته‌بندی‌ها
@@ -69,6 +77,9 @@ fa_IR:
       object_type:
         label:
           note: یادداشت
+      model:
+        actions: عملیات
+        status: وضعیت
     user:
       discourse_activity_pub:
         auth_type: نوع

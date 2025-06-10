@@ -9,8 +9,15 @@ pt_BR:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Salvou
+          delete:
+            confirm:
+              title: "Tem certeza de que deseja excluir %{actor}?"
+          restore:
+            label: Restaurar
+          edit:
+            label: Editar
+          deleted:
+            label: Excluído
           enabled:
             label: Ativada
           disabled:
@@ -22,6 +29,7 @@ pt_BR:
           default_visibility: Visibilidade
           table:
             auth_type: Tipo
+            status: Status
             actions: Ações
           category:
             label: Categorias
@@ -61,6 +69,9 @@ pt_BR:
       object_type:
         label:
           note: Observação
+      model:
+        actions: Ações
+        status: Status
     user:
       discourse_activity_pub:
         auth_type: Tipo

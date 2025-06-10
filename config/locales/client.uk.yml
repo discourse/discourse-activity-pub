@@ -9,8 +9,15 @@ uk:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: Збережено
+          delete:
+            confirm:
+              title: "Ви дійсно бажаєте видалити %{actor}?"
+          restore:
+            label: Відновити
+          edit:
+            label: Редагувати
+          deleted:
+            label: Вилучено
           enabled:
             label: Включено
           disabled:
@@ -20,6 +27,7 @@ uk:
           default_visibility: Видимість
           table:
             auth_type: Тип
+            status: Статус
             actions: Дії
           category:
             label: Розділи
@@ -59,6 +67,9 @@ uk:
       object_type:
         label:
           note: Примітка
+      model:
+        actions: Дії
+        status: Статус
     user:
       discourse_activity_pub:
         auth_type: Тип

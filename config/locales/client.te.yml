@@ -9,8 +9,13 @@ te:
     admin:
       discourse_activity_pub:
         actor:
-          save:
-            success: సేవ్ చేయబడింది
+          delete:
+            confirm:
+              title: "మీరు ఖచ్చితంగా %{actor}ని తొలగించాలనుకుంటున్నారా?"
+          restore:
+            label: పునరుద్ధరించండి
+          edit:
+            label: సవరించండి
           enabled:
             label: ప్రారంభించబడింది
           disabled:
@@ -20,6 +25,7 @@ te:
           default_visibility: దృశ్యమానత
           table:
             auth_type: రకం
+            status: స్థితి
             actions: చర్యలు
           category:
             label: వర్గాలు
@@ -56,6 +62,9 @@ te:
       visibility:
         label:
           public: బహిరంగం
+      model:
+        actions: చర్యలు
+        status: స్థితి
     user:
       discourse_activity_pub:
         auth_type: రకం
