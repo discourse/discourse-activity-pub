@@ -6,7 +6,7 @@ module DiscourseActivityPub
 
     include DiscourseActivityPub::EnabledVerification
 
-    skip_before_action :preload_json, :redirect_to_login_if_required, :check_xhr
+    skip_before_action :preload_json, :check_xhr
 
     before_action :ensure_site_enabled
 
