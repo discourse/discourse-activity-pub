@@ -199,8 +199,9 @@ RSpec.describe DiscourseActivityPub::FollowHandler do
             perform(actor.id, target_actor.id)
           end
 
-          it "doesn't destroy the follow" do
-            expect(follow.destroyed?).to eq(false)
+          it "destroys the follow" do
+            perform(actor.id, target_actor.id)
+            expect(DiscourseActivityPubFollow.exists?(follow.id)).to eq(false)
           end
         end
 
