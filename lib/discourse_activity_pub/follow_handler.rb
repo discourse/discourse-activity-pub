@@ -33,7 +33,8 @@ module DiscourseActivityPub
       return false unless reject_object
       return false unless reject_activity
 
-      # The follow itself is destroyed in DiscourseActivityPubActivity.after_deliver
+      # Destroy follow on reject, regardless of whether delivery succeeds.
+      destroy_follow
 
       deliver(reject_activity)
     end
@@ -124,6 +125,13 @@ module DiscourseActivityPub
         object: object,
         recipient_ids: [target_actor.id],
       )
+    end
+
+    def destroy_follow
+      DiscourseActivityPubFollow.where(
+        follower_id: target_actor.id,
+        followed_id: actor.id,
+      ).destroy_all
     end
   end
 end
