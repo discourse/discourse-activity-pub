@@ -19,17 +19,26 @@ el:
             label: Ενεργοποιημένα
           disabled:
             label: Απενεργοποιημένο
+          site_setting:
+            title: Ρυθμίσεις ιστότοπου
+            activity_pub_enabled:
+              label: Το πρόσθετο είναι ενεργοποιημένο
+            login_required:
+              label: Απαιτείται σύνδεση
           username: Όνομα Χρήστη
           name: Όνομα
           default_visibility: Ορατότητα
           table:
+            model: Μοντέλο
             auth_type: Τύπος
             status: Κατάσταση
             actions: Ενέργειες
           category:
             label: Κατηγορίες
+            none: Επιλέξτε μια κατηγορία
           tag:
             label: Ετικέτες
+            none: Επιλέξτε μια ετικέτα
             filter: φιλτράρισμα ετικετών
         log:
           label: Αρχεία καταγραφής
@@ -38,8 +47,12 @@ el:
           level: Επίπεδο
           message: Μήνυμα
           json:
+            label: JSON
+            show:
+              label: JSON
             copy:
               label: Αντιγραφή
+              title: Αντιγραφή JSON στο πρόχειρο.
               success: Αντιγράφηκε!
   js:
     discourse_activity_pub:
@@ -49,9 +62,14 @@ el:
       status:
         label:
           active: Ενεργοί
+      discovery:
+        followers: Ακόλουθοι
+        follows: Ακολουθείτε
       follow:
+        label: Ακολουθήστε
         domain:
           placeholder: domain
+          btn_label: Ακολουθήστε
       actor_reject:
         label: Απόρριψη
       follow_table:
