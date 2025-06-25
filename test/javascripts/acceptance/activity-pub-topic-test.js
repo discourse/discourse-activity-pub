@@ -82,7 +82,7 @@ acceptance(
         .dom(".topic-map__activity-pub")
         .doesNotExist("the topic map is not visible");
       assert
-        .dom(".topic-post:nth-of-type(2) .post-info.activity-pub")
+        .dom(".topic-post[data-post-number='2'] .post-info.activity-pub")
         .doesNotExist("the post status is not visible");
     });
   }
@@ -131,7 +131,7 @@ acceptance(
 
       assert.dom(".topic-map__activity-pub").exists("the topic map is visible");
       assert
-        .dom(".topic-post:nth-of-type(3) .post-info.activity-pub")
+        .dom(".topic-post[data-post-number='3'] .post-info.activity-pub")
         .exists("is visible");
     });
 
@@ -157,7 +157,7 @@ acceptance(
 
       assert
         .dom(
-          `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was deleted via ActivityPub on ${deletedAt.format(
+          `.topic-post[data-post-number='3'] .activity-pub-post-status[title='Post was deleted via ActivityPub on ${deletedAt.format(
             i18n("dates.time_short_day")
           )}.']`
         )
@@ -208,7 +208,7 @@ acceptance(
 
       assert.dom(".topic-map__activity-pub").exists("the topic map is visible");
       assert
-        .dom(".topic-post:nth-of-type(3) .post-info.activity-pub")
+        .dom(".topic-post[data-post-number='3'] .post-info.activity-pub")
         .exists("is visible");
     });
   }
@@ -439,7 +439,7 @@ acceptance(
 
       await visit("/t/280");
 
-      await click(".topic-post:nth-of-type(4) .activity-pub-post-status");
+      await click(".topic-post[data-post-number='4'] .activity-pub-post-status");
       assert.dom(".activity-pub-post-info-modal").exists("shows the modal");
 
       assert
@@ -584,7 +584,7 @@ acceptance(
         );
       assert
         .dom(
-          `.topic-post:nth-of-type(3) .activity-pub-post-status[title='Post was published via ActivityPub by actor1@domain.com on ${publishedAt.format(
+          `.topic-post[data-post-number='3'] .activity-pub-post-status[title='Post was published via ActivityPub by actor1@domain.com on ${publishedAt.format(
             i18n("dates.time_short_day")
           )}.']`
         )
@@ -636,7 +636,9 @@ acceptance(
 
       await visit("/t/280");
 
-      await click(".topic-post:nth-of-type(3) .activity-pub-post-status");
+      await click(
+        ".topic-post[data-post-number='3'] .activity-pub-post-status"
+      );
       assert.dom(".activity-pub-post-info-modal").exists("shows the modal");
       assert
         .dom(".activity-pub-post-info-modal .activity-pub-post-status")
