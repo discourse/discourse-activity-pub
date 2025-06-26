@@ -246,7 +246,7 @@ function customizeWidgetPost(api, container) {
       const result = this._super(attrs);
       let postStatuses = result[result.length - 1].children;
       postStatuses = postStatuses.filter(
-        (n) => n.name !== "post-activity-pub-indicator"
+        (n) => n.renderInto !== "div.post-info.activity-pub"
       );
       if (
         site.activity_pub_enabled &&
