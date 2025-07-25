@@ -7,9 +7,26 @@
 it:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "ActivityPub Discourse"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Aggiungi attore categoria ActivityPub
+              label: Aggiungi attore categoria
+            tag:
+              title: Aggiungi attore etichetta ActivityPub
+              label: Aggiungi etichetta attore
+          save:
+            title: Salva attore etichetta ActivityPub
+            label: Salva attore
           delete:
+            title: Cancella attore etichetta ActivityPub
+            label: Cancella attore
+            failed: Non cancellato
             confirm:
               title: "Sei sicuro di voler eliminare %{actor}?"
           restore:

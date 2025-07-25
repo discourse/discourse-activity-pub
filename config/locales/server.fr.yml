@@ -37,10 +37,10 @@ fr:
   discourse_activity_pub:
     process:
       warning:
-        post_is_deleted: "Le message est supprimé"
+        post_is_deleted: "La publication est supprimée"
     category:
       error:
-        category_not_found: "Catégorie non trouvée "
+        category_not_found: "Catégorie introuvable"
     topic:
       error:
-        topic_not_found: "Sujet non trouvé"
+        topic_not_found: "Sujet introuvable"
