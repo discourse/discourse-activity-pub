@@ -17,7 +17,7 @@ fr:
           edit:
             label: Modifier
           deleted:
-            label: Supprimés
+            label: Supprimé
           enabled:
             label: Activé
           disabled:
