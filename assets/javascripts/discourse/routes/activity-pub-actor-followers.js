@@ -5,6 +5,7 @@ import ActivityPubActor from "../models/activity-pub-actor";
 
 export default class ActivityPubActorFollowers extends DiscourseRoute {
   @service site;
+  @service router;
 
   queryParams = {
     order: { refreshModel: true },
