@@ -21,7 +21,7 @@ RSpec.describe Admin::DiscourseActivityPub::ActorController do
         get "/admin/plugins/ap/actor.json"
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"]).to include(
-          "param is missing or the value is empty: model_type",
+          "param is missing or the value is empty or invalid: model_type",
         )
       end
     end

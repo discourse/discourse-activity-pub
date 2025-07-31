@@ -91,6 +91,8 @@ module DiscourseActivityPub
               end
               self.build_activity_pub_object(attrs)
             when :undo
+              return nil if !self.activity_pub_object.present?
+
               activity_pub_actor
                 .activities
                 .where(object_id: self.activity_pub_object.id)

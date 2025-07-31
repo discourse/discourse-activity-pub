@@ -71,7 +71,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
         post "/ap/auth/verify"
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"].first).to include(
-          "param is missing or the value is empty: domain",
+          "param is missing or the value is empty or invalid: domain",
         )
       end
     end
@@ -81,7 +81,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
         post "/ap/auth/verify", params: { domain: external_domain1 }
         expect(response.status).to eq(400)
         expect(response.parsed_body["errors"].first).to include(
-          "param is missing or the value is empty: auth_type",
+          "param is missing or the value is empty or invalid: auth_type",
         )
       end
     end
