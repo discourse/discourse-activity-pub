@@ -140,5 +140,15 @@ RSpec.describe PostRevisor do
         end
       end
     end
+
+    context "when revising a non-activity-pub post" do
+      context "with full_topic enabled" do
+        before { toggle_activity_pub(category, publication_type: "full_topic") }
+        it "allows updating the topic title" do
+          new_title = "New topic title"
+          expect { post_revisor.revise!(user, title: new_title) }.not_to raise_error
+        end
+      end
+    end
   end
 end
