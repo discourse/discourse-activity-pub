@@ -361,7 +361,8 @@ after_initialize do
     end
   end
   on(:post_edited) do |post, topic_changed, post_revisor|
-    if post.activity_pub_full_topic && post_revisor.topic_title_changed?
+    if post.activity_pub_full_topic && post_revisor.topic_title_changed? &&
+         post.topic.activity_pub_object
       post.topic.activity_pub_object.name = post.topic.activity_pub_name
       post.topic.activity_pub_object.save!
     end
