@@ -105,7 +105,7 @@ export default class ActivityPubFollowRemote extends Component {
               />
               <DButton
                 @icon="magnifying-glass"
-                @action={{action "find"}}
+                @action={{this.find}}
                 @label="discourse_activity_pub.actor_follow.find.btn_label"
                 @title="discourse_activity_pub.actor_follow.find.btn_title"
                 @disabled={{this.validating}}
@@ -129,7 +129,7 @@ export default class ActivityPubFollowRemote extends Component {
                 <ActivityPubActorFollowBtn
                   @actor={{@model.actor}}
                   @followActor={{this.followActor}}
-                  @follow={{action "follow"}}
+                  @follow={{this.follow}}
                 />
               </div>
             {{else if this.finding}}

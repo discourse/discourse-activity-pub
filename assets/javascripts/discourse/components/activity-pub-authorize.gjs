@@ -146,7 +146,7 @@ export default class ActivityPubAuthorize extends Component {
             <span>{{this.domain}}</span>
             <DButton
               @icon="xmark"
-              @action={{action "clearDomain"}}
+              @action={{this.clearDomain}}
               @title="user.discourse_activity_pub.clear_domain_button.title"
               id="user_activity_pub_authorize_clear_domain"
               class="activity-pub-authorize-clear-domain"
@@ -163,7 +163,7 @@ export default class ActivityPubAuthorize extends Component {
         {{/if}}
         <DButton
           @icon="check"
-          @action={{action "verifyDomain"}}
+          @action={{this.verifyDomain}}
           @label="user.discourse_activity_pub.verify_domain_button.label"
           @title="user.discourse_activity_pub.verify_domain_button.title"
           @disabled={{this.verifyDisabled}}
@@ -172,7 +172,7 @@ export default class ActivityPubAuthorize extends Component {
         />
         <DButton
           @icon="fingerprint"
-          @action={{action "authorizeDomain"}}
+          @action={{this.authorizeDomain}}
           @label="user.discourse_activity_pub.authorize_button.label"
           @title="user.discourse_activity_pub.authorize_button.title"
           @disabled={{this.authorizeDisabled}}

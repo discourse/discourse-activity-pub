@@ -37,7 +37,7 @@ export default class ActivityPubActorReject extends Component {
 
       <:footer>
         <DButton
-          @action={{action "reject"}}
+          @action={{this.reject}}
           @label="discourse_activity_pub.actor_reject.label"
           class="btn-primary"
         />
