@@ -37,7 +37,7 @@ export default class ActivityPubActorUnfollow extends Component {
 
       <:footer>
         <DButton
-          @action={{action "unfollow"}}
+          @action={{this.unfollow}}
           @label="discourse_activity_pub.actor_unfollow.label"
           class="btn-primary"
         />

@@ -103,7 +103,7 @@ export default class ActivityPubFollowDomain extends Component {
         />
         <DButton
           @icon="up-right-from-square"
-          @action={{action "follow"}}
+          @action={{this.follow}}
           @label="discourse_activity_pub.follow.domain.btn_label"
           @title="discourse_activity_pub.follow.domain.btn_title"
           @disabled={{this.verifying}}

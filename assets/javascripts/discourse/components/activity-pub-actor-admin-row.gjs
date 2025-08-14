@@ -37,9 +37,9 @@ export default class ActivityPubActorAdminRow extends Component {
   }
 
   @action
-  editActor(actor) {
+  editActor() {
     this.router
-      .transitionTo("adminPlugins.activityPub.actorShow", actor)
+      .transitionTo("adminPlugins.activityPub.actorShow", this.actor)
       .then(() => {
         this.actorShowController.set("showForm", true);
       });
@@ -102,7 +102,7 @@ export default class ActivityPubActorAdminRow extends Component {
       <div class="directory-table__cell activity-pub-actor-table-actions">
         {{#if this.actor.isDeleted}}
           <DButton
-            @action={{action "destroyActor"}}
+            @action={{this.destroyActor}}
             @label="admin.discourse_activity_pub.actor.destroy.label"
             @title="admin.discourse_activity_pub.actor.destroy.title"
             @icon="trash-can"
@@ -110,7 +110,7 @@ export default class ActivityPubActorAdminRow extends Component {
             @disabled={{this.loading}}
           />
           <DButton
-            @action={{action "restoreActor"}}
+            @action={{this.restoreActor}}
             @label="admin.discourse_activity_pub.actor.restore.label"
             @title="admin.discourse_activity_pub.actor.restore.title"
             @icon="arrow-rotate-left"
@@ -119,7 +119,7 @@ export default class ActivityPubActorAdminRow extends Component {
           />
         {{else}}
           <DButton
-            @action={{action "editActor" this.actor}}
+            @action={{this.editActor}}
             @label="admin.discourse_activity_pub.actor.edit.label"
             @title="admin.discourse_activity_pub.actor.edit.title"
             @icon="pencil"
