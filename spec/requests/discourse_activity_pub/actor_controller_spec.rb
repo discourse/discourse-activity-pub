@@ -130,6 +130,9 @@ RSpec.describe DiscourseActivityPub::ActorController do
           get "/ap/local/actor/#{actor1.id}/follows.json?limit=1&page=1"
           expect(response.status).to eq(200)
           expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq([follower2.ap_id])
+          expect(response.parsed_body["meta"]["load_more_url"]).to eq(
+            "/ap/local/actor/#{actor1.id}/follows.json?page=2",
+          )
         end
 
         context "with publishing disabled" do
@@ -187,6 +190,9 @@ RSpec.describe DiscourseActivityPub::ActorController do
           get "/ap/local/actor/#{actor1.id}/followers.json?limit=2&page=1"
           expect(response.status).to eq(200)
           expect(response.parsed_body["actors"].map { |f| f["url"] }).to eq([follower1.ap_id])
+          expect(response.parsed_body["meta"]["load_more_url"]).to eq(
+            "/ap/local/actor/#{actor1.id}/followers.json?page=2",
+          )
         end
 
         context "with publishing disabled" do

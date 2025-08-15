@@ -168,7 +168,7 @@ module DiscourseActivityPub
     def load_more_url(page)
       load_more_params = params.slice(:order, :asc).permit!
       load_more_params[:page] = page + 1
-      load_more_uri = ::URI.parse("/ap/actor/#{params[:actor_id]}/followers.json")
+      load_more_uri = ::URI.parse("/ap/local/actor/#{params[:actor_id]}/#{action_name}.json")
       load_more_uri.query = ::URI.encode_www_form(load_more_params.to_h)
       load_more_uri.to_s
     end
