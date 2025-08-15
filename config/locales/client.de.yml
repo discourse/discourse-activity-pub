@@ -35,10 +35,13 @@ de:
           destroy:
             title: ActivityPub Actor zerstören
             label: Zerstören
+            confirm:
+              title: Möchtest du %{actor} wirklich zerstören?
           edit:
             title: ActivityPub Actor bearbeiten
             label: Bearbeiten
           deleted:
+            title: ActivityPub Actor gelöscht
             label: Gelöscht
           enabled:
             title: ActivityPub Actor aktiviert
@@ -59,8 +62,11 @@ de:
           username: Benutzername
           username_description: "%{min_length} bis %{max_length} Buchstaben, Zahlen, Bindestriche oder Unterstriche."
           name: Name
+          name_description: Wird bei einigen Diensten als Anzeigename verwendet.
           default_visibility: Sichtbarkeit
           default_visibility_description: Alle Beiträge werden mit dieser Sichtbarkeit über ActivityPub veröffentlicht.
+          post_object_type: Objekttyp des Beitrags
+          post_object_type_description: Verwende Note für kurze Inhalte (z.B. Mastodon) und Article für lange Inhalte.
           table:
             actor: Actor
             model: Modell
@@ -191,9 +197,13 @@ de:
           private: "%{object_type} richtet sich an Follower."
       object_type:
         label:
-          note: Hinweis
+          note: Note
+          article: Article
           collection: Collection
           ordered_collection: Ordered Collection
+        description:
+          note: Am besten für Microblogging-Plattformen (z. B. Mastodon).
+          article: Am besten für Langform-Plattformen (z.B. Lemmy).
       publication_type:
         label:
           first_post: Erster Beitrag
@@ -271,6 +281,9 @@ de:
     user:
       discourse_activity_pub:
         title: ActivityPub
+        actors:
+          title: Verknüpfte Actor
+          description: Beiträge, die mit einem verknüpften Actor verbunden sind, werden deinem Konto zugeordnet.
         actor: Actor
         auth_type: Art
         actions: Aktionen
@@ -286,5 +299,10 @@ de:
               placeholder: z. B. meta.discourse.org
         authorize_button:
           label: Genehmigen
+        authorizations:
+          title: Verknüpfte Actor
+        authorization:
+          confirm_remove: Möchtest du wirklich die Verknüpfung mit %{handle} entfernen?
         remove_authorization_button:
+          title: Autorisierung entfernen
           label: Entfernen
