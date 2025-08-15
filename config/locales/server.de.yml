@@ -25,6 +25,7 @@ de:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "sind erforderlich"
               invalid: "ist nicht gültig"
         discourse_activity_pub_attachment:
           attributes:
@@ -197,6 +198,7 @@ de:
   site_settings:
     activity_pub_enabled: "Aktiviere das ActivityPub-Plug-in."
     activity_pub_rate_limit_post_to_inbox_per_minute: "Anzahl der POST-Anfragen, die pro Minute an die Inbox eines Actors gesendet werden können."
+    activity_pub_note_link_to_forum: "Füge einen Link zu diesem Forum in die ActivityPub-Notizen ein."
     activity_pub_allowed_request_origins: "Liste der Domains, die ActivityPub-Anfragen stellen dürfen."
     activity_pub_blocked_request_origins: "Liste der Domains, die keine ActivityPub-Anfragen stellen dürfen."
     activity_pub_delivery_delay_minutes: "Anzahl der Minuten, um die Zustellung von ActivityPub-Aktivitäten zu verzögern (Lösch-Aktivitäten werden sofort zugestellt)."
