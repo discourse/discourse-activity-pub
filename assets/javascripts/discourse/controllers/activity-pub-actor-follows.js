@@ -32,7 +32,7 @@ export default class ActivityPubActorFollows extends Controller {
     return ajax(this.loadMoreUrl)
       .then((response) => {
         if (response) {
-          this.follows.pushObjects(response.actors);
+          this.actors.pushObjects(response.actors);
           this.setProperties({
             loadMoreUrl: response.meta.load_more_url,
             loadingMore: false,
