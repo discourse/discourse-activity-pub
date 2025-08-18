@@ -3,6 +3,7 @@ import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { htmlSafe } from "@ember/template";
+import { eq } from "truth-helpers";
 import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
@@ -298,7 +299,11 @@ export default class ActivityPubPostActions extends Component {
             <div class="action-button">
               <DButton
                 @translatedLabel={{this.scheduleLabel}}
-                @action={{action this.scheduleAction}}
+                @action={{if
+                  (eq this.status "scheduled")
+                  this.unschedule
+                  this.schedule
+                }}
                 @disabled={{this.noFollowers}}
                 class={{this.scheduleAction}}
               />
