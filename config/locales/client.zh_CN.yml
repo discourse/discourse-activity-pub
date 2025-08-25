@@ -7,39 +7,94 @@
 zh_CN:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: 添加类别 ActivityPub 参与者
+              label: 添加类别参与者
+            tag:
+              title: 添加标签 ActivityPub 参与者
+              label: 添加标签参与者
+          save:
+            title: 保存 ActivityPub 参与者
+            label: 保存参与者
           delete:
+            title: 删除 ActivityPub 参与者
+            label: 删除参与者
+            failed: 未删除
             confirm:
               title: "确定要删除“%{actor}”吗？"
+              message: |
+                <ul>
+                <li>%{actor} 对联邦宇宙不再可用。</li>
+                <li>%{model} %{model_type} 将被删除。</li>
+                <li>您可以恢复删除的参与者。</li>
+                </ul>
           restore:
+            title: 恢复 ActivityPub 参与者
             label: 恢复
+          destroy:
+            title: 销毁 ActivityPub 参与者
+            label: 销毁
+            confirm:
+              title: 确定要销毁“%{actor}”吗？
+              message: |
+                <ul>
+                <li>%{actor} 将被销毁。</li>
+                <li> %{model} %{model_type} 不会被销毁。</li>
+                <li>您无法恢复销毁的参与者。</li>
+                </ul>
           edit:
+            title: 编辑 ActivityPub 参与者
             label: 编辑
           deleted:
+            title: ActivityPub 参与者已删除
             label: 已删除
           enabled:
+            title: ActivityPub 参与者已启用
             label: 已启用
           disabled:
+            title: ActivityPub 参与者已禁用
             label: 已禁用
           site_setting:
             title: 站点设置
             activity_pub_enabled:
               label: 插件已启用
+              title: ActivityPub 插件由启用了 ActivityPub 的站点设置启用。
+              description: 将处理发送给已启用的参与者的传入活动。
             login_required:
               label: 需要登录
+              title: 对于需要登录的站点设置，需要进行登录。
+              description: 仅发布传出的关注请求和已启用的参与者的特性。
           username: 用户名
+          username_description: "%{min_length} 至 %{max_length} 个字母、数字、破折号或下划线。"
           name: 名称
+          name_description: 在某些服务中用作显示名称。
           default_visibility: 公开范围
+          default_visibility_description: 所有帖子都将通过 ActivityPub 发布并具有此可见性。
+          post_object_type: 帖子对象类型
+          post_object_type_description: 对于短内容（例如 Mastodon）使用注释，对于长内容使用文章。
+          publication_type: 发布类型
+          publication_type_description: '“第一篇帖子”会发布每个话题的第一篇帖子。“完整话题”会发布所有帖子并提取回复。'
           table:
+            actor: 参与者
             model: 模型
             auth_type: 类型
             status: 状态
             actions: 操作
           category:
             label: 类别
+            title: 类别参与者
+            none: 选择类别
           tag:
             label: 标签
+            title: 标签参与者
+            none: 选择标签
             filter: 筛选标签
         log:
           label: 日志
@@ -49,67 +104,247 @@ zh_CN:
           message: 发送私信
           json:
             label: JSON
+            title: 活动 JSON
             show:
               label: JSON
+              title: 显示活动 JSON
             copy:
               label: 复制
+              title: 将 JSON 复制到剪贴板。
               success: 已复制！
+            logged_at: 已记录 %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: 联邦
+          title: 探索此社区的 ActivityPub 联邦
+        title: 联邦
+        description: 这些类别和标签支持 ActivityPub 联邦。如果您使用 Mastodon 或其他 ActivityPub 平台，可以关注它们，以在您的 Feed 中查看其话题和帖子。
         categories: 类别
         tags: 标签
+        actor:
+          follower_count:
+            other: "%{count} 位关注者"
       status:
+        title:
+          publishing_disabled: ActivityPub 发布被需要登录的站点设置禁用。传入活动和传出关注已启用。
+          plugin_disabled: ActivityPub 插件已禁用
+          category_read_restricted: ActivityPub 不适用于私有类别
+          model_disabled: 已为此 %{model_type} 禁用 ActivityPub
+          model_not_ready: ActivityPub 未对此 %{model_type} 准备就绪
+          model_not_active: ActivityPub 未对此 %{model_type} 激活
+          model_active:
+            first_post: 新话题的第一篇帖子将在发布 %{delay_minutes} 分钟后发布
         label:
           active: 有效
           not_active: 不活跃
+          publishing_disabled: 发布已禁用
+      discovery:
+        label: 联邦
+        description: '%{model_name} 联邦'
+        followers: 关注者
+        follows: 关注
+      banner:
+        text: 在任何支持联邦的服务上关注 %{model_name}
+        responsive_text: 已联合
+        public_full_topic: 每个话题的每篇帖子都将通过 ActivityPub 公开发布。
+        public_first_post: 每个话题的第一篇帖子将通过 ActivityPub 公开发布。
+        followers_only_full_topic: 每个话题的每篇帖子仅发布给 ActivityPub 关注者。
+        followers_only_first_post: 每个话题的第一篇帖子仅发布给 ActivityPub 关注者。
+      handle:
+        label: 在其他 ActivityPub 服务上
+        description: 使用此句柄来查找和关注此类别。
       follow:
         label: 关注
+        title: 通过 ActivityPub 关注 %{actor}
         domain:
+          label: Mastodon
           placeholder: 网域
           btn_label: 关注
+          btn_title: 在此 Mastodon 域名上关注
+          description: 您的 Mastodon 帐户的域名
           verifying: 正在验证域名...……
+          invalid: 不是有效的 Mastodon 域名
       actor_follow:
         label: 新关注
+        title: 通过 ActivityPub 对 %{actor} 进行的新关注
         find:
+          label: 查找要关注的参与者
           btn_label: 查找
+          btn_title: 查找句柄
+          description: "例如 @announcements@meta.discourse.org"
+          validating: 正在验证句柄...
+          invalid: 不是有效的句柄
+          finding: 正在查找参与者...
+          not_found: '找不到“%{handle}”'
         follow:
           label: 关注
+          title: '为 %{actor} 创建“%{follow_actor}”的关注'
         following:
           label: 正在关注
+          title: '%{actor} 正在关注 %{follow_actor}'
         follow_requested:
           label: 关注请求
+          title: '%{actor} 已请求关注 %{follow_actor}'
       actor_unfollow:
         label: 取消关注
+        title: 取消通过 ActivityPub 关注 %{actor}
         modal_title: 确认取消关注
+        confirm: 确定要让 %{actor} 取消关注 %{followed_actor} 吗？
       actor_reject:
         label: 拒绝
+        title: 拒绝通过 ActivityPub 关注 %{actor}
+        modal_title: 确认拒绝关注
+        confirm: 确定要拒绝 %{follower} 关注 %{actor} 吗？
       follow_table:
+        actor: 参与者
         user: 用户
         followed_at: 关注
         follow_pending: 待处理
         actions: 操作
       visibility:
         label:
+          private: 仅限关注者
           public: 公开
+        description:
+          private: "%{object_type} 将发送给关注者。"
+          public: "%{object_type} 会公开发送。"
       object_type:
         label:
           note: 备注
+          article: 文章
+          collection: 集合
+          ordered_collection: 有序集合
+        description:
+          note: 最适合微博平台（例如 Mastodon）。
+          article: 最适合长文平台（例如 Lemmy）。
       publication_type:
         label:
           first_post: 第一篇帖子
+          full_topic: 完整话题
+        description:
+          first_post: 此 %{model_type} 中每个话题的第一篇帖子通过 ActivityPub 发布。
+          full_topic: 此 %{model_type} 中每个话题的每篇帖子都通过 ActivityPub 发布，并且其他 ActivityPub 服务器上的回复将作为 Discourse 中的回复导入。
+      copy_uri:
+        copied: URI 已复制！
       model:
         actions: 操作
+        group_actors: 群组参与者
+        attributes: 特性
         status: 状态
+        menu: ActivityPub 操作...
+    post:
+      discourse_activity_pub:
+        title: "帖子 #%{post_number} 的 ActivityPub"
+        status:
+          published: "帖子于 %{datetime} 通过 ActivityPub 发布。"
+          scheduled: "帖子计划于 %{datetime} 通过 ActivityPub 发布。"
+          scheduled_past: "帖子原计划于 %{datetime} 通过 ActivityPub 发布。"
+          deleted: "帖子于 %{datetime} 通过 ActivityPub 删除。"
+          updated: "帖子于 %{datetime} 通过 ActivityPub 更新。"
+          published_remote: "帖子于 %{datetime} 由 %{actor} 通过 ActivityPub 发布。"
+          not_published: "帖子未通过 ActivityPub 发布。"
+          delivered: "帖子于 %{datetime} 通过 ActivityPub 投递。"
+        info_status:
+          published: "帖子于 %{datetime} 发布。"
+          scheduled: "帖子计划于 %{datetime} 发布。"
+          scheduled_past: "帖子原计划于 %{datetime} 发布。"
+          deleted: "帖子于 %{datetime} 删除。"
+          updated: "帖子于 %{datetime} 更新。"
+          published_remote: "帖子于 %{datetime} 发布。"
+          not_published: "帖子未发布。"
+          delivered: "帖子于 %{datetime} 投递。"
+        actions:
+          publish:
+            label: "发布帖子 #%{post_number}"
+            description:
+              followers: "发布帖子 #%{post_number} 并将其投递给群组参与者的关注者。"
+              no_followers: "发布帖子 #%{post_number} 但不投递。群组参与者没有可投递的关注者。"
+              topic_not_published: "帖子 #%{post_number} 已禁用发布。话题 #%{topic_id} 未发布。"
+              post_is_scheduled: "帖子 #%{post_number} 已禁用发布。帖子 #%{post_number} 已安排发布。"
+          deliver:
+            label: "投递帖子 #%{post_number}"
+            description:
+              followers: "将帖子 #%{post_number} 投递给群组参与者的关注者。"
+              no_followers: "帖子 #%{post_number} 的投递功能已禁用。群组参与者没有可投递的关注者。"
+              topic_not_delivered: "帖子 #%{post_number} 已禁用投递。话题 #%{topic_id} 未投递。"
+              delivered: "帖子 #%{post_number} 刚刚投递给群组参与者的关注者。"
+          schedule:
+            label: "安排帖子 #%{post_number}"
+            description:
+              followers: "发布帖子 #%{post_number} 并在 %{minutes} 分钟内将其投递给群组参与者的关注者。"
+              no_followers: "帖子 #%{post_number} 的定时功能已禁用。群组参与者没有可投递的关注者。"
+          unschedule:
+            label: "取消安排帖子 #%{post_number}"
+            description: "取消安排帖子 #%{post_number} 的发布。"
+    topic:
+      discourse_activity_pub:
+        title: "话题 #%{topic_id} 的 ActivityPub"
+        status:
+          scheduled: 话题计划于 %{datetime} 通过 ActivityPub 发布。
+          scheduled_past: 话题原计划于 %{datetime} 通过 ActivityPub 发布。
+          published: 话题于 %{datetime} 通过 ActivityPub 发布。
+          published_remote: 话题于 %{datetime} 由 %{actor} 通过 ActivityPub 发布。
+          deleted: 话题于 %{datetime} 通过 ActivityPub 删除。
+          not_published: 话题未通过 ActivityPub 发布。
+        info_status:
+          scheduled: "话题计划于 %{datetime} 发布。"
+          scheduled_past: "话题原计划于 %{datetime} 发布。"
+          published: "话题于 %{datetime} 发布。"
+          published_remote: "话题于 %{datetime} 发布。"
+          deleted: "话题于 %{datetime} 删除。"
+          not_published: "话题未发布。"
+        posts_status:
+          label: 帖子状态
+          published: 此话题下的所有帖子均已发布。
+          some_published: "此话题下的 %{total} 篇帖子中有 %{count} 篇已发布。"
+          none_published: 此话题下尚未发布任何帖子。
+          scheduled: 此话题已计划发布。
+        actions:
+          label: 话题操作
+        actors:
+          label: 话题参与者
+        publish:
+          label: 发布所有帖子
+          description:
+            unpublished: "在话题 #%{topic_id} 中发布 %{count} 篇未发布的帖子。帖子不会投递给群组参与者的关注者。"
+            published: "“发布所有帖子”已禁用。话题 #%{topic_id} 下的所有帖子均已发布。"
+            scheduled: "“发布所有帖子”已禁用。话题 #%{topic_id} 已计划发布。"
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: 链接的参与者
+          description: 与链接的参与者相关的帖子将归您的帐户所有。
+        actor: 参与者
         auth_type: 类型
         actions: 操作
         authorize:
           auth_type:
+            none:
+              label: 选择类型...
+              placeholder: "输入域名"
+            mastodon:
+              title: Mastodon
+              placeholder: 例如 mastodon.social
             discourse:
               title: Discourse
+              placeholder: 例如 meta.discourse.org
+        clear_domain_button:
+          title: 清除已验证的域。
+        verify_domain_button:
+          label: 验证
+          title: 验证该域是否受支持。
         authorize_button:
           label: 授权
+          title: 授权该域上的参与者。
+        authorize_error:
+          title: 授权失败
+        authorizations:
+          title: 链接的参与者
+        authorization:
+          confirm_remove: 确定要移除与 %{handle} 的链接吗？
         remove_authorization_button:
+          title: 移除授权
           label: 移除

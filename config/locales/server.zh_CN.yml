@@ -25,6 +25,7 @@ zh_CN:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "为必填项"
               invalid: "无效"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,11 +35,231 @@ zh_CN:
           attributes:
             model_type:
               invalid: "无效"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: 目前不支持在发布后编辑 ActivityPub 注释。
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub 未启用"
+    request:
+      error:
+        json_not_valid: "Invalid JSON-LD"
+        not_found: "未找到对象"
+        not_available: "ActivityPub 不适用于该模型"
+        bad_request: "错误请求"
+        not_authorized: "未授权"
+        forbidden: "被禁"
+        not_signed: "请求未签名"
+        missing_signature_params: "请求签名不兼容。需要具有 keyId 和签名"
+        unsupported_signature_algorithm: "不支持的签名算法（仅支持 rsa-sha256 和 hs2019）"
+        stale_request: "请求日期超出可接受的时间范围"
+        invalid_signature_key: "签名密钥无效"
+        actor_not_found_for_key: "未找到密钥 %{key_id} 的参与者"
+        signature_verification_failed: "使用 rsa-sha256（带有 SHA-256 的 RSASSA-PKCS1-v1_5）对 %{id} 进行验证失败"
+        signature_parse_failed: "解析签名时出错"
+        date_must_be_signed: "必须对日期标头或（创建的）伪标头进行签名"
+        digest_must_be_signed: "必须对摘要标头或（请求目标）伪标头进行签名"
+        host_must_be_signed: "执行 GET 请求时必须对主机标头进行签名"
+        digest_must_be_signed_on_post: "执行 POST 请求时必须对摘要标头进行签名"
+        digest_header_missing: "摘要标头缺失"
+        invalid_digest_header_algorithm: "摘要标头需要 SHA-256。提供的算法：%{algorithms}"
+        invalid_digest_base64: "摘要值无效。提供的摘要值不是有效的 base64 字符串。给定的摘要：%{digest}"
+        invalid_digest_sha256: "摘要值无效。提供的摘要值不是有效的 SHA-256 摘要。给定的摘要：%{digest}"
+        invalid_digest: "摘要值无效。计算出的 SHA-256 摘要：%{computed}；给出的摘要：%{digest}"
+        invalid_signature_pseudo_header: "无效的签名伪标头 (%{header})"
+        invalid_date_header: "无效的日期标头：%{reason}"
+        request_to_failed: "对 %{uri} 的 %{method} 请求失败：%{message}"
+        request_from_failed: "%{uri} 收到的 %{method} 请求失败：%{status} %{message}"
     process:
       warning:
+        failed_to_process: "处理 %{object_id} 失败"
+        cant_resolve_actor: "无法解析参与者"
+        cant_resolve_object: "无法解析对象"
+        object_not_supported: "对象不受支持"
+        cant_create_actor: "无法创建参与者"
+        cant_find_object: "找不到对象"
+        object_not_ready: "对象未准备就绪"
+        activity_already_processed: "活动已处理"
+        activity_not_supported: "活动不受参与者和对象支持"
+        invalid_create_actor: "参与者无法创建帖子"
+        cannot_reply_to_deleted_post: "无法创建一个对象来回应已删除的帖子"
+        undo_actor_must_match_object_actor: "撤消参与者必须与对象参与者匹配"
+        activity_host_must_match_object_host: "活动主机必须与对象主机匹配"
         cant_find_post: "找不到帖子"
         post_is_deleted: "帖子被删除"
+        full_topic_not_enabled: "未启用完整话题"
+        announce_not_publicly_addressed: "公告不会公开发送。"
+        actor_does_not_accept_new_topics: "参与者不接受新话题。"
+        only_followed_actors_create_new_topics: "只有被关注的参与者才能创建新话题。"
+        actor_already_following: "参与者已关注该对象"
+        invalid_collection_item: "无效条目"
+        cannot_resolve_context: "无法解析对象上下文"
+        cant_resolve_collection: "无法解析集合"
+        actor_cannot_be_deleted: "无法删除参与者"
+      error:
+        failed_to_create_user: "为 %{actor_id} 创建用户失败"
+        failed_to_create_post: "为 %{object_id} 创建帖子失败"
+        failed_to_respond_to_follow: "回应关注失败：%{activity_id}"
+        failed_to_save_activity: "保存活动失败：%{activity_id}"
+        failed_to_save_object: "保存对象失败：%{object_id}"
+        failed_to_save_actor: "保存参与者失败：%{actor_id}"
+        failed_to_save_collection: "保存集合失败：%{collection_id}"
+      info:
+        shared_inbox: "共享收件箱"
+        received_json: "已收到投递至 %{delivered_to} 的 JSON"
+        processing_json: "正在处理投递至 %{delivered_to} 的 JSON"
+    webfinger:
+      error:
+        resource_not_supported: "资源不受支持"
+        resource_not_found: "未找到资源"
+    category:
+      error:
+        category_not_found: "未找到类别"
+    post:
+      error:
+        post_not_found: "未找到帖子"
+        cant_deliver_post: "无法投递帖子"
+        cant_publish_post: "无法发布帖子"
+        cant_schedule_post: "无法安排帖子"
+        cant_unschedule_post: "无法取消安排帖子"
+        not_first_post: "帖子不是第一篇帖子"
+        failed_to_create: "为 %{object_id} 创建帖子失败：%{message}"
+      deleted: "已收到与该帖子相关的 %{object_type} 的删除。"
     topic:
       error:
         topic_not_found: "找不到话题"
+        cant_publish_topic: "无法发布话题"
+    user:
+      error:
+        failed_to_create: "为 %{actor_id} 创建用户失败：%{message}"
+      destroyed: "用户被 ActivityPub 删除活动销毁：%{username}"
+    object:
+      note:
+        link_to_forum: 在我们的论坛上讨论此内容。
+    actor:
+      followers:
+        summary: "%{actor} 的关注者"
+      outbox:
+        summary: "%{actor} 的活动"
+      error:
+        actor_not_found: "未找到参与者"
+        invalid_model: "无效模型"
+        model_not_found: "未找到模型"
+        target_actor_not_found: "未找到目标参与者"
+        not_following_target_actor: "参与者未关注目标参与者"
+        cant_follow_target_actor: "参与者无法关注目标参与者"
+        username_required: 需要具有 ActivityPub 用户名才能创建参与者。
+        full_topic_must_be_public: "完整话题发布需要公开发布。"
+        user_not_authorized: "用户未授权"
+        not_following_actor: "目标参与者未关注该参与者"
+        actor_cant_be_restored: "参与者无法恢复"
+      warning:
+        cant_create_model_for_actor_type: "无法为 %{actor_type} %{actor_id} 创建模型"
+        cant_create_actor_for_model_type: "无法为 %{model_type} %{model_id} 创建参与者"
+        not_allowed_to_create_actor_for_model: "不允许为 %{model_id} 创建参与者"
+        no_options: "没有向 ActorHandler 传递任何选项"
+        invalid_username: "用户名必须为 %{min_length} 至 %{max_length} 个字母、数字、破折号或下划线。"
+        username_taken: "该用户名已在此服务器上使用。"
+    auth:
+      error:
+        not_enabled: "未启用授权"
+        invalid_domain: "ActivityPub 域无效"
+        invalid_auth_redirect: "授权重定向无效"
+        invalid_redirect_params: "重定向参数无效"
+        authorization_required: "需要授权记录"
+        session_expired: "授权会话已过期"
+        failed_to_authorize: "授权失败"
+        failed_to_get_actor: "获取参与者失败"
+        failed_to_create_client: "创建客户端失败"
+        failed_to_verify_client: "验证客户端失败。请再次尝试验证。"
+        failed_to_get_token: "获取令牌失败"
+        failed_to_decrypt_payload: "解密有效负载失败"
+        failed_to_verify_nonce: "验证随机数失败"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} 未能安排 %{object_id} 进行投递：%{reason}"
+        failed_to_deliver: "%{from_actor} 未能投递至 %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} 成功投递给 %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} 未能处理 %{target_actor} 的发件箱"
+          actors_not_ready: "参与者未准备就绪"
+          not_following_target: "%{actor} 未关注 %{target_actor}"
+          outbox_response_invalid: "%{target_actor} 的发件箱返回了无效响应"
+        info:
+          started: "%{actor} 已开始处理 %{target_actor} 的活动。"
+          finished: "%{actor} 已完成 %{target_actor} 的活动处理。"
+          created_actors:
+            other: "创建了 %{count} 个参与者。"
+          updated_actors:
+            other: "更新了 %{count} 个参与者。"
+          created_objects:
+            other: "创建了 %{count} 个对象。"
+          updated_objects:
+            other: "更新了 %{count} 个对象。"
+          created_collections:
+            other: "创建了 %{count} 个集合。"
+          updated_collections:
+            other: "更新了 %{count} 个集合。"
+          created_activities:
+            other: "创建了 %{count} 个活动。"
+          updated_activities:
+            other: "更新了 %{count} 个活动。"
+          created_users:
+            other: "创建了 %{count} 个用户。"
+          updated_users:
+            other: "更新了 %{count} 个用户。"
+          created_topics:
+            other: "创建了 %{count} 个话题。"
+          updated_topics:
+            other: "更新了 %{count} 个话题。"
+          created_replies:
+            other: "创建了 %{count} 条回复。"
+          updated_replies:
+            other: "更新了 %{count} 条回复。"
+      publish:
+        warning:
+          publish_did_not_start: "批量发布 %{target} 的活动失败"
+          actor_not_found: "未找到参与者"
+          actor_not_ready: "参与者未准备就绪"
+          actor_model_not_supported: "参与者模型不受支持"
+        info:
+          started: "已开始发布 %{target} 的活动。"
+          finished: "已完成 %{target} 的活动发布。"
+          created_actors:
+            other: "创建了 %{count} 个参与者。"
+          updated_actors:
+            other: "更新了 %{count} 个参与者。"
+          created_objects:
+            other: "创建了 %{count} 个对象。"
+          updated_objects:
+            other: "更新了 %{count} 个对象。"
+          created_collections:
+            other: "创建了 %{count} 个集合。"
+          updated_collections:
+            other: "更新了 %{count} 个集合。"
+          created_activities:
+            other: "创建了 %{count} 个活动。"
+          updated_activities:
+            other: "更新了 %{count} 个活动。"
+  site_settings:
+    activity_pub_enabled: "启用 ActivityPub 插件。"
+    activity_pub_rate_limit_post_to_inbox_per_minute: "每分钟可以向参与者的收件箱发出的 POST 请求数量。"
+    activity_pub_rate_limit_get_objects_per_minute: "每分钟可在 AcitivityPub 对象上发出的 GET 请求数量。"
+    activity_pub_note_excerpt_maxlength: "AcitivityPub 注释中帖子摘要的最大长度（0 表示无最大长度）。"
+    activity_pub_note_link_to_forum: "在 ActivityPub 注释中包含此论坛的链接。"
+    activity_pub_require_signed_requests: "需要使用 HTTP 签名对 ActivityPub 请求进行签名。"
+    activity_pub_allowed_request_origins: "允许发出 ActivityPub 请求的域列表。"
+    activity_pub_blocked_request_origins: "不允许发出 ActivityPub 请求的域列表。"
+    activity_pub_delivery_delay_minutes: "ActivityPub 活动的延迟投递分钟数（“删除”活动会立即投递）。"
+    activity_pub_verbose_logging: "启用详细的 ActivityPub 日志。"
+    activity_pub_object_logging: "打印日志中所有传入和传出的 ActivityPub 对象（需要详细日志记录）。"
+    activity_pub_post_status_visibility_groups: "可以查看 ActivityPub 帖子状态的群组。"
+    activity_pub_logs_max_days_old: "ActivityPub 日志的保存天数。"
+    errors:
+      signed_requests_required: 此设置需要签名请求。
