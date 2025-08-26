@@ -84,7 +84,7 @@ en:
         activity_already_processed: "Activity has already been processed"
         activity_not_supported: "Activity is not supported for actor and object"
         invalid_create_actor: "Actor cannot create posts"
-        cannot_reply_to_deleted_post: "Cannot create an object inReplyTo a deleted Post"
+        cannot_reply_to_deleted_post: "Cannot create an object in reply to a deleted post"
         undo_actor_must_match_object_actor: "Undo Actor must match Object Actor"
         activity_host_must_match_object_host: "Activity host must match Object host"
         cant_find_post: "Can't find post"
