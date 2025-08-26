@@ -512,7 +512,7 @@ RSpec.describe Post do
       end
     end
 
-    context "without activty pub enabled on the category" do
+    context "without activity pub enabled on the category" do
       it "does nothing" do
         expect(post.perform_activity_pub_activity(:create)).to eq(false)
         expect(post.reload.activity_pub_object.present?).to eq(false)
@@ -598,6 +598,27 @@ RSpec.describe Post do
             freeze_time
             published_at = Time.now.utc.iso8601
             perform_create
+            expect(post.activity_pub_published?).to eq(true)
+            # rubocop:disable Discourse/TimeEqMatcher
+            expect(post.activity_pub_published_at).to eq(published_at)
+            expect(post.activity_pub_object.published_at).to eq(published_at)
+            expect(post.activity_pub_object.create_activity.published_at).to eq(published_at)
+            # rubocop:enable Discourse/TimeEqMatcher
+            unfreeze_time
+          end
+
+          it "outputs only one date for activity_pub_published_at when there are multiple published_at custom fields" do
+            freeze_time
+            published_at = Time.now.utc.iso8601
+            perform_create
+
+            # Create a second custom field
+            PostCustomField.create!(
+              post_id: post.id,
+              name: "activity_pub_published_at",
+              value: published_at,
+            )
+
             expect(post.activity_pub_published?).to eq(true)
             # rubocop:disable Discourse/TimeEqMatcher
             expect(post.activity_pub_published_at).to eq(published_at)

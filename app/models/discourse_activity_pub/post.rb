@@ -101,6 +101,12 @@ module DiscourseActivityPub::Post
     end
   end
 
+  def activity_pub_published_at
+    # We have to do this because sometimes we store multiple published_at timestamps
+    # TODO: figure out what causes us to store multiples of this custom field
+    Array(custom_fields["activity_pub_published_at"]).first
+  end
+
   def activity_pub_actor
     return @activity_pub_actor if !@activity_pub_actor.nil?
     return nil unless activity_pub_enabled
