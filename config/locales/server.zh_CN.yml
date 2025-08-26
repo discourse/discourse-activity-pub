@@ -85,7 +85,6 @@ zh_CN:
         activity_already_processed: "活动已处理"
         activity_not_supported: "活动不受参与者和对象支持"
         invalid_create_actor: "参与者无法创建帖子"
-        cannot_reply_to_deleted_post: "无法创建一个对象来回应已删除的帖子"
         undo_actor_must_match_object_actor: "撤消参与者必须与对象参与者匹配"
         activity_host_must_match_object_host: "活动主机必须与对象主机匹配"
         cant_find_post: "找不到帖子"
@@ -123,8 +122,8 @@ zh_CN:
         post_not_found: "未找到帖子"
         cant_deliver_post: "无法投递帖子"
         cant_publish_post: "无法发布帖子"
-        cant_schedule_post: "无法安排帖子"
-        cant_unschedule_post: "无法取消安排帖子"
+        cant_schedule_post: "无法计划帖子"
+        cant_unschedule_post: "无法取消计划帖子"
         not_first_post: "帖子不是第一篇帖子"
         failed_to_create: "为 %{object_id} 创建帖子失败：%{message}"
       deleted: "已收到与该帖子相关的 %{object_type} 的删除。"
@@ -180,10 +179,10 @@ zh_CN:
         failed_to_verify_nonce: "验证随机数失败"
     deliver:
       warning:
-        failed_to_schedule: "%{actor_id} 未能安排 %{object_id} 进行投递：%{reason}"
+        failed_to_schedule: "%{actor_id} 未能计划 %{object_id} 进行投递：%{reason}"
         failed_to_deliver: "%{from_actor} 未能投递至 %{send_to}"
       info:
-        successfully_delivered: "%{from_actor} 成功投递给 %{send_to}"
+        successfully_delivered: "%{from_actor} 成功投递至 %{send_to}"
     bulk:
       process:
         warning:
@@ -249,8 +248,8 @@ zh_CN:
             other: "更新了 %{count} 个活动。"
   site_settings:
     activity_pub_enabled: "启用 ActivityPub 插件。"
-    activity_pub_rate_limit_post_to_inbox_per_minute: "每分钟可以向参与者的收件箱发出的 POST 请求数量。"
-    activity_pub_rate_limit_get_objects_per_minute: "每分钟可在 AcitivityPub 对象上发出的 GET 请求数量。"
+    activity_pub_rate_limit_post_to_inbox_per_minute: "每分钟可以向参与者的收件箱发出的 POST 请求数。"
+    activity_pub_rate_limit_get_objects_per_minute: "每分钟可在 AcitivityPub 对象上发出的 GET 请求数。"
     activity_pub_note_excerpt_maxlength: "AcitivityPub 注释中帖子摘要的最大长度（0 表示无最大长度）。"
     activity_pub_note_link_to_forum: "在 ActivityPub 注释中包含此论坛的链接。"
     activity_pub_require_signed_requests: "需要使用 HTTP 签名对 ActivityPub 请求进行签名。"

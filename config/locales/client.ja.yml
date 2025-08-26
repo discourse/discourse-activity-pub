@@ -7,9 +7,25 @@
 ja:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: ActivityPub Actor カテゴリを追加
+              label: Actor カテゴリを追加
+            tag:
+              title: Activity Actor タグを追加
+              label: Actor タグを追加
+          save:
+            title: ActivityPub Actor を保存
+            label: Actor を保存
           delete:
+            title: ActivityPub Actor を削除
+            label: Actor を削除
             confirm:
               title: "%{actor} を削除してもよろしいですか？"
           restore:
