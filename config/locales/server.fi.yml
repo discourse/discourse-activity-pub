@@ -25,6 +25,7 @@ fi:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "ovat pakollisia"
               invalid: "ei ole kelvollinen"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,13 +35,252 @@ fi:
           attributes:
             model_type:
               invalid: "ei ole kelvollinen"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: ActivityPub-huomautuksen muokkaamista julkaisun jälkeen ei tällä hetkellä tueta.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub ei ole käytössä"
+    request:
+      error:
+        json_not_valid: "Virheellinen JSON-LD"
+        not_found: "Objektia ei löydy"
+        not_available: "ActivityPub ei ole saatavilla tälle mallille"
+        bad_request: "Virheellinen pyyntö"
+        not_authorized: "Ei valtuutettu"
+        forbidden: "Kielletty"
+        not_signed: "Pyyntöä ei ole allekirjoitettu"
+        missing_signature_params: "Yhteensopimaton pyynnön allekirjoitus. KeyId ja allekirjoitus vaaditaan."
+        unsupported_signature_algorithm: "Allekirjoitusalgoritmia ei tueta (vain rsa-sha256 ja hs2019 ovat tuettuja)"
+        stale_request: "Pyynnön päivämäärä on hyväksyttävän aikavälin ulkopuolella"
+        invalid_signature_key: "Virheellinen allekirjoitusavain"
+        actor_not_found_for_key: "Avaimelle %{key_id} ei löytynyt actoria"
+        signature_verification_failed: "Allekirjoituksen %{id} vahvistus epäonnistui käyttäen rsa-sha256:ta (RSASSA-PKCS1-v1_5 ja SHA-256)"
+        signature_parse_failed: "Virhe allekirjoituksen jäsentämisessä"
+        date_must_be_signed: "Päivämääräotsikkotiedot tai (luotu) pseudo-otsikkotiedot on allekirjoitettava"
+        digest_must_be_signed: "Digest-otsikkotiedot tai (request-target) pseudo-otsikkotiedot on allekirjoitettava"
+        host_must_be_signed: "Host-otsikkotiedot täytyy allekirjoittaa tehtäessä GET-pyyntöä"
+        digest_must_be_signed_on_post: "Digest-otsikkotiedot täytyy allekirjoittaa tehtäessä POST-pyyntöä"
+        digest_header_missing: "Digest-otsikkotiedot puuttuvat"
+        invalid_digest_header_algorithm: "Digest-otsikkotiedot vaativat SHA-256-salauksen. Tarjotut algoritmit: %{algorithms}"
+        invalid_digest_base64: "Virheellinen digest-arvo. Annettu digest-arvo ei ole kelvollinen base64-merkkijono. Annettu digest: %{digest}"
+        invalid_digest_sha256: "Virheellinen digest-arvo. Annettu digest-arvo ei ole kelvollinen SHA-256-digest. Annettu digest: %{digest}"
+        invalid_digest: "Virheellinen digest-arvo. Laskettu SHA-256-digest: %{computed}; annettu: %{digest}"
+        invalid_signature_pseudo_header: "Virheelliset allekirjoituksen pseudo-otsikkotiedot (%{header})"
+        invalid_date_header: "Virheelliset päivämääräotsikkotiedot: %{reason}"
+        request_to_failed: "%{method}-pyyntö osoitteeseen %{uri} epäonnistui: %{message}"
+        request_from_failed: "Osoitteeseen %{uri} vastaanotettu %{method}-pyyntö epäonnistui: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Objektin %{object_id} käsittely epäonnistui"
+        cant_resolve_actor: "Actorin ratkaisu ei onnistu"
+        cant_resolve_object: "Objektin ratkaisu ei onnistu"
+        object_not_supported: "Objektia ei tueta"
+        cant_create_actor: "Actoria ei voitu luoda"
+        cant_find_object: "Objektia ei löytynyt"
+        object_not_ready: "Objekti ei ole valmis"
+        activity_already_processed: "Toiminto on jo käsitelty"
+        activity_not_supported: "Toimintoa ei tueta actorille ja objektille"
+        invalid_create_actor: "Actor ei voi luoda viestejä"
+        undo_actor_must_match_object_actor: "Kumoamis-actorin täytyy vastata objekti-actoria"
+        activity_host_must_match_object_host: "Toiminnon isännän täytyy vastata objektin isäntää"
+        cant_find_post: "Viestiä ei löydy"
         post_is_deleted: "Viesti poistetaan"
+        full_topic_not_enabled: "Koko ketju ei ole käytössä"
+        announce_not_publicly_addressed: "Ilmoitusta ei osoiteta julkisesti."
+        actor_does_not_accept_new_topics: "Actor ei hyväksy uusia ketjuja."
+        only_followed_actors_create_new_topics: "Vain seuratut actorit voivat luoda uusia ketjuja."
+        actor_already_following: "Actor seuraa jo kyseistä objektia"
+        invalid_collection_item: "Virheellinen kohde"
+        cannot_resolve_context: "Objektin kontekstia ei voida ratkaista"
+        cant_resolve_collection: "Kokoelmaa ei voida ratkaista"
+        actor_cannot_be_deleted: "Actoria ei voi poistaa"
+      error:
+        failed_to_create_user: "Käyttäjän luominen actorille %{actor_id} epäonnistui"
+        failed_to_create_post: "Viestin luominen objektille %{object_id} epäonnistui"
+        failed_to_respond_to_follow: "Seuraamiseen vastaaminen epäonnistui: %{activity_id}"
+        failed_to_save_activity: "Toiminnon tallennus epäonnistui: %{activity_id}"
+        failed_to_save_object: "Objektin tallentaminen epäonnistui: %{object_id}"
+        failed_to_save_actor: "Actorin tallennus epäonnistui: %{actor_id}"
+        failed_to_save_collection: "Kokoelman tallentaminen epäonnistui: %{collection_id}"
+      info:
+        shared_inbox: "jaettu postilaatikko"
+        received_json: "Kohteeseen %{delivered_to} toimitettu JSON vastaanotettiin"
+        processing_json: "Kohteeseen %{delivered_to} toimitettua JSON:ää käsitellään"
+    webfinger:
+      error:
+        resource_not_supported: "Resurssia ei tueta"
+        resource_not_found: "Resurssia ei löydy"
     category:
       error:
         category_not_found: "Aluetta ei löytynyt"
+    post:
+      error:
+        post_not_found: "Viestiä ei löydy"
+        cant_deliver_post: "Viestiä ei voi toimittaa"
+        cant_publish_post: "Viestiä ei voi julkaista"
+        cant_schedule_post: "Viestiä ei voi ajoittaa"
+        cant_unschedule_post: "Viestin ajoitusta ei voi perua"
+        not_first_post: "Viesti ei ole ensimmäinen viesti"
+        failed_to_create: "Viestin luominen objektille %{object_id} epäonnistui: %{message}"
+      deleted: "Viestiin liittyvän objektn %{object_type} poisto vastaanotettiin."
     topic:
       error:
         topic_not_found: "Ketjua ei löytynyt"
+        cant_publish_topic: "Ketjua ei voi julkaista"
+    user:
+      error:
+        failed_to_create: "Käyttäjän luominen objektille %{actor_id} epäonnistui: %{message}"
+      destroyed: "ActivityPubin poistotoiminto tuhosi käyttäjän: %{username}"
+    object:
+      note:
+        link_to_forum: Keskustele tästä foorumillamme.
+    actor:
+      followers:
+        summary: "Actorin %{actor} seuraajat"
+      outbox:
+        summary: "Actorin %{actor} toiminta"
+      error:
+        actor_not_found: "Actoria ei löydy"
+        invalid_model: "Virheellinen malli"
+        model_not_found: "Mallia ei löytynyt"
+        target_actor_not_found: "Kohde-actoria ei löytynyt"
+        not_following_target_actor: "Actor ei seuraa kohde-actoria"
+        cant_follow_target_actor: "Actor ei voi seurata kohde-actoria"
+        username_required: Actorin luomiseen tarvitaan ActivityPub-käyttäjänimi.
+        full_topic_must_be_public: "Koko ketjun julkaiseminen edellyttää julkista julkaisua."
+        user_not_authorized: "Käyttäjä ei ole valtuutettu"
+        not_following_actor: "Kohde-actor ei seuraa actoria"
+        actor_cant_be_restored: "Actoria ei voi palauttaa"
+      warning:
+        cant_create_model_for_actor_type: "Mallin luominen actorille %{actor_type} %{actor_id} ei onnistu"
+        cant_create_actor_for_model_type: "Actorin luominen mallille %{model_type} %{model_id} ei onnistu"
+        not_allowed_to_create_actor_for_model: "Actorin luomista mallille %{model_id} ei sallita"
+        no_options: "ActorHandlerille ei annettu asetuksia"
+        invalid_username: "Käyttäjänimen täytyy olla %{min_length}–%{max_length} kirjainta, numeroa, viivaa tai alaviivaa."
+        username_taken: "Tämä käyttäjänimi on jo käytössä tällä palvelimella."
+    auth:
+      error:
+        not_enabled: "Todennus ei ole käytössä"
+        invalid_domain: "Virheellinen ActivityPub-verkkotunnus"
+        invalid_auth_redirect: "Virheellinen todennusuudelleenohjaus"
+        invalid_redirect_params: "Virheelliset uudelleenohjausparametrit"
+        authorization_required: "Todennustietue vaaditaan"
+        session_expired: "Todennusistunto on vanhentunut"
+        failed_to_authorize: "Valtuutus epäonnistui"
+        failed_to_get_actor: "Actorin hakeminen epäonnistui"
+        failed_to_create_client: "Asiakkaan luominen epäonnistui"
+        failed_to_verify_client: "Asiakkaan vahvistaminen epäonnistui. Yritä vahvistamista uudelleen."
+        failed_to_get_token: "Tunnuksen hakeminen epäonnistui"
+        failed_to_decrypt_payload: "Hyötykuorman salauksen purkaminen epäonnistui"
+        failed_to_verify_nonce: "Nonce-vahvistus epäonnistui"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} epäonnistui objektin %{object_id} ajoittamisessa toimitettavaksi: %{reason}"
+        failed_to_deliver: "%{from_actor} epäonnistui toimituksessa kohteeseen %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} toimitti kohteeseen %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} epäonnistui actorin %{target_actor} lähtevien käsittelyssä"
+          actors_not_ready: "Actorit eivät ole valmiita"
+          not_following_target: "%{actor} ei seuraa actoria %{target_actor}"
+          outbox_response_invalid: "Actorin %{target_actor} lähtevät palautti virheellisen vastauksen"
+        info:
+          started: "%{actor} aloitti actorin %{target_actor} toiminnan käsittelyn."
+          finished: "%{actor} sai actorin %{target_actor} toiminnan käsittelyn valmiiksi."
+          created_actors:
+            one: "Loi %{count} actorin."
+            other: "Loi %{count} actoria."
+          updated_actors:
+            one: "Päivitti %{count} actorin."
+            other: "Päivitti %{count} actoria."
+          created_objects:
+            one: "Loi %{count} objektin."
+            other: "Loi %{count} objektia."
+          updated_objects:
+            one: "Päivitti %{count} objektin."
+            other: "Päivitti %{count} objektia."
+          created_collections:
+            one: "Loi %{count} kokoelman."
+            other: "Loi %{count} kokoelmaa."
+          updated_collections:
+            one: "Päivitti %{count} kokoelman."
+            other: "Päivitti %{count} kokoelmaa."
+          created_activities:
+            one: "Loi %{count} toiminnon."
+            other: "Loi %{count} toimintoa."
+          updated_activities:
+            one: "Päivitti %{count} toiminnon."
+            other: "Päivitti %{count} toimintoa."
+          created_users:
+            one: "Loi %{count} käyttäjän."
+            other: "Loi %{count} käyttäjää."
+          updated_users:
+            one: "Päivitti %{count} käyttäjän."
+            other: "Päivitti %{count} käyttäjää."
+          created_topics:
+            one: "Loi %{count} ketjun."
+            other: "Loi %{count} ketjun."
+          updated_topics:
+            one: "Loi %{count} ketjua."
+            other: "Päivitti %{count} ketjun."
+          created_replies:
+            one: "Päivitti %{count} ketjua."
+            other: "Loi %{count} vastauksen."
+          updated_replies:
+            one: "Päivitti %{count} vastauksen."
+            other: "Päivitti %{count} vastausta."
+      publish:
+        warning:
+          publish_did_not_start: "Kohteen %{target} toimintojen joukkojulkaisu ei onnistunut"
+          actor_not_found: "Actoria ei löydy"
+          actor_not_ready: "Actor ei ole valmis"
+          actor_model_not_supported: "Actor-mallia ei tueta"
+        info:
+          started: "Aloitti kohteen %{target} toiminnan julkaisemisen."
+          finished: "Sai kohteen %{target} toiminnan julkaisemisen valmiiksi."
+          created_actors:
+            one: "Loi %{count} actorin."
+            other: "Loi %{count} actoria."
+          updated_actors:
+            one: "Päivitti %{count} actorin."
+            other: "Päivitti %{count} actoria."
+          created_objects:
+            one: "Loi %{count} objektin."
+            other: "Loi %{count} objektia."
+          updated_objects:
+            one: "Päivitti %{count} objektin."
+            other: "Päivitti %{count} objektia."
+          created_collections:
+            one: "Loi %{count} kokoelman."
+            other: "Loi %{count} kokoelmaa."
+          updated_collections:
+            one: "Päivitti %{count} kokoelman."
+            other: "Päivitti %{count} kokoelmaa."
+          created_activities:
+            one: "Loi %{count} toiminnon."
+            other: "Loi %{count} toimintoa."
+          updated_activities:
+            one: "Päivitti %{count} toiminnon."
+            other: "Päivitti %{count} toimintoa."
+  site_settings:
+    activity_pub_enabled: "Ota ActivityPub-lisäosa käyttöön."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "POST-pyyntöjen määrä, joka voidaan tehdä actorin saapuneisiin minuutissa."
+    activity_pub_rate_limit_get_objects_per_minute: "GET-pyyntöjen määrä, joka voidaan tehdä ActivityPubin objekteissa minuutissa."
+    activity_pub_note_excerpt_maxlength: "Viestien otteiden enimmäispituus ActivityPubin huomautuksissa (0 tarkoittaa ei enimmäispituutta)."
+    activity_pub_note_link_to_forum: "Lisää linkki tälle foorumille ActivityPubin huomautuksiin."
+    activity_pub_require_signed_requests: "Vaadi ActivityPubin pyyntöjen allekirjoittamista HTTP-allekirjoituksilla."
+    activity_pub_allowed_request_origins: "Luettelo verkkotunnuksista, jotka saavat tehdä ActivityPub-pyyntöjä."
+    activity_pub_blocked_request_origins: "Luettelo verkkotunnuksista, jotka eivät saa tehdä ActivityPub-pyyntöjä."
+    activity_pub_delivery_delay_minutes: "Minuuttien määrä, jonka kuluttua ActivityPubin toiminnot toimitetaan (delete-toiminnot toimitetaan välittömästi)."
+    activity_pub_verbose_logging: "Ota yksityiskohtaiset ActivityPub-lokit käyttöön."
+    activity_pub_object_logging: "Tulosta kaikki saapuvat ja lähtevät ActivityPub-objektit lokeihin (edellyttää yksityiskohtaista lokikirjausta)."
+    activity_pub_post_status_visibility_groups: "Ryhmät, jotka voivat nähdä ActivityPub-viestien tilat."
+    activity_pub_logs_max_days_old: "Kuinka monta päivää ActivityPub-lokeja säilytetään."
+    errors:
+      signed_requests_required: Tämä asetus vaatii allekirjoitetut pyynnöt.

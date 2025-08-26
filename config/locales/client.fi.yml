@@ -7,36 +7,94 @@
 fi:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Lisää alueen ActivityPubin actor
+              label: Lisää alueen actor
+            tag:
+              title: Lisää tunnisteen ActivityPubin actor
+              label: Lisää tunniste-actor
+          save:
+            title: Tallenna ActivityPubin actor
+            label: Tallenna actor
           delete:
+            title: Poista ActivityPubin actor
+            label: Poista actor
+            failed: Ei poistettu
             confirm:
               title: "Haluatko varmasti poistaa ryhmän %{actor}?"
+              message: |
+                <ul>
+                <li>%{actor} ei ole enää käytettävissä fediverselle.</li>
+                <li>Kohdetta %{model} %{model_type} ei poisteta.</li>
+                <li>Voit palauttaa poistettuja actoreita.</li>
+                </ul>
           restore:
+            title: Palauta ActivityPubin actor
             label: Palauta
+          destroy:
+            title: Tuhoa ActivityPubin actor
+            label: Tuhoa
+            confirm:
+              title: Haluatko varmasti tuhota actorin %{actor}?
+              message: |
+                <ul>
+                <li>%{actor} tuhotaan.</li>
+                <li>Mallia %{model} %{model_type} ei tuhota.</li>
+                <li>Tuhottuja actoreita ei voi palauttaa.</li>
+                </ul>
           edit:
+            title: Muokkaa ActivityPubin actoria
             label: Muokkaa
           deleted:
+            title: ActivityPubin actor poistettu
             label: Poistettu
           enabled:
+            title: ActivityPubin actor otettu käyttöön
             label: Käytössä
           disabled:
-            title: ActivityPub toimija pois käytöstä
+            title: ActivityPubin actor pois käytöstä
             label: Pois käytöstä
           site_setting:
+            title: Sivustoasetukset
             activity_pub_enabled:
               label: Lisäosa on käytössä
+              title: ActivityPub-lisäosan on ottanut käyttöön "activity pub enabled" -sivustoasetus.
+              description: Saapuva toiminta, joka on osoitettu käyttöön otetuille actoreille, käsitellään.
+            login_required:
+              label: Kirjautuminen vaaditaan
+              title: '"Login required" -sivustoasetus vaatii kirjautumisen.'
+              description: Vain käytössä olevien actorien lähtevät seurauspyynnöt ja määritteet julkaistaan.
           username: Käyttäjätunnus
+          username_description: "%{min_length}–%{max_length} kirjainta, numeroa, viivaa tai alaviivaa."
           name: Nimi
+          name_description: Käytetään näyttönimenä joissakin palveluissa.
           default_visibility: Näkyvyys
+          default_visibility_description: Kaikki viestit julkaistaan ActivityPubin kautta tällä näkyvyydellä.
+          post_object_type: Viestiobjektn ityyppi
+          post_object_type_description: Käytä lyhyeen sisältöön (esim. Mastodon) Huomautusta ja pitkään sisältöön Articlea.
+          publication_type: Julkaisutyyppi
+          publication_type_description: Ensimmäinen viesti julkaisee kunkin ketjun ensimmäisen viestin. Koko ketju julkaisee kaikki viestit ja sisällyttää vastaukset.
           table:
+            actor: Actor
+            model: Malli
             auth_type: Tyyppi
             status: Tila
             actions: Toiminnot
           category:
             label: Luokat
+            title: Alue-actorit
+            none: Valitse alue
           tag:
             label: Tunnisteet
+            title: Tunniste-actorit
+            none: Valitse tunniste
             filter: suodata tunnisteita
         log:
           label: Lokit
@@ -45,45 +103,249 @@ fi:
           level: Taso
           message: Viesti
           json:
+            label: JSON
+            title: Toiminta-JSON
+            show:
+              label: JSON
+              title: Näytä toiminta-JSON
             copy:
               label: Kopioi
+              title: Kopioi JSON leikepöydälle.
               success: Kopioitiin!
+            logged_at: Kirjattu %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Federaatio
+          title: Tutustu tämän yhteisön ActivityPub-federaatioon
         title: Federaatio
+        description: Nämä alueet ja tunnisteet tukevat ActivityPub-federaatiota. Jos käytät Mastodonia tai muita ActivityPub-alustoja, voit seurata niitä nähdäksesi niiden ketjut ja viestit syötteessäsi.
         categories: Luokat
         tags: Tunnisteet
+        actor:
+          follower_count:
+            one: "%{count} seuraaja"
+            other: "%{count} seuraajaa"
       status:
+        title:
+          publishing_disabled: '"Login required" -sivustoasetus on poistanut ActivityPub-julkaisun käytöstä. Saapuva toiminta ja lähtevät seurannan ovat käytössä.'
+          plugin_disabled: ActivityPub-lisäosa on poistettu käytöstä
+          category_read_restricted: ActivityPub ei toimi yksityisten alueiden kanssa
+          model_disabled: ActivityPub on poistettu käytöstä tässä mallissa %{model_type}
+          model_not_ready: ActivityPub ei ole valmis tälle mallille %{model_type}
+          model_not_active: ActivityPub ei ole aktiivinen tälle mallille %{model_type}
+          model_active:
+            first_post: Uuden ketjun ensimmäinen viesti julkaistaan %{delay_minutes} minuuttia julkaisun jälkeen
         label:
           active: Aktiivinen
+          not_active: Ei aktiivinen
+          publishing_disabled: Julkaisu poistettu käytöstä
+      discovery:
+        label: Federaatio
+        description: Mallin %{model_name} federaatio
+        followers: Seuraajat
+        follows: Seuraa
+      banner:
+        text: Seuraa mallia %{model_name} missä tahansa palvelussa, joka tukee federaatiota
+        responsive_text: Federaatioitu
+        public_full_topic: Kunkin ketjun jokainen viesti julkaistaan julkisesti ActivityPubin kautta.
+        public_first_post: Kunkin ketjun ensimmäinen viesti julkaistaan julkisesti ActivityPubin kautta.
+        followers_only_full_topic: Kunkin ketjun jokainen viesti julkaistaan ActivityPubiin vain seuraajille.
+        followers_only_first_post: Kunkin ketjun ensimmäinen viesti julkaistaan ActivityPubiin vain seuraajille.
+      handle:
+        label: Muissa ActivityPub-palveluissa
+        description: Käytä tätä tunnusta tämän alueen löytämiseen ja seuraamiseen.
       follow:
+        label: Seuraa
+        title: Seuraa actoria %{actor} ActivityPubin kautta
         domain:
+          label: Mastodon
           placeholder: verkkotunnus
+          btn_label: Seuraa
+          btn_title: Seuraa tällä Mastodon-verkkotunnuksella
+          description: Mastodon-tilisi verkkotunnus
+          verifying: verkkotunnusta vahvistetaan...
+          invalid: ei ole kelvollinen Mastodon-verkkotunnus
+      actor_follow:
+        label: Uusi seuraaja
+        title: Uusi seuraaja actorille %{actor} ActivityPubin kautta
+        find:
+          label: Etsi seurattava actor
+          btn_label: Etsi
+          btn_title: Etsi tunnus
+          description: "esim. @announcements@meta.discourse.org"
+          validating: vahvistetaan tunnusta...
+          invalid: ei ole kelvollinen tunnus
+          finding: etsitään actoria...
+          not_found: 'tunnusta "%{handle}" ei löydy'
+        follow:
+          label: Seuraa
+          title: 'Luo actorin "%{follow_actor}" seuranta actorille %{actor}'
+        following:
+          label: Seurataan
+          title: '%{actor} seuraa actoria %{follow_actor}'
+        follow_requested:
+          label: Seuraamista pyydetty
+          title: '%{actor} on pyytänyt seurata actoria %{follow_actor}'
+      actor_unfollow:
+        label: Lopeta seuraaminen
+        title: Actorin %{actor} seuraamisen lopettaminen ActivityPubin kautta
+        modal_title: Vahvista seuraamisen lopettaminen
+        confirm: Haluatko varmasti, että %{actor} lopettaa actorin %{followed_actor} seuraamisen?
       actor_reject:
         label: Hylkää
+        title: Hylkää actorin %{actor} seuraaminen ActivityPubin kautta
+        modal_title: Vahvista seuraamisen hylkääminen
+        confirm: Haluatko varmasti hylätä seuraajan %{follower} seuraamasta actoria %{actor}?
       follow_table:
+        actor: Actor
         user: Käyttäjä
+        followed_at: Seurattu
         follow_pending: odottaa
         actions: Toiminnot
       visibility:
         label:
+          private: Vain seuraajille
           public: Julkinen
+        description:
+          private: "%{object_type} on osoitettu seuraajille."
+          public: "%{object_type} on osoitettu julkisesti."
       object_type:
         label:
           note: Huomautus
+          article: Artikkeli
+          collection: Kokoelma
+          ordered_collection: Tilattu kokoelma
+        description:
+          note: Paras mikroblogialustoille (esim. Mastodon).
+          article: Paras pitkän tekstin alustoille (esim. Lemmy).
+      publication_type:
+        label:
+          first_post: Ensimmäinen viesti
+          full_topic: Koko ketju
+        description:
+          first_post: Tämän mallin %{model_type} jokaisen ketjun ensimmäinen viesti julkaistaan ActivityPubin kautta.
+          full_topic: Jokainen tämän mallin %{model_type} ketjun viesti julkaistaan ActivityPubin kautta, ja muiden ActivityPub-palvelimien vastaukset tuodaan vastauksina Discourseen.
+      copy_uri:
+        copied: URI kopioitu!
       model:
         actions: Toiminnot
+        group_actors: Ryhmä-actorit
+        attributes: Määritteet
         status: Tila
+        menu: ActivityPub-toiminnot...
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub viestille %{post_number}"
+        status:
+          published: "Viesti julkaistiin ActivityPubin kautta %{datetime}."
+          scheduled: "Viesti on ajoitettu julkaistavaksi ActivityPubin kautta %{datetime}."
+          scheduled_past: "Viesti ajoitettiin julkaistavaksi ActivityPubin kautta %{datetime}."
+          deleted: "Viesti poistettiin ActivityPubin kautta %{datetime}."
+          updated: "Viestiä päivitettiin ActivityPubin kautta %{datetime}."
+          published_remote: "%{actor} julkaisi viestin ActivityPubin kautta %{datetime}."
+          not_published: "Viestiä ei ole julkaistu ActivityPubin kautta."
+          delivered: "Viesti toimitettiin ActivityPubin kautta %{datetime}."
+        info_status:
+          published: "Viesti julkaistiin %{datetime}."
+          scheduled: "Viesti on ajoitettu julkaistavaksi %{datetime}."
+          scheduled_past: "Viesti ajoitettiin julkaistavaksi %{datetime}."
+          deleted: "Viesti poistettiin %{datetime}."
+          updated: "Viestiä päivitettiin %{datetime}."
+          published_remote: "Viesti julkaistiin %{datetime}."
+          not_published: "Viestiä ei ole julkaistu."
+          delivered: "Viesti toimitettiin %{datetime}."
+        actions:
+          publish:
+            label: "Julkaise viesti %{post_number}"
+            description:
+              followers: "Julkaise viesti %{post_number} ja toimita se ryhmä-actoreiden seuraajille."
+              no_followers: "Julkaise viesti %{post_number} toimittamatta sitä. Ryhmä-actoreilla ei ole seuraajia, joille toimittaa."
+              topic_not_published: "Julkaisu on poistettu käytöstä viestille %{post_number}. Ketjua %{topic_id} ei ole julkaistu."
+              post_is_scheduled: "Julkaisu on poistettu käytöstä viestille %{post_number}. Viesti %{post_number} on ajoitettu julkaistavaksi."
+          deliver:
+            label: "Toimita viesti %{post_number}"
+            description:
+              followers: "Toimita viesti %{post_number} ryhmä-actoreiden seuraajille."
+              no_followers: "Toimitus on poistettu käytöstä viestille %{post_number}. Ryhmä-actoreilla ei ole seuraajia, joille toimittaa."
+              topic_not_delivered: "Toimitus on poistettu käytöstä viestille %{post_number}. Ketjua %{topic_id} ei ole toimitettu."
+              delivered: "Vviesti %{post_number} toimitettiin juuri ryhmä-actoreiden seuraajille."
+          schedule:
+            label: "Ajoita viesti %{post_number}"
+            description:
+              followers: "Julkaise viesti %{post_number} ja toimita se ryhmä-actoreiden seuraajille %{minutes} minuutin kuluttua."
+              no_followers: "Ajoitus on poistettu käytöstä viestille %{post_number}. Ryhmä-actoreilla ei ole seuraajia, joille toimittaa."
+          unschedule:
+            label: "Peru viestin %{post_number} ajoitus"
+            description: "Peru viestin %{post_number} julkaisun ajoitus."
+    topic:
+      discourse_activity_pub:
+        title: "ActivityPub ketjulle %{topic_id}"
+        status:
+          scheduled: Ketju on ajoitettu julkaistavaksi ActivityPubin kautta %{datetime}.
+          scheduled_past: Ketju ajoitettiin julkaistavaksi ActivityPubin kautta %{datetime}.
+          published: Ketju julkaistiin ActivityPubin kautta %{datetime}.
+          published_remote: '%{actor} julkaisi ketjun ActivityPubin kautta %{datetime}.'
+          deleted: Ketju poistettiin ActivityPubin kautta %{datetime}.
+          not_published: Ketjua ei ole julkaistu ActivityPubin kautta.
+        info_status:
+          scheduled: "Ketju on ajoitettu julkaistavaksi %{datetime}."
+          scheduled_past: "Ketju ajoitettiin julkaistavaksi %{datetime}."
+          published: "Ketju julkaistiin %{datetime}."
+          published_remote: "Ketju julkaistiin %{datetime}."
+          deleted: "Ketju poistettiin %{datetime}."
+          not_published: "Ketjua ei ole julkaistu."
+        posts_status:
+          label: Viestien tila
+          published: Kaikki tämän ketjun viestit julkaistaan.
+          some_published: "%{count}/%{total} viestiä tässä ketjussa on julkaistu."
+          none_published: Tämän ketjun viestejä ei julkaista.
+          scheduled: Tämä ketju on ajoitettu julkaistavaksi.
+        actions:
+          label: Ketjun toiminnot
+        actors:
+          label: Ketjun actorit
+        publish:
+          label: Julkaise kaikki viestit
+          description:
+            unpublished: "Julkaise %{count} julkaisematonta viestiä ketjussa %{topic_id}. Viestejä ei toimiteta ryhmä-actoreiden seuraajille."
+            published: "Kaikkien viestien julkaiseminen on poistettu käytöstä. Kaikki ketjun %{topic_id} viestit on jo julkaistu."
+            scheduled: "Kaikkien viestien julkaiseminen on poistettu käytöstä. Ketju %{topic_id} on ajoitettu julkaistavaksi."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Linkitetyt actorit
+          description: Linkitettyyn actoriin liittyvät viestit osoitetaan tilillesi.
+        actor: Actor
         auth_type: Tyyppi
         actions: Toiminnot
         authorize:
           auth_type:
+            none:
+              label: Valitse tyyppi...
+              placeholder: "anna verkkotunnus"
+            mastodon:
+              title: Mastodon
+              placeholder: esim. mastodon.social
             discourse:
               title: Discourse
+              placeholder: esim. meta.discourse.org
+        clear_domain_button:
+          title: Tyhjennä vahvistettu verkkotunnus.
+        verify_domain_button:
+          label: Vahvista
+          title: Varmista, että verkkotunnusta tuetaan.
         authorize_button:
           label: Anna käyttöoikeus
+          title: Valtuuta actor verkkotunnuksessa.
+        authorize_error:
+          title: Valtuutus epäonnistui
+        authorizations:
+          title: Linkitetyt actorit
+        authorization:
+          confirm_remove: Oletko varma, että haluat poistaa linkin tunnuksella %{handle}?
         remove_authorization_button:
+          title: Poista valtuutus
           label: Poista

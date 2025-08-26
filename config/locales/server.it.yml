@@ -15,7 +15,7 @@ it:
         discourse_activity_pub_activity:
           attributes:
             ap_type:
-              invalid: "non è valido"
+              invalid: "non è valida"
         discourse_activity_pub_object:
           attributes:
             ap_type:
@@ -25,7 +25,8 @@ it:
         discourse_activity_pub_client:
           attributes:
             credentials:
-              invalid: "non è valido"
+              required: "sono obbligatorie"
+              invalid: "non è valida"
         discourse_activity_pub_attachment:
           attributes:
             media_type:
@@ -34,7 +35,29 @@ it:
           attributes:
             model_type:
               invalid: "non è valido"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: La modifica di una nota ActivityPub dopo la pubblicazione non è attualmente supportata.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub non è abilitato"
+    request:
+      error:
+        json_not_valid: "JSON-LD non valido"
+        not_found: "Nessun oggetto trovato"
+        not_available: "ActivityPub non è disponibile per quel modello"
+        bad_request: "Richiesta errata"
+        not_authorized: "Non autorizzato"
+        forbidden: "Vietato"
+        not_signed: "Richiesta non firmata"
+        missing_signature_params: "Firma della richiesta incompatibile. Sono richiesti keyId e firma"
+        unsupported_signature_algorithm: "Algoritmo di firma non supportato (sono supportati solo rsa-sha256 e hs2019)"
+        stale_request: "Data della richiesta fuori dalla finestra temporale accettabile"
+        invalid_signature_key: "Chiave di firma non valida"
+        actor_not_found_for_key: "Attore non trovato per la chiave %{key_id}"
     process:
       warning:
         post_is_deleted: "Messaggio eliminato"
