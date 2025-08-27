@@ -15,40 +15,86 @@ ja:
         actor:
           add:
             category:
-              title: ActivityPub Actor カテゴリを追加
-              label: Actor カテゴリを追加
+              title: '「ActivityPub アクター」カテゴリを追加'
+              label: '「アクター」カテゴリを追加'
             tag:
-              title: Activity Actor タグを追加
-              label: Actor タグを追加
+              title: '「ActivityPub アクター」タグを追加'
+              label: '「アクター」タグを追加'
           save:
-            title: ActivityPub Actor を保存
-            label: Actor を保存
+            title: ActivityPub アクターを保存
+            label: アクターを保存
           delete:
-            title: ActivityPub Actor を削除
-            label: Actor を削除
+            title: ActivityPub アクターを削除
+            label: アクターを削除
+            failed: 削除されていません
             confirm:
               title: "%{actor} を削除してもよろしいですか？"
+              message: |
+                <ul>
+                <li>%{actor} はフェディバースで利用できなくなります。</li>
+                <li>%{model} %{model_type} は削除されません。</li>
+                <li>削除されたアクターは復元可能です。</li>
+                </ul>
           restore:
+            title: ActivityPub アクターを復元
             label: 復元
+          destroy:
+            title: ActivityPub アクターを破棄
+            label: 破棄
+            confirm:
+              title: '%{actor} を破棄してもよろしいですか？'
+              message: |
+                <ul>
+                <li>%{actor} は破棄されます。</li>
+                <li>%{model} %{model_type} は破棄されません。</li>
+                <li>破棄されたアクターは復元できません。</li>
+                </ul>
           edit:
+            title: ActivityPub アクターを編集
             label: 編集
           deleted:
+            title: ActivityPub アクターは削除されました
             label: 削除済み
           enabled:
+            title: ActivityPub アクターは有効です
             label: 有効
           disabled:
+            title: ActivityPub アクターは無効です
             label: 無効
+          site_setting:
+            title: サイトの設定
+            activity_pub_enabled:
+              label: プラグインは有効です
+              title: ActivityPub プラグインは ActivityPub 対応のサイトの設定で有効になっています。
+              description: 有効なアクター宛ての受信アクティビティが処理されます。
+            login_required:
+              label: ログインが必要です
+              title: ログインが必要なサイトの設定ではログインが必要です。
+              description: 送信されるフォローリクエストと有効なアクターの属性のみが公開されます。
           username: ユーザー名
+          username_description: "%{min_length}～%{max_length} 桁の文字、数字、ダッシュ、またはアンダースコア。"
           name: 名前
-          default_visibility: 表示状態
+          name_description: 一部のサービスで表示名として使用されます。
+          default_visibility: 公開範囲
+          default_visibility_description: すべての投稿はこの公開範囲で ActivityPub 経由で公開されます。
+          post_object_type: 投稿オブジェクトタイプ
+          post_object_type_description: 短いコンテンツ (Mastadon など) には「ノート」を使用し、長いコンテンツには「記事」を使用します。
+          publication_type: 出版タイプ
+          publication_type_description: '「最初の投稿」は各トピックの最初の投稿を公開します。「トピック全体」はすべての投稿を公開し、返信を取り込みます。'
           table:
+            actor: アクター
+            model: モデル
             auth_type: タイプ
             status: ステータス
             actions: 操作
           category:
             label: カテゴリ
+            title: '「アクター」カテゴリ'
+            none: カテゴリを選択
           tag:
             label: タグ
+            title: '「アクター」タグ'
+            none: タグを選択
             filter: タグをフィルタする
         log:
           label: ログ
@@ -57,44 +103,248 @@ ja:
           level: レベル
           message: メッセージ
           json:
+            label: JSON
+            title: JSON アクティビティ
+            show:
+              label: JSON
+              title: JSON アクティビティを表示
             copy:
               label: コピー
+              title: JSON をクリップボードにコピーします。
               success: コピーしました！
+            logged_at: ログ記録 %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: フェデレーション
+          title: このコミュニティーの ActivityPub フェデレーションを見る
+        title: フェデレーション
+        description: これらのカテゴリとタグは ActivityPub Federation をサポートしています。Mastadon やその他の ActivityPub プラットフォームをご利用の場合は、それらをフォローすると、そのトピックと投稿がフィードに表示されます。
         categories: カテゴリ
         tags: タグ
+        actor:
+          follower_count:
+            other: "フォロワー数 %{count}"
       status:
+        title:
+          publishing_disabled: ActivityPub の公開は、ログインが必要なサイトの設定によって無効になっています。アクティビティの受信とフォローの送信は有効です。
+          plugin_disabled: ActivityPub プラグインは無効になっています
+          category_read_restricted: ActivityPub は非公開カテゴリでは機能しません
+          model_disabled: この %{model_type} の ActivityPub は無効になっています
+          model_not_ready: この %{model_type} の ActivityPub は準備されていません
+          model_not_active: この %{model_type} の ActivityPub はアクティブではありません
+          model_active:
+            first_post: 新しいトピックの最初の投稿は、投稿から %{delay_minutes} 分後に公開されます
         label:
           active: アクティブ
+          not_active: 非アクティブ
+          publishing_disabled: 公開無効
+      discovery:
+        label: フェデレーション
+        description: '%{model_name} のフェデレーション'
+        followers: フォロワー
+        follows: フォロー
+      banner:
+        text: フェデレーションをサポートするサービスで %{model_name} をフォローしましょう
+        responsive_text: 参加
+        public_full_topic: 各トピックの各投稿は ActivityPub 経由で全公開されます。
+        public_first_post: 各トピックの最初の投稿は ActivityPub 経由で全公開されます。
+        followers_only_full_topic: 各トピックの各投稿は ActivityPub フォロワーのみに公開されます。
+        followers_only_first_post: 各トピックの最初の投稿は ActivityPub フォロワーのみに公開されます。
+      handle:
+        label: 他の ActivityPub サービス
+        description: このハンドルを使用して、このカテゴリを検索してフォローします。
       follow:
+        label: フォロー
+        title: ActivityPub 経由で %{actor} をフォロー
         domain:
+          label: Mastodon
           placeholder: ドメイン
+          btn_label: フォローする
+          btn_title: この Mastadon ドメインをフォローする
+          description: Mastadon アカウントのドメイン
+          verifying: ドメインを確認中…
+          invalid: 有効な Mastadon ドメインではありません
+      actor_follow:
+        label: 新規フォロー
+        title: ActivityPub 経由での %{actor} の新しいフォロー
+        find:
+          label: フォローするアクターを探す
+          btn_label: 探す
+          btn_title: ハンドルを探す
+          description: "例: @announcements@meta.discourse.org"
+          validating: ハンドルを確認中…
+          invalid: 有効なハンドルではありません
+          finding: アクターを検索中…
+          not_found: '「%{handle}」が見つかりませんでした'
+        follow:
+          label: フォローする
+          title: '%{actor} の「%{follow_actor}」のフォローを作成'
+        following:
+          label: フォロー中
+          title: '%{actor} は %{follow_actor} をフォロー中です'
+        follow_requested:
+          label: フォローリクエスト送信済み
+          title: '%{actor} は %{follow_actor} のフォローをリクエストしました'
+      actor_unfollow:
+        label: フォロー解除
+        title: ActivityPub 経由での %{actor} のフォローを解除
+        modal_title: フォロー解除を確認
+        confirm: '%{actor} が %{followed_actor} のフォローを解除してもよろしいですか？'
       actor_reject:
-        label: 却下
+        label: 拒否
+        title: ActivityPub 経由での %{actor} のフォローを拒否
+        modal_title: フォローの拒否を確認
+        confirm: '%{follower} による %{actor} のフォローを拒否してもよろしいですか？'
       follow_table:
+        actor: アクター
         user: ユーザー
+        followed_at: フォロー
         follow_pending: 保留中
         actions: 操作
       visibility:
         label:
+          private: フォロワーのみ
           public: 公開
+        description:
+          private: "%{object_type} はフォロワー宛てです。"
+          public: "%{object_type} は全公開されています。"
       object_type:
         label:
           note: 注意
+          article: 記事
+          collection: コレクション
+          ordered_collection: 順序付きコレクション
+        description:
+          note: マイクロブログプラットフォーム (Mastadon など) に最適です。
+          article: ロングフォームプラットフォーム (Lemmy など) に最適です。
+      publication_type:
+        label:
+          first_post: 最初の投稿
+          full_topic: トピック全体
+        description:
+          first_post: この %{model_type} のすべてのトピックの最初の投稿は ActivityPub 経由で公開されます。
+          full_topic: この %{model_type} のすべてのトピックのすべての投稿は ActivityPub 経由で公開され、他の ActivityPub サーバー上の返信は Discourse に返信としてインポートされます。
+      copy_uri:
+        copied: URI をコピーしました！
       model:
         actions: 操作
+        group_actors: グループアクター
+        attributes: 属性
         status: ステータス
+        menu: ActivityPub の操作...
+    post:
+      discourse_activity_pub:
+        title: "投稿 #%{post_number} の ActivityPub"
+        status:
+          published: "投稿は %{datetime} に ActivityPub 経由で公開されました。"
+          scheduled: "投稿は %{datetime} に ActivityPub 経由で公開されるようにスケジュール設定されています。"
+          scheduled_past: "投稿は %{datetime} に ActivityPub 経由で公開されるようにスケジュール設定されました。"
+          deleted: "投稿は %{datetime} に ActivityPub 経由で削除されました。"
+          updated: "投稿は %{datetime} に ActivityPub 経由で更新されました。"
+          published_remote: "投稿は %{datetime} に ActivityPub 経由で %{actor} によって公開されました。"
+          not_published: "投稿は ActivityPub 経由で公開されていません。"
+          delivered: "投稿は %{datetime} に ActivityPub 経由で配信されました。"
+        info_status:
+          published: "投稿は %{datetime} に公開されました。"
+          scheduled: "投稿は %{datetime} に公開されるようにスケジュール設定されています。"
+          scheduled_past: "投稿は %{datetime} に公開されるようにスケジュール設定されました。"
+          deleted: "投稿は %{datetime} に削除されました。"
+          updated: "投稿は %{datetime} に更新されました。"
+          published_remote: "投稿は %{datetime} に公開されました。"
+          not_published: "投稿は公開されていません。"
+          delivered: "投稿は %{datetime} に配信されました。"
+        actions:
+          publish:
+            label: "投稿 #%{post_number} を公開"
+            description:
+              followers: "投稿 #%{post_number} を公開して、グループアクターのフォロワーに配信します。"
+              no_followers: "投稿 #%{post_number} を配信せずに公開します。グループアクターには配信するフォロワーがいません。"
+              topic_not_published: "投稿 #%{post_number} の公開は無効になっています。トピック #%{topic_id} は公開されていません。"
+              post_is_scheduled: "投稿 #%{post_number} の公開は無効になっています。投稿 #%{post_number} の公開はスケジュール設定されています。"
+          deliver:
+            label: "投稿 #%{post_number} を配信"
+            description:
+              followers: "投稿 #%{post_number} をグループアクターのフォロワーに配信します。"
+              no_followers: "投稿 #%{post_number} の配信は無効になっています。グループアクターには配信するフォロワーがいません。"
+              topic_not_delivered: "投稿 #%{post_number} の配信は無効になっています。トピック #%{topic_id} は配信されていません。"
+              delivered: "投稿 #%{post_number} はたった今、グループアクターのフォロワーに配信されました。"
+          schedule:
+            label: "投稿 #%{post_number} をスケジュール"
+            description:
+              followers: "投稿 #%{post_number} を公開して、%{minutes} 分後にグループアクターのフォロワーに配信します。"
+              no_followers: "投稿 #%{post_number} のスケジュール設定は無効になっています。グループアクターには配信するフォロワーがいません。"
+          unschedule:
+            label: "投稿 #%{post_number} のスケジュールを取り消す"
+            description: "投稿 #%{post_number} の公開スケジュールを取り消します。"
+    topic:
+      discourse_activity_pub:
+        title: "トピック #%{topic_id} の ActivityPub"
+        status:
+          scheduled: トピックは %{datetime} に ActivityPub 経由で公開されるようにスケジュール設定されています。
+          scheduled_past: トピックは %{datetime} に ActivityPub 経由で公開されるようにスケジュール設定されました。
+          published: トピックは %{datetime} に ActivityPub 経由で公開されました。
+          published_remote: トピックは %{datetime} に ActivityPub 経由で %{actor} によって公開されました。
+          deleted: トピックは %{datetime} に ActivityPub 経由で削除されました。
+          not_published: トピックは ActivityPub 経由で公開されていません。
+        info_status:
+          scheduled: "トピックは %{datetime} に公開されるようにスケジュール設定されています。"
+          scheduled_past: "トピックは %{datetime} に公開されるようにスケジュール設定されました。"
+          published: "トピックは %{datetime} に公開されました。"
+          published_remote: "トピックは %{datetime} に公開されました。"
+          deleted: "トピックは %{datetime} に削除されました。"
+          not_published: "トピックは公開されていません。"
+        posts_status:
+          label: 投稿ステータス
+          published: このトピックのすべての投稿は公開されています。
+          some_published: "このトピックの %{total} 件中 %{count} 件の投稿が公開されています。"
+          none_published: このトピックの投稿はどれも公開されていません。
+          scheduled: このトピックには公開スケジュールが設定されています。
+        actions:
+          label: トピックの操作
+        actors:
+          label: トピックアクター
+        publish:
+          label: すべての投稿を公開
+          description:
+            unpublished: "トピック #%{topic_id} に %{count} 件の未公開投稿を公開します。投稿はグループアクターのフォロワーに配信されません。"
+            published: "すべての投稿の公開が無効になっています。トピック #%{topic_id} のすべての投稿はすでに公開されています。"
+            scheduled: "すべての投稿の公開が無効になっています。トピック #%{topic_id} には公開スケジュールが設定されています。"
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: リンクされたアクター
+          description: リンクされたアクターに関連付けられた投稿はあなたのアカウントに帰属します。
+        actor: アクター
         auth_type: タイプ
         actions: 操作
         authorize:
           auth_type:
+            none:
+              label: タイプを選択…
+              placeholder: "ドメインを入力してください"
+            mastodon:
+              title: Mastodon
+              placeholder: '例: mastodon.social'
             discourse:
               title: Discourse
+              placeholder: '例: meta.discourse.org'
+        clear_domain_button:
+          title: 確認済みのドメインをクリアします。
+        verify_domain_button:
+          label: 確認
+          title: ドメインがサポートされていることを確認します。
         authorize_button:
           label: 承認
+          title: ドメインのアクターを承認します。
+        authorize_error:
+          title: 承認できませんでした
+        authorizations:
+          title: リンクされたアクター
+        authorization:
+          confirm_remove: '%{handle} とのリンクを削除してもよろしいですか？'
         remove_authorization_button:
+          title: 承認を削除
           label: 削除

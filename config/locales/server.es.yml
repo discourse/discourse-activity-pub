@@ -38,7 +38,7 @@ es:
   post:
     discourse_activity_pub:
       error:
-        edit_after_publication: Actualmente no se admite la edición de una nota de ActivityPub después de su publicación.
+        edit_after_publication: Actualmente, no se admite la edición de una nota de ActivityPub después de su publicación.
   user_api_key:
     scopes:
       "discourse-activity-pub:read": "ActivityPub"
@@ -85,6 +85,7 @@ es:
         activity_already_processed: "La actividad ya se ha procesado"
         activity_not_supported: "La actividad no es compatible con el actor y el objeto"
         invalid_create_actor: "El actor no puede crear publicaciones"
+        cannot_reply_to_deleted_post: "No se puede crear un objeto en respuesta a una publicación eliminada"
         undo_actor_must_match_object_actor: "El actor Deshacer debe coincidir con el actor Objeto"
         activity_host_must_match_object_host: "El anfitrión de la actividad debe coincidir con el anfitrión del objeto"
         cant_find_post: "No se puede encontrar la publicación"
@@ -102,10 +103,10 @@ es:
         failed_to_create_user: "Error al crear usuario para %{actor_id}"
         failed_to_create_post: "Error al crear publicación para %{object_id}"
         failed_to_respond_to_follow: "Error al responder al seguimiento: %{activity_id}"
-        failed_to_save_activity: "Error al guardar actividad: %{activity_id}"
-        failed_to_save_object: "Error al guardar objeto: %{object_id}"
-        failed_to_save_actor: "Error al guardar actor: %{actor_id}"
-        failed_to_save_collection: "Error al guardar colección: %{collection_id}"
+        failed_to_save_activity: "Error al guardar la actividad: %{activity_id}"
+        failed_to_save_object: "Error al guardar el objeto: %{object_id}"
+        failed_to_save_actor: "Error al guardar el actor: %{actor_id}"
+        failed_to_save_collection: "Error al guardar la colección: %{collection_id}"
       info:
         shared_inbox: "bandeja de entrada compartida"
         received_json: "JSON recibido enviado a %{delivered_to}"
@@ -120,7 +121,7 @@ es:
     post:
       error:
         post_not_found: "Publicación no encontrada"
-        cant_deliver_post: "No se puede entregar la publicación"
+        cant_deliver_post: "No se puede enviar la publicación"
         cant_publish_post: "No se puede publicar la publicación"
         cant_schedule_post: "No se puede programar la publicación"
         cant_unschedule_post: "No se puede desprogramar la publicación"
@@ -134,7 +135,7 @@ es:
     user:
       error:
         failed_to_create: "Error al crear usuario para %{actor_id}: %{message}"
-      destroyed: "Usuario destruido por ActivityPub Eliminar actividad: %{username}"
+      destroyed: "Usuario destruido por Eliminar actividad de ActivityPub: %{username}"
     object:
       note:
         link_to_forum: Debate esto en nuestro foro.

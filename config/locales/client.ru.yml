@@ -7,26 +7,69 @@
 ru:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Добавить актор ActivityPub для категории
+              label: Добавить актор для категории
+            tag:
+              title: Добавить актор ActivityPub для тега
+              label: Добавить актор для тега
+          save:
+            title: Сохранить актор ActivityPub
+            label: Сохранить актор
           delete:
+            title: Удалить актор ActivityPub
+            label: Удалить актор
+            failed: Не удалено
             confirm:
-              title: "Действительно удалить группу «%{actor}»?"
+              title: "Действительно удалить актор «%{actor}»?"
+              message: |
+                <ul>
+                <li>Актор «%{actor}» больше не будет доступен во федеративной сети (Fediverse).</li>
+                <li>Объект «%{model}» (%{model_type}) удален не будет.</li>
+                <li>Вы можете восстановить удаленные акторы.</li>
+                </ul>
           restore:
+            title: Восстановить актор ActivityPub
             label: Восстановить
+          destroy:
+            title: Полностью удалить актор ActivityPub
+            label: Полностью удалить
+            confirm:
+              title: Действительно полностью удалить актор «%{actor}»?
+              message: |
+                <ul>
+                <li>Актор «%{actor}» будет безвозвратно удален.</li>
+                <li>Объект «%{model}» (%{model_type}) удален не будет.</li>
+                <li>Восстановить полностью удаленные акторы невозможно.</li>
+                </ul>
           edit:
-            label: Отредактировать
+            title: Изменить актор ActivityPub
+            label: Изменить
           deleted:
+            title: Актор ActivityPub удален
             label: Удалённые
           enabled:
+            title: Актор ActivityPub включен
             label: Включено
           disabled:
-            label: Отключен
+            title: Актор ActivityPub отключен
+            label: Отключено
+          site_setting:
+            title: Настройки сайта
+            activity_pub_enabled:
+              label: Плагин включен
           username: Имя пользователя
           name: Название
           default_visibility: Видимость
           table:
-            auth_type: Тип опроса
+            auth_type: Тип
             status: Статус
             actions: Действия
           category:
@@ -35,8 +78,8 @@ ru:
             label: Теги
             filter: фильтрация тегов
         log:
-          label: Журнал событий
-          title: Журнал событий
+          label: Журналы
+          title: Журналы
           created_at: Дата создания
           level: Уровень
           message: Сообщение
@@ -51,7 +94,7 @@ ru:
         tags: Теги
       status:
         label:
-          active: Активна
+          active: Действует
       follow:
         domain:
           placeholder: домен
@@ -68,11 +111,11 @@ ru:
         label:
           note: Примечание
       model:
-        actions: Темы
+        actions: Действия
         status: Статус
     user:
       discourse_activity_pub:
-        auth_type: Тип опроса
+        auth_type: Тип
         actions: Действия
         authorize:
           auth_type:
