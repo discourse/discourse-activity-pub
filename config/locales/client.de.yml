@@ -9,7 +9,7 @@ de:
     admin:
       site_settings:
         categories:
-          discourse_activity_pub: "Discourse Activity Pub"
+          discourse_activity_pub: "Discourse – ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -29,6 +29,12 @@ de:
             failed: Nicht gelöscht
             confirm:
               title: "Möchtest du %{actor} wirklich löschen?"
+              message: |
+                <ul>
+                <li>%{actor} wird für das Fediverse nicht mehr verfügbar sein.</li>
+                <li>%{model} %{model_type} wird nicht gelöscht.</li>
+                <li>Du kannst gelöschte Actor wiederherstellen.</li>
+                </ul>
           restore:
             title: ActivityPub Actor wiederherstellen
             label: Wiederherstellen
@@ -37,6 +43,12 @@ de:
             label: Zerstören
             confirm:
               title: Möchtest du %{actor} wirklich zerstören?
+              message: |
+                <ul>
+                <li>%{actor} wird zerstört.</li>
+                <li>%{model} %{model_type} wird nicht zerstört.</li>
+                <li>Du kannst zerstörte Actor nicht wiederherstellen.</li>
+                </ul>
           edit:
             title: ActivityPub Actor bearbeiten
             label: Bearbeiten
@@ -58,7 +70,7 @@ de:
             login_required:
               label: Anmeldung ist erforderlich
               title: Gemäß der Website-Einstellung „login required“ ist eine Anmeldung erforderlich.
-              description: Nur ausgehende Follow-Anfragen und die Attribute aktivierter Actor werden veröffentlicht.
+              description: Nur ausgehende Folgeanfragen und die Attribute aktivierter Actor werden veröffentlicht.
           username: Benutzername
           username_description: "%{min_length} bis %{max_length} Buchstaben, Zahlen, Bindestriche oder Unterstriche."
           name: Name
@@ -67,6 +79,8 @@ de:
           default_visibility_description: Alle Beiträge werden mit dieser Sichtbarkeit über ActivityPub veröffentlicht.
           post_object_type: Objekttyp des Beitrags
           post_object_type_description: Verwende Note für kurze Inhalte (z.B. Mastodon) und Article für lange Inhalte.
+          publication_type: Art der Veröffentlichung
+          publication_type_description: '„Erster Beitrag“ veröffentlicht den ersten Beitrag in jedem Thema. „Ganzes Thema“ veröffentlicht alle Beiträge und nimmt Antworten auf.'
           table:
             actor: Actor
             model: Modell
@@ -75,17 +89,17 @@ de:
             actions: Aktionen
           category:
             label: Kategorien
-            title: Kategorie Actor
+            title: Kategorie-Actor
             none: Wähle eine Kategorie
           tag:
             label: Schlagwörter
-            title: Schlagwort Actor
+            title: Schlagwort-Actor
             none: Wähle ein Schlagwort
-            filter: schlagwörter filtern
+            filter: Schlagwörter filtern
         log:
           label: Protokolle
           title: Protokolle
-          created_at: Erstellt am
+          created_at: Erstellt
           level: Stufe
           message: Nachricht
           json:
@@ -98,6 +112,7 @@ de:
               label: Kopieren
               title: Kopiere das JSON in die Zwischenablage.
               success: Kopiert!
+            logged_at: '%{logged_at} protokolliert'
   js:
     discourse_activity_pub:
       about:
@@ -146,11 +161,11 @@ de:
         title: Folge %{actor} über ActivityPub
         domain:
           label: Mastodon
-          placeholder: domain
+          placeholder: Domain
           btn_label: Folgen
           btn_title: Folge auf dieser Mastodon-Domain
           description: Domain deines Mastodon-Kontos
-          verifying: Domain wird überprüft ...
+          verifying: Domain wird überprüft …
           invalid: keine gültige Mastodon-Domain
       actor_follow:
         label: Neue Folgebeziehung
@@ -162,8 +177,8 @@ de:
           description: "z.B. @announcements@meta.discourse.org"
           validating: Handle wird validiert …
           invalid: kein gültiger Handle
-          finding: Finde Actor ...
-          not_found: '"%{handle}" konnte nicht gefunden werden'
+          finding: Finde Actor …
+          not_found: '„%{handle}“ konnte nicht gefunden werden'
         follow:
           label: Folgen
           title: 'Erstelle eine Folgebeziehung zu „%{follow_actor}“ für %{actor}'
@@ -171,7 +186,7 @@ de:
           label: Gefolgt
           title: '%{actor} folgt %{follow_actor}'
         follow_requested:
-          label: Folgen angefragt
+          label: Folgebeziehung angefragt
           title: '%{actor} hat angefragt, %{follow_actor} zu folgen'
       actor_unfollow:
         label: Nicht mehr folgen
@@ -180,7 +195,7 @@ de:
         confirm: Möchtest du wirklich, dass %{actor} %{followed_actor} nicht mehr folgt?
       actor_reject:
         label: Ablehnen
-        title: Ablehnen des Folgens von %{actor} über ActivityPub
+        title: Folgebeziehung von %{actor} über ActivityPub ablehnen
         modal_title: Bestätige die Ablehnung der Folgebeziehung
         confirm: Möchtest du wirklich ablehnen, dass %{follower} %{actor} folgt?
       follow_table:
@@ -195,6 +210,7 @@ de:
           public: Öffentlich
         description:
           private: "%{object_type} richtet sich an Follower."
+          public: "%{object_type} wird öffentlich adressiert."
       object_type:
         label:
           note: Note
@@ -208,14 +224,20 @@ de:
         label:
           first_post: Erster Beitrag
           full_topic: Ganzes Thema
+        description:
+          first_post: Der erste Beitrag eines jeden Themas in diesem %{model_type} wird über ActivityPub veröffentlicht.
+          full_topic: Jeder Beitrag eines jeden Themas in diesem %{model_type} wird über ActivityPub veröffentlicht und Antworten auf anderen ActivityPub-Servern werden als Antworten in Discourse importiert.
       copy_uri:
         copied: URI kopiert!
       model:
         actions: Aktionen
         group_actors: Gruppen-Actor
+        attributes: Attribute
         status: Status
+        menu: ActivityPub-Aktionen …
     post:
       discourse_activity_pub:
+        title: "ActivityPub für Beitrag #%{post_number}"
         status:
           published: "Der Beitrag wurde am %{datetime} über ActivityPub veröffentlicht."
           scheduled: "Die Veröffentlichung des Beitrags über ActivityPub ist für %{datetime} geplant."
@@ -239,18 +261,27 @@ de:
             label: "Beitrag #%{post_number} veröffentlichen"
             description:
               followers: "Veröffentliche Beitrag #%{post_number} und stelle ihn den Followern der Gruppen-Actor zu."
-              no_followers: "Veröffentliche Beitrag #%{post_number} ohne ihn zuzustellen, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
+              no_followers: "Veröffentliche Beitrag #%{post_number} ohne ihn zuzustellen, da die Gruppen-Actor keine Follower zum Zustellen haben."
+              topic_not_published: "Veröffentlichen ist für Beitrag #%{post_number} deaktiviert. Thema #%{topic_id} ist nicht veröffentlicht."
+              post_is_scheduled: "Veröffentlichen ist für Beitrag #%{post_number} deaktiviert. Die Veröffentlichung des Beitrags #%{post_number} ist geplant."
           deliver:
+            label: "Beitrag #%{post_number} zustellen"
             description:
               followers: "Stelle Beitrag #%{post_number} an die Follower der Gruppen-Actor zu."
-              no_followers: "Die Zustellung für Beitrag #%{post_number} ist deaktiviert, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
+              no_followers: "Die Zustellung für Beitrag #%{post_number} ist deaktiviert, da die Gruppen-Actor keine Follower zum Zustellen haben."
+              topic_not_delivered: "Zustellung ist für Beitrag #%{post_number} deaktiviert. Thema #%{topic_id} wurde nicht zugestellt."
               delivered: "Beitrag #%{post_number} wurde gerade den Followern der Gruppen-Actor zugestellt."
           schedule:
+            label: "Beitrag #%{post_number} planen"
             description:
               followers: "Veröffentliche Beitrag #%{post_number} und stelle ihn in %{minutes} Minuten den Followern der Gruppen-Actor zu."
-              no_followers: "Für Beitrag #%{post_number} ist keine Planung aktiv, da die Gruppen-Actor keine Follower haben, an die sie zustellen können."
+              no_followers: "Für Beitrag #%{post_number} ist keine Planung aktiv, da die Gruppen-Actor keine Follower zum Zustellen haben."
+          unschedule:
+            label: "Planung für Beitrag #%{post_number} aufheben"
+            description: "Hebe die Veröffentlichung von Beitrag #%{post_number} auf."
     topic:
       discourse_activity_pub:
+        title: "ActivityPub für Thema #%{topic_id}"
         status:
           scheduled: Die Veröffentlichung des Themas über ActivityPub ist für %{datetime} geplant.
           scheduled_past: Die Veröffentlichung des Themas über ActivityPub war für %{datetime} geplant.
@@ -259,7 +290,7 @@ de:
           deleted: Das Thema wurde am %{datetime} über ActivityPub gelöscht.
           not_published: Das Thema wurde nicht über ActivityPub veröffentlicht.
         info_status:
-          scheduled: "Die Veröffentlichung desThemas ist für %{datetime} geplant."
+          scheduled: "Die Veröffentlichung des Themas ist für %{datetime} geplant."
           scheduled_past: "Die Veröffentlichung des Themas war für %{datetime} geplant."
           published: "Das Thema wurde am %{datetime} veröffentlicht."
           published_remote: "Das Thema wurde am %{datetime} veröffentlicht."
@@ -271,13 +302,16 @@ de:
           some_published: "%{count} von %{total} Beiträgen in diesem Thema sind veröffentlicht."
           none_published: Keine Beiträge in diesem Thema sind veröffentlicht.
           scheduled: Die Veröffentlichung dieses Themas ist geplant.
+        actions:
+          label: Themen-Aktionen
         actors:
-          label: Themen Actor
+          label: Themen-Actor
         publish:
           label: Alle Beiträge veröffentlichen
           description:
             unpublished: "Veröffentliche %{count} unveröffentlichte Beiträge im Thema #%{topic_id}. Diese werden nicht an die Follower der Gruppen-Actor übermittelt."
             published: "„Alle Beiträge veröffentlichen“ ist deaktiviert. Alle Beiträge im Thema #%{topic_id} sind bereits veröffentlicht."
+            scheduled: "„Alle Beiträge veröffentlichen“ ist deaktiviert. Die Veröffentlichung von Thema #%{topic_id} ist geplant."
     user:
       discourse_activity_pub:
         title: ActivityPub
@@ -290,6 +324,7 @@ de:
         authorize:
           auth_type:
             none:
+              label: Wähle eine Art …
               placeholder: "gib eine Domain ein"
             mastodon:
               title: Mastodon
@@ -297,8 +332,16 @@ de:
             discourse:
               title: Discourse
               placeholder: z. B. meta.discourse.org
+        clear_domain_button:
+          title: Lösche die verifizierte Domain.
+        verify_domain_button:
+          label: Verifizieren
+          title: Verifiziere, dass die Domain unterstützt wird.
         authorize_button:
-          label: Genehmigen
+          label: Autorisieren
+          title: Autorisiere einen Actor auf der Domain.
+        authorize_error:
+          title: Autorisierung fehlgeschlagen
         authorizations:
           title: Verknüpfte Actor
         authorization:

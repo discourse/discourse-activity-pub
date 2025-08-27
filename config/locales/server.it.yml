@@ -58,12 +58,230 @@ it:
         stale_request: "Data della richiesta fuori dalla finestra temporale accettabile"
         invalid_signature_key: "Chiave di firma non valida"
         actor_not_found_for_key: "Attore non trovato per la chiave %{key_id}"
+        signature_verification_failed: "Verifica non riuscita per %{id} utilizzando rsa-sha256 (RSASSA-PKCS1-v1_5 con SHA-256)"
+        signature_parse_failed: "Errore durante l'analisi della firma"
+        date_must_be_signed: "L'intestazione della data o la pseudo-intestazione (creata) devono essere firmate"
+        digest_must_be_signed: "L'intestazione del digest o la pseudo-intestazione (request-target) devono essere firmate"
+        host_must_be_signed: "L'intestazione host deve essere firmata quando si esegue una richiesta GET"
+        digest_must_be_signed_on_post: "L'intestazione del digest deve essere firmata quando si esegue una richiesta POST"
+        digest_header_missing: "Intestazione del digest mancante"
+        invalid_digest_header_algorithm: "L'intestazione del digest richiede SHA-256. Algoritmi offerti: %{algorithms}"
+        invalid_digest_base64: "Valore digest non valido. Il valore digest fornito non è una stringa base64 valida. Digest fornito: %{digest}"
+        invalid_digest_sha256: "Valore digest non valido. Il valore digest fornito non è un digest SHA-256. Digest fornito: %{digest}"
+        invalid_digest: "Valore digest non valido. Digest SHA-256 calcolato: %{computed}; dato: %{digest}"
+        invalid_signature_pseudo_header: "Pseudo-intestazione della firma non valida (%{header})"
+        invalid_date_header: "Intestazione data non valida: %{reason}"
+        request_to_failed: "Richiesta %{method} a %{uri} fallita: %{message}"
+        request_from_failed: "%{method} richiesta ricevuta da %{uri} fallita: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Impossibile elaborare %{object_id}"
+        cant_resolve_actor: "Impossibile risolvere l'attore"
+        cant_resolve_object: "Impossibile risolvere l'oggetto"
+        object_not_supported: "L'oggetto non è supportato"
+        cant_create_actor: "Impossibile creare l'attore"
+        cant_find_object: "Impossibile trovare l'oggetto"
+        object_not_ready: "L'oggetto non è pronto"
+        activity_already_processed: "L'attività è già stata elaborata"
+        activity_not_supported: "L'attività non è supportata per attore e oggetto"
+        invalid_create_actor: "L'attore non può creare messaggi"
+        cannot_reply_to_deleted_post: "Impossibile creare un oggetto in risposta a un messaggio eliminato"
+        undo_actor_must_match_object_actor: "L'attore di annullamento deve corrispondere all'attore dell'oggetto"
+        activity_host_must_match_object_host: "L'host dell'attività deve corrispondere all'host dell'oggetto"
+        cant_find_post: "Impossibile trovare il messaggio"
         post_is_deleted: "Messaggio eliminato"
+        full_topic_not_enabled: "L'argomento completo non è abilitato"
+        announce_not_publicly_addressed: "L'annuncio non è reso pubblico."
+        actor_does_not_accept_new_topics: "L'attore non accetta nuovi argomenti."
+        only_followed_actors_create_new_topics: "Solo gli attori seguiti possono creare nuovi argomenti."
+        actor_already_following: "L'attore sta già seguendo quell'oggetto"
+        invalid_collection_item: "Elemento non valido"
+        cannot_resolve_context: "Impossibile risolvere il contesto dell'oggetto"
+        cant_resolve_collection: "Impossibile risolvere la raccolta"
+        actor_cannot_be_deleted: "L'attore non può essere eliminato"
+      error:
+        failed_to_create_user: "Impossibile creare l'utente per %{actor_id}"
+        failed_to_create_post: "Impossibile creare il messaggio per %{object_id}"
+        failed_to_respond_to_follow: "Impossibile rispondere a: %{activity_id}"
+        failed_to_save_activity: "Impossibile salvare l'attività: %{activity_id}"
+        failed_to_save_object: "Impossibile salvare l'oggetto: %{object_id}"
+        failed_to_save_actor: "Impossibile salvare l'attore: %{actor_id}"
+        failed_to_save_collection: "Impossibile salvare la raccolta: %{collection_id}"
+      info:
+        shared_inbox: "posta in arrivo condivisa"
+        received_json: "JSON ricevuto e recapitato a %{delivered_to}"
+        processing_json: "Elaborazione JSON recapitato a %{delivered_to}"
+    webfinger:
+      error:
+        resource_not_supported: "Risorsa non supportata"
+        resource_not_found: "Risorsa non trovata"
     category:
       error:
         category_not_found: "Categoria non trovata"
+    post:
+      error:
+        post_not_found: "Messaggio non trovato"
+        cant_deliver_post: "Impossibile recapitare il messaggio"
+        cant_publish_post: "Impossibile pubblicare il messaggio"
+        cant_schedule_post: "Impossibile programmare il messaggio"
+        cant_unschedule_post: "Impossibile annullare la programmazione del messaggio"
+        not_first_post: "Il messaggio non è il primo messaggio"
+        failed_to_create: "Impossibile creare il messaggio per %{object_id}: %{message}"
+      deleted: "Ricevuta una richiesta di eliminazione per %{object_type} associato al messaggio."
     topic:
       error:
         topic_not_found: "Argomento non trovato"
+        cant_publish_topic: "Impossibile pubblicare l'argomento"
+    user:
+      error:
+        failed_to_create: "Impossibile creare l'utente per %{actor_id}: %{message}"
+      destroyed: "Utente distrutto da un'attività di eliminazione di ActivityPub: %{username}"
+    object:
+      note:
+        link_to_forum: Discutine sul nostro forum.
+    actor:
+      followers:
+        summary: "Follower di %{actor}"
+      outbox:
+        summary: "Attività di %{actor}"
+      error:
+        actor_not_found: "Attore non trovato"
+        invalid_model: "Modello non valido"
+        model_not_found: "Modello non trovato"
+        target_actor_not_found: "Attore di destinazione non trovato"
+        not_following_target_actor: "L'attore non sta seguendo l'attore di destinazione"
+        cant_follow_target_actor: "L'attore non riesce a seguire l'attore di destinazione"
+        username_required: Per creare un attore è necessario un nome utente ActivityPub.
+        full_topic_must_be_public: "La pubblicazione completa dell'argomento richiede la pubblicazione pubblica."
+        user_not_authorized: "Utente non autorizzato"
+        not_following_actor: "L'attore di destinazione non sta seguendo l'attore"
+        actor_cant_be_restored: "L'attore non può essere ripristinato"
+      warning:
+        cant_create_model_for_actor_type: "Impossibile creare un modello per %{actor_type} %{actor_id}"
+        cant_create_actor_for_model_type: "Impossibile creare un attore per %{model_type} %{model_id}"
+        not_allowed_to_create_actor_for_model: "Non è consentito creare un attore per %{model_id}"
+        no_options: "Nessuna opzione passata ad ActorHandler"
+        invalid_username: "Il nome utente deve essere composto da %{min_length} a %{max_length} lettere, numeri, trattini o caratteri di sottolineatura."
+        username_taken: "Quel nome utente è già stato utilizzato su questo server."
+    auth:
+      error:
+        not_enabled: "L'autenticazione non è abilitata"
+        invalid_domain: "Dominio ActivityPub non valido"
+        invalid_auth_redirect: "Reindirizzamento di autorizzazione non valido"
+        invalid_redirect_params: "Parametri di reindirizzamento non validi"
+        authorization_required: "Il record di autorizzazione è obbligatorio"
+        session_expired: "Sessione di autorizzazione scaduta"
+        failed_to_authorize: "Autorizzazione non riuscita"
+        failed_to_get_actor: "Impossibile ottenere l'attore"
+        failed_to_create_client: "Impossibile creare il client"
+        failed_to_verify_client: "Impossibile verificare il client. Riprova a verificare."
+        failed_to_get_token: "Impossibile ottenere il token"
+        failed_to_decrypt_payload: "Impossibile decifrare il payload"
+        failed_to_verify_nonce: "Impossibile verificare il nonce"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} non è riuscito a programmare %{object_id} per il recapito: %{reason}"
+        failed_to_deliver: "%{from_actor} non è riuscito a recapitare a %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} recapitato con successo a %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} non è riuscito a elaborare la posta in uscita di %{target_actor}"
+          actors_not_ready: "Gli attori non sono pronti"
+          not_following_target: "%{actor} non sta seguendo %{target_actor}"
+          outbox_response_invalid: "la posta in uscita di %{target_actor} ha restituito una risposta non valida"
+        info:
+          started: "%{actor} ha iniziato a elaborare le attività di %{target_actor}."
+          finished: "%{actor} ha terminato l'elaborazione delle attività di %{target_actor}."
+          created_actors:
+            one: "%{count} attore creato."
+            other: "%{count} attori creati."
+          updated_actors:
+            one: "%{count} attore aggiornato."
+            other: "%{count} attori aggiornati."
+          created_objects:
+            one: "%{count} oggetto creato."
+            other: "%{count} oggetto creati."
+          updated_objects:
+            one: "%{count} oggetto aggiornato."
+            other: "%{count} oggetto aggiornati."
+          created_collections:
+            one: "%{count} raccolta creata."
+            other: "%{count} raccolte create."
+          updated_collections:
+            one: "%{count} raccolta aggiornata."
+            other: "%{count} raccolte aggiornate."
+          created_activities:
+            one: "%{count} attività creata."
+            other: "%{count} attività create."
+          updated_activities:
+            one: "%{count} attività aggiornata."
+            other: "%{count} attività aggiornate."
+          created_users:
+            one: "%{count} utente creato."
+            other: "%{count} utenti creati."
+          updated_users:
+            one: "%{count} utente aggiornato."
+            other: "%{count} utenti aggiornati."
+          created_topics:
+            one: "%{count} argomento creato."
+            other: "%{count} argomenti creati."
+          updated_topics:
+            one: "%{count} argomento aggiornato."
+            other: "%{count} argomenti aggiornati."
+          created_replies:
+            one: "%{count} risposta creata."
+            other: "%{count} risposte create."
+          updated_replies:
+            one: "%{count} risposta aggiornata."
+            other: "%{count} risposte aggiornate."
+      publish:
+        warning:
+          publish_did_not_start: "Impossibile pubblicare collettivamente le attività di %{target}"
+          actor_not_found: "Attore non trovato"
+          actor_not_ready: "L'attore non è pronto"
+          actor_model_not_supported: "Il modello dell'attore non è supportato"
+        info:
+          started: "Iniziata la pubblicazione delle attività di %{target}."
+          finished: "Terminata la pubblicazione delle attività di %{target}."
+          created_actors:
+            one: "%{count} attore creato."
+            other: "%{count} attori creati."
+          updated_actors:
+            one: "%{count} attore aggiornato."
+            other: "%{count} attori aggiornati."
+          created_objects:
+            one: "%{count} oggetto creato."
+            other: "%{count} oggetto creati."
+          updated_objects:
+            one: "%{count} oggetto aggiornato."
+            other: "%{count} oggetto aggiornati."
+          created_collections:
+            one: "%{count} raccolta creata."
+            other: "%{count} raccolte create."
+          updated_collections:
+            one: "%{count} raccolta aggiornata."
+            other: "%{count} raccolte aggiornate."
+          created_activities:
+            one: "%{count} attività creata."
+            other: "%{count} attività create."
+          updated_activities:
+            one: "%{count} attività aggiornata."
+            other: "%{count} attività aggiornate."
+  site_settings:
+    activity_pub_enabled: "Abilita il plugin ActivityPub."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Numero di richieste POST che possono essere inviate alla posta in arrivo di un attore al minuto."
+    activity_pub_rate_limit_get_objects_per_minute: "Numero di richieste GET che possono essere effettuate sugli oggetti AcitivityPub al minuto."
+    activity_pub_note_excerpt_maxlength: "Lunghezza massima degli estratti dei messaggi nelle note di AcitivityPub (0 per nessuna lunghezza massima)."
+    activity_pub_note_link_to_forum: "Includi un collegamento a questo forum nelle note di ActivityPub."
+    activity_pub_require_signed_requests: "Obbliga che le richieste ActivityPub siano firmate con firme HTTP."
+    activity_pub_allowed_request_origins: "Elenco dei domini autorizzati a effettuare richieste ActivityPub."
+    activity_pub_blocked_request_origins: "Elenco dei domini a cui non è consentito effettuare richieste ActivityPub."
+    activity_pub_delivery_delay_minutes: "Numero di minuti di ritardo nel recapito delle attività ActivityPub (le attività \"elimina\" vengono recapitate immediatamente)."
+    activity_pub_verbose_logging: "Abilita i log dettagliati di ActivityPub."
+    activity_pub_object_logging: "Stampa tutti gli oggetti ActivityPub in entrata e in uscita nei log (richiede log dettagliati)."
+    activity_pub_post_status_visibility_groups: "Gruppi che possono visualizzare gli stati dei messaggi di ActivityPub."
+    activity_pub_logs_max_days_old: "Per quanti giorni vengono conservati i log ActivityPub."
+    errors:
+      signed_requests_required: Per questa impostazione sono necessarie richieste firmate.

@@ -25,6 +25,7 @@ ja:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "は必須です"
               invalid: "は有効ではありあません"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,10 +35,231 @@ ja:
           attributes:
             model_type:
               invalid: "は有効ではありあません"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: 公開後の ActivityPub ノートの編集は現在サポートされていません。
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub は有効になっていません"
+    request:
+      error:
+        json_not_valid: "無効な JSON-LD"
+        not_found: "オブジェクトが見つかりません"
+        not_available: "そのモデルの ActivityPub は利用できません"
+        bad_request: "不正なリクエスト"
+        not_authorized: "承認されていません"
+        forbidden: "禁止されています"
+        not_signed: "リクエストは署名されていません"
+        missing_signature_params: "互換性のないリクエスト署名です。keyId と署名が必要です"
+        unsupported_signature_algorithm: "サポートされていない署名アルゴリズムです (rsa-sha256 と hs2019 のみがサポートされています)"
+        stale_request: "リクエスト日が許容期間外です"
+        invalid_signature_key: "無効な署名キーです"
+        actor_not_found_for_key: "キー %{key_id} のアクターが見つかりません"
+        signature_verification_failed: "rsa-sha256 (RSASSA-PKCS1-v1_5 と SHA-256) による %{id} の認証に失敗しました"
+        signature_parse_failed: "署名の解析中にエラーが発生しました"
+        date_must_be_signed: "Date ヘッダーまたは (作成された) 疑似ヘッダーには署名が必要です"
+        digest_must_be_signed: "Digest ヘッダーまたは (リクエストターゲットの) 疑似ヘッダーには署名が必要です"
+        host_must_be_signed: "GET リクエストを使用する場合は Host ヘッダーに署名が必要です"
+        digest_must_be_signed_on_post: "POST リクエストを使用する場合は Digest ヘッダーに署名が必要です"
+        digest_header_missing: "Digest ヘッダーがありません"
+        invalid_digest_header_algorithm: "Digest ヘッダーには SHA-256 が必要です。提供されるアルゴリズム: %{algorithms}"
+        invalid_digest_base64: "ダイジェストの値が無効です。指定されたダイジェスト値は有効な base64 文字列ではありません。指定されたダイジェスト: %{digest}"
+        invalid_digest_sha256: "ダイジェストの値が無効です。指定されたダイジェスト値は SHA-256 ダイジェストではありません。指定されたダイジェスト: %{digest}"
+        invalid_digest: "ダイジェストの値が無効です。計算された SHA-256 ダイジェスト: %{computed}、指定されたダイジェスト: %{digest}"
+        invalid_signature_pseudo_header: "無効な Signature 疑似ヘッダー (%{header})"
+        invalid_date_header: "無効な Date ヘッダー: %{reason}"
+        request_to_failed: "%{uri} への %{method} リクエストは失敗しました: %{message}"
+        request_from_failed: "%{uri} が受信した %{method} は失敗しました: %{status} %{message}"
     process:
       warning:
-        post_is_deleted: "投稿が削除された"
+        failed_to_process: "%{object_id} の処理に失敗しました"
+        cant_resolve_actor: "アクターを解決できませんでした"
+        cant_resolve_object: "オブジェクトを解決できませんでした"
+        object_not_supported: "オブジェクトはサポートされていません"
+        cant_create_actor: "アクターを作成できませんでした"
+        cant_find_object: "オブジェクトが見つかりませんでした"
+        object_not_ready: "オブジェクトの準備ができていません"
+        activity_already_processed: "アクティビティはすでに処理されています"
+        activity_not_supported: "アクターとオブジェクトのアクティビティはサポートされていません"
+        invalid_create_actor: "アクターは投稿を作成できません"
+        cannot_reply_to_deleted_post: "削除された投稿に返信するオブジェクトを作成できません"
+        undo_actor_must_match_object_actor: "元に戻すアクターはオブジェクトアクターに一致する必要があります"
+        activity_host_must_match_object_host: "アクティビティホストはオブジェクトホストに一致する必要があります"
+        cant_find_post: "投稿が見つかりません"
+        post_is_deleted: "投稿が削除されました"
+        full_topic_not_enabled: "「トピック全体」は有効になっていません"
+        announce_not_publicly_addressed: "「お知らせ」は公表されていません。"
+        actor_does_not_accept_new_topics: "アクターは新しいトピックを受け付けません。"
+        only_followed_actors_create_new_topics: "フォローされているアクターのみが新しいトピックを作成できます。"
+        actor_already_following: "アクターはすでにそのオブジェクトをフォロー中です"
+        invalid_collection_item: "アイテムが無効です"
+        cannot_resolve_context: "オブジェクトのコンテキストを解決できません"
+        cant_resolve_collection: "コレクションを解決できません"
+        actor_cannot_be_deleted: "アクターは削除できません"
+      error:
+        failed_to_create_user: "%{actor_id} のユーザーを作成できませんでした"
+        failed_to_create_post: "%{object_id} の投稿を作成できませんでした"
+        failed_to_respond_to_follow: "フォローに応答できませんでした: %{activity_id}"
+        failed_to_save_activity: "アクティビティを保存できませんでした: %{activity_id}"
+        failed_to_save_object: "オブジェクトを保存できませんでした: %{object_id}"
+        failed_to_save_actor: "アクターを保存できませんでした: %{actor_id}"
+        failed_to_save_collection: "コレクションを保存できませんでした: %{collection_id}"
+      info:
+        shared_inbox: "共有受信トレイ"
+        received_json: "%{delivered_to} に配信された JSON を受信しました"
+        processing_json: "%{delivered_to} に配信された JSON を処理中"
+    webfinger:
+      error:
+        resource_not_supported: "リソースはサポートされていません"
+        resource_not_found: "リソースが見つかりません"
+    category:
+      error:
+        category_not_found: "カテゴリが見つかりません"
+    post:
+      error:
+        post_not_found: "投稿が見つかりません"
+        cant_deliver_post: "投稿を配信できません"
+        cant_publish_post: "投稿を公開できません"
+        cant_schedule_post: "投稿のスケジュールを設定できません"
+        cant_unschedule_post: "投稿のスケジュールを取り消せません"
+        not_first_post: "投稿は最初の投稿ではありません"
+        failed_to_create: "%{object_id} の投稿を作成できませんでした: %{message}"
+      deleted: "投稿に関連付けられた%{object_type} の削除を受信しました。"
     topic:
       error:
-        topic_not_found: "トピックが見つかりませんでした"
+        topic_not_found: "トピックが見つかりません"
+        cant_publish_topic: "トピックを公開できません"
+    user:
+      error:
+        failed_to_create: "%{actor_id} のユーザーを作成できませんでした: %{message}"
+      destroyed: "ユーザーは ActivityPub の削除アクティビティによって破棄されました: %{username}"
+    object:
+      note:
+        link_to_forum: これについてフォーラムで議論してください。
+    actor:
+      followers:
+        summary: "%{actor} のフォロワー"
+      outbox:
+        summary: "%{actor} のアクティビティ"
+      error:
+        actor_not_found: "アクターが見つかりません"
+        invalid_model: "無効なモデル"
+        model_not_found: "モデルが見つかりません"
+        target_actor_not_found: "ターゲットアクターが見つかりません"
+        not_following_target_actor: "アクターはターゲットアクターをフォローしていません"
+        cant_follow_target_actor: "アクターはターゲットアクターをフォローできません"
+        username_required: アクターを作成するには ActivityPub ユーザー名が必要です。
+        full_topic_must_be_public: "トピック全体の出版には公開出版が必要です。"
+        user_not_authorized: "ユーザーは承認されていません"
+        not_following_actor: "ターゲットアクターはアクターをフォローしていません"
+        actor_cant_be_restored: "アクターを復元できません"
+      warning:
+        cant_create_model_for_actor_type: "%{actor_type} %{actor_id} のモデルを作成できません"
+        cant_create_actor_for_model_type: "%{model_type} %{model_id} のアクターを作成できません"
+        not_allowed_to_create_actor_for_model: "%{model_id} のアクターを作成することはできません"
+        no_options: "ActorHandler に渡されたオプションがありません"
+        invalid_username: "ユーザー名は %{min_length}～%{max_length} 桁の文字、数字、ダッシュ、またはアンダースコアが必要です。"
+        username_taken: "そのユーザー名はこのサーバーですでに使用されています。"
+    auth:
+      error:
+        not_enabled: "認証が有効になっていません"
+        invalid_domain: "無効な ActivityPub ドメイン"
+        invalid_auth_redirect: "無効な認証リダイレクト"
+        invalid_redirect_params: "無効なリダイレクトパラメーター"
+        authorization_required: "承認レコードが必要です"
+        session_expired: "認証セッションが期限切れになりました"
+        failed_to_authorize: "承認できませんでした"
+        failed_to_get_actor: "アクターを取得できませんでした"
+        failed_to_create_client: "クライアントを作成できませんでした"
+        failed_to_verify_client: "クライアントを確認できませんでした。もう一度確認してください。"
+        failed_to_get_token: "トークンを取得できませんでした"
+        failed_to_decrypt_payload: "ペイロードを復号化できませんでした"
+        failed_to_verify_nonce: "nonce を検証できませんでした"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} は %{object_id} の配信スケジュールを設定できませんでした: %{reason}"
+        failed_to_deliver: "%{from_actor} は %{send_to} に配信できませんでした"
+      info:
+        successfully_delivered: "%{from_actor} は %{send_to} に配信しました"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} は %{target_actor} の送信トレイを処理できませんでした"
+          actors_not_ready: "アクターの準備ができていません"
+          not_following_target: "%{actor} は %{target_actor} をフォローしていません"
+          outbox_response_invalid: "%{target_actor} の送信トレイから無効なレスポンスが返されました"
+        info:
+          started: "%{actor} は %{target_actor} のアクティビティの処理を開始しました。"
+          finished: "%{actor} は %{target_actor} のアクティビティの処理を完了しました。"
+          created_actors:
+            other: "%{count} 個のアクターを作成しました。"
+          updated_actors:
+            other: "%{count} 個のアクターを更新しました。"
+          created_objects:
+            other: "%{count} 個のオブジェクトを作成しました。"
+          updated_objects:
+            other: "%{count} 個のオブジェクトを更新しました。"
+          created_collections:
+            other: "%{count} 個のコレクションを作成しました。"
+          updated_collections:
+            other: "%{count} 個のコレクションを更新しました。"
+          created_activities:
+            other: "%{count} 個のアクティビティを作成しました。"
+          updated_activities:
+            other: "%{count} 個のアクティビティを更新しました。"
+          created_users:
+            other: "%{count} 人のユーザーを作成しました。"
+          updated_users:
+            other: "%{count} 人のユーザーを更新しました。"
+          created_topics:
+            other: "%{count} 件のトピックを作成しました。"
+          updated_topics:
+            other: "%{count} 件のトピックを更新しました。"
+          created_replies:
+            other: "%{count} 件の返信を作成しました。"
+          updated_replies:
+            other: "%{count} 件の返信を更新しました。"
+      publish:
+        warning:
+          publish_did_not_start: "%{target} のアクティビティを一括公開できませんでした"
+          actor_not_found: "アクターが見つかりません"
+          actor_not_ready: "アクターの準備ができていません"
+          actor_model_not_supported: "アクターモデルはサポートされていません"
+        info:
+          started: "%{target} のアクティビティを公開し始めました。"
+          finished: "%{target} のアクティビティの公開を完了しました。"
+          created_actors:
+            other: "%{count} 個のアクターを作成しました。"
+          updated_actors:
+            other: "%{count} 個のアクターを更新しました。"
+          created_objects:
+            other: "%{count} 個のオブジェクトを作成しました。"
+          updated_objects:
+            other: "%{count} 個のオブジェクトを更新しました。"
+          created_collections:
+            other: "%{count} 個のコレクションを作成しました。"
+          updated_collections:
+            other: "%{count} 個のコレクションを更新しました。"
+          created_activities:
+            other: "%{count} 個のアクティビティを作成しました。"
+          updated_activities:
+            other: "%{count} 個のアクティビティを更新しました。"
+  site_settings:
+    activity_pub_enabled: "ActivityPub プラグインを有効にする。"
+    activity_pub_rate_limit_post_to_inbox_per_minute: "アクターの受信トレイに対して 1 分あたりに送信できる POST リクエストの数。"
+    activity_pub_rate_limit_get_objects_per_minute: "ActivityPub オブジェクトに対して 1 分あたりに送信できる GET リクエストの数。"
+    activity_pub_note_excerpt_maxlength: "ActivityPub ノートに使用できる投稿の抜粋の最大長 (最大長を指定しない場合は 0)。"
+    activity_pub_note_link_to_forum: "ActivityPub ノートにこのフォーラムへのリンクを含める。"
+    activity_pub_require_signed_requests: "ActivityPub リクエストに HTTP Signature による署名を必要とする。"
+    activity_pub_allowed_request_origins: "ActivityPub リクエストを許可されているドメインのリスト。"
+    activity_pub_blocked_request_origins: "ActivityPub リクエストを許可されていないドメインのリスト。"
+    activity_pub_delivery_delay_minutes: "ActivityPub アクティビティの配信を遅延する分数 (「削除」アクティビティは即座に配信されます)。"
+    activity_pub_verbose_logging: "詳細な ActivityPub ログを有効にする。"
+    activity_pub_object_logging: "すべての ActivityPub オブジェクトの受信と送信をログに出力する (「詳細なログ記録」が必要です)。"
+    activity_pub_post_status_visibility_groups: "ActivityPub 投稿ステータスを閲覧できるグループ。"
+    activity_pub_logs_max_days_old: "ActivityPub ログを保持する日数。"
+    errors:
+      signed_requests_required: この設定には署名付きのリクエストが必要です。

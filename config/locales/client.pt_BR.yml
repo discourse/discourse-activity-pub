@@ -7,34 +7,94 @@
 pt_BR:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "ActivityPub do Discourse"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Adicionar ator(a) do ActivityPub de categoria
+              label: Adicionar ator de categoria
+            tag:
+              title: Adicionar ator do ActivityPub de etiqueta
+              label: Adicionar ator de etiqueta
+          save:
+            title: Salvar ator do ActivityPub
+            label: Salvar ator
           delete:
+            title: Excluir ator do ActivityPub
+            label: Excluir ator
+            failed: Não excluído(a)
             confirm:
               title: "Tem certeza de que deseja excluir %{actor}?"
+              message: |
+                <ul>
+                <li>%{actor} não estará mais disponível para o fediverso.</li>
+                <li>O(a) %{model} %{model_type} não será excluído(a).</li>
+                <li>Você pode restaurar atores excluídos.</li>
+                </ul>
           restore:
+            title: Restaurar ator do ActivityPub
             label: Restaurar
+          destroy:
+            title: Destruir ator do ActivityPub
+            label: Destruir
+            confirm:
+              title: Tem certeza de que deseja destruir %{actor}?
+              message: |
+                <ul>
+                <li>%{actor} será destruído(a).</li>
+                <li>O(a) %{model} %{model_type} não será destruído(a).</li>
+                <li>Você não pode restaurar atores destruídos.</li>
+                </ul>
           edit:
+            title: Editar ator do ActivityPub
             label: Editar
           deleted:
+            title: Ator do ActivityPub excluído
             label: Excluído
           enabled:
+            title: Ator do ActivityPub excluído ativado
             label: Ativada
           disabled:
+            title: Ator do ActivityPub excluído desativado
             label: Desativada
           site_setting:
             title: Configurações do site
+            activity_pub_enabled:
+              label: O plugin está ativado
+              title: O plugin do ActivityPub é ativado pela configuração do site ativado do ActivityPub.
+              description: As atividades recebidas direcionadas aos atores ativados serão processadas.
+            login_required:
+              label: Login obrigatório
+              title: O login é obrigatório pelas configurações do site que exigiu o login.
+              description: Apenas solicitações para seguir serão enviadas, e os atributos dos atores ativados serão publicados.
           username: Nome de usuário(a)
+          username_description: "De %{min_length} a %{max_length} letras, números, traços ou sublinhados."
           name: Nome
+          name_description: Usado(a) como nome de exibição em alguns serviços.
           default_visibility: Visibilidade
+          default_visibility_description: Todas as postagens serão publicadas por meio do ActivityPub com esta visibilidade.
+          post_object_type: Tipo de objeto de postagem
+          post_object_type_description: 'Use Observação para conteúdo breve (por exemplo: Mastodon) ou Artigo para conteúdo extenso.'
+          publication_type: Tipo de publicação
+          publication_type_description: '"First Post" a primeira postagem em cada tópico. "Full Topic" publica todas as postagens e ingere as respostas.'
           table:
+            actor: Ator
+            model: Modelo
             auth_type: Tipo
             status: Status
             actions: Ações
           category:
             label: Categorias
+            title: Atores de categoria
+            none: Selecione uma categoria
           tag:
             label: Etiquetas
+            title: Atores de etiqueta
+            none: Selecione uma etiqueta
             filter: filtrar etiquetas
         log:
           label: Registros
@@ -43,44 +103,249 @@ pt_BR:
           level: Nível
           message: Mensagem
           json:
+            label: JSON
+            title: JSON do Activity
+            show:
+              label: JSON
+              title: Exibir JSON do Activity
             copy:
               label: Copiar
+              title: Copiar JSON para a área de transferência.
               success: Copiado!
+            logged_at: Registrou %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Federação
+          title: Explore a federação do ActivityPub desta comunidade
+        title: Federação
+        description: Estas categorias e etiquetas são compatíveis com a Federação do ActivityPub. Se usar a Mastodon ou outras plataformas do ActivityPub, siga-as para visualizar os tópicos e as postagens delas no seu feed.
         categories: Categorias
         tags: Etiquetas
+        actor:
+          follower_count:
+            one: "%{count} seguidor(a)"
+            other: "%{count} seguidores(as)"
       status:
+        title:
+          publishing_disabled: A publicação pelo ActivityPub foi desativada pela configuração do site que exigiu o login. As atividades recebidas e solicitações para seguir enviados foram ativados.
+          plugin_disabled: O plugin do ActivityPub está desativado
+          category_read_restricted: O ActivityPub não funcoina com ategorias privadas
+          model_disabled: O ActivityPub está destivado para %{model_type}
+          model_not_ready: O ActivityPub não está pronto para %{model_type}
+          model_not_active: O ActivityPub está ativo para %{model_type}
+          model_active:
+            first_post: A primeira postagem de um tópico novo será publicada %{delay_minutes} minuto(s) após ser postada
         label:
           active: Ativo(a)
+          not_active: Não ativo(a)
+          publishing_disabled: Publicação desabilitada
+      discovery:
+        label: Federação
+        description: Federação para %{model_name}
+        followers: Seguidores(as)
+        follows: Segue
+      banner:
+        text: Seguir %{model_name} em todos os serviços compatíveis com a federação
+        responsive_text: Federado(a)
+        public_full_topic: Toda postagem de cada tópico será publicada por meio do ActivityPub publicamente.
+        public_first_post: A primeira postagem de cada tópico será publicada por meio do ActivityPub publicamente.
+        followers_only_full_topic: Toda postagem de cada tópico será publicada apenas para seguidores(as) do ActivityPub.
+        followers_only_first_post: A primeira postagem de cada tópico será publicada apenas para seguidores(as) do ActivityPub.
+      handle:
+        label: Em outros serviços do ActivityPub
+        description: Use este identificador para localizar e seguir esta categoria.
       follow:
+        label: Seguir
+        title: Seugir %{actor} por meio do ActivityPub
         domain:
+          label: Mastodon
           placeholder: domínio
+          btn_label: Seguir
+          btn_title: Seguir este domínio do Mastodon
+          description: domínio da sua conta Mastodon
+          verifying: verificando o domínio...
+          invalid: não é um domínio válido do Mastodon
+      actor_follow:
+        label: Novo solicitação para seguir
+        title: Nova solicitação para seguir %{actor} por meio do ActivityPub
+        find:
+          label: Localizar ator para seguir
+          btn_label: Localizar
+          btn_title: Localize o identificador
+          description: "Por exemplo: @announcements@meta.discourse.org"
+          validating: validando identificador...
+          invalid: não é um identificador válido
+          finding: localizando ator...
+          not_found: 'não foi possível localizar "%{handle}"'
+        follow:
+          label: Seguir
+          title: 'Crie uma solicitação para seguir "%{follow_actor}" de %{actor}'
+        following:
+          label: Seguindo
+          title: '%{actor} está seguindo %{follow_actor}'
+        follow_requested:
+          label: Solicitação para seguir enviada
+          title: '%{actor} solicitou seguir %{follow_actor}'
+      actor_unfollow:
+        label: Parar de seguir
+        title: Parar de seguir %{actor} pelo ActivityPub
+        modal_title: Confirmar para parar de seguir
+        confirm: Deseja mesmo que %{actor} pare de seguir %{followed_actor}?
       actor_reject:
         label: Rejeitar
+        title: Recusar %{actor} como seguidor(a) por meio do ActivityPub
+        modal_title: Configurar recusa de solicitação para seguir
+        confirm: Deseja mesmo recusar que %{follower} siga %{actor}?
       follow_table:
+        actor: Ator
         user: Usuário(a)
+        followed_at: Seguido(a)
         follow_pending: pendentes
         actions: Ações
       visibility:
         label:
+          private: Apenas seguidores(as)
           public: Público(a)
+        description:
+          private: "%{object_type} é voltado para os seguidores"
+          public: "%{object_type} foi voltado para o público."
       object_type:
         label:
           note: Observação
+          article: Artigo
+          collection: Coleção
+          ordered_collection: Coleção ordenada
+        description:
+          note: 'Ideal para plataformas de microblog (por exemplo: Mastodon).'
+          article: 'Ideal para plataformas grandes (por exemplo: Lemmy).'
+      publication_type:
+        label:
+          first_post: Primeira postagem
+          full_topic: Tópico inteiro
+        description:
+          first_post: A primeira postagem de cada tópico em %{model_type} é publicada pelo ActivityPub.
+          full_topic: Todas as postagens de cada tópicco em %{model_type} são publicadas pelo ActivityPub e as respostas nos outros servidores do ActivityPub são importadas como resposta no Discourse.
+      copy_uri:
+        copied: URL copiada!
       model:
         actions: Ações
+        group_actors: Agores em grupo
+        attributes: Atributos
         status: Status
+        menu: Ações do ActivityPub...
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub para a postagem #%{post_number}"
+        status:
+          published: "A postagem foi publicada pelo ActivityPub em %{datetime}."
+          scheduled: "A postagem está programada para ser publicada pelo ActivityPub em %{datetime}."
+          scheduled_past: "A postagem foi programada para ser publicada pelo ActivityPub em %{datetime}."
+          deleted: "A postagem foi excluída pelo ActivityPub em %{datetime}."
+          updated: "A postagem foi atualizada pelo ActivityPub em %{datetime}."
+          published_remote: "A postagem foi publicada pelo ActivityPub por %{actor} em %{datetime}."
+          not_published: "A postagem não foi publicada pelo ActivityPub."
+          delivered: "A postagem foi entregue pelo ActivityPub em %{datetime}."
+        info_status:
+          published: "A postagem foi publicada em %{datetime}."
+          scheduled: "A postagem está programada para ser publicada em %{datetime}."
+          scheduled_past: "A postagem foi programada para ser publicada em %{datetime}."
+          deleted: "A postagem foi excluída em %{datetime}."
+          updated: "A postagem foi atualizada em %{datetime}."
+          published_remote: "A postagem foi publicada em %{datetime}."
+          not_published: "A postagem não foi publicada."
+          delivered: "A postagem foi entregue em %{datetime}."
+        actions:
+          publish:
+            label: "Publicar postagem #%{post_number}"
+            description:
+              followers: "Publique a postagem #%{post_number} e entregue-a aos(às) seguidores(as) dos atores do grupo."
+              no_followers: "Publique a postagem #%{post_number} sem entregá-la. Os atores do grupo não têm seguidores(as) para os(as) quais entregar."
+              topic_not_published: "A publicação foi desativada para a postagem #%{post_number}. O tópico #%{topic_id} não está publicado."
+              post_is_scheduled: "A publicação foi desativada para a postagem #%{post_number}. A postagem #%{post_number} está programada para ser publicada."
+          deliver:
+            label: "Entregar postagem #%{post_number}"
+            description:
+              followers: "Entregue a postagem #%{post_number} aos(às) seguidores(as) dos atores do grupo."
+              no_followers: "A entrega está desativada para a postagem #%{post_number}. Os atores do grupo não têm seguidores(as) para os(as) quais entregar."
+              topic_not_delivered: "A entrega foi desativada para a postagem #%{post_number}. O tópico #%{topic_id} não foi entregue."
+              delivered: "A postagem #%{post_number} foi entregue aos(às) seguidores(as) dos atores do grupo."
+          schedule:
+            label: "Progamar postagem #%{post_number}"
+            description:
+              followers: "Publique a postagem #%{post_number} e entregue-a aos(às) seguidores(as) dos atores do grupo em %{minutes} minuto(s)."
+              no_followers: "A programação está desativada para a postagem #%{post_number}. Os atores do grupo não têm seguidores(as) para os(as) quais entregar."
+          unschedule:
+            label: "Cancelar programação da postagem #%{post_number}"
+            description: "Cancelar programação ada publicação da postagem #%{post_number}."
+    topic:
+      discourse_activity_pub:
+        title: "ActivityPub para o tópico #%{topic_id}"
+        status:
+          scheduled: O tópico está programado para ser publicado pelo ActivityPub em %{datetime}.
+          scheduled_past: O tópico foi programado para ser publicado pelo ActivityPub em %{datetime}.
+          published: O tópico foi publicado pelo ActivityPub em %{datetime}.
+          published_remote: O tópico foi publicado pelo ActivityPub por %{actor} em %{datetime}.
+          deleted: A tópico foi excluídoj pelo ActivityPub em %{datetime}.
+          not_published: O tópico não foi publicado pelo ActivityPub.
+        info_status:
+          scheduled: "O tópico está programado para ser publicado em %{datetime}."
+          scheduled_past: "O tópico foi programado para ser publicado em %{datetime}."
+          published: "O tópico foi publicado em %{datetime}."
+          published_remote: "O tópico foi publicado em %{datetime}."
+          deleted: "O tópico foi excluído em %{datetime}."
+          not_published: "O tópico não foi publicado."
+        posts_status:
+          label: Status das postagens
+          published: Todas as postagens deste tópico estão publicadas.
+          some_published: "%{count} de %{total} postagens deste tópico estão publicadas."
+          none_published: Nenhuma postagem deste tópico está publicada.
+          scheduled: Este tópico está programado para ser publicado.
+        actions:
+          label: Ações de tópico
+        actors:
+          label: Atores de tópico
+        publish:
+          label: Publicar todas as postagens
+          description:
+            unpublished: "Publique %{count} postagens não publicadas no tópico #%{topic_id}. As postagens não serão entregues para os(as) seguidores(as) dos atores do grupo."
+            published: "A publicação de todas as postagens está desabilitada. Todas as postagens do tópico #%{topic_id} já estão publicadas."
+            scheduled: "A publicação de todas as postagens está desabilitada. O tópico #%{topic_id} está programado para ser publicado."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Atores vinculados
+          description: As postagens associadas a um ator vinculado serão atribuídas à sua conta.
+        actor: Ator
         auth_type: Tipo
         actions: Ações
         authorize:
           auth_type:
+            none:
+              label: Selecione um tipo...
+              placeholder: "insira um domínio"
+            mastodon:
+              title: Mastodon
+              placeholder: 'Por exemplo: mastodon.social'
             discourse:
               title: Discourse
+              placeholder: 'Por exemplo: meta.discourse.org'
+        clear_domain_button:
+          title: Remova o domínio verificado.
+        verify_domain_button:
+          label: Verificar
+          title: A verificação de domínio é compatível.
         authorize_button:
           label: Autorizar
+          title: Autorize um ator no domínio.
+        authorize_error:
+          title: Falha ao autorizar
+        authorizations:
+          title: Atores vinculados
+        authorization:
+          confirm_remove: Tem certeza que deseja remover o link com %{handle}?
         remove_authorization_button:
+          title: Remover autorização
           label: Remover

@@ -7,34 +7,94 @@
 tr_TR:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Kategori ActivityPub aktörü ekle
+              label: Kategori Aktörü ekle
+            tag:
+              title: Etiket ActivityPub aktörü ekle
+              label: Etiket Aktörü ekle
+          save:
+            title: ActivityPub aktörünü kaydet
+            label: Aktörü kaydet
           delete:
+            title: ActivityPub aktörünü sil
+            label: Aktörü sil
+            failed: Silinmedi
             confirm:
               title: "%{actor} adlı grubu silmek istediğinizden emin misiniz?"
+              message: |
+                <ul>
+                <li>%{actor} fediverse için artık kullanılamayacak.</li>
+                <li> %{model} %{model_type} silinmeyecek.</li>
+                <li>Silinen aktörleri geri yükleyebilirsiniz.</li>
+                </ul>
           restore:
+            title: ActivityPub aktörünü geri yükle
             label: Geri Yükle
+          destroy:
+            title: ActivityPub aktörünü yok et
+            label: Yok et
+            confirm:
+              title: '%{actor} adlı aktörü yok etmek istediğinizden emin misiniz?'
+              message: |
+                <ul>
+                <li>%{actor} yok edilecek.</li>
+                <li>%{model} %{model_type} yok edilmeyecek.</li>
+                <li>Yok edilen aktörleri geri yükleyemezsiniz.</li>
+                </ul>
           edit:
+            title: ActivityPub aktörünü düzenle
             label: Düzenle
           deleted:
+            title: ActivityPub aktörü silindi
             label: Silindi
           enabled:
+            title: ActivityPub aktörü etkinleştirildi
             label: Etkin
           disabled:
+            title: ActivityPub aktörü devre dışı bırakıldı
             label: Devre Dışı
           site_setting:
             title: Site Ayarları
+            activity_pub_enabled:
+              label: Eklenti etkinleştirildi
+              title: ActivityPub eklentisi, activity pub etkin site ayarıyla etkinleştirilir.
+              description: Etkinleştirilmiş aktörlere yönelik gelen aktiviteler işlenir.
+            login_required:
+              label: Giriş gerekli
+              title: Giriş gerekli site ayarı gereği giriş yapılması gerekiyor.
+              description: Sadece giden takip talepleri ve etkin aktörlerin nitelikleri yayınlanır.
           username: Kullanıcı adı
+          username_description: "%{min_length} ila %{max_length} arası harfler, sayılar, tireler veya alt çizgiler."
           name: Ad
+          name_description: Bazı hizmetlerde ekran adı olarak kullanılır.
           default_visibility: Görünürlük
+          default_visibility_description: Tüm gönderiler bu görünürlükle ActivityPub üzerinden yayınlanır.
+          post_object_type: Gönderi nesne türü
+          post_object_type_description: Kısa içerikler için Not'u (ör. Mastodon), uzun içerikler için Makale'yi kullanın.
+          publication_type: Yayın türü
+          publication_type_description: İlk Gönderi, her konudaki ilk gönderiyi yayınlar. Tam Konu, tüm gönderileri yayınlar ve cevapları alır.
           table:
+            actor: Aktör
+            model: Model
             auth_type: Tür
             status: Durum
             actions: Eylemler
           category:
             label: Kategoriler
+            title: Kategori Aktörleri
+            none: Kategori seçin
           tag:
             label: Etiketler
+            title: Etiket Aktörleri
+            none: Etiket seçin
             filter: etiketleri filtrele
         log:
           label: Günlükler
@@ -43,44 +103,249 @@ tr_TR:
           level: Seviye
           message: Mesaj
           json:
+            label: JSON
+            title: Aktivite JSON'u
+            show:
+              label: JSON
+              title: Aktivite JSON'unu göster
             copy:
               label: Kopyala
+              title: JSON'u panoya kopyalayın.
               success: Kopyalandı!
+            logged_at: '%{logged_at} kaydedildi'
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Federasyon
+          title: Bu topluluğun ActivityPub federasyonunu keşfedin
+        title: Federasyon
+        description: Bu kategori ve etiketler ActivityPub Federasyonu'nu destekler. Mastodon veya diğer ActivityPub platformlarını kullanıyorsanız konu ve gönderilerini akışınızda görmek için onları takip edebilirsiniz.
         categories: Kategoriler
         tags: Etiketler
+        actor:
+          follower_count:
+            one: "%{count} takipçi"
+            other: "%{count} takipçi"
       status:
+        title:
+          publishing_disabled: ActivityPub yayınlama, giriş yapma gerekliliği site ayarı nedeniyle devre dışı bırakıldı. Gelen aktiviteler ve giden takipler etkinleştirildi.
+          plugin_disabled: ActivityPub eklentisi devre dışı bırakıldı
+          category_read_restricted: ActivityPub özel kategorilerle çalışmaz
+          model_disabled: ActivityPub bu %{model_type} için devre dışı bırakıldı
+          model_not_ready: ActivityPub bu %{model_type} için hazır değil
+          model_not_active: ActivityPub bu %{model_type} için aktif değil
+          model_active:
+            first_post: Yeni bir konunun ilk gönderisi yayınlandıktan %{delay_minutes} dakika sonra yayınlanır
         label:
           active: Aktif
+          not_active: Aktif Değil
+          publishing_disabled: Yayınlama Devre Dışı
+      discovery:
+        label: Federasyon
+        description: '%{model_name} Federasyonu'
+        followers: Takipçiler
+        follows: Takip ediyor
+      banner:
+        text: Federasyonu destekleyen herhangi bir hizmette %{model_name} adlı modeli takip edin
+        responsive_text: Federasyonlu
+        public_full_topic: Her konuya ait her gönderi ActivityPub üzerinden herkese açık olarak yayınlanır.
+        public_first_post: Her konuya ait ilk gönderi ActivityPub üzerinden herkese açık olarak yayınlanır.
+        followers_only_full_topic: Her konunun her gönderisi yalnızca ActivityPub takipçilerine yayınlanır.
+        followers_only_first_post: Her konunun ilk gönderisi yalnızca ActivityPub takipçilerine yayınlanır.
+      handle:
+        label: Diğer ActivityPub hizmetlerinde
+        description: Bu kategoriyi bulmak ve takip etmek için bu kullanıcı adını kullanın.
       follow:
+        label: Takip et
+        title: '%{actor} adlı aktörü ActivityPub aracılığıyla takip edin'
         domain:
+          label: Mastodon
           placeholder: alan Adı
+          btn_label: Takip et
+          btn_title: Bu Mastodon alan adında takip edin
+          description: Mastodon hesabınızın alan adı
+          verifying: alan adı doğrulanıyor...
+          invalid: geçerli bir Mastodon alan adı değil
+      actor_follow:
+        label: Yeni Takipçi
+        title: '%{actor} için ActivityPub üzerinden yeni takipçi'
+        find:
+          label: Takip edilecek bir aktör bulun
+          btn_label: Bul
+          btn_title: Kullanıcı adını bul
+          description: "ör. @duyurular@meta.discourse.org"
+          validating: kullanıcı adı doğrulanıyor...
+          invalid: geçerli bir kullanıcı adı değil
+          finding: aktör bulunuyor...
+          not_found: '"%{handle}" bulunamadı'
+        follow:
+          label: Takip et
+          title: '%{actor} için "%{follow_actor}" takibi oluşturun'
+        following:
+          label: Takip ediliyor
+          title: '%{actor} %{follow_actor} adlı aktörü takip ediyor'
+        follow_requested:
+          label: Takip Talebi Gönderildi
+          title: '%{actor} %{follow_actor} adlı aktörü takip talebi gönderdi'
+      actor_unfollow:
+        label: Takipten çık
+        title: '%{actor} için ActivityPub üzerinden takipten çık'
+        modal_title: Takipten Çıkmayı Onayla
+        confirm: '%{actor} adlı aktörün %{followed_actor} adlı aktörü takipten çıkmasını istediğinizden emin misiniz?'
       actor_reject:
         label: Reddet
+        title: '%{actor} adlı aktörün ActivityPub aracılığıyla takibini reddet'
+        modal_title: Takip Reddini Onayla
+        confirm: '%{follower} adlı kişinin %{actor} adlı aktörü takip etmesini reddetmek istediğinizden emin misiniz?'
       follow_table:
+        actor: Aktör
         user: Kullanıcı
+        followed_at: Takip Edildi
         follow_pending: beklemede
         actions: Eylemler
       visibility:
         label:
+          private: Sadece Takipçiler
           public: Herkese Açık
+        description:
+          private: "%{object_type} takipçilere yöneliktir."
+          public: "%{object_type} herkese yöneliktir."
       object_type:
         label:
           note: Not
+          article: Makale
+          collection: Koleksiyon
+          ordered_collection: Sipariş Edilen Koleksiyon
+        description:
+          note: Mikroblog platformları için en iyisidir (ör. Mastodon).
+          article: Uzun biçimli platformlar için en iyisidir (ör. Lemmy).
+      publication_type:
+        label:
+          first_post: İlk Gönderi
+          full_topic: Tam Konu
+        description:
+          first_post: Bu %{model_type} içindeki her konunun ilk mesajı ActivityPub aracılığıyla yayınlanır.
+          full_topic: Bu %{model_type} içindeki her konunun her gönderisi ActivityPub aracılığıyla yayınlanır ve diğer ActivityPub sunucularındaki yanıtlar Discourse'a yanıt olarak aktarılır.
+      copy_uri:
+        copied: URI Kopyalandı!
       model:
         actions: Eylemler
+        group_actors: Aktörleri Grupla
+        attributes: Nitelikler
         status: Durum
+        menu: ActivityPub Eylemleri...
+    post:
+      discourse_activity_pub:
+        title: "Gönderi #%{post_number} için ActivityPub"
+        status:
+          published: "Gönderi %{datetime} tarihinde ActivityPub aracılığıyla yayınlandı."
+          scheduled: "Gönderinin %{datetime} tarihinde ActivityPub üzerinden yayınlanması planlanıyor."
+          scheduled_past: "Gönderinin %{datetime} tarihinde ActivityPub üzerinden yayınlanması planlandı."
+          deleted: "Gönderi %{datetime} tarihinde ActivityPub aracılığıyla silindi."
+          updated: "Gönderi %{datetime} tarihinde ActivityPub aracılığıyla güncellendi."
+          published_remote: "Gönderi %{datetime} tarihinde %{actor} tarafından ActivityPub aracılığıyla yayınlandı."
+          not_published: "Gönderi ActivityPub aracılığıyla yayınlanmadı."
+          delivered: "Gönderi %{datetime} tarihinde ActivityPub aracılığıyla teslim edildi."
+        info_status:
+          published: "Gönderi %{datetime} tarihinde yayınlandı."
+          scheduled: "Gönderinin %{datetime} tarihinde yayınlanması planlanıyor."
+          scheduled_past: "Gönderinin %{datetime} tarihinde yayınlanması planlandı."
+          deleted: "Gönderi %{datetime} tarihinde silindi."
+          updated: "Gönderi %{datetime} tarihinde güncellendi."
+          published_remote: "Gönderi %{datetime} tarihinde yayınlandı."
+          not_published: "Gönderi yayınlanmadı."
+          delivered: "Gönderi %{datetime} tarihinde teslim edildi."
+        actions:
+          publish:
+            label: "%{post_number} numaralı Gönderiyi yayınla"
+            description:
+              followers: "%{post_number} numaralı gönderiyi yayınlayın ve Grup Aktörlerinin takipçilerine iletin."
+              no_followers: "%{post_number} numaralı gönderiyi teslim etmeden yayınlayın. Grup Aktörlerinin teslim edecek takipçileri yok."
+              topic_not_published: "%{post_number} numaralı Gönderi için yayınlama özelliği devre dışı bırakıldı. %{topic_id} numaralı konu yayınlanmadı."
+              post_is_scheduled: "%{post_number} numaralı Gönderi için yayınlama özelliği devre dışı bırakıldı. %{post_number} numaralı Konunun yayınlanması planlanıyor."
+          deliver:
+            label: "%{post_number} numaralı Gönderiyi teslim et"
+            description:
+              followers: "%{post_number} numaralı Gönderiyi Grup Aktörlerinin takipçilerine teslim edin."
+              no_followers: "%{post_number} numaralı Gönderi için teslimat devre dışı bırakıldı. Grup Aktörlerinin teslimat yapılacak takipçisi yok."
+              topic_not_delivered: "%{post_number} numaralı Gönderi için teslimat devre dışı bırakıldı. %{topic_id} numaralı Konu teslim edilmedi."
+              delivered: "%{post_number} numaralı gönderi az önce Grup Aktörlerinin takipçilerine teslim edildi."
+          schedule:
+            label: "%{post_number} numaralı Gönderiyi planla"
+            description:
+              followers: "%{post_number} numaralı Gönderiyi yayınlayın ve %{minutes} dakika içinde Grup Aktörlerinin takipçilerine teslim edin."
+              no_followers: "%{post_number} numaralı Gönderi için planlama devre dışı bırakıldı. Grup Aktörlerinin teslimat yapılacak takipçisi yok."
+          unschedule:
+            label: "%{post_number} numaralı Gönderinin planlamasını kaldır"
+            description: "%{post_number} numaralı Gönderinin yayınlanmasının planlamasını kaldırın."
+    topic:
+      discourse_activity_pub:
+        title: "%{topic_id} numaralı Konu için ActivityPub"
+        status:
+          scheduled: Konunun %{datetime} tarihinde ActivityPub üzerinden yayınlanması planlanıyor.
+          scheduled_past: Konunun %{datetime} tarihinde ActivityPub üzerinden yayınlanması planlandı.
+          published: Konu %{datetime} tarihinde ActivityPub aracılığıyla yayınlandı.
+          published_remote: Konu %{datetime} tarihinde %{actor} tarafından ActivityPub aracılığıyla yayınlandı.
+          deleted: Konu %{datetime} tarihinde ActivityPub aracılığıyla silindi.
+          not_published: Konu ActivityPub aracılığıyla yayınlanmadı.
+        info_status:
+          scheduled: "Konunun %{datetime} tarihinde yayınlanması planlanıyor."
+          scheduled_past: "Konunun %{datetime} tarihinde yayınlanması planlandı."
+          published: "Konu %{datetime} tarihinde yayınlandı."
+          published_remote: "Konu %{datetime} tarihinde yayınlandı."
+          deleted: "Konu %{datetime} tarihinde silindi."
+          not_published: "Konu yayınlanmadı."
+        posts_status:
+          label: Gönderi Durumu
+          published: Bu konudaki tüm gönderiler yayınlandı.
+          some_published: "Bu konudaki %{total} mesajdan %{count} tanesi yayınlandı."
+          none_published: Bu konudaki hiçbir gönderi yayınlanmadı.
+          scheduled: Bu konunun yayınlanması planlandı.
+        actions:
+          label: Konu Eylemleri
+        actors:
+          label: Konu Aktörleri
+        publish:
+          label: Tüm Gönderileri Yayınla
+          description:
+            unpublished: "%{topic_id} numaralı Konu altında yayınlanmamış %{count} gönderiyi yayınlayın. Gönderiler Grup Aktörlerinin takipçilerine teslim edilmez."
+            published: "Tüm gönderileri yayınla seçeneği devre dışı. %{topic_id} numaralı Konudaki tüm gönderiler zaten yayınlanmış durumda."
+            scheduled: "Tüm gönderileri yayınla devre dışı bırakıldı. %{topic_id} numaralı Konunun yayınlanması planlandı."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Bağlantılı Aktörler
+          description: Bağlantılı bir aktörle ilişkili gönderiler hesabınıza atfedilir.
+        actor: Aktör
         auth_type: Tür
         actions: Eylemler
         authorize:
           auth_type:
+            none:
+              label: Tür seçin...
+              placeholder: "alan adı girin"
+            mastodon:
+              title: Mastodon
+              placeholder: ör. mastodon.social
             discourse:
               title: Discourse
+              placeholder: ör. meta.discourse.org
+        clear_domain_button:
+          title: Doğrulanmış alan adını temizleyin.
+        verify_domain_button:
+          label: Doğrula
+          title: Alan adının desteklendiğini doğrulayın.
         authorize_button:
           label: Yetkilendir
+          title: Alan adında bir aktörü yetkilendirin.
+        authorize_error:
+          title: Yetkilendirme Başarısız
+        authorizations:
+          title: Bağlantılı Aktörler
+        authorization:
+          confirm_remove: '%{handle} ile bağlantıyı kaldırmak istediğinizden emin misiniz?'
         remove_authorization_button:
+          title: Yetkilendirmeyi kaldır
           label: Kaldır

@@ -7,34 +7,94 @@
 fr:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Ajouter un acteur ActivityPub de catégorie
+              label: Ajouter un acteur de catégorie
+            tag:
+              title: Ajouter un acteur ActivityPub d'étiquette
+              label: Ajouter un acteur d'étiquette
+          save:
+            title: Enregistrer l'acteur ActivityPub
+            label: Enregistrer l'acteur
           delete:
+            title: Supprimer l'acteur ActivityPub
+            label: Supprimer l'acteur
+            failed: Non supprimé
             confirm:
               title: "Voulez-vous vraiment supprimer %{actor} ?"
+              message: |
+                <ul>
+                <li>%{actor} ne sera plus disponible pour le fediverse.</li>
+                <li>Le %{model} %{model_type} ne sera pas supprimé.</li>
+                <li>Vous pouvez restaurer les acteurs supprimés.</li>
+                </ul>
           restore:
+            title: Restaurer l'acteur ActivityPub
             label: Restaurer
+          destroy:
+            title: Détruire l'acteur ActivityPub
+            label: Détruire
+            confirm:
+              title: Voulez-vous vraiment détruire %{actor} ?
+              message: |
+                <ul>
+                <li>%{actor} sera détruit.</li>
+                <li>Le %{model} %{model_type} ne sera pas détruit.</li>
+                <li>Vous ne pouvez pas restaurer les acteurs détruits.</li>
+                </ul>
           edit:
+            title: Modifier l'acteur ActivityPub
             label: Modifier
           deleted:
+            title: Acteur ActivityPub supprimé
             label: Supprimé
           enabled:
+            title: Acteur ActivityPub activé
             label: Activé
           disabled:
+            title: Acteur ActivityPub désactivé
             label: Désactivé
           site_setting:
             title: Paramètres du site
+            activity_pub_enabled:
+              label: L'extension est activée
+              title: L'extension ActivityPub est activée par le paramètre de site activé par ActivityPub.
+              description: Les activités entrantes destinées aux acteurs habilités seront traitées.
+            login_required:
+              label: La connexion est requise
+              title: La connexion est requise par le paramètre de connexion requise du site.
+              description: Seules les demandes de suivi sortantes et les attributs des acteurs activés sont publiés.
           username: Nom d'utilisateur
+          username_description: "%{min_length} à %{max_length} lettres, chiffres, tirets ou traits de soulignement."
           name: Nom
+          name_description: Utilisé comme nom d'affichage sur certains services.
           default_visibility: Visibilité
+          default_visibility_description: Tous les articles seront publiés via ActivityPub avec cette visibilité.
+          post_object_type: Type d'objet de publication
+          post_object_type_description: Utilisez Note pour le contenu court (par exemple Mastodon) et Article pour le contenu long.
+          publication_type: Type de publication
+          publication_type_description: Première publication publie la première publication de chaque sujet. Sujet complet publie toutes les publications et intègre les réponses.
           table:
+            actor: Acteur
+            model: Modèle
             auth_type: Type
             status: Statut
             actions: Actions
           category:
             label: Catégories
+            title: Acteurs de catégorie
+            none: Sélectionnez une catégorie
           tag:
             label: Étiquettes
+            title: Acteurs d'étiquette
+            none: Sélectionnez une étiquette
             filter: filtrer les étiquettes
         log:
           label: Journaux
@@ -43,20 +103,77 @@ fr:
           level: Niveau
           message: Message
           json:
+            label: JSON
+            title: Activité JSON
+            show:
+              label: JSON
+              title: Afficher l'activité JSON
             copy:
               label: Copie
+              title: Copiez le code JSON dans le presse-papiers.
               success: Copié !
+            logged_at: Connecté %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Fédération
+          title: Explorez la fédération ActivityPub de cette communauté
+        title: Fédération
+        description: Ces catégories et étiquettes prennent en charge la fédération ActivityPub. Si vous utilisez Mastodon ou d'autres plateformes ActivityPub, vous pouvez les suivre pour voir leurs sujets et publications dans votre flux.
         categories: Catégories
         tags: Étiquettes
+        actor:
+          follower_count:
+            one: "%{count} abonné"
+            other: "%{count} abonnés"
       status:
+        title:
+          publishing_disabled: La publication d'ActivityPub est désactivée par le paramètre de connexion requise pour le site. Les activités entrantes et sortantes sont activées.
+          plugin_disabled: L'extension ActivityPub est désactivée
+          category_read_restricted: ActivityPub ne fonctionne pas avec les catégories privées
+          model_disabled: ActivityPub est désactivé pour ce %{model_type}
+          model_not_ready: ActivityPub n'est pas prêt pour ce %{model_type}
+          model_not_active: ActivityPub n'est pas actif pour ce %{model_type}
+          model_active:
+            first_post: La première publication d'un nouveau sujet sera publiée %{delay_minutes} minutes après sa création
         label:
           active: Actif
+          not_active: Inactif
+          publishing_disabled: Publication désactivée
+      discovery:
+        label: Fédération
+        description: Fédération pour %{model_name}
+        followers: Abonnés
+        follows: Suit
+      banner:
+        text: Suivez %{model_name} sur n'importe quel service prenant en charge la fédération
+        responsive_text: Fédéré
+        public_full_topic: Chaque publication de chaque sujet sera publiée publiquement via ActivityPub.
+        public_first_post: La première publication de chaque sujet sera publiée publiquement via ActivityPub.
+        followers_only_full_topic: Chaque publication de chaque sujet est publiée uniquement pour les abonnés d'ActivityPub.
+        followers_only_first_post: La première publication de chaque sujet est publiée uniquement pour les abonnés d'ActivityPub.
+      handle:
+        label: Sur les autres services ActivityPub
+        description: Utilisez cet identifiant pour rechercher et suivre cette catégorie.
       follow:
+        label: Suivre
+        title: Suivez %{actor} via ActivityPub
         domain:
+          label: Mastodon
           placeholder: domaine
+          btn_label: Suivre
+          btn_title: Suivez ce domaine Mastodon
+          description: domaine de votre compte Mastodon
+          verifying: vérification du domaine...
+          invalid: pas un domaine Mastodon valide
+      actor_follow:
+        label: Nouveau suivi
+        title: Nouveau suivi pour %{actor} via ActivityPub
+        find:
+          label: Cherchez un acteur à suivre
+          btn_label: Chercher
+          btn_title: Chercher l'identifiant
       actor_reject:
         label: Rejeter
       follow_table:

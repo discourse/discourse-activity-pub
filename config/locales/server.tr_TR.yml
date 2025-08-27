@@ -25,6 +25,7 @@ tr_TR:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "gerekli"
               invalid: "geçerli değil"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,13 +35,253 @@ tr_TR:
           attributes:
             model_type:
               invalid: "geçerli değil"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: Bir ActivityPub notunun yayınlandıktan sonra düzenlenmesi şu anda desteklenmiyor.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub etkin değil"
+    request:
+      error:
+        json_not_valid: "Geçersiz JSON-LD"
+        not_found: "Nesne bulunamadı"
+        not_available: "ActivityPub bu model için kullanılamıyor"
+        bad_request: "Geçersiz talep"
+        not_authorized: "Yetkilendirilmemiş"
+        forbidden: "Yasaklı"
+        not_signed: "Talep imzalanmamış"
+        missing_signature_params: "Uyumsuz talep imzası. keyId ve imza gerekli"
+        unsupported_signature_algorithm: "Desteklenmeyen imza algoritması (yalnızca rsa-sha256 ve hs2019 desteklenir)"
+        stale_request: "Kabul edilebilir zaman aralığının dışında talep tarihi"
+        invalid_signature_key: "Geçersiz imza anahtarı"
+        actor_not_found_for_key: "%{key_id} anahtarı için aktör bulunamadı"
+        signature_verification_failed: "%{id} için rsa-sha256 (SHA-256 ile RSASSA-PKCS1-v1_5) kullanılarak doğrulama başarısız oldu"
+        signature_parse_failed: "İmza ayrıştırılırken hata oluştu"
+        date_must_be_signed: "Tarih başlığı veya (oluşturulan) yalancı başlığın imzalanması gerekiyor"
+        digest_must_be_signed: "Özet başlığı veya (talep hedefi) yalancı başlığının imzalanması gerekiyor"
+        host_must_be_signed: "AL talebi gönderilirken ana bilgisayar başlığının imzalanması gerekiyor"
+        digest_must_be_signed_on_post: "GÖNDERİ talebi gönderilirken özet başlığının imzalanması gerekiyor"
+        digest_header_missing: "Özet başlığı eksik"
+        invalid_digest_header_algorithm: "Özet başlığı SHA-256 gerektiriyor. Sunulan algoritmalar: %{algorithms}"
+        invalid_digest_base64: "Geçersiz Özet değeri. Sağlanan Özet değeri geçerli bir base64 dizesi değil. Verilen özet: %{digest}"
+        invalid_digest_sha256: "Geçersiz Özet değeri. Sağlanan Özet değeri bir SHA-256 özeti değil. Verilen özet: %{digest}"
+        invalid_digest: "Geçersiz Özet değeri. Hesaplanan SHA-256 özeti: %{computed}; verilen: %{digest}"
+        invalid_signature_pseudo_header: "Geçersiz İmza yalancı başlığı (%{header})"
+        invalid_date_header: "Geçersiz Tarih başlığı: %{reason}"
+        request_to_failed: "%{method} %{uri} talebi başarısız: %{message}"
+        request_from_failed: "%{method} %{uri} tarafından alınan talep başarısız oldu: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "%{object_id} işlenemedi"
+        cant_resolve_actor: "Aktör çözülemedi"
+        cant_resolve_object: "Nesne çözülemedi"
+        object_not_supported: "Nesne desteklenmiyor"
+        cant_create_actor: "Aktör oluşturulamadı"
+        cant_find_object: "Nesne bulunamadı"
+        object_not_ready: "Nesne hazır değil"
+        activity_already_processed: "Aktivite zaten işlenmiş"
+        activity_not_supported: "Aktivite, aktör ve nesne için desteklenmiyor"
+        invalid_create_actor: "Aktör, gönderi oluşturamaz"
+        cannot_reply_to_deleted_post: "Silinen bir gönderiye yanıt olarak nesne oluşturulamıyor"
+        undo_actor_must_match_object_actor: "Geri Alma Aktörü, Nesne Aktörüyle eşleşmeli"
+        activity_host_must_match_object_host: "Aktivite sunucusu, Nesne sunucusuyla eşleşmeli"
+        cant_find_post: "Gönderi bulunamadı"
         post_is_deleted: "Gönderi silindi"
+        full_topic_not_enabled: "Tam konu etkinleştirilmedi"
+        announce_not_publicly_addressed: "Duyuru herkese yönelik değil."
+        actor_does_not_accept_new_topics: "Aktör yeni konu kabul etmiyor."
+        only_followed_actors_create_new_topics: "Sadece takip edilen aktörler yeni konu oluşturabilir."
+        actor_already_following: "Aktör zaten o nesneyi takip ediyor"
+        invalid_collection_item: "Geçersiz öge"
+        cannot_resolve_context: "Nesne bağlamı çözülemiyor"
+        cant_resolve_collection: "Koleksiyon çözülemiyor"
+        actor_cannot_be_deleted: "Aktör silinemez"
+      error:
+        failed_to_create_user: "%{actor_id} için kullanıcı oluşturulamadı"
+        failed_to_create_post: "%{object_id} için gönderi oluşturulamadı"
+        failed_to_respond_to_follow: "Takip etme talebine yanıt verilemedi: %{activity_id}"
+        failed_to_save_activity: "Aktivite kaydedilemedi: %{activity_id}"
+        failed_to_save_object: "Nesne kaydedilemedi: %{object_id}"
+        failed_to_save_actor: "Aktör kaydedilemedi: %{actor_id}"
+        failed_to_save_collection: "Koleksiyon kaydedilemedi: %{collection_id}"
+      info:
+        shared_inbox: "paylaşılan gelen kutusu"
+        received_json: "Alınan JSON %{delivered_to} adresine teslim edildi"
+        processing_json: "İşleme JSON'u %{delivered_to} adresine teslim edildi"
+    webfinger:
+      error:
+        resource_not_supported: "Kaynak desteklenmiyor"
+        resource_not_found: "Kaynak bulunamadı"
     category:
       error:
         category_not_found: "Kategori bulunamadı"
+    post:
+      error:
+        post_not_found: "Gönderi bulunamadı"
+        cant_deliver_post: "Gönderi teslim edilemiyor"
+        cant_publish_post: "Gönderi yayınlanamıyor"
+        cant_schedule_post: "Gönderi planlanamıyor"
+        cant_unschedule_post: "Gönderinin planı kaldırılamıyor"
+        not_first_post: "Gönderi, ilk gönderi değil"
+        failed_to_create: "%{object_id} için gönderi oluşturulamadı: %{message}"
+      deleted: "Gönderiyle ilişkili %{object_type} için bir Silme işlemi alındı."
     topic:
       error:
-        topic_not_found: "Konu bulunamadı."
+        topic_not_found: "Konu bulunamadı"
+        cant_publish_topic: "Konu yayınlanamıyor"
+    user:
+      error:
+        failed_to_create: "%{actor_id} için kullanıcı oluşturulamadı: %{message}"
+      destroyed: "Kullanıcı ActivityPub Aktiviteyi Sil tarafından yok edildi: %{username}"
+    object:
+      note:
+        link_to_forum: Bunu forumumuzda tartışın.
+    actor:
+      followers:
+        summary: "%{actor} takipçileri"
+      outbox:
+        summary: "%{actor} aktiviteleri"
+      error:
+        actor_not_found: "Aktör bulunamadı"
+        invalid_model: "Geçersiz model"
+        model_not_found: "Model bulunamadı"
+        target_actor_not_found: "Hedef aktör bulunamadı"
+        not_following_target_actor: "Aktör, hedef aktörü takip etmiyor"
+        cant_follow_target_actor: "Aktör, hedef aktörü takip edemiyor"
+        username_required: Aktör oluşturmak için ActivityPub kullanıcı adı gerekli.
+        full_topic_must_be_public: "Konunun tamamının yayınlanması için herkese açık yayınlama yapılması gerekiyor."
+        user_not_authorized: "Kullanıcı yetkili değil"
+        not_following_actor: "Hedef aktör, aktörü takip etmiyor"
+        actor_cant_be_restored: "Aktör geri yüklenemiyor"
+      warning:
+        cant_create_model_for_actor_type: "%{actor_type} %{actor_id} için bir model oluşturulamıyor"
+        cant_create_actor_for_model_type: "%{model_type} %{model_id} için aktör oluşturulamıyor"
+        not_allowed_to_create_actor_for_model: "%{model_id} için aktör oluşturulmasına izin verilmiyor"
+        no_options: "ActorHandler'a seçenek iletilmedi"
+        invalid_username: "Kullanıcı adı %{min_length} ila %{max_length} arasında harf, rakam, tire veya alt çizgilerden oluşmalıdır."
+        username_taken: "Bu kullanıcı adı bu sunucuda zaten alınmış."
+    auth:
+      error:
+        not_enabled: "Yetkilendirme etkin değil"
+        invalid_domain: "Geçersiz ActivityPub alan adı"
+        invalid_auth_redirect: "Geçersiz kimlik doğrulama yönlendirmesi"
+        invalid_redirect_params: "Geçersiz yönlendirme parametreleri"
+        authorization_required: "Yetkilendirme kaydı gerekli"
+        session_expired: "Yetkilendirme oturumunun süresi doldu"
+        failed_to_authorize: "Yetkilendirme başarısız"
+        failed_to_get_actor: "Aktör alınamadı"
+        failed_to_create_client: "İstemci oluşturulamadı"
+        failed_to_verify_client: "İstemci doğrulanamadı. Lütfen tekrar doğrulamayı deneyin."
+        failed_to_get_token: "Token alınamadı"
+        failed_to_decrypt_payload: "Veri yükü şifresi çözülemedi"
+        failed_to_verify_nonce: "Nonce doğrulanamadı"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id}, teslimat için %{object_id} planlayamadı: %{reason}"
+        failed_to_deliver: "%{from_actor}, %{send_to} adresine teslimat yapamadı"
+      info:
+        successfully_delivered: "%{from_actor} başarıyla %{send_to} adresine teslim etti"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor}, %{target_actor} giden kutusunu işleyemedi"
+          actors_not_ready: "Aktörler hazır değil"
+          not_following_target: "%{actor} %{target_actor} adlı aktörü takip etmiyor"
+          outbox_response_invalid: "%{target_actor} giden kutusu geçersiz bir yanıt döndürdü"
+        info:
+          started: "%{actor} %{target_actor} adlı aktörün aktivitelerini işlemeye başladı."
+          finished: "%{actor} %{target_actor} adlı aktörün aktivitelerini işlemeyi bitirdi."
+          created_actors:
+            one: "%{count} aktör oluşturdu."
+            other: "%{count} aktör oluşturdu."
+          updated_actors:
+            one: "%{count} aktör güncelledi."
+            other: "%{count} aktör güncelledi."
+          created_objects:
+            one: "%{count} nesne oluşturdu."
+            other: "%{count} nesne oluşturdu."
+          updated_objects:
+            one: "%{count} nesne güncelledi."
+            other: "%{count} nesne güncelledi."
+          created_collections:
+            one: "%{count} koleksiyon oluşturdu."
+            other: "%{count} koleksiyon oluşturdu."
+          updated_collections:
+            one: "%{count} koleksiyon güncelledi."
+            other: "%{count} koleksiyon güncelledi."
+          created_activities:
+            one: "%{count} aktivite oluşturdu."
+            other: "%{count} aktivite oluşturdu."
+          updated_activities:
+            one: "%{count} aktivite güncelledi."
+            other: "%{count} aktivite güncelledi."
+          created_users:
+            one: "%{count} kullanıcı oluşturdu."
+            other: "%{count} kullanıcı oluşturdu."
+          updated_users:
+            one: "%{count} kullanıcı güncelledi."
+            other: "%{count} kullanıcı güncelledi."
+          created_topics:
+            one: "%{count} konu oluşturdu."
+            other: "%{count} konu oluşturdu."
+          updated_topics:
+            one: "%{count} konu güncelledi."
+            other: "%{count} konu güncelledi."
+          created_replies:
+            one: "%{count} yanıt oluşturdu."
+            other: "%{count} yanıt oluşturdu."
+          updated_replies:
+            one: "%{count} yanıt güncelledi."
+            other: "%{count} yanıt güncelledi."
+      publish:
+        warning:
+          publish_did_not_start: "%{target} aktivitelerinin toplu olarak yayınlanması başarısız oldu"
+          actor_not_found: "Aktör bulunamadı"
+          actor_not_ready: "Aktör hazır değil"
+          actor_model_not_supported: "Aktör modeli desteklenmiyor"
+        info:
+          started: "%{target} aktivitelerini yayınlamaya başladı."
+          finished: "%{target} aktivitelerini yayınlamayı bitirdi."
+          created_actors:
+            one: "%{count} aktör oluşturdu."
+            other: "%{count} aktör oluşturdu."
+          updated_actors:
+            one: "%{count} aktörü güncelledi."
+            other: "%{count} aktörü güncelledi."
+          created_objects:
+            one: "%{count} nesne oluşturdu."
+            other: "%{count} nesne oluşturdu."
+          updated_objects:
+            one: "%{count} nesneyi güncelledi."
+            other: "%{count} nesneyi güncelledi."
+          created_collections:
+            one: "%{count} koleksiyon oluşturdu."
+            other: "%{count} koleksiyon oluşturdu."
+          updated_collections:
+            one: "%{count} koleksiyonu güncelledi."
+            other: "%{count} koleksiyonu güncelledi."
+          created_activities:
+            one: "%{count} aktivite oluşturdu."
+            other: "%{count} aktivite oluşturdu."
+          updated_activities:
+            one: "%{count} aktiviteyi güncelledi."
+            other: "%{count} aktiviteyi güncelledi."
+  site_settings:
+    activity_pub_enabled: "ActivityPub eklentisini etkinleştirin."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Bir aktörün gelen kutusuna dakikada yapılabilecek GÖNDERİ talebi sayısı."
+    activity_pub_rate_limit_get_objects_per_minute: "AcitivityPub nesnelerine dakikada yapılabilecek AL talebi sayısı."
+    activity_pub_note_excerpt_maxlength: "AcitivityPub Notlarında gönderi alıntılarının maksimum uzunluğu (maksimum uzunluk yok için 0)."
+    activity_pub_note_link_to_forum: "ActivityPub notlarına bu forumun bağlantısını ekleyin."
+    activity_pub_require_signed_requests: "ActivityPub taleplerinin HTTP imzalarıyla imzalanmasını zorunlu kılın."
+    activity_pub_allowed_request_origins: "ActivityPub talepleri yapmasına izin verilen alan adlarının listesi."
+    activity_pub_blocked_request_origins: "ActivityPub talepleri yapmasına izin verilmeyen alan adlarının listesi."
+    activity_pub_delivery_delay_minutes: "ActivityPub aktivitelerinin teslimatının geciktirileceği dakika sayısı (\"sil\" aktiviteleri anında teslim edilir)."
+    activity_pub_verbose_logging: "Ayrıntılı ActivityPub günlüklerini etkinleştirin."
+    activity_pub_object_logging: "Günlüklerdeki tüm gelen ve giden ActivityPub nesnelerini yazdırın (ayrıntılı günlük kaydı gerektirir)."
+    activity_pub_post_status_visibility_groups: "ActivityPub gönderi durumlarını görebilen gruplar."
+    activity_pub_logs_max_days_old: "ActivityPub günlüklerinin kaç gün boyunca saklanacağı."
+    errors:
+      signed_requests_required: Bu ayar için imzalı talepler gereklidir.

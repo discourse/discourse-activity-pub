@@ -46,24 +46,24 @@ zh_CN:
     not_enabled: "ActivityPub 未启用"
     request:
       error:
-        json_not_valid: "Invalid JSON-LD"
-        not_found: "未找到对象"
+        json_not_valid: "JSON-LD 无效"
+        not_found: "找不到对象"
         not_available: "ActivityPub 不适用于该模型"
         bad_request: "错误请求"
         not_authorized: "未授权"
-        forbidden: "被禁"
-        not_signed: "请求未签名"
-        missing_signature_params: "请求签名不兼容。需要具有 keyId 和签名"
+        forbidden: "已被禁止"
+        not_signed: "请求未签署"
+        missing_signature_params: "请求签名不兼容。keyId 和签名为必选项"
         unsupported_signature_algorithm: "不支持的签名算法（仅支持 rsa-sha256 和 hs2019）"
         stale_request: "请求日期超出可接受的时间范围"
         invalid_signature_key: "签名密钥无效"
-        actor_not_found_for_key: "未找到密钥 %{key_id} 的参与者"
-        signature_verification_failed: "使用 rsa-sha256（带有 SHA-256 的 RSASSA-PKCS1-v1_5）对 %{id} 进行验证失败"
+        actor_not_found_for_key: "找不到密钥 %{key_id} 的参与者"
+        signature_verification_failed: "使用 rsa-sha256（带有 SHA-256 的 RSASSA-PKCS1-v1_5）对 %{id} 进行的验证失败"
         signature_parse_failed: "解析签名时出错"
-        date_must_be_signed: "必须对日期标头或（创建的）伪标头进行签名"
-        digest_must_be_signed: "必须对摘要标头或（请求目标）伪标头进行签名"
-        host_must_be_signed: "执行 GET 请求时必须对主机标头进行签名"
-        digest_must_be_signed_on_post: "执行 POST 请求时必须对摘要标头进行签名"
+        date_must_be_signed: "必须签署日期标头或（创建的）伪标头"
+        digest_must_be_signed: "必须签署摘要标头或（请求目标）伪标头"
+        host_must_be_signed: "执行 GET 请求时必须签署主机标头"
+        digest_must_be_signed_on_post: "执行 POST 请求时必须签署摘要标头"
         digest_header_missing: "摘要标头缺失"
         invalid_digest_header_algorithm: "摘要标头需要 SHA-256。提供的算法：%{algorithms}"
         invalid_digest_base64: "摘要值无效。提供的摘要值不是有效的 base64 字符串。给定的摘要：%{digest}"
@@ -83,8 +83,9 @@ zh_CN:
         cant_find_object: "找不到对象"
         object_not_ready: "对象未准备就绪"
         activity_already_processed: "活动已处理"
-        activity_not_supported: "活动不受参与者和对象支持"
+        activity_not_supported: "参与者和对象不支持活动"
         invalid_create_actor: "参与者无法创建帖子"
+        cannot_reply_to_deleted_post: "无法创建对象来回应已删除的帖子"
         undo_actor_must_match_object_actor: "撤消参与者必须与对象参与者匹配"
         activity_host_must_match_object_host: "活动主机必须与对象主机匹配"
         cant_find_post: "找不到帖子"
@@ -94,7 +95,7 @@ zh_CN:
         actor_does_not_accept_new_topics: "参与者不接受新话题。"
         only_followed_actors_create_new_topics: "只有被关注的参与者才能创建新话题。"
         actor_already_following: "参与者已关注该对象"
-        invalid_collection_item: "无效条目"
+        invalid_collection_item: "条目无效"
         cannot_resolve_context: "无法解析对象上下文"
         cant_resolve_collection: "无法解析集合"
         actor_cannot_be_deleted: "无法删除参与者"
@@ -108,25 +109,25 @@ zh_CN:
         failed_to_save_collection: "保存集合失败：%{collection_id}"
       info:
         shared_inbox: "共享收件箱"
-        received_json: "已收到投递至 %{delivered_to} 的 JSON"
-        processing_json: "正在处理投递至 %{delivered_to} 的 JSON"
+        received_json: "已收到递送至 %{delivered_to} 的 JSON"
+        processing_json: "正在处理递送至 %{delivered_to} 的 JSON"
     webfinger:
       error:
         resource_not_supported: "资源不受支持"
-        resource_not_found: "未找到资源"
+        resource_not_found: "找不到资源"
     category:
       error:
-        category_not_found: "未找到类别"
+        category_not_found: "找不到类别"
     post:
       error:
-        post_not_found: "未找到帖子"
-        cant_deliver_post: "无法投递帖子"
+        post_not_found: "找不到帖子"
+        cant_deliver_post: "无法递送帖子"
         cant_publish_post: "无法发布帖子"
-        cant_schedule_post: "无法计划帖子"
-        cant_unschedule_post: "无法取消计划帖子"
-        not_first_post: "帖子不是第一篇帖子"
+        cant_schedule_post: "无法安排帖子"
+        cant_unschedule_post: "无法取消安排帖子"
+        not_first_post: "帖子不是第一个帖子"
         failed_to_create: "为 %{object_id} 创建帖子失败：%{message}"
-      deleted: "已收到与该帖子相关的 %{object_type} 的删除。"
+      deleted: "已收到对与该帖子相关的%{object_type}的删除。"
     topic:
       error:
         topic_not_found: "找不到话题"
@@ -144,23 +145,23 @@ zh_CN:
       outbox:
         summary: "%{actor} 的活动"
       error:
-        actor_not_found: "未找到参与者"
-        invalid_model: "无效模型"
-        model_not_found: "未找到模型"
-        target_actor_not_found: "未找到目标参与者"
+        actor_not_found: "找不到参与者"
+        invalid_model: "模型无效"
+        model_not_found: "找不到模型"
+        target_actor_not_found: "找不到目标参与者"
         not_following_target_actor: "参与者未关注目标参与者"
         cant_follow_target_actor: "参与者无法关注目标参与者"
-        username_required: 需要具有 ActivityPub 用户名才能创建参与者。
+        username_required: 创建参与者需要一个 ActivityPub 用户名。
         full_topic_must_be_public: "完整话题发布需要公开发布。"
         user_not_authorized: "用户未授权"
         not_following_actor: "目标参与者未关注该参与者"
         actor_cant_be_restored: "参与者无法恢复"
       warning:
-        cant_create_model_for_actor_type: "无法为 %{actor_type} %{actor_id} 创建模型"
-        cant_create_actor_for_model_type: "无法为 %{model_type} %{model_id} 创建参与者"
+        cant_create_model_for_actor_type: "无法为%{actor_type} %{actor_id} 创建模型"
+        cant_create_actor_for_model_type: "无法为%{model_type} %{model_id} 创建参与者"
         not_allowed_to_create_actor_for_model: "不允许为 %{model_id} 创建参与者"
         no_options: "没有向 ActorHandler 传递任何选项"
-        invalid_username: "用户名必须为 %{min_length} 至 %{max_length} 个字母、数字、破折号或下划线。"
+        invalid_username: "用户名必须为 %{min_length} 至 %{max_length} 个字符，包含字母、数字、短划线或下划线。"
         username_taken: "该用户名已在此服务器上使用。"
     auth:
       error:
@@ -168,7 +169,7 @@ zh_CN:
         invalid_domain: "ActivityPub 域无效"
         invalid_auth_redirect: "授权重定向无效"
         invalid_redirect_params: "重定向参数无效"
-        authorization_required: "需要授权记录"
+        authorization_required: "授权记录为必选项"
         session_expired: "授权会话已过期"
         failed_to_authorize: "授权失败"
         failed_to_get_actor: "获取参与者失败"
@@ -179,10 +180,10 @@ zh_CN:
         failed_to_verify_nonce: "验证随机数失败"
     deliver:
       warning:
-        failed_to_schedule: "%{actor_id} 未能计划 %{object_id} 进行投递：%{reason}"
-        failed_to_deliver: "%{from_actor} 未能投递至 %{send_to}"
+        failed_to_schedule: "%{actor_id} 未能安排 %{object_id} 进行递送：%{reason}"
+        failed_to_deliver: "%{from_actor} 未能递送至 %{send_to}"
       info:
-        successfully_delivered: "%{from_actor} 成功投递至 %{send_to}"
+        successfully_delivered: "%{from_actor} 成功递送至 %{send_to}"
     bulk:
       process:
         warning:
@@ -224,7 +225,7 @@ zh_CN:
       publish:
         warning:
           publish_did_not_start: "批量发布 %{target} 的活动失败"
-          actor_not_found: "未找到参与者"
+          actor_not_found: "找不到参与者"
           actor_not_ready: "参与者未准备就绪"
           actor_model_not_supported: "参与者模型不受支持"
         info:
@@ -249,16 +250,16 @@ zh_CN:
   site_settings:
     activity_pub_enabled: "启用 ActivityPub 插件。"
     activity_pub_rate_limit_post_to_inbox_per_minute: "每分钟可以向参与者的收件箱发出的 POST 请求数。"
-    activity_pub_rate_limit_get_objects_per_minute: "每分钟可在 AcitivityPub 对象上发出的 GET 请求数。"
-    activity_pub_note_excerpt_maxlength: "AcitivityPub 注释中帖子摘要的最大长度（0 表示无最大长度）。"
+    activity_pub_rate_limit_get_objects_per_minute: "每分钟可以在 AcitivityPub 对象上发出的 GET 请求数。"
+    activity_pub_note_excerpt_maxlength: "AcitivityPub 注释中帖子摘录的最大长度（0 表示无最大长度）。"
     activity_pub_note_link_to_forum: "在 ActivityPub 注释中包含此论坛的链接。"
-    activity_pub_require_signed_requests: "需要使用 HTTP 签名对 ActivityPub 请求进行签名。"
+    activity_pub_require_signed_requests: "需要使用 HTTP 签名签署 ActivityPub 请求。"
     activity_pub_allowed_request_origins: "允许发出 ActivityPub 请求的域列表。"
     activity_pub_blocked_request_origins: "不允许发出 ActivityPub 请求的域列表。"
-    activity_pub_delivery_delay_minutes: "ActivityPub 活动的延迟投递分钟数（“删除”活动会立即投递）。"
+    activity_pub_delivery_delay_minutes: "ActivityPub 活动的延迟递送分钟数（“删除”活动会立即递送）。"
     activity_pub_verbose_logging: "启用详细的 ActivityPub 日志。"
     activity_pub_object_logging: "打印日志中所有传入和传出的 ActivityPub 对象（需要详细日志记录）。"
     activity_pub_post_status_visibility_groups: "可以查看 ActivityPub 帖子状态的群组。"
     activity_pub_logs_max_days_old: "ActivityPub 日志的保存天数。"
     errors:
-      signed_requests_required: 此设置需要签名请求。
+      signed_requests_required: 此设置需要已签署的请求。

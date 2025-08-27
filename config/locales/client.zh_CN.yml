@@ -32,7 +32,7 @@ zh_CN:
               message: |
                 <ul>
                 <li>%{actor} 对联邦宇宙不再可用。</li>
-                <li>%{model} %{model_type} 将被删除。</li>
+                <li>%{model}%{model_type}将被删除。</li>
                 <li>您可以恢复删除的参与者。</li>
                 </ul>
           restore:
@@ -46,7 +46,7 @@ zh_CN:
               message: |
                 <ul>
                 <li>%{actor} 将被销毁。</li>
-                <li> %{model} %{model_type} 不会被销毁。</li>
+                <li> %{model}%{model_type}不会被销毁。</li>
                 <li>您无法恢复销毁的参与者。</li>
                 </ul>
           edit:
@@ -72,15 +72,15 @@ zh_CN:
               title: 对于需要登录的站点设置，需要进行登录。
               description: 仅发布传出的关注请求和已启用的参与者的特性。
           username: 用户名
-          username_description: "%{min_length} 至 %{max_length} 个字母、数字、破折号或下划线。"
+          username_description: "%{min_length} 至 %{max_length} 个字符，包含字母、数字、短划线或下划线。"
           name: 名称
           name_description: 在某些服务中用作显示名称。
           default_visibility: 公开范围
           default_visibility_description: 所有帖子都将通过 ActivityPub 发布并具有此可见性。
           post_object_type: 帖子对象类型
-          post_object_type_description: 对于短内容（例如 Mastodon）使用注释，对于长内容使用文章。
+          post_object_type_description: 对于短内容（例如 Mastodon）使用“注释”，对于长内容使用“文章”。
           publication_type: 发布类型
-          publication_type_description: '“第一篇帖子”会发布每个话题的第一篇帖子。“完整话题”会发布所有帖子并提取回复。'
+          publication_type_description: '“第一个帖子”会发布每个话题的第一个帖子。“完整话题”会发布所有帖子并提取回复。'
           table:
             actor: 参与者
             model: 模型
@@ -101,7 +101,7 @@ zh_CN:
           title: 日志
           created_at: 创建时间
           level: 级别
-          message: 发送私信
+          message: 消息
           json:
             label: JSON
             title: 活动 JSON
@@ -112,7 +112,7 @@ zh_CN:
               label: 复制
               title: 将 JSON 复制到剪贴板。
               success: 已复制！
-            logged_at: 已记录 %{logged_at}
+            logged_at: '%{logged_at} 记录'
   js:
     discourse_activity_pub:
       about:
@@ -120,7 +120,7 @@ zh_CN:
           label: 联邦
           title: 探索此社区的 ActivityPub 联邦
         title: 联邦
-        description: 这些类别和标签支持 ActivityPub 联邦。如果您使用 Mastodon 或其他 ActivityPub 平台，可以关注它们，以在您的 Feed 中查看其话题和帖子。
+        description: 这些类别和标签支持 ActivityPub 联邦。如果您使用 Mastodon 或其他 ActivityPub 平台，可以关注他们，以在您的 Feed 中查看其话题和帖子。
         categories: 类别
         tags: 标签
         actor:
@@ -130,15 +130,15 @@ zh_CN:
         title:
           publishing_disabled: ActivityPub 发布被需要登录的站点设置禁用。传入活动和传出关注已启用。
           plugin_disabled: ActivityPub 插件已禁用
-          category_read_restricted: ActivityPub 不适用于私有类别
-          model_disabled: 已为此 %{model_type} 禁用 ActivityPub
-          model_not_ready: ActivityPub 未对此 %{model_type} 准备就绪
-          model_not_active: ActivityPub 未对此 %{model_type} 激活
+          category_read_restricted: ActivityPub 不支持不公开类别
+          model_disabled: 已对此%{model_type}禁用 ActivityPub
+          model_not_ready: ActivityPub 未对此%{model_type}准备就绪
+          model_not_active: ActivityPub 未对此%{model_type}激活
           model_active:
-            first_post: 新话题的第一篇帖子将在发布 %{delay_minutes} 分钟后发布
+            first_post: 新话题的第一个帖子将在发布 %{delay_minutes} 分钟后发布
         label:
           active: 有效
-          not_active: 不活跃
+          not_active: 停用
           publishing_disabled: 发布已禁用
       discovery:
         label: 联邦
@@ -147,24 +147,24 @@ zh_CN:
         follows: 关注
       banner:
         text: 在任何支持联邦的服务上关注 %{model_name}
-        responsive_text: 已联合
-        public_full_topic: 每个话题的每篇帖子都将通过 ActivityPub 公开发布。
-        public_first_post: 每个话题的第一篇帖子将通过 ActivityPub 公开发布。
-        followers_only_full_topic: 每个话题的每篇帖子仅发布给 ActivityPub 关注者。
-        followers_only_first_post: 每个话题的第一篇帖子仅发布给 ActivityPub 关注者。
+        responsive_text: 联邦
+        public_full_topic: 每个话题的每个帖子都将通过 ActivityPub 公开发布。
+        public_first_post: 每个话题的第一个帖子将通过 ActivityPub 公开发布。
+        followers_only_full_topic: 每个话题的每个帖子仅发布给 ActivityPub 关注者。
+        followers_only_first_post: 每个话题的第一个帖子仅发布给 ActivityPub 关注者。
       handle:
         label: 在其他 ActivityPub 服务上
-        description: 使用此句柄来查找和关注此类别。
+        description: 使用此标识名来查找和关注此类别。
       follow:
         label: 关注
         title: 通过 ActivityPub 关注 %{actor}
         domain:
           label: Mastodon
-          placeholder: 网域
+          placeholder: 域
           btn_label: 关注
           btn_title: 在此 Mastodon 域上关注
           description: 您的 Mastodon 帐户的域
-          verifying: 正在验证域名...……
+          verifying: 正在验证域…
           invalid: 不是有效的 Mastodon 域
       actor_follow:
         label: 新关注
@@ -172,11 +172,11 @@ zh_CN:
         find:
           label: 查找要关注的参与者
           btn_label: 查找
-          btn_title: 查找句柄
+          btn_title: 查找标识名
           description: "例如 @announcements@meta.discourse.org"
-          validating: 正在验证句柄...
-          invalid: 不是有效的句柄
-          finding: 正在查找参与者...
+          validating: 正在验证标识名…
+          invalid: 不是有效的标识名
+          finding: 正在查找参与者…
           not_found: '找不到“%{handle}”'
         follow:
           label: 关注
@@ -200,7 +200,7 @@ zh_CN:
       follow_table:
         actor: 参与者
         user: 用户
-        followed_at: 关注
+        followed_at: 关注时间
         follow_pending: 待处理
         actions: 操作
       visibility:
@@ -208,11 +208,11 @@ zh_CN:
           private: 仅限关注者
           public: 公开
         description:
-          private: "%{object_type} 将发送给关注者。"
-          public: "%{object_type} 会公开发送。"
+          private: "%{object_type}将发送给关注者。"
+          public: "%{object_type}会公开发送。"
       object_type:
         label:
-          note: 备注
+          note: 注释
           article: 文章
           collection: 集合
           ordered_collection: 有序集合
@@ -221,11 +221,11 @@ zh_CN:
           article: 最适合长文平台（例如 Lemmy）。
       publication_type:
         label:
-          first_post: 第一篇帖子
+          first_post: 第一个帖子
           full_topic: 完整话题
         description:
-          first_post: 此 %{model_type} 中每个话题的第一篇帖子通过 ActivityPub 发布。
-          full_topic: 此 %{model_type} 中每个话题的每篇帖子都通过 ActivityPub 发布，并且其他 ActivityPub 服务器上的回复将作为 Discourse 中的回复导入。
+          first_post: 此%{model_type}中每个话题的第一个帖子通过 ActivityPub 发布。
+          full_topic: 此%{model_type}中每个话题的每个帖子都通过 ActivityPub 发布，并且其他 ActivityPub 服务器上的回复将作为 Discourse 中的回复导入。
       copy_uri:
         copied: URI 已复制！
       model:
@@ -233,64 +233,64 @@ zh_CN:
         group_actors: 群组参与者
         attributes: 特性
         status: 状态
-        menu: ActivityPub 操作...
+        menu: ActivityPub 操作…
     post:
       discourse_activity_pub:
         title: "帖子 #%{post_number} 的 ActivityPub"
         status:
           published: "帖子于 %{datetime} 通过 ActivityPub 发布。"
-          scheduled: "帖子计划于 %{datetime} 通过 ActivityPub 发布。"
-          scheduled_past: "帖子原计划于 %{datetime} 通过 ActivityPub 发布。"
+          scheduled: "帖子安排在 %{datetime} 通过 ActivityPub 发布。"
+          scheduled_past: "帖子原来安排在 %{datetime} 通过 ActivityPub 发布。"
           deleted: "帖子于 %{datetime} 通过 ActivityPub 删除。"
           updated: "帖子于 %{datetime} 通过 ActivityPub 更新。"
           published_remote: "帖子于 %{datetime} 由 %{actor} 通过 ActivityPub 发布。"
           not_published: "帖子未通过 ActivityPub 发布。"
-          delivered: "帖子于 %{datetime} 通过 ActivityPub 投递。"
+          delivered: "帖子于 %{datetime} 通过 ActivityPub 递送。"
         info_status:
           published: "帖子于 %{datetime} 发布。"
-          scheduled: "帖子计划于 %{datetime} 发布。"
-          scheduled_past: "帖子原计划于 %{datetime} 发布。"
+          scheduled: "帖子安排在 %{datetime} 发布。"
+          scheduled_past: "帖子原来安排在 %{datetime} 发布。"
           deleted: "帖子于 %{datetime} 删除。"
           updated: "帖子于 %{datetime} 更新。"
           published_remote: "帖子于 %{datetime} 发布。"
           not_published: "帖子未发布。"
-          delivered: "帖子于 %{datetime} 投递。"
+          delivered: "帖子于 %{datetime} 递送。"
         actions:
           publish:
             label: "发布帖子 #%{post_number}"
             description:
-              followers: "发布帖子 #%{post_number} 并将其投递给群组参与者的关注者。"
-              no_followers: "发布帖子 #%{post_number} 但不投递。群组参与者没有可投递的关注者。"
-              topic_not_published: "已为帖子 #%{post_number} 禁用发布。话题 #%{topic_id} 未发布。"
-              post_is_scheduled: "已为帖子 #%{post_number} 禁用发布。帖子 #%{post_number} 已计划发布。"
+              followers: "发布帖子 #%{post_number} 并将其递送给群组参与者的关注者。"
+              no_followers: "发布帖子 #%{post_number} 但不递送。群组参与者没有可递送的关注者。"
+              topic_not_published: "已对帖子 #%{post_number} 禁用发布。话题 #%{topic_id} 未发布。"
+              post_is_scheduled: "已对帖子 #%{post_number} 禁用发布。帖子 #%{post_number} 已安排发布。"
           deliver:
-            label: "投递帖子 #%{post_number}"
+            label: "递送帖子 #%{post_number}"
             description:
-              followers: "将帖子 #%{post_number} 投递给群组参与者的关注者。"
-              no_followers: "帖子 #%{post_number} 的投递功能已禁用。群组参与者没有可投递的关注者。"
-              topic_not_delivered: "帖子 #%{post_number} 的投递功能已禁用。话题 #%{topic_id} 未投递。"
-              delivered: "帖子 #%{post_number} 刚刚投递给群组参与者的关注者。"
+              followers: "将帖子 #%{post_number} 递送给群组参与者的关注者。"
+              no_followers: "帖子 #%{post_number} 的递送功能已禁用。群组参与者没有可递送的关注者。"
+              topic_not_delivered: "帖子 #%{post_number} 的递送功能已禁用。话题 #%{topic_id} 未递送。"
+              delivered: "帖子 #%{post_number} 刚刚递送给群组参与者的关注者。"
           schedule:
-            label: "计划帖子 #%{post_number}"
+            label: "安排帖子 #%{post_number}"
             description:
-              followers: "发布帖子 #%{post_number} 并在 %{minutes} 分钟内将其投递给群组参与者的关注者。"
-              no_followers: "帖子 #%{post_number} 的计划功能已禁用。群组参与者没有可投递的关注者。"
+              followers: "发布帖子 #%{post_number} 并在 %{minutes} 分钟内将其递送给群组参与者的关注者。"
+              no_followers: "帖子 #%{post_number} 的安排功能已禁用。群组参与者没有可递送的关注者。"
           unschedule:
-            label: "取消计划帖子 #%{post_number}"
-            description: "取消计划帖子 #%{post_number} 的发布。"
+            label: "取消安排帖子 #%{post_number}"
+            description: "取消安排帖子 #%{post_number} 的发布。"
     topic:
       discourse_activity_pub:
         title: "话题 #%{topic_id} 的 ActivityPub"
         status:
-          scheduled: 话题计划于 %{datetime} 通过 ActivityPub 发布。
-          scheduled_past: 话题原计划于 %{datetime} 通过 ActivityPub 发布。
+          scheduled: 话题安排在 %{datetime} 通过 ActivityPub 发布。
+          scheduled_past: 话题原来安排在 %{datetime} 通过 ActivityPub 发布。
           published: 话题于 %{datetime} 通过 ActivityPub 发布。
           published_remote: 话题于 %{datetime} 由 %{actor} 通过 ActivityPub 发布。
           deleted: 话题于 %{datetime} 通过 ActivityPub 删除。
           not_published: 话题未通过 ActivityPub 发布。
         info_status:
-          scheduled: "话题计划于 %{datetime} 发布。"
-          scheduled_past: "话题原计划于 %{datetime} 发布。"
+          scheduled: "话题安排在 %{datetime} 发布。"
+          scheduled_past: "话题原来安排在 %{datetime} 发布。"
           published: "话题于 %{datetime} 发布。"
           published_remote: "话题于 %{datetime} 发布。"
           deleted: "话题于 %{datetime} 删除。"
@@ -298,9 +298,9 @@ zh_CN:
         posts_status:
           label: 帖子状态
           published: 此话题下的所有帖子均已发布。
-          some_published: "此话题下的 %{total} 篇帖子中有 %{count} 篇已发布。"
+          some_published: "此话题下的 %{total} 个帖子中有 %{count} 个已发布。"
           none_published: 此话题下尚未发布任何帖子。
-          scheduled: 此话题已计划发布。
+          scheduled: 此话题已安排发布。
         actions:
           label: 话题操作
         actors:
@@ -308,23 +308,23 @@ zh_CN:
         publish:
           label: 发布所有帖子
           description:
-            unpublished: "在话题 #%{topic_id} 中发布 %{count} 篇未发布的帖子。帖子不会投递给群组参与者的关注者。"
+            unpublished: "在话题 #%{topic_id} 中发布 %{count} 篇未发布的帖子。帖子不会递送给群组参与者的关注者。"
             published: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 下的所有帖子均已发布。"
-            scheduled: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 已计划发布。"
+            scheduled: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 已安排发布。"
     user:
       discourse_activity_pub:
         title: ActivityPub
         actors:
           title: 链接的参与者
-          description: 与链接的参与者相关的帖子将归您的帐户所有。
+          description: 与链接的参与者相关的帖子将被归因于您的帐户。
         actor: 参与者
         auth_type: 类型
         actions: 操作
         authorize:
           auth_type:
             none:
-              label: 选择类型...
-              placeholder: "输入域名"
+              label: 选择类型…
+              placeholder: "输入域"
             mastodon:
               title: Mastodon
               placeholder: 例如 mastodon.social

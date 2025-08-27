@@ -80,7 +80,7 @@ es:
           post_object_type: Tipo de objeto de publicación
           post_object_type_description: Usa Nota para contenido corto (por ejemplo Mastodon) y Artículo para contenido largo.
           publication_type: Tipo de publicación
-          publication_type_description: Primera publicación publica la primera publicación de cada tema. Tema completo publica todas las publicaciones y recibe las respuestas.
+          publication_type_description: '«Primera publicación» publica la primera publicación de cada tema. «Tema completo» publica todas las publicaciones y recibe las respuestas.'
           table:
             actor: Actor
             model: Modelo
@@ -99,7 +99,7 @@ es:
         log:
           label: Registros
           title: Registros
-          created_at: Creado el
+          created_at: 'Creación:'
           level: Nivel
           message: Mensaje
           json:
@@ -118,9 +118,9 @@ es:
       about:
         navigation:
           label: Federación
-          title: Explora la federación ActivityPub de esta comunidad
+          title: Explora la federación de ActivityPub de esta comunidad
         title: Federación
-        description: Estas categorías y etiquetas son compatibles con ActivityPub Federation. Si usas Mastodon u otras plataformas de ActivityPub, puedes seguirlas para ver sus temas y publicaciones en tu feed.
+        description: Estas categorías y etiquetas son compatibles con la federación de ActivityPub. Si usas Mastodon u otras plataformas de ActivityPub, puedes seguirlas para ver sus temas y publicaciones en tu feed.
         categories: Categorías
         tags: Etiquetas
         actor:
@@ -163,7 +163,7 @@ es:
           label: Mastodon
           placeholder: dominio
           btn_label: Seguir
-          btn_title: Sigue este dominio Mastodon
+          btn_title: Sigue este dominio de Mastodon
           description: dominio de tu cuenta de Mastodon
           verifying: verificando el dominio...
           invalid: no es un dominio de Mastodon válido
@@ -186,7 +186,7 @@ es:
           label: Siguiendo
           title: '%{actor} está siguiendo a %{follow_actor}'
         follow_requested:
-          label: Solicitud de seguimiento
+          label: Solicitud de seguimiento enviada
           title: '%{actor} ha solicitado seguir a %{follow_actor}'
       actor_unfollow:
         label: Dejar de seguir
@@ -207,7 +207,7 @@ es:
       visibility:
         label:
           private: Solo seguidores
-          public: Pública
+          public: Público
         description:
           private: "%{object_type} está dirigido a seguidores."
           public: "%{object_type} está dirigido públicamente."
@@ -272,12 +272,12 @@ es:
               topic_not_delivered: "El envío está deshabilitado para la publicación n.º %{post_number}. El tema n.º %{topic_id} no se ha enviado."
               delivered: "La publicación n.º %{post_number} se ha enviado a los seguidores de los actores del grupo."
           schedule:
-            label: "Programar publicación n. º %{post_number}"
+            label: "Programar publicación n.º %{post_number}"
             description:
               followers: "Publicar publicación n.º %{post_number} y enviarla a los seguidores de los actores del grupo en %{minutes} minutos."
               no_followers: "La programación está deshabilitada para la publicación n.º %{post_number}. Los actores del grupo no tienen seguidores a quienes enviar."
           unschedule:
-            label: "Cancelar la programación de la publicación n. º %{post_number}"
+            label: "Cancelar la programación de la publicación n.º %{post_number}"
             description: "Cancelar la programación de la publicación n.º %{post_number}."
     topic:
       discourse_activity_pub:
@@ -298,8 +298,8 @@ es:
           not_published: "El tema no se ha publicado."
         posts_status:
           label: Estado de las publicaciones
-          published: Todas las publicaciones se han publicado en este tema.
-          some_published: "%{count} de %{total} publicaciones se han publicado en este tema."
+          published: Se han publicado todas las publicaciones en este tema.
+          some_published: "Se han publicado %{count} de %{total} publicaciones en este tema."
           none_published: No se han publicado publicaciones en este tema.
           scheduled: Este tema está programado para publicarse.
         actions:

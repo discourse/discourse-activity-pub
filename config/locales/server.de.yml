@@ -35,6 +35,10 @@ de:
           attributes:
             model_type:
               invalid: "ist nicht gültig"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: Das Bearbeiten einer ActivityPub-Note nach der Veröffentlichung wird derzeit nicht unterstützt.
   user_api_key:
     scopes:
       "discourse-activity-pub:read": "ActivityPub"
@@ -53,36 +57,85 @@ de:
         unsupported_signature_algorithm: "Nicht unterstützter Signaturalgorithmus (nur rsa-sha256 und hs2019 werden unterstützt)"
         stale_request: "Datum der Anfrage außerhalb des akzeptablen Zeitfensters"
         invalid_signature_key: "Ungültiger Signaturschlüssel"
+        actor_not_found_for_key: "Actor für Schlüssel %{key_id} nicht gefunden"
+        signature_verification_failed: "Verifizierung fehlgeschlagen für %{id} mit rsa-sha256 (RSASSA-PKCS1-v1_5 with SHA-256)"
         signature_parse_failed: "Fehler beim Parsen der Signatur"
+        date_must_be_signed: "Date-Header oder (erstellter) Pseudo-Header müssen signiert sein"
+        digest_must_be_signed: "Digest-Header oder (request-target) Pseudo-Header müssen signiert sein"
+        host_must_be_signed: "Der Host-Header muss bei einer GET-Anfrage signiert sein"
+        digest_must_be_signed_on_post: "Der Digest-Header muss bei einer POST-Anfrage signiert sein"
+        digest_header_missing: "Digest-Header fehlt"
+        invalid_digest_header_algorithm: "Der Digest-Header erfordert SHA-256. Angebotene Algorithmen: %{algorithms}"
+        invalid_digest_base64: "Ungültiger Digest-Wert. Der angegebene Digest-Wert ist keine gültige base64-Zeichenfolge. Angegebener Digest: %{digest}"
+        invalid_digest_sha256: "Ungültiger Digest-Wert. Der angegebene Digest-Wert ist kein SHA-256-Digest. Angegebener Digest: %{digest}"
+        invalid_digest: "Ungültiger Digest-Wert. Berechneter SHA-256-Digest: %{computed}; angegeben: %{digest}"
+        invalid_signature_pseudo_header: "Ungültiger Signatur-Pseudo-Header (%{header})"
+        invalid_date_header: "Ungültiger Date-Header: %{reason}"
+        request_to_failed: "%{method} Anfrage an %{uri} fehlgeschlagen: %{message}"
+        request_from_failed: "%{method} Anfrage empfangen von %{uri} fehlgeschlagen: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Fehler beim Verarbeiten von %{object_id}"
+        cant_resolve_actor: "Actor konnte nicht aufgelöst werden"
+        cant_resolve_object: "Objekt konnte nicht aufgelöst werden"
+        object_not_supported: "Objekt wird nicht unterstützt"
         cant_create_actor: "Actor konnte nicht erstellt werden"
         cant_find_object: "Objekt konnte nicht gefunden werden"
+        object_not_ready: "Objekt ist nicht bereit"
+        activity_already_processed: "Aktivität wurde bereits verarbeitet"
+        activity_not_supported: "Aktivität wird für Actor und Objekt nicht unterstützt"
         invalid_create_actor: "Der Actor kann keine Beiträge erstellen"
+        cannot_reply_to_deleted_post: "Als Antwort auf einen gelöschten Beitrag kann kein Objekt erstellt werden"
+        undo_actor_must_match_object_actor: "Rückgängig-Actor muss mit Objekt-Akteur übereinstimmen"
+        activity_host_must_match_object_host: "Der Aktivitätshost muss mit dem Objekthost übereinstimmen"
+        cant_find_post: "Beitrag kann nicht gefunden werden"
         post_is_deleted: "Beitrag gelöscht"
+        full_topic_not_enabled: "„Ganzes Thema“ ist nicht aktiviert"
+        announce_not_publicly_addressed: "Ankündigung wird nicht öffentlich adressiert."
         actor_does_not_accept_new_topics: "Actor akzeptiert keine neuen Themen."
         only_followed_actors_create_new_topics: "Nur Actor, denen gefolgt wird, können neue Themen erstellen."
         actor_already_following: "Der Actor folgt diesem Objekt bereits"
         invalid_collection_item: "Ungültiges Element"
+        cannot_resolve_context: "Objektkontext kann nicht aufgelöst werden"
         cant_resolve_collection: "Collection kann nicht aufgelöst werden"
+        actor_cannot_be_deleted: "Actor kann nicht gelöscht werden"
       error:
+        failed_to_create_user: "Fehler beim Erstellen des Benutzers für %{actor_id}"
+        failed_to_create_post: "Fehler beim Erstellen des Beitrags für %{object_id}"
         failed_to_respond_to_follow: "Antworten auf Folgebeziehung fehlgeschlagen: %{activity_id}"
+        failed_to_save_activity: "Fehler beim Speichern der Aktivität: %{activity_id}"
         failed_to_save_object: "Fehler beim Speichern des Objekts: %{object_id}"
+        failed_to_save_actor: "Fehler beim Speichern des Actors: %{actor_id}"
         failed_to_save_collection: "Fehler beim Speichern der Collection: %{collection_id}"
       info:
-        shared_inbox: "gemeinsame Inbox"
+        shared_inbox: "gemeinsamer Posteingang"
+        received_json: "Empfangenes JSON an %{delivered_to} übermittelt"
+        processing_json: "Verarbeitendes JSON an %{delivered_to} übermittelt"
+    webfinger:
+      error:
+        resource_not_supported: "Ressource nicht unterstützt"
+        resource_not_found: "Ressource nicht gefunden"
     category:
       error:
         category_not_found: "Kategorie nicht gefunden"
     post:
       error:
         post_not_found: "Beitrag nicht gefunden"
+        cant_deliver_post: "Beitrag kann nicht zugestellt werden"
         cant_publish_post: "Beitrag kann nicht veröffentlicht werden"
+        cant_schedule_post: "Beitrag kann nicht geplant werden"
+        cant_unschedule_post: "Planung des Beitrags kann nicht aufgehoben werden"
         not_first_post: "Beitrag ist nicht der erste Beitrag"
+        failed_to_create: "Fehler beim Erstellen des Beitrags für %{object_id}: %{message}"
+      deleted: "Für das mit dem Beitrag verknüpfte %{object_type} wurde ein „Löschen“ erhalten."
     topic:
       error:
         topic_not_found: "Thema nicht gefunden"
         cant_publish_topic: "Thema kann nicht veröffentlicht werden"
+    user:
+      error:
+        failed_to_create: "Fehler beim Erstellen des Benutzers für %{actor_id}: %{message}"
+      destroyed: "Benutzer zerstört durch Lösch-Aktivität von ActivityPub: %{username}"
     object:
       note:
         link_to_forum: Diskutiere dies in unserem Forum.
@@ -98,25 +151,46 @@ de:
         target_actor_not_found: "Ziel-Actor nicht gefunden"
         not_following_target_actor: "Der Actor folgt dem Ziel-Actor nicht"
         cant_follow_target_actor: "Der Actor kann dem Ziel-Actor nicht folgen"
+        username_required: Zum Erstellen eines Actor ist ein ActivityPub-Benutzername erforderlich.
+        full_topic_must_be_public: "Veröffentlichung des ganzen Themas erfordert eine öffentliche Veröffentlichung."
+        user_not_authorized: "Benutzer nicht autorisiert"
         not_following_actor: "Der Ziel-Actor folgt dem Actor nicht"
+        actor_cant_be_restored: "Actor kann nicht wiederhergestellt werden"
       warning:
+        cant_create_model_for_actor_type: "Es kann kein Modell für %{actor_type} %{actor_id} erstellt werden"
+        cant_create_actor_for_model_type: "Es kann kein Actor für %{model_type} %{model_id} erstellt werden"
+        not_allowed_to_create_actor_for_model: "Es ist nicht erlaubt, einen Actor für %{model_id} zu erstellen"
+        no_options: "Keine Optionen an ActorHandler übergeben"
         invalid_username: "Der Benutzername muss %{min_length} bis %{max_length} Buchstaben, Zahlen, Bindestriche oder Unterstriche enthalten."
         username_taken: "Dieser Benutzername ist auf diesem Server bereits vergeben."
     auth:
       error:
+        not_enabled: "Authentifizierung ist nicht aktiviert"
         invalid_domain: "Ungültige ActivityPub-Domain"
+        invalid_auth_redirect: "Ungültige Authentifizierungsweiterleitung"
         invalid_redirect_params: "Ungültige Umleitungsparameter"
+        authorization_required: "Authentifizierungseintrag ist erforderlich"
+        session_expired: "Authentifizierungssitzung abgelaufen"
+        failed_to_authorize: "Autorisierung fehlgeschlagen"
+        failed_to_get_actor: "Fehler beim Abrufen des Actors"
+        failed_to_create_client: "Client konnte nicht erstellt werden"
         failed_to_verify_client: "Der Client konnte nicht verifiziert werden. Bitte versuche, ihn erneut zu verifizieren."
         failed_to_get_token: "Token konnte nicht abgerufen werden"
         failed_to_decrypt_payload: "Payload konnte nicht entschlüsselt werden"
         failed_to_verify_nonce: "Nonce konnte nicht verifiziert werden"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} konnte %{object_id} nicht für die Zustellung planen: %{reason}"
+        failed_to_deliver: "%{from_actor} konnte nicht an %{send_to} zustellen"
+      info:
+        successfully_delivered: "%{from_actor} erfolgreich zugestellt an %{send_to}"
     bulk:
       process:
         warning:
-          did_not_start: "%{actor} konnte die Outbox von %{target_actor} nicht verarbeiten"
+          did_not_start: "%{actor} konnte den Postausgang von %{target_actor} nicht verarbeiten"
           actors_not_ready: "Actor sind nicht bereit"
-          not_following_target: "%{actor} folgt nicht %{target_actor}"
-          outbox_response_invalid: "Outbox von %{target_actor} hat eine ungültige Antwort zurückgegeben"
+          not_following_target: "%{actor} folgt %{target_actor} nicht"
+          outbox_response_invalid: "Postausgang von %{target_actor} hat eine ungültige Antwort zurückgegeben"
         info:
           started: "%{actor} hat mit der Verarbeitung der Aktivitäten von %{target_actor} begonnen."
           finished: "%{actor} hat die Verarbeitung der Aktivitäten von %{target_actor} abgeschlossen."
@@ -197,11 +271,17 @@ de:
             other: "%{count} Aktivitäten aktualisiert."
   site_settings:
     activity_pub_enabled: "Aktiviere das ActivityPub-Plug-in."
-    activity_pub_rate_limit_post_to_inbox_per_minute: "Anzahl der POST-Anfragen, die pro Minute an die Inbox eines Actors gesendet werden können."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Anzahl der POST-Anfragen, die pro Minute an den Posteingang eines Actors gesendet werden können."
+    activity_pub_rate_limit_get_objects_per_minute: "Anzahl der GET-Anfragen, die pro Minute an AcitivityPub-Objekten erfolgen können."
+    activity_pub_note_excerpt_maxlength: "Maximale Länge von Beitragsauszügen in AcitivityPub-Notes (0 für keine maximale Länge)."
     activity_pub_note_link_to_forum: "Füge einen Link zu diesem Forum in die ActivityPub-Notizen ein."
+    activity_pub_require_signed_requests: "Erfordere, dass ActivityPub-Anfragen mit HTTP-Signaturen signiert werden."
     activity_pub_allowed_request_origins: "Liste der Domains, die ActivityPub-Anfragen stellen dürfen."
     activity_pub_blocked_request_origins: "Liste der Domains, die keine ActivityPub-Anfragen stellen dürfen."
     activity_pub_delivery_delay_minutes: "Anzahl der Minuten, um die Zustellung von ActivityPub-Aktivitäten zu verzögern (Lösch-Aktivitäten werden sofort zugestellt)."
     activity_pub_verbose_logging: "Aktiviere ausführliche ActivityPub-Protokolle."
     activity_pub_object_logging: "Alle ein- und ausgehenden ActivityPub-Objekte in den Protokollen ausgeben (erfordert „verbose logging“)."
+    activity_pub_post_status_visibility_groups: "Gruppen, die den Status der ActivityPub-Beiträge sehen können."
     activity_pub_logs_max_days_old: "Wie viele Tage die ActivityPub-Protokolle aufbewahrt werden."
+    errors:
+      signed_requests_required: Für diese Einstellung sind signierte Anfragen erforderlich.
