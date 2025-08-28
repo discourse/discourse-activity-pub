@@ -65,9 +65,21 @@ ru:
             title: Настройки сайта
             activity_pub_enabled:
               label: Плагин включен
+              title: Плагин ActivityPub включается настройкой сайта «Включить ActivityPub».
+              description: Входящие активности, адресованные включенным акторам, будут обработаны.
+            login_required:
+              label: Требуется авторизация
+              title: Авторизация необходима в соответствии с настройкой сайта «Требуется авторизация».
+              description: Публикуются только исходящие запросы на подписку и атрибуты включенных акторов.
           username: Имя пользователя
+          username_description: "Число символов: от %{min_length} до %{max_length}, допускаются буквы, цифры, дефисы или подчеркивания."
           name: Название
+          name_description: Может показываться как имя в ряде сервисов.
           default_visibility: Видимость
+          default_visibility_description: Все публикации будут отправляться через ActivityPub с этой видимостью.
+          post_object_type: Тип объекта публикации
+          post_object_type_description: Для коротких публикаций (например, Mastodon) используйте тип Note, а для длинных — Article.
+          publication_type: Тип публикации
           table:
             auth_type: Тип
             status: Статус

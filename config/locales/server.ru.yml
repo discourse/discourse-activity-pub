@@ -44,3 +44,5 @@ ru:
     topic:
       error:
         topic_not_found: "Тема не найдена"
+  site_settings:
+    activity_pub_enabled: "Включить плагин ActivityPub."
