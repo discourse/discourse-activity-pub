@@ -60,8 +60,8 @@ pt_BR:
         actor_not_found_for_key: "Ator não encontrado para a chave %{key_id}"
         signature_verification_failed: "Falha ao verificar %{id} por meio de rsa-sha256 (RSASSA-PKCS1-v1_5 com SHA-256)"
         signature_parse_failed: "Erro ao analisar assinatura"
-        date_must_be_signed: "É preciso assinar o cabeçalho de data ou o pseudo-cabeçalho (criado)"
-        digest_must_be_signed: "É preciso assinar o cabeçalho de compilação ou o pseudo-cabeçalho (alvo de solicitação)"
+        date_must_be_signed: "É preciso assinar o cabeçalho de data ou o pseudocabeçalho (criado)"
+        digest_must_be_signed: "É preciso assinar o cabeçalho de compilação ou o pseudocabeçalho (alvo de solicitação)"
         host_must_be_signed: "É preciso assinar o cabeçalho do host ao fazer uma solicitação GET"
         digest_must_be_signed_on_post: "É preciso assinar o cabeçalho de compilação ao fazer uma solicitação POST"
         digest_header_missing: "Falta cabeçalho de compilação"
@@ -69,9 +69,9 @@ pt_BR:
         invalid_digest_base64: "Valor do Digest inválido. O valor do Digest informado não é uma string de base64 válida. Digest atual: %{digest}"
         invalid_digest_sha256: "Valor do Digest inválido. O valor do Digest informado não é um Digest SHA-256. Digest atual: %{digest}"
         invalid_digest: "Valor do Digest inválido. Digest SHA-256 calculado: %{computed}, atual: %{digest}"
-        invalid_signature_pseudo_header: "Pseudo-cabeçalho de assinatura inválido (%{header})"
+        invalid_signature_pseudo_header: "Pseudocabeçalho de assinatura inválido (%{header})"
         invalid_date_header: "Cabeçalho Date inválido: %{reason}"
-        request_to_failed: "Falha na solicitação de %{method} par %{uri}: %{message}"
+        request_to_failed: "Falha na solicitação de %{method} para %{uri}: %{message}"
         request_from_failed: "Falha na solicitação de %{method} recebida por %{uri}: %{status} %{message}"
     process:
       warning:

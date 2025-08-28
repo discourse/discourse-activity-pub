@@ -25,6 +25,7 @@ nl:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "zijn vereist"
               invalid: "is ongeldig"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,13 +35,253 @@ nl:
           attributes:
             model_type:
               invalid: "is ongeldig"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: Het bewerken van een ActivityPub-opmerking na publicatie wordt momenteel niet ondersteund.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub is niet ingeschakeld"
+    request:
+      error:
+        json_not_valid: "Ongeldige JSON-LD"
+        not_found: "Geen object gevonden"
+        not_available: "ActivityPub is niet beschikbaar voor dat model"
+        bad_request: "Ongeldig verzoek"
+        not_authorized: "Niet geautoriseerd"
+        forbidden: "Verboden"
+        not_signed: "Verzoek niet ondertekend"
+        missing_signature_params: "Incompatibele verzoekondertekening. KeyID en ondertekening zijn vereist"
+        unsupported_signature_algorithm: "Niet-ondersteund ondertekeningsalgoritme (alleen rsa-sha256 en hs2019 worden ondersteund)"
+        stale_request: "Verzoekdatum buiten acceptabele periode"
+        invalid_signature_key: "Ongeldige handtekeningsleutel"
+        actor_not_found_for_key: "Actor niet gevonden voor sleutel %{key_id}"
+        signature_verification_failed: "Verificatie mislukt voor %{id} met rsa-sha256 (RSASSA-PKCS1-v1_5 met SHA-256)"
+        signature_parse_failed: "Fout bij parseren van handtekening"
+        date_must_be_signed: "Datumheader of (aangemaakte) pseudoheader moet ondertekend zijn"
+        digest_must_be_signed: "Digestheader of (request-target) pseudoheader moet ondertekend zijn"
+        host_must_be_signed: "Hostheader moet ondertekend zijn bij uitvoeren van een GET-verzoek"
+        digest_must_be_signed_on_post: "Digestheader moet ondertekend zijn bij uitvoeren van een POST-verzoek"
+        digest_header_missing: "Digestheader ontbreekt"
+        invalid_digest_header_algorithm: "Digestheader vereist SHA-256. Aangeboden algoritmen: %{algorithms}"
+        invalid_digest_base64: "Ongeldige digestwaarde. De opgegeven digestwaarde is geen geldige base64-tekenreeks. Verstrekte digest: %{digest}"
+        invalid_digest_sha256: "Ongeldige digestwaarde. De opgegeven digestwaarde is geen geldige SHA-265-digest. Verstrekte digest: %{digest}"
+        invalid_digest: "Ongeldige digestwaarde. Berekende SHA-256-digest: %{computed}; verstrekt: %{digest}"
+        invalid_signature_pseudo_header: "Ongeldige pseudoheader voor handtekening (%{header})"
+        invalid_date_header: "Ongeldige datumheader: %{reason}"
+        request_to_failed: "%{method}-verzoek naar %{uri} mislukt: %{message}"
+        request_from_failed: "%{method}-verzoek ontvangen door %{uri} mislukt: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Verwerken van %{object_id} mislukt"
+        cant_resolve_actor: "Kon actor niet oplossen"
+        cant_resolve_object: "Kon object niet oplossen"
+        object_not_supported: "Object wordt niet ondersteund"
+        cant_create_actor: "Kon actor niet aanmaken"
+        cant_find_object: "Kon object niet vinden"
+        object_not_ready: "Object is niet gereed"
+        activity_already_processed: "Activiteit is al verwerkt"
+        activity_not_supported: "Activiteit wordt niet ondersteund voor actor en object"
+        invalid_create_actor: "Acteur kan geen berichten maken"
+        cannot_reply_to_deleted_post: "Kan geen object aanmaken als antwoord op een verwijderd bericht"
+        undo_actor_must_match_object_actor: "Ongedaan/maken/actor moet overeenkomen met objectactor"
+        activity_host_must_match_object_host: "Activiteithost moet overeenkomen met objecthost"
+        cant_find_post: "Kan bericht niet vinden"
         post_is_deleted: "Bericht is verwijderd"
+        full_topic_not_enabled: "Volledig topic is niet ingeschakeld"
+        announce_not_publicly_addressed: "Aankondiging is niet openbaar geadresseerd."
+        actor_does_not_accept_new_topics: "Actor accepteert geen nieuwe topics."
+        only_followed_actors_create_new_topics: "Alleen gevolgde actors kunnen nieuwe topics aanmaken."
+        actor_already_following: "Actor volgt dat object al"
+        invalid_collection_item: "Ongeldig item"
+        cannot_resolve_context: "Kan objectcontext niet oplossen"
+        cant_resolve_collection: "Kan collectie niet oplossen"
+        actor_cannot_be_deleted: "Actor kan niet worden verwijderd"
+      error:
+        failed_to_create_user: "Gebruiker maken voor %{actor_id} mislukt"
+        failed_to_create_post: "Bericht maken voor %{object_id} mislukt"
+        failed_to_respond_to_follow: "Reageren op volging mislukt: %{activity_id}"
+        failed_to_save_activity: "Activiteit opslaan mislukt: %{activity_id}"
+        failed_to_save_object: "Object opslaan mislukt: %{object_id}"
+        failed_to_save_actor: "Actor opslaan mislukt: %{actor_id}"
+        failed_to_save_collection: "Collectie opslaan mislukt: %{collection_id}"
+      info:
+        shared_inbox: "gedeelde inbox"
+        received_json: "Ontvangen JSON geleverd aan %{delivered_to}"
+        processing_json: "JSON geleverd aan %{delivered_to} verwerken"
+    webfinger:
+      error:
+        resource_not_supported: "Bron wordt niet ondersteund"
+        resource_not_found: "Bron niet gevonden"
     category:
       error:
         category_not_found: "Categorie niet gevonden"
+    post:
+      error:
+        post_not_found: "Bericht niet gevonden"
+        cant_deliver_post: "Kan bericht niet leveren"
+        cant_publish_post: "Kan bericht niet publiceren"
+        cant_schedule_post: "Kan bericht niet plannen"
+        cant_unschedule_post: "Kan bericht niet ontplannen"
+        not_first_post: "Bericht is niet het eerste bericht"
+        failed_to_create: "Bericht maken voor %{object_id} mislukt: %{message}"
+      deleted: "Verwijdering ontvangen voor %{object_type} behorende bij het bericht."
     topic:
       error:
         topic_not_found: "Topic niet gevonden"
+        cant_publish_topic: "Kan topic niet publiceren"
+    user:
+      error:
+        failed_to_create: "Gebruiker maken voor %{actor_id} mislukt: %{message}"
+      destroyed: "Gebruiker vernietigd door ActivityPub-verwijderingsactiviteit: %{username}"
+    object:
+      note:
+        link_to_forum: Bespreek dit op ons forum.
+    actor:
+      followers:
+        summary: "Volgers van %{actor}"
+      outbox:
+        summary: "Activiteiten van %{actor}"
+      error:
+        actor_not_found: "Actor niet gevonden"
+        invalid_model: "Ongeldig model"
+        model_not_found: "Model niet gevonden"
+        target_actor_not_found: "Doelactor niet gevonden"
+        not_following_target_actor: "Actor volgt de doelactor niet"
+        cant_follow_target_actor: "Actor kan de doelactor niet volgen"
+        username_required: Om een actor aan te maken, is een ActivityPub-gebruikersnaam vereist.
+        full_topic_must_be_public: "Publicatie van een volledig topic vereist openbare publicatie."
+        user_not_authorized: "Gebruiker niet geautoriseerd"
+        not_following_actor: "Doelacteur volgt de actor niet"
+        actor_cant_be_restored: "Actor kan niet worden hersteld"
+      warning:
+        cant_create_model_for_actor_type: "Kan geen model maken voor %{actor_type} %{actor_id}"
+        cant_create_actor_for_model_type: "Kan geen actor maken voor %{model_type} %{model_id}"
+        not_allowed_to_create_actor_for_model: "Actor maken voor %{model_id} is niet toegestaan"
+        no_options: "Geen opties doorgegeven aan ActorHandler"
+        invalid_username: "Gebruikersnaam moet %{min_length} tot %{max_length} letters, cijfers, streepjes of onderstrepingstekens bevatten."
+        username_taken: "Deze gebruikersnaam is al in gebruik op deze server."
+    auth:
+      error:
+        not_enabled: "Autorisatie is niet ingeschakeld"
+        invalid_domain: "Ongeldig ActivityPub-domein"
+        invalid_auth_redirect: "Ongeldige autorisatieomleiding"
+        invalid_redirect_params: "Ongeldige omleidingsparameters"
+        authorization_required: "Autorisatierecord is vereist"
+        session_expired: "Autorisatiesessie verlopen"
+        failed_to_authorize: "Autorisatie mislukt"
+        failed_to_get_actor: "Actor ophalen mislukt"
+        failed_to_create_client: "Client aanmaken mislukt"
+        failed_to_verify_client: "Clientverificatie mislukt. Probeer het opnieuw."
+        failed_to_get_token: "Token ophalen mislukt"
+        failed_to_decrypt_payload: "Payload ontsleutelen mislukt"
+        failed_to_verify_nonce: "Nonceverificatie mislukt"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} kon %{object_id} niet inplannen voor levering: %{reason}"
+        failed_to_deliver: "%{from_actor} kon niet worden geleverd aan %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} geleverd aan %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} kon de outbox van %{target_actor} niet verwerken"
+          actors_not_ready: "Actors zijn niet gereed"
+          not_following_target: "%{actor} volgt %{target_actor} niet"
+          outbox_response_invalid: "outbox van %{target_actor} heeft een ongeldige respons geretourneerd"
+        info:
+          started: "%{actor} is begonnen met het verwerken van de activiteiten van %{target_actor}."
+          finished: "%{actor} is klaar met het verwerken van de activiteiten van %{target_actor}."
+          created_actors:
+            one: "%{count} actor gemaakt."
+            other: "%{count} actors gemaakt."
+          updated_actors:
+            one: "%{count} actor bijgewerkt."
+            other: "%{count} actors bijgewerkt."
+          created_objects:
+            one: "%{count} object gemaakt."
+            other: "%{count} objecten gemaakt."
+          updated_objects:
+            one: "%{count} object bijgewerkt."
+            other: "%{count} objecten bijgewerkt."
+          created_collections:
+            one: "%{count} collectie gemaakt."
+            other: "%{count} collecties gemaakt."
+          updated_collections:
+            one: "%{count} collectie bijgewerkt."
+            other: "%{count} collecties bijgewerkt."
+          created_activities:
+            one: "%{count} activiteit gemaakt."
+            other: "%{count} activiteiten gemaakt."
+          updated_activities:
+            one: "%{count} activiteit bijgewerkt."
+            other: "%{count} activiteiten bijgewerkt."
+          created_users:
+            one: "%{count} gebruiker gemaakt."
+            other: "%{count} gebruikers gemaakt."
+          updated_users:
+            one: "%{count} gebruiker bijgewerkt."
+            other: "%{count} gebruikers bijgewerkt."
+          created_topics:
+            one: "%{count} topic gemaakt."
+            other: "%{count} topics gemaakt."
+          updated_topics:
+            one: "%{count} topic bijgewerkt."
+            other: "%{count} topics bijgewerkt."
+          created_replies:
+            one: "%{count} antwoord gemaakt."
+            other: "%{count} antwoorden gemaakt."
+          updated_replies:
+            one: "%{count} antwoord bijgewerkt."
+            other: "%{count} antwoorden bijgewerkt."
+      publish:
+        warning:
+          publish_did_not_start: "Bulkpublicatie van activiteiten van %{target} mislukt"
+          actor_not_found: "Actor niet gevonden"
+          actor_not_ready: "Actor is niet gereed"
+          actor_model_not_supported: "Actormodel wordt niet ondersteund"
+        info:
+          started: "Begonnen met publiceren van de activiteiten van %{target}."
+          finished: "Klaar met publiceren van de activiteiten van %{target}."
+          created_actors:
+            one: "%{count} actor gemaakt."
+            other: "%{count} actors gemaakt."
+          updated_actors:
+            one: "%{count} actor bijgewerkt."
+            other: "%{count} actors bijgewerkt."
+          created_objects:
+            one: "%{count} object gemaakt."
+            other: "%{count} objecten gemaakt."
+          updated_objects:
+            one: "%{count} object bijgewerkt."
+            other: "%{count} objecten bijgewerkt."
+          created_collections:
+            one: "%{count} collectie gemaakt."
+            other: "%{count} collecties gemaakt."
+          updated_collections:
+            one: "%{count} collectie bijgewerkt."
+            other: "%{count} collecties bijgewerkt."
+          created_activities:
+            one: "%{count} activiteit gemaakt."
+            other: "%{count} activiteiten gemaakt."
+          updated_activities:
+            one: "%{count} activiteit bijgewerkt."
+            other: "%{count} activiteiten bijgewerkt."
+  site_settings:
+    activity_pub_enabled: "ActivityPub-plug-in inschakelen"
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Aantal POST-verzoeken dat per minuut naar de inbox van een actor kan worden gestuurd."
+    activity_pub_rate_limit_get_objects_per_minute: "Aantal GET-verzoeken dat per minuut kan worden gedaan op AcitivityPub-objecten."
+    activity_pub_note_excerpt_maxlength: "Maximale lengte van berichtuittreksels in AcitivityPub-opmerkingen (0 is geen maximale lengte)."
+    activity_pub_note_link_to_forum: "Voeg een link naar dit forum toe aan de ActivityPub-opmerkingen."
+    activity_pub_require_signed_requests: "Vereisen dat ActivityPub-verzoeken worden ondertekend met HTTP-handtekeningen."
+    activity_pub_allowed_request_origins: "Lijst van domeinen die ActivityPub-verzoeken mogen doen."
+    activity_pub_blocked_request_origins: "Lijst van domeinen die geen ActivityPub-verzoeken mogen doen."
+    activity_pub_delivery_delay_minutes: "Aantal minuten om te vertragen bij de levering van ActivityPub-activiteiten (verwijderingsactiviteiten worden direct geleverd)."
+    activity_pub_verbose_logging: "Uitgebreide ActivityPub-logs inschakelen"
+    activity_pub_object_logging: "Voeg alle inkomende en uitgaande ActivityPub-objecten toe aan de logs (vereist uitgebreide logging)."
+    activity_pub_post_status_visibility_groups: "Groepen die ActivityPub-berichtstatussen kunnen zien."
+    activity_pub_logs_max_days_old: "Hoeveel dagen ActivityPub-logs worden bewaard."
+    errors:
+      signed_requests_required: Voor deze instelling zijn ondertekende verzoeken vereist.

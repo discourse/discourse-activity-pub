@@ -25,6 +25,7 @@ ar:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "مطلوبة"
               invalid: "غير صالح"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,13 +35,187 @@ ar:
           attributes:
             model_type:
               invalid: "غير صالح"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: تحرير ملاحظة ActivityPub بعد النشر غير مدعوم حاليًا.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "تم تعطيل ActivityPub"
+    request:
+      error:
+        json_not_valid: "JSON-LD غير صالح"
+        not_found: "لم يتم العثور على أي كائن"
+        not_available: "ActivityPub غير متاح لهذا النموذج"
+        bad_request: "طلب خاطئ"
+        not_authorized: "غير مصرح به"
+        forbidden: "ممنوع"
+        not_signed: "الطلب غير موقّع"
+        missing_signature_params: "توقيع الطلب غير متوافق. الحقول keyId و signature مطلوبة"
+        unsupported_signature_algorithm: "خوارزمية التوقيع غير مدعومة (يتم دعم rsa-sha256 و hs2019 فقط)"
+        stale_request: "تاريخ الطلب خارج نافذة الوقت المقبولة"
+        invalid_signature_key: "مفتاح التوقيع غير صالح"
+        actor_not_found_for_key: "لم يتم العثور على جهة فاعلة مرتبطة بالمفتاح %{key_id}"
+        signature_verification_failed: "فشل التحقق لـ %{id} باستخدام rsa-sha256 (RSASSA-PKCS1-v1_5 مع SHA-256)"
+        signature_parse_failed: "حدث خطأ أثناء تحليل التوقيع"
+        date_must_be_signed: "يجب توقيع رأس التاريخ أو الرأس الزائف (الذي تم إنشاؤه)"
+        digest_must_be_signed: "يجب توقيع رأس التجزئة أو الرأس الزائف (هدف الطلب)"
+        host_must_be_signed: "يجب توقيع رأس المضيف عند إجراء طلب GET"
+        digest_must_be_signed_on_post: "يجب توقيع رأس التجزئة عند إجراء طلب POST"
+        digest_header_missing: "رأس التجزئة مفقود"
+        invalid_digest_header_algorithm: "يتطلب رأس الملخص SHA-256. الخوارزميات المتوفرة: %{algorithms}"
+        invalid_digest_base64: "قيمة التجزئة غير صالحة. القيمة المقدمة ليست سلسلة Base64 صالحة. التجزئة المقدمة: %{digest}"
+        invalid_digest_sha256: "قيمة التجزئة غير صالحة. القيمة المقدمة ليست تجزئة بصيغة SHA-256. التجزئة المقدمة: %{digest}"
+        invalid_digest: "قيمة التجزئة غير صالحة. التجزئة المحسوبة باستخدام SHA-256: %{computed}؛ بينما التجزئة المقدمة: %{digest}"
+        invalid_signature_pseudo_header: "رأس زائف بتوقيع غير صالح (%{header})"
+        invalid_date_header: "رأس التاريخ غير صالح: ‎%{reason}"
+        request_to_failed: "تعذّر تنفيذ طلب ‎%{method} الموجّه إلى ‎%{uri}: ‎%{message}"
+        request_from_failed: "تعذّر تنفيذ طلب ‎%{method} المستلَم من ‎%{uri}: ‎%{status} ‎%{message}"
     process:
       warning:
+        failed_to_process: "تعذّرت معالجة ‎%{object_id}"
+        cant_resolve_actor: "تعذّر حلّ الجهة الفاعلة"
+        cant_resolve_object: "تعذّر حلّ الكائن"
+        object_not_supported: "الكائن غير مدعوم"
+        cant_create_actor: "تعذّر إنشاء الجهة الفاعلة"
+        cant_find_object: "تعذّر العثور على الكائن"
+        object_not_ready: "الكائن غير جاهز"
+        activity_already_processed: "تمت معالجة النشاط بالفعل"
+        activity_not_supported: "النشاط غير مدعوم للجهة الفاعلة والكائن"
+        invalid_create_actor: "لا يمكن للجهة الفاعلة إنشاء منشورات"
+        cannot_reply_to_deleted_post: "لا يمكن إنشاء كائن ردًا على منشور محذوف"
+        undo_actor_must_match_object_actor: "يتعيّن أن تكون الجهة الفاعلة المنفِّذة لعملية الإلغاء مطابقةً للجهة الفاعلة المرتبطة بالكائن"
+        activity_host_must_match_object_host: "يتعيّن أن يكون المضيف المرتبط بالنشاط مطابقًا للمضيف الخاص بالكائن"
+        cant_find_post: "تعذّر العثور على المنشور"
         post_is_deleted: "تم حذف المنشور"
+        full_topic_not_enabled: "لم يُفعل الموضوع الكامل (Full topic)"
+        announce_not_publicly_addressed: "لم يُوجَّه الإعلان على نحوٍ علني إلى العموم."
+        actor_does_not_accept_new_topics: "لا تقبل الجهة الفاعلة إضافة موضوعات جديدة."
+        only_followed_actors_create_new_topics: "يُسمح بإنشاء موضوعات جديدة حصريًا للجهات الفاعلة التي يجري متابعتها."
+        actor_already_following: "تتابع الجهة الفاعلة هذا الكائن بالفعل"
+        invalid_collection_item: "عنصر غير صالح"
+        cannot_resolve_context: "تعذّر حلّ السياق المرتبط بالكائن"
+        cant_resolve_collection: "تعذّر حل المجموعة"
+        actor_cannot_be_deleted: "لا يمكن حذف الجهة الفاعلة"
+      error:
+        failed_to_create_user: "تعذّر إنشاء حساب مستخدم للجهة الفاعلة ‎%{actor_id}"
+        failed_to_create_post: "تعذّر إنشاء منشور مرتبط بالكائن ‎%{object_id}"
+        failed_to_respond_to_follow: "تعذّر الرد على طلب المتابعة: ‎%{activity_id}"
+        failed_to_save_activity: "تعذّر حفظ النشاط المحدد: ‎%{activity_id}"
+        failed_to_save_object: "تعذّر حفظ الكائن المحدد: ‎%{object_id}"
+        failed_to_save_actor: "تعذّر حفظ الجهة الفاعلة المحددة: ‎%{actor_id}"
+        failed_to_save_collection: "تعذّر حفظ المجموعة المحددة: ‎%{collection_id}"
+      info:
+        shared_inbox: "صندوق الوارد المشترك"
+        received_json: "تم استلام ملف JSON وتسليمه إلى ‎%{delivered_to}"
+        processing_json: "جاري معالجة JSON المرسل إلى ‎%{delivered_to}"
+    webfinger:
+      error:
+        resource_not_supported: "المورد غير مدعوم"
+        resource_not_found: "تعذّر العثور على المورد"
     category:
       error:
         category_not_found: "لم يتم العثور على الفئة"
+    post:
+      error:
+        post_not_found: "المنشور غير موجود"
+        cant_deliver_post: "لا يمكن تسليم المنشور"
+        cant_publish_post: "لا يمكن نشر المنشور"
+        cant_schedule_post: "لا يمكن جدولة المنشور"
+        cant_unschedule_post: "لا يمكن إلغاء جدولة المنشور"
+        not_first_post: "المنشور ليس المنشور الأول"
+        failed_to_create: "تعذّر إنشاء منشور مرتبط بالكائن ‎%{object_id}، للأسباب التالية: ‎%{message}"
+      deleted: "تم استلام طلب حذف لـ ‎%{object_type} المرتبط بالمنشور."
     topic:
       error:
         topic_not_found: "الموضوع غير موجود"
+        cant_publish_topic: "لا يمكن نشر الموضوع"
+    user:
+      error:
+        failed_to_create: "تعذّر إنشاء حساب مستخدم للجهة الفاعلة ‎%{actor_id} للأسباب التالية: ‎%{message}"
+      destroyed: "تمت إزالة المستخدم ‎%{username} نتيجة نشاط الحذف في ActivityPub"
+    object:
+      note:
+        link_to_forum: ناقش هذا الأمر في منتدانا.
+    actor:
+      followers:
+        summary: "المتابعون للجهة الفاعلة ‎%{actor}"
+      outbox:
+        summary: "أنشطة %{actor}"
+      error:
+        actor_not_found: "لم يتم العثور على الجهة الفاعلة"
+        invalid_model: "النموذج غير صالح"
+        model_not_found: "النموذج غير موجود"
+        target_actor_not_found: "تعذّر إيجاد الجهة الفاعلة المستهدفة"
+        not_following_target_actor: "الجهة الفاعلة لا تتابع الجهة الفاعلة المستهدفة"
+        cant_follow_target_actor: "يتعذّر على الجهة الفاعلة متابعة الجهة الفاعلة المستهدفة"
+        username_required: مطلوب اسم مستخدم ActivityPub لإنشاء الجهة الفاعلة.
+        full_topic_must_be_public: "يتطلّب نشر الموضوع الكامل (Full topic) أن يكون النشر علنيًا."
+        user_not_authorized: "المستخدم غير مصرح له"
+        not_following_actor: "الجهة الفاعلة المستهدفة لا تتابع الجهة الفاعلة"
+        actor_cant_be_restored: "لا يمكن استعادة الجهة الفاعلة"
+      warning:
+        cant_create_model_for_actor_type: "لا يمكن إنشاء نموذج للجهة الفاعلة ‎%{actor_type} ‎%{actor_id}"
+        cant_create_actor_for_model_type: "لا يمكن إنشاء جهة فاعلة للنموذج ‎%{model_type} ‎%{model_id}"
+        not_allowed_to_create_actor_for_model: "لا يُسمح بإنشاء جهة فاعلة مرتبطة بالنموذج ‎%{model_id}"
+        no_options: "تعذّر تمرير أي خيارات إلى معالج الجهة الفاعلة"
+        invalid_username: "يجب أن يتكون اسم المستخدم من ‎%{min_length} إلى ‎%{max_length} حروف أو أرقام أو شرطات أو شرطات سفلية."
+        username_taken: "اسم المستخدم هذا مأخوذ بالفعل على هذا الخادم."
+    auth:
+      error:
+        not_enabled: "المصادقة غير مفعّلة"
+        invalid_domain: "نطاق ActivityPub غير صالح"
+        invalid_auth_redirect: "إعادة التوجيه الخاصة بالمصادقة غير صالحة"
+        invalid_redirect_params: "معلمات إعادة التوجيه غير صالحة"
+        authorization_required: "سجل التفويض مطلوب"
+        session_expired: "انتهت مدة صلاحية جلسة التفويض"
+        failed_to_authorize: "تعذّر إتمام عملية التفويض"
+        failed_to_get_actor: "تعذّر الحصول على بيانات الجهة الفاعلة"
+        failed_to_create_client: "تعذّر إنشاء العميل"
+        failed_to_verify_client: "تعذّر التحقق من العميل. يرجى المحاولة مرة أخرى."
+        failed_to_get_token: "تعذّر الحصول على الرمز المميَّز"
+        failed_to_decrypt_payload: "تعذّر فك تشفير الحمولة"
+        failed_to_verify_nonce: "تعذّر التحقق من nonce"
+    deliver:
+      warning:
+        failed_to_schedule: "تعذّرت على الجهة الفاعلة ‎%{actor_id} جدولة الكائن ‎%{object_id} بغرض التسليم، وذلك للأسباب التالية: ‎%{reason}"
+        failed_to_deliver: "تعذّر على الجهة الفاعلة ‎%{from_actor} إتمام عملية التسليم إلى ‎%{send_to}"
+      info:
+        successfully_delivered: "تمكّنت الجهة الفاعلة ‎%{from_actor} من إتمام عملية التسليم بنجاح إلى ‎%{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "تعذّر على الجهة الفاعلة ‎%{actor} معالجة صندوق الصادر (Outbox) الخاص بالجهة الفاعلة ‎%{target_actor}"
+          actors_not_ready: "الجهات الفاعلة غير جاهزة"
+          not_following_target: "الجهة الفاعلة ‎%{actor} لا تتابع الجهة الفاعلة المستهدفة ‎%{target_actor}"
+          outbox_response_invalid: "أعاد صندوق الصادر الخاص بالجهة الفاعلة ‎%{target_actor} استجابةً غير صالحة"
+        info:
+          started: "بدأت الجهة الفاعلة ‎%{actor} معالجة أنشطة الجهة الفاعلة ‎%{target_actor}."
+          finished: "أنهت الجهة الفاعلة ‎%{actor} معالجة أنشطة الجهة الفاعلة ‎%{target_actor}."
+      publish:
+        warning:
+          publish_did_not_start: "تعذّر نشر أنشطة ‎%{target} بشكل جماعي"
+          actor_not_found: "لم يتم العثور على الجهة الفاعلة"
+          actor_not_ready: "الجهة الفاعلة غير جاهزة"
+          actor_model_not_supported: "نموذج الجهة الفاعلة غير مدعوم"
+        info:
+          started: "بدأ نشر أنشطة ‎%{target}."
+          finished: "تم استكمال نشر أنشطة ‎%{target}."
+  site_settings:
+    activity_pub_enabled: "فعّل إضافة ActivityPub."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "عدد طلبات POST التي يمكن إرسالها إلى صندوق الوارد للجهة الفاعلة في الدقيقة الواحدة."
+    activity_pub_rate_limit_get_objects_per_minute: "عدد طلبات GET التي يمكن إجراؤها على كائنات ActivityPub في الدقيقة الواحدة."
+    activity_pub_note_excerpt_maxlength: "الحد الأقصى لطول مقتطفات المنشورات في ملاحظات ActivityPub (0 لعدم وجود حد أقصى)."
+    activity_pub_note_link_to_forum: "يُرجى تضمين رابط هذا المنتدى ضمن ملاحظات ActivityPub."
+    activity_pub_require_signed_requests: "اشتراط توقيع طلبات ActivityPub باستخدام توقيعات HTTP."
+    activity_pub_allowed_request_origins: "قائمة النطاقات المسموح لها بإجراء طلبات ActivityPub."
+    activity_pub_blocked_request_origins: "قائمة النطاقات غير المسموح لها بإجراء طلبات ActivityPub."
+    activity_pub_delivery_delay_minutes: "عدد الدقائق لتأخير تسليم أنشطة ActivityPub (تُسلم أنشطة الحذف فورًا)."
+    activity_pub_verbose_logging: "تفعيل سجلات ActivityPub التفصيلية."
+    activity_pub_object_logging: "طباعة جميع كائنات ActivityPub الواردة والصادرة في السجلات (يتطلب تفعيل السجلات التفصيلية)."
+    activity_pub_post_status_visibility_groups: "المجموعات التي يمكنها مشاهدة حالات منشورات ActivityPub."
+    activity_pub_logs_max_days_old: "كم عدد الأيام التي يُحتفظ فيها بسجلات ActivityPub."
+    errors:
+      signed_requests_required: يُشترط توقيع الطلبات لهذا الإعداد.

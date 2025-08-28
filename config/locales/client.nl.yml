@@ -7,34 +7,94 @@
 nl:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: ActivityPub-categorie-actor toevoegen
+              label: Categorie-actor toevoegen
+            tag:
+              title: ActivityPub-tagactor toevoegen
+              label: Tagactor toevoegen
+          save:
+            title: ActivityPub-actor opslaan
+            label: Actor opslaan
           delete:
+            title: ActivityPub-actor verwijderen
+            label: Actor verwijderen
+            failed: Niet verwijderd
             confirm:
               title: "Weet je zeker dat je %{actor} wilt verwijderen?"
+              message: |
+                <ul>
+                <li>%{actor} is niet langer beschikbaar voor het fediversum.</li>
+                <li>Het %{model} %{model_type} wordt niet verwijderd.</li>
+                <li>Verwijderde actors kunnen worden hersteld.</li>
+                </ul>
           restore:
+            title: ActivityPub-actor herstellen
             label: Herstellen
+          destroy:
+            title: ActivityPub-actor vernietigen
+            label: Vernietigen
+            confirm:
+              title: Weet je zeker dat je %{actor} wilt vernietigen?
+              message: |
+                <ul>
+                <li>%{actor} worden vernietigd.</li>
+                <li>Het %{model} %{model_type} wordt niet vernietigd.</li>
+                <li>Vernietigde actors kunnen niet worden hersteld.</li>
+                </ul>
           edit:
+            title: ActivityPub-actor bewerken
             label: Bewerken
           deleted:
+            title: ActivityPub-actor verwijderd
             label: Verwijderd
           enabled:
+            title: ActivityPub-actor ingeschakeld
             label: Ingeschakeld
           disabled:
+            title: ActivityPub-actor uitgeschakeld
             label: Uitgeschakeld
           site_setting:
             title: Site-instellingen
+            activity_pub_enabled:
+              label: Plug-in is ingeschakeld
+              title: De ActivityPub-plug-in wordt ingeschakeld via de site-instelling ActivityPub ingeschakeld.
+              description: Inkomende activiteiten gericht aan ingeschakelde actors worden verwerkt.
+            login_required:
+              label: Aanmelden is vereist
+              title: Aanmelden is vereist volgens de site-instelling Aanmelden vereist.
+              description: Alleen uitgaande volgverzoeken en de attributen van ingeschakelde actors worden gepubliceerd.
           username: Gebruikersnaam
+          username_description: "%{min_length} tot %{max_length} letters, cijfers, streepjes of onderstrepingstekens."
           name: Naam
+          name_description: Wordt gebruikt als weergavenaam bij sommige services.
           default_visibility: Zichtbaarheid
+          default_visibility_description: Alle berichten worden met deze zichtbaarheid gepubliceerd via ActivityPub.
+          post_object_type: Berichtobjecttype
+          post_object_type_description: Gebruik Opmerking voor korte content (bijvoorbeeld Mastodon) en Artikel voor lange content.
+          publication_type: Publicatietype
+          publication_type_description: Eerste bericht publiceert het eerste bericht in elk topic. Volledig topic publiceert alle berichten en verwerkt antwoorden.
           table:
+            actor: Actor
+            model: Model
             auth_type: Type
             status: Status
             actions: Acties
           category:
             label: Categorieën
+            title: Categorie-actors
+            none: Selecteer een categorie
           tag:
             label: Tags
+            title: Tagactors
+            none: Selecteer een tag
             filter: filter tags
         log:
           label: Logs
@@ -43,44 +103,249 @@ nl:
           level: Niveau
           message: Bericht
           json:
+            label: JSON
+            title: Activiteit-JSON
+            show:
+              label: JSON
+              title: Activiteit-JSON weergeven
             copy:
               label: Kopiëren
+              title: JSON kopiëren naar klembord
               success: Gekopieerd!
+            logged_at: '%{logged_at} gelogd'
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Federatie
+          title: Verken de ActivityPub-federatie van deze community
+        title: Federatie
+        description: Deze categorieën en tags ondersteunen ActivityPub-federatie. Als je Mastodon of andere ActivityPub-platforms gebruikt, kun je ze volgen om hun topics en berichten te zien in je feed.
         categories: Categorieën
         tags: Tags
+        actor:
+          follower_count:
+            one: "%{count} volger"
+            other: "%{count} volgers"
       status:
+        title:
+          publishing_disabled: ActivityPub-publicatie is uitgeschakeld door de site-instelling "Aanmelden vereist". Inkomende activiteiten en uitgaande volgingen zijn ingeschakeld.
+          plugin_disabled: De ActivityPub-plug-in is uitgeschakeld
+          category_read_restricted: ActivityPub werkt niet met privécategorieën
+          model_disabled: ActivityPub is uitgeschakeld voor deze %{model_type}
+          model_not_ready: ActivityPub is niet gereed voor deze %{model_type}
+          model_not_active: ActivityPub is niet actief voor deze %{model_type}
+          model_active:
+            first_post: Het eerste bericht van een nieuw topic wordt %{delay_minutes} minuten na plaatsing gepubliceerd
         label:
           active: Actief
+          not_active: Niet actief
+          publishing_disabled: Publicatie uitgeschakeld
+      discovery:
+        label: Federatie
+        description: Federatie voor %{model_name}
+        followers: Volgers
+        follows: Volgingen
+      banner:
+        text: Volg %{model_name} op elke service die federatie ondersteunt
+        responsive_text: Gefedereerd
+        public_full_topic: Elk bericht van elk topic wordt openbaar gepubliceerd via ActivityPub.
+        public_first_post: Het eerste bericht van elk topic wordt openbaar gepubliceerd via ActivityPub.
+        followers_only_full_topic: Elk bericht van elk topic wordt alleen gepubliceerd naar ActivityPub-volgers.
+        followers_only_first_post: Het eerste bericht van elk topic wordt alleen gepubliceerd naar ActivityPub-volgers.
+      handle:
+        label: Op andere ActivityPub-services
+        description: Gebruik deze handle om deze categorie te vinden en te volgen.
       follow:
+        label: Volgen
+        title: Volg %{actor} via ActivityPub
         domain:
+          label: Mastodon
           placeholder: domein
+          btn_label: Volgen
+          btn_title: Volgen op dit Mastodon-domein
+          description: domein van je Mastodon-account
+          verifying: domein verifiëren...
+          invalid: geen geldig Mastodon-domein
+      actor_follow:
+        label: Nieuwe volging
+        title: Nieuwe volging voor %{actor} via ActivityPub
+        find:
+          label: Zoek een actor om te volgen
+          btn_label: Zoeken
+          btn_title: Handle zoeken
+          description: "bijvoorbeeld @announcements@meta.discourse.org"
+          validating: handle valideren...
+          invalid: geen geldige handle
+          finding: actor zoeken...
+          not_found: 'kon "%{handle}" niet vinden'
+        follow:
+          label: Volgen
+          title: 'Maak een volging van "%{follow_actor}" voor %{actor}'
+        following:
+          label: Gevolgd
+          title: '%{actor} volgt %{follow_actor}'
+        follow_requested:
+          label: Volgen verzocht
+          title: '%{actor} heeft verzocht om %{follow_actor} te volgen'
+      actor_unfollow:
+        label: Ontvolgen
+        title: Ontvolging voor %{actor} via ActivityPub
+        modal_title: Ontvolging bevestigen
+        confirm: Weet je zeker dat je wilt dat %{actor} %{followed_actor} ontvolgt?
       actor_reject:
         label: Weigeren
+        title: Ontvolging van %{actor} via ActivityPub weigeren
+        modal_title: Weigering van ontvolging bevestigen
+        confirm: Weet u zeker dat je %{follower} wilt weigeren om %{actor} te volgen?
       follow_table:
+        actor: Actor
         user: Gebruiker
+        followed_at: Gevolgd
         follow_pending: wachtend
         actions: Acties
       visibility:
         label:
+          private: Alleen volgers
           public: Openbaar
+        description:
+          private: "%{object_type} is geadresseerd aan volgers."
+          public: "%{object_type} is openbaar geadresseerd."
       object_type:
         label:
           note: Opmerking
+          article: Artikel
+          collection: Collectie
+          ordered_collection: Geordende collectie
+        description:
+          note: Het beste voor microblogplatforms (zoals Mastodon).
+          article: Het beste voor platforms met lange content (zoals Lemmy).
+      publication_type:
+        label:
+          first_post: Eerste bericht
+          full_topic: Volledig topic
+        description:
+          first_post: Het eerste bericht van elk topic in deze %{model_type} wordt gepubliceerd via ActivityPub.
+          full_topic: Elk bericht van elk topic in deze %{model_type} wordt gepubliceerd via ActivityPub en antwoorden op andere ActivityPub-servers worden geïmporteerd als antwoorden in Discourse.
+      copy_uri:
+        copied: URI gekopieerd!
       model:
         actions: Acties
+        group_actors: Groepsactors
+        attributes: Attributen
         status: Status
+        menu: ActivityPub-acties...
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub voor bericht %{post_number}"
+        status:
+          published: "Bericht is gepubliceerd via ActivityPub op %{datetime}."
+          scheduled: "Bericht is gepland voor publicatie via ActivityPub op %{datetime}."
+          scheduled_past: "Bericht was gepland voor publicatie via ActivityPub op %{datetime}."
+          deleted: "Bericht is verwijderd via ActivityPub op %{datetime}."
+          updated: "Bericht is bijgewerkt via ActivityPub op %{datetime}."
+          published_remote: "Bericht is gepubliceerd via ActivityPub door %{actor} op %{datetime}."
+          not_published: "Bericht is niet gepubliceerd via ActivityPub."
+          delivered: "Bericht is geleverd via ActivityPub op %{datetime}."
+        info_status:
+          published: "Bericht is gepubliceerd op %{datetime}."
+          scheduled: "Bericht is gepland voor publicatie op %{datetime}."
+          scheduled_past: "Bericht was gepland voor publicatie op %{datetime}."
+          deleted: "Bericht is verwijderd op %{datetime}."
+          updated: "Bericht is bijgewerkt op %{datetime}."
+          published_remote: "Bericht is gepubliceerd op %{datetime}."
+          not_published: "Bericht is niet gepubliceerd."
+          delivered: "Bericht is geleverd op %{datetime}."
+        actions:
+          publish:
+            label: "Bericht %{post_number} publiceren"
+            description:
+              followers: "Publiceer bericht %{post_number} en deel het met de volgers van de groepsactors."
+              no_followers: "Publiceer bericht %{post_number} zonder het te leveren. De groepsactors hebben geen volgers om aan te leveren."
+              topic_not_published: "Publicatie is uitgeschakeld voor bericht %{post_number}. Topic %{topic_id} is niet gepubliceerd."
+              post_is_scheduled: "Publicatie is uitgeschakeld voor bericht %{post_number}. Bericht %{post_number} is gepland voor publicatie."
+          deliver:
+            label: "Bericht %{post_number} leveren"
+            description:
+              followers: "Lever bericht %{post_number} aan de volgers van de groepsactors."
+              no_followers: "Levering is uitgeschakeld voor bericht %{post_number}. De groepsactors hebben geen volgers om aan te leveren."
+              topic_not_delivered: "Levering is uitgeschakeld voor bericht %{post_number}. Topic %{topic_id} is niet geleverd."
+              delivered: "Bericht %{post_number} is zojuist geleverd aan de volgers van de groepsactors."
+          schedule:
+            label: "Bericht %{post_number} plannen"
+            description:
+              followers: "Publiceer bericht %{post_number} en deel het met de volgers van de groepsactors in %{minutes} minuten."
+              no_followers: "Planning is uitgeschakeld voor bericht %{post_number}. De groepsactors hebben geen volgers om aan te leveren."
+          unschedule:
+            label: "Bericht %{post_number} ontplannen"
+            description: "Publicatie van bericht %{post_number} ontplannen."
+    topic:
+      discourse_activity_pub:
+        title: "ActivityPub voor topic %{topic_id}"
+        status:
+          scheduled: Topic is gepland voor publicatie via ActivityPub op %{datetime}.
+          scheduled_past: Topic was gepland voor publicatie via ActivityPub op %{datetime}.
+          published: Topic is gepubliceerd via ActivityPub op %{datetime}.
+          published_remote: Topic is gepubliceerd via ActivityPub door %{actor} op %{datetime}.
+          deleted: Topic is verwijderd via ActivityPub op %{datetime}.
+          not_published: Topic is niet gepubliceerd via ActivityPub.
+        info_status:
+          scheduled: "Topic is gepland voor publicatie op %{datetime}."
+          scheduled_past: "Topic was gepland voor publicatie op %{datetime}."
+          published: "Topic is gepubliceerd op %{datetime}."
+          published_remote: "Topic is gepubliceerd op %{datetime}."
+          deleted: "Topic is verwijderd op %{datetime}."
+          not_published: "Topic is niet gepubliceerd."
+        posts_status:
+          label: Berichtenstatus
+          published: Alle berichten in dit topic zijn gepubliceerd.
+          some_published: "%{count} van %{total} berichten in dit topic zijn gepubliceerd."
+          none_published: Er zijn geen berichten in dit topic gepubliceerd.
+          scheduled: Dit topic is gepland voor publicatie.
+        actions:
+          label: Topicacties
+        actors:
+          label: Topicactors
+        publish:
+          label: Alle berichten publiceren
+          description:
+            unpublished: "Publiceer %{count} ongepubliceerde berichten in topic %{topic_id}. Berichten worden niet geleverd aan de volgers van de groepsactors."
+            published: "Publicatie van alle berichten is uitgeschakeld. Alle berichten in topic %{topic_id} zijn al gepubliceerd."
+            scheduled: "Publicatie van alle berichten is uitgeschakeld. Topic %{topic_id} is gepland voor publicatie."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Gekoppelde actors
+          description: Berichten behorende bij een gekoppelde actor worden aan jouw account toegewezen.
+        actor: Actor
         auth_type: Type
         actions: Acties
         authorize:
           auth_type:
+            none:
+              label: Selecteer een type...
+              placeholder: "voer een domein in"
+            mastodon:
+              title: Mastodon
+              placeholder: bijvoorbeeld mastodon.social
             discourse:
               title: Discourse
+              placeholder: bijvoorbeeld meta.discourse.org
+        clear_domain_button:
+          title: Wis het geverifieerde domein.
+        verify_domain_button:
+          label: Verifiëren
+          title: Controleer of het domein wordt ondersteund.
         authorize_button:
           label: Autoriseren
+          title: Autoriseer een actor op het domein.
+        authorize_error:
+          title: Autorisatie mislukt
+        authorizations:
+          title: Gekoppelde actors
+        authorization:
+          confirm_remove: Weet je zeker dat je de koppeling met %{handle} wilt verwijderen?
         remove_authorization_button:
+          title: Autorisatie verwijderen
           label: Verwijderen

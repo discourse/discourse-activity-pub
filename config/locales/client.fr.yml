@@ -174,30 +174,178 @@ fr:
           label: Cherchez un acteur à suivre
           btn_label: Chercher
           btn_title: Chercher l'identifiant
+          description: "p. ex., @announcements@meta.discourse.org"
+          validating: validation de l'identifiant...
+          invalid: pas un identifiant valide
+          finding: recherche de l'acteur...
+          not_found: 'impossible de trouver « %{handle} »'
+        follow:
+          label: Suivre
+          title: 'Créez un suivi de « %{follow_actor} » pour %{actor}'
+        following:
+          label: Suivis
+          title: '%{actor} suit %{follow_actor}'
+        follow_requested:
+          label: Suivi demandé
+          title: '%{actor} a demandé à suivre %{follow_actor}'
+      actor_unfollow:
+        label: Ne plus suivre
+        title: Ne plus suivre %{actor} via ActivityPub
+        modal_title: Confirmer le désabonnement
+        confirm: Voulez-vous vraiment que %{actor} arrête le suivi de %{followed_actor} ?
       actor_reject:
         label: Rejeter
+        title: Rejeter le suivi de %{actor} via ActivityPub
+        modal_title: Confirmer le rejet du suivi
+        confirm: Voulez-vous vraiment rejeter l'arrêt du suivi de %{actor} par %{follower} ?
       follow_table:
+        actor: Acteur
         user: Utilisateur
+        followed_at: Suivi
         follow_pending: en attente
         actions: Actions
       visibility:
         label:
+          private: Abonnés uniquement
           public: Public
+        description:
+          private: "%{object_type} s'adresse aux abonnés."
+          public: "%{object_type} est adressé publiquement."
       object_type:
         label:
           note: Note
+          article: Article
+          collection: Collection
+          ordered_collection: Collection ordonnée
+        description:
+          note: Idéal pour les plateformes de microblogging (p. ex., Mastodon).
+          article: Idéal pour les plateformes longues (p. ex., Lemmy).
+      publication_type:
+        label:
+          first_post: Première publication
+          full_topic: Sujet complet
+        description:
+          first_post: La première publication de chaque sujet de ce %{model_type} est publiée via ActivityPub.
+          full_topic: Chaque publication de chaque sujet de ce %{model_type} est publiée via ActivityPub et les réponses sur d'autres serveurs ActivityPub sont importées en tant que réponses dans Discourse.
+      copy_uri:
+        copied: URL copiée !
       model:
         actions: Actions
+        group_actors: Acteurs du groupe
+        attributes: Attributs
         status: Statut
+        menu: Actions ActivityPub...
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub pour la publication n° %{post_number}"
+        status:
+          published: "La publication a été publiée via ActivityPub le %{datetime}."
+          scheduled: "La publication de l'article est prévue via ActivityPub le %{datetime}."
+          scheduled_past: "La publication de l'article était prévue via ActivityPub le %{datetime}."
+          deleted: "La publication a été supprimée via ActivityPub le %{datetime}."
+          updated: "La publication a été mise à jour via ActivityPub le %{datetime}."
+          published_remote: "La publication a été publiée via ActivityPub par %{actor} le %{datetime}."
+          not_published: "La publication n'est pas publiée via ActivityPub."
+          delivered: "La publication a été livrée via ActivityPub le %{datetime}."
+        info_status:
+          published: "La publication a été publiée le %{datetime}."
+          scheduled: "La publication est prévue le %{datetime}."
+          scheduled_past: "La publication était prévue le %{datetime}."
+          deleted: "La publication a été supprimée le %{datetime}."
+          updated: "La publication a été mise à jour le %{datetime}."
+          published_remote: "La publication a été publiée le %{datetime}."
+          not_published: "La publication n'est pas publiée."
+          delivered: "La publication a été livrée le %{datetime}."
+        actions:
+          publish:
+            label: "Publier la publication n° %{post_number}"
+            description:
+              followers: "Publiez la publication n° %{post_number} et transmettez-la aux abonnés des acteurs du groupe."
+              no_followers: "Publier la publication n° %{post_number} sans la diffuser. Les acteurs du groupe n'ont aucun abonné à qui le diffuser."
+              topic_not_published: "La publication est désactivée pour la publication n° %{post_number}. Le sujet n° %{topic_id} n'est pas publié."
+              post_is_scheduled: "La publication est désactivée pour la publication n° %{post_number}. La publication n° %{post_number} est prévue."
+          deliver:
+            label: "Livrer la publication n° %{post_number}"
+            description:
+              followers: "Livrez la publication n° %{post_number} aux abonnés des acteurs du groupe."
+              no_followers: "La livraison est désactivée pour la publication n° %{post_number}. Les acteurs du groupe n'ont aucun abonné à qui livrer."
+              topic_not_delivered: "La livraison est désactivée pour la publication n° %{post_number}. Le sujet n° %{topic_id} n'a pas été livré."
+              delivered: "La publication n° %{post_number} vient d'être livrée aux abonnés des acteurs du groupe."
+          schedule:
+            label: "Planifier la publication n° %{post_number}"
+            description:
+              followers: "Publiez la publication n° %{post_number} et transmettez-la aux abonnés des acteurs du groupe dans %{minutes} minutes."
+              no_followers: "La publication est désactivée pour la publication n° %{post_number}. Les acteurs du groupe n'ont aucun abonné à qui livrer."
+          unschedule:
+            label: "Annuler la publication n°%{post_number}"
+            description: "Annuler la publication de la publication n° %{post_number}."
+    topic:
+      discourse_activity_pub:
+        title: "ActivityPub pour le sujet n° %{topic_id}"
+        status:
+          scheduled: La publication du sujet est prévue via ActivityPub le %{datetime}.
+          scheduled_past: La publication du sujet était prévue via ActivityPub le %{datetime}.
+          published: Le sujet a été publié via ActivityPub le %{datetime}.
+          published_remote: Le sujet a été publié via ActivityPub par %{actor} le %{datetime}.
+          deleted: Le sujet a été supprimé via ActivityPub le %{datetime}.
+          not_published: Le sujet n'est pas publié via ActivityPub.
+        info_status:
+          scheduled: "La publication du sujet est prévue le %{datetime}."
+          scheduled_past: "La publication du sujet était prévue le %{datetime}."
+          published: "Le sujet a été publié le %{datetime}."
+          published_remote: "Le sujet a été publié le %{datetime}."
+          deleted: "Le sujet a été supprimé le %{datetime}."
+          not_published: "Le sujet n'est pas publié."
+        posts_status:
+          label: Statut des publications
+          published: Toutes les publications de ce sujet sont publiées.
+          some_published: "%{count} des %{total} publications de ce sujet sont publiées."
+          none_published: Aucune publication de ce sujet n'est publiée.
+          scheduled: Ce sujet est prévu pour être publié.
+        actions:
+          label: Actions du sujet
+        actors:
+          label: Acteurs du sujet
+        publish:
+          label: Publier toutes les publications
+          description:
+            unpublished: "Publiez %{count} publications non publiées dans le sujet n° %{topic_id}. Les publications ne seront pas envoyées aux abonnés des acteurs du groupe."
+            published: "La publication de toutes les publications est désactivée. Toutes les publications du sujet n° %{topic_id} sont déjà publiées."
+            scheduled: "La publication de toutes les publications est désactivée. La publication du sujet n° %{topic_id} est prévue."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Acteurs liés
+          description: Les publications associées à un acteur lié seront attribuées à votre compte.
+        actor: Acteur
         auth_type: Type
         actions: Actions
         authorize:
           auth_type:
+            none:
+              label: Sélectionnez un type...
+              placeholder: "saisissez un domaine"
+            mastodon:
+              title: Mastodon
+              placeholder: p. ex., mastodon.social
             discourse:
               title: Discourse
+              placeholder: p. ex., meta.discourse.org
+        clear_domain_button:
+          title: Effacez le domaine vérifié.
+        verify_domain_button:
+          label: Vérifier
+          title: Vérifiez que le domaine est pris en charge.
         authorize_button:
           label: Autoriser
+          title: Autorisez un acteur sur le domaine.
+        authorize_error:
+          title: Échec de l'autorisation
+        authorizations:
+          title: Acteurs liés
+        authorization:
+          confirm_remove: Voulez-vous vraiment supprimer le lien pour %{handle} ?
         remove_authorization_button:
+          title: Supprimer l'autorisation
           label: Supprimer

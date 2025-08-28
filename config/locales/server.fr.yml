@@ -25,6 +25,7 @@ fr:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "sont obligatoires"
               invalid: "n'est pas valide"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,13 +35,253 @@ fr:
           attributes:
             model_type:
               invalid: "n'est pas valide"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: La modification d'une note ActivityPub après publication n'est actuellement pas prise en charge.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub n'est pas activé"
+    request:
+      error:
+        json_not_valid: "JSON-LD non valide"
+        not_found: "Aucun objet trouvé"
+        not_available: "ActivityPub n'est pas disponible pour ce modèle"
+        bad_request: "Demande incorrecte"
+        not_authorized: "Non autorisé"
+        forbidden: "Interdit"
+        not_signed: "Demande non signée"
+        missing_signature_params: "Signature de demande incompatible. KeyID et signature sont obligatoires"
+        unsupported_signature_algorithm: "Algorithme de signature non pris en charge (seuls rsa-sha256 et hs2019 sont pris en charge)"
+        stale_request: "Date de demande en dehors de la fenêtre de temps acceptable"
+        invalid_signature_key: "Clé de signature invalide"
+        actor_not_found_for_key: "Acteur introuvable pour la clé %{key_id}"
+        signature_verification_failed: "Échec de la vérification pour %{id} avec rsa-sha256 (RSASSA-PKCS1-v1_5 avec SHA-256)"
+        signature_parse_failed: "Erreur lors de l'analyse de la signature"
+        date_must_be_signed: "L'en-tête de date ou le pseudo-en-tête (de création) doit être signé"
+        digest_must_be_signed: "L'en-tête Digest ou le pseudo-en-tête (cible de la requête) doit être signé"
+        host_must_be_signed: "L'en-tête de l'hôte doit être signé lors d'une requête GET"
+        digest_must_be_signed_on_post: "L'en-tête Digest doit être signé lors d'une requête POST"
+        digest_header_missing: "En-tête Digest manquant"
+        invalid_digest_header_algorithm: "L'en-tête Digest nécessite SHA-256. Algorithmes proposés : %{algorithms}"
+        invalid_digest_base64: "Valeur Digest non valide. La valeur Digest fournie n'est pas une chaîne base64 valide. Digest donné : %{digest}"
+        invalid_digest_sha256: "Valeur Digest non valide. La valeur Digest fournie n'est pas un condensé SHA-256. Résumé donné : %{digest}"
+        invalid_digest: "Valeur Digest non valide. Digest SHA-256 calculé : %{computed} ; donné : %{digest}"
+        invalid_signature_pseudo_header: "Pseudo-en-tête de signature non valide (%{header})"
+        invalid_date_header: "En-tête de date non valide : %{reason}"
+        request_to_failed: "La requête %{method} adressée à %{uri} a échoué : %{message}"
+        request_from_failed: "La demande %{method} reçue par %{uri} a échoué : %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Impossible de traiter %{object_id}"
+        cant_resolve_actor: "Impossible de résoudre l'acteur"
+        cant_resolve_object: "Impossible de résoudre l'objet"
+        object_not_supported: "L'objet n'est pas pris en charge"
+        cant_create_actor: "Impossible de créer l'acteur"
+        cant_find_object: "Impossible de trouver l'objet"
+        object_not_ready: "L'objet n'est pas prêt"
+        activity_already_processed: "L'activité a déjà été traitée"
+        activity_not_supported: "L'activité n'est pas prise en charge pour l'acteur et l'objet"
+        invalid_create_actor: "L'acteur ne peut pas créer de publications"
+        cannot_reply_to_deleted_post: "Impossible de créer un objet en réponse à une publication supprimée"
+        undo_actor_must_match_object_actor: "L'acteur d'annulation doit correspondre à l'acteur d'objet"
+        activity_host_must_match_object_host: "L'hôte de l'activité doit correspondre à l'hôte de l'objet"
+        cant_find_post: "Impossible de trouver la publication"
         post_is_deleted: "La publication est supprimée"
+        full_topic_not_enabled: "Le sujet complet n'est pas activé"
+        announce_not_publicly_addressed: "L'annonce n'est pas adressée publiquement."
+        actor_does_not_accept_new_topics: "L'acteur n'accepte pas de nouveaux sujets."
+        only_followed_actors_create_new_topics: "Seuls les acteurs suivis peuvent créer de nouveaux sujets."
+        actor_already_following: "L'acteur suit déjà cet objet"
+        invalid_collection_item: "Élément invalide"
+        cannot_resolve_context: "Impossible de résoudre le contexte de l'objet"
+        cant_resolve_collection: "Impossible de résoudre la collection"
+        actor_cannot_be_deleted: "L'acteur ne peut pas être supprimé"
+      error:
+        failed_to_create_user: "Échec de la création de l'utilisateur pour %{actor_id}"
+        failed_to_create_post: "Échec de la création de la publication pour %{object_id}"
+        failed_to_respond_to_follow: "Impossible de répondre au suivi : %{activity_id}"
+        failed_to_save_activity: "Échec de l'enregistrement de l'activité : %{activity_id}"
+        failed_to_save_object: "Échec de l'enregistrement de l'objet : %{object_id}"
+        failed_to_save_actor: "Échec de l'enregistrement de l'acteur : %{actor_id}"
+        failed_to_save_collection: "Échec de l'enregistrement de la collection : %{collection_id}"
+      info:
+        shared_inbox: "boîte de réception partagée"
+        received_json: "JSON reçu livré à %{delivered_to}"
+        processing_json: "Traitement du JSON livré à %{delivered_to}"
+    webfinger:
+      error:
+        resource_not_supported: "Ressource non prise en charge"
+        resource_not_found: "Ressource introuvable"
     category:
       error:
         category_not_found: "Catégorie introuvable"
+    post:
+      error:
+        post_not_found: "Publication introuvable"
+        cant_deliver_post: "Impossible de livrer la publication"
+        cant_publish_post: "Impossible de publier la publication"
+        cant_schedule_post: "Impossible de planifier la publication"
+        cant_unschedule_post: "Impossible d'annuler la publication"
+        not_first_post: "La publication n'est pas la première publication"
+        failed_to_create: "Échec de la création de la publication pour %{object_id} : %{message}"
+      deleted: "Vous avez reçu une suppression pour le %{object_type} associée à la publication."
     topic:
       error:
         topic_not_found: "Sujet introuvable"
+        cant_publish_topic: "Impossible de publier le sujet"
+    user:
+      error:
+        failed_to_create: "Échec de la création de l'utilisateur pour %{actor_id} : %{message}"
+      destroyed: "Utilisateur détruit par l'activité de suppression ActivityPub : %{username}"
+    object:
+      note:
+        link_to_forum: Discutez-en sur notre forum.
+    actor:
+      followers:
+        summary: "Abonnés de %{actor}"
+      outbox:
+        summary: "Activités de %{actor}"
+      error:
+        actor_not_found: "Acteur introuvable"
+        invalid_model: "Modèle invalide"
+        model_not_found: "Modèle introuvable"
+        target_actor_not_found: "Acteur cible introuvable"
+        not_following_target_actor: "L'acteur ne suit pas l'acteur cible"
+        cant_follow_target_actor: "L'acteur ne peut pas suivre l'acteur cible"
+        username_required: Un nom d'utilisateur ActivityPub est requis pour créer un acteur.
+        full_topic_must_be_public: "La publication complète du sujet nécessite une publication publique."
+        user_not_authorized: "Utilisateur non autorisé"
+        not_following_actor: "L'acteur cible ne suit pas l'acteur"
+        actor_cant_be_restored: "L'acteur ne peut pas être restauré"
+      warning:
+        cant_create_model_for_actor_type: "Impossible de créer un modèle pour %{actor_type} %{actor_id}"
+        cant_create_actor_for_model_type: "Impossible de créer un acteur pour %{model_type} %{model_id}"
+        not_allowed_to_create_actor_for_model: "Il n'est pas permis de créer un acteur pour %{model_id}"
+        no_options: "Aucune option transmise à ActorHandler"
+        invalid_username: "Le nom d'utilisateur doit être composé de %{min_length} à %{max_length} lettres, chiffres, tirets ou traits de soulignement."
+        username_taken: "Ce nom d'utilisateur est déjà utilisé sur ce serveur."
+    auth:
+      error:
+        not_enabled: "L'authentification n'est pas activée"
+        invalid_domain: "Domaine ActivityPub non valide"
+        invalid_auth_redirect: "Redirection d'authentification non valide"
+        invalid_redirect_params: "Paramètres de redirection non valides"
+        authorization_required: "Un enregistrement d'autorisation est requis"
+        session_expired: "La session d'authentification a expiré"
+        failed_to_authorize: "Échec de l'autorisation"
+        failed_to_get_actor: "Échec de la création de l'acteur"
+        failed_to_create_client: "Échec de la création du client"
+        failed_to_verify_client: "Échec de la vérification du client. Veuillez réessayer."
+        failed_to_get_token: "Échec de l'obtention du jeton"
+        failed_to_decrypt_payload: "Échec du déchiffrement de la charge utile"
+        failed_to_verify_nonce: "Échec de la vérification du nonce"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} n'a pas pu planifier %{object_id} pour la livraison : %{reason}"
+        failed_to_deliver: "%{from_actor} n'a pas pu être livré à %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} livré avec succès à %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} n'a pas pu traiter la boîte d'envoi de %{target_actor}"
+          actors_not_ready: "Les acteurs ne sont pas prêts"
+          not_following_target: "%{actor} ne suit pas %{target_actor}"
+          outbox_response_invalid: "la boîte d'envoi de %{target_actor} a renvoyé une réponse non valide"
+        info:
+          started: "%{actor} a commencé à traiter les activités de %{target_actor}."
+          finished: "%{actor} a terminé le traitement des activités de %{target_actor}."
+          created_actors:
+            one: "%{count} acteur créé."
+            other: "%{count} acteurs créés."
+          updated_actors:
+            one: "%{count} acteur mis à jour."
+            other: "%{count} acteurs mis à jour."
+          created_objects:
+            one: "%{count} objet créé."
+            other: "%{count} objets créés."
+          updated_objects:
+            one: "%{count} objet mis à jour."
+            other: "%{count} objets mis à jour."
+          created_collections:
+            one: "%{count} collection créée."
+            other: "%{count} collections créées."
+          updated_collections:
+            one: "%{count} collection mise à jour."
+            other: "%{count} collections mises à jour."
+          created_activities:
+            one: "%{count} activité créée."
+            other: "%{count} activités créées."
+          updated_activities:
+            one: "%{count} activité mise à jour."
+            other: "%{count} activités mises à jour."
+          created_users:
+            one: "%{count} utilisateur créé."
+            other: "%{count} utilisateurs créés."
+          updated_users:
+            one: "%{count} utilisateur mis à jour."
+            other: "%{count} utilisateurs mis à jour."
+          created_topics:
+            one: "%{count} sujet créé."
+            other: "%{count} sujets créés."
+          updated_topics:
+            one: "%{count} sujet mis à jour."
+            other: "%{count} sujets mis à jour."
+          created_replies:
+            one: "%{count} réponse créée."
+            other: "%{count} réponses créées."
+          updated_replies:
+            one: "%{count} réponse mise à jour."
+            other: "%{count} réponses mises à jour."
+      publish:
+        warning:
+          publish_did_not_start: "Échec de la publication groupée des activités de %{target}"
+          actor_not_found: "Acteur introuvable"
+          actor_not_ready: "L'acteur n'est pas prêt"
+          actor_model_not_supported: "Le modèle d'acteur n'est pas pris en charge"
+        info:
+          started: "A commencé à publier les activités de %{target}."
+          finished: "A terminé la publication des activités de %{target}."
+          created_actors:
+            one: "%{count} acteur créé."
+            other: "%{count} acteurs créés."
+          updated_actors:
+            one: "%{count} acteur mis à jour."
+            other: "%{count} acteurs mis à jour."
+          created_objects:
+            one: "%{count} objet créé."
+            other: "%{count} objets créés."
+          updated_objects:
+            one: "%{count} objet mis à jour."
+            other: "%{count} objets mis à jour."
+          created_collections:
+            one: "%{count} collection créée."
+            other: "%{count} collections créées."
+          updated_collections:
+            one: "%{count} collection mise à jour."
+            other: "%{count} collections mises à jour."
+          created_activities:
+            one: "%{count} activité créée."
+            other: "%{count} activités créées."
+          updated_activities:
+            one: "%{count} activité mise à jour."
+            other: "%{count} activités mises à jour."
+  site_settings:
+    activity_pub_enabled: "Activez l'extension ActivityPub."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Nombre de requêtes POST pouvant être envoyées à la boîte de réception d'un acteur par minute."
+    activity_pub_rate_limit_get_objects_per_minute: "Nombre de requêtes GET pouvant être effectuées sur les objets AcitivityPub par minute."
+    activity_pub_note_excerpt_maxlength: "Longueur maximale des extraits de publication dans AcitivityPub Notes (0 pour aucune longueur maximale)."
+    activity_pub_note_link_to_forum: "Incluez un lien vers ce forum dans les notes d'ActivityPub."
+    activity_pub_require_signed_requests: "Exiger que les requêtes ActivityPub soient signées par des signatures HTTP."
+    activity_pub_allowed_request_origins: "Liste des domaines autorisés à effectuer des requêtes ActivityPub."
+    activity_pub_blocked_request_origins: "Liste des domaines non autorisés à effectuer des requêtes ActivityPub."
+    activity_pub_delivery_delay_minutes: "Nombre de minutes pour retarder la livraison des activités ActivityPub (les activités « supprimer » sont livrées instantanément)."
+    activity_pub_verbose_logging: "Activez les journaux détaillés d'ActivityPub."
+    activity_pub_object_logging: "Imprimez tous les objets ActivityPub entrants et sortants dans les journaux (nécessite une journalisation détaillée)."
+    activity_pub_post_status_visibility_groups: "Groupes qui peuvent voir le statut des publications d'ActivityPub."
+    activity_pub_logs_max_days_old: "Nombre de jours pendant lesquels les journaux d'ActivityPub sont conservés."
+    errors:
+      signed_requests_required: Des demandes signées sont requises pour ce paramètre.

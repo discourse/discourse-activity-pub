@@ -7,32 +7,94 @@
 ar:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "منشور نشاط منصة Discourse"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: إضافة فئة للجهة الفاعلة في ActivityPub
+              label: إضافة فئة للجهة الفاعلة
+            tag:
+              title: إضافة وسم للجهة الفاعلة في ActivityPub
+              label: إضافة وسم للجهة الفاعلة
+          save:
+            title: حفظ الجهة الفاعلة في ActivityPub
+            label: حفظ الجهة الفاعلة
           delete:
+            title: حذف الجهة الفاعلة في ActivityPub
+            label: حذف الجهة الفاعلة
+            failed: لم يتم الحذف
             confirm:
               title: "هل تريد بالتأكيد حذف المجموعة %{actor}؟"
+              message: |
+                <ul>
+                <li>لن تتوفر الجهة الفاعلة %{actor} بعد الآن ضمن شبكة Fediverse.</li>
+                <li>لن يتم حذف %{model} من نوع %{model_type}.</li>
+                <li>يمكنك استعادة الجهات الفاعلة المحذوفة.</li>
+                </ul>
           restore:
+            title: استعادة الجهة الفاعلة في ActivityPub
             label: استعادة
+          destroy:
+            title: إلغاء الجهة الفاعلة في ActivityPub نهائيًا
+            label: إلغاء نهائي
+            confirm:
+              title: هل أنت متأكد من رغبتك في إلغاء الجهة %{actor} نهائيًا؟
+              message: |
+                <ul>
+                <li>سيتم إلغاء الجهة الفاعلة %{actor} نهائيًا.</li>
+                <li>لن يتم إلغاء كائن %{model} من نوع %{model_type}.</li>
+                <li>لا يمكنك استعادة الجهات الفاعلة المحذوفة نهائيًا.</li>
+                </ul>
           edit:
+            title: تعديل الجهة الفاعلة في ActivityPub
             label: تعديل
           deleted:
+            title: تم حذف الجهة الفاعلة في ActivityPub
             label: تم الحذف
           enabled:
+            title: تم تفعيل الجهة الفاعلة في ActivityPub
             label: مفعَّلة
           disabled:
+            title: تم تعطيل الجهة الفاعلة في ActivityPub
             label: متوقفة
+          site_setting:
+            title: إعدادات الموقع
+            activity_pub_enabled:
+              label: تم تفعيل المكون الإضافي
+              title: تم تفعيل مكوّن ActivityPub الإضافي بواسطة إعداد الموقع "ActivityPub Enabled".
+              description: سيتم معالجة النشاطات الواردة الموجهة إلى الجهات الفاعلة المفعّلة.
+            login_required:
+              label: يتطلب تسجيل الدخول
+              title: يتطلب تسجيل الدخول وفقًا لإعداد الموقع "Login Required".
+              description: يتم نشر طلبات المتابعة الصادرة وسمات الجهات الفاعلة المفعّلة فقط.
           username: اسم المستخدم
+          username_description: "يجب أن يتراوح الطول بين %{min_length} و %{max_length} من الأحرف، والأرقام، والشرطات، والشرطات السفلية."
           name: الاسم
+          name_description: يُستخدم كاسم عرض في بعض الخدمات.
           default_visibility: الرؤية
+          default_visibility_description: ستُنشر جميع المنشورات عبر ActivityPub وفق إعداد الرؤية المحدد.
+          post_object_type: نوع كائن المنشور
+          post_object_type_description: استخدم "ملاحظة" للمحتوى القصير (مثل Mastodon) و"مقال" للمحتوى الطويل.
+          publication_type: نوع النشر
+          publication_type_description: '"First Post" ينشر أول منشور في كل موضوع، بينما "Full Topic" ينشر كافة المنشورات ويستورد الردود.'
           table:
+            actor: الجهة الفاعلة
+            model: النموذج
             auth_type: النوع
             status: الحالة
             actions: الإجراءات
           category:
             label: الفئات
+            title: الجهات الفاعلة في الفئة
+            none: اختر فئة
           tag:
             label: الوسوم
+            title: الجهات الفاعلة المرتبطة بالوسم
+            none: اختر وسمًا
             filter: تصفية الوسوم
         log:
           label: السجلات
@@ -41,44 +103,253 @@ ar:
           level: المستوى
           message: رسالة
           json:
+            label: JSON
+            title: نشاط بصيغة JSON
+            show:
+              label: JSON
+              title: عرض النشاط بصيغة JSON
             copy:
               label: نسخ
+              title: نسخ JSON إلى الحافظة.
               success: تم النسخ!
+            logged_at: تم تسجيل الدخول في %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: الاتحاد الشبكي
+          title: استكشاف الاتحاد الشبكي لبروتوكول ActivityPub الخاص بهذا المجتمع
+        title: الاتحاد الشبكي
+        description: تدعم هذه الفئات والأوسمة ActivityPub Federation. إذا كنت تستخدم Mastodon أو منصات ActivityPub الأخرى، يمكنك متابعتها لرؤية موضوعاتها ومشاركاتها في صفحتك الرئيسية.
         categories: الفئات
         tags: الوسوم
+        actor:
+          follower_count:
+            zero: "%{count} من المتابعين"
+            one: "متابع %{count}"
+            two: "متابعان %{count}"
+            few: "%{count} متابعين"
+            many: "%{count} متابعًا"
+            other: "%{count} متابع"
       status:
+        title:
+          publishing_disabled: تم تعطيل النشر عبر ActivityPub وفق إعدادات الموقع التي تتطلب تسجيل الدخول، بينما تظل النشاطات الواردة وطلبات المتابعة الصادرة مفعّلة.
+          plugin_disabled: تم تعطيل المكوّن الإضافي ActivityPub
+          category_read_restricted: لا يدعم ActivityPub الفئات الخاصة
+          model_disabled: تم تعطيل ActivityPub لهذا %{model_type}
+          model_not_ready: ActivityPub غير جاهز لهذا %{model_type}
+          model_not_active: ActivityPub غير نشط لهذا %{model_type}
+          model_active:
+            first_post: سيتم نشر أول منشور في موضوع جديد بعد %{delay_minutes} دقيقة من تاريخ النشر
         label:
           active: نشطة
+          not_active: غير نشط
+          publishing_disabled: تم تعطيل النشر
+      discovery:
+        label: الاتحاد الشبكي
+        description: الاتحاد الشبكي لـ %{model_name}
+        followers: المتابعون
+        follows: المتابعات
+      banner:
+        text: متابعة %{model_name} على أي خدمة تدعم الاتحاد الشبكي
+        responsive_text: متحد شبكيًا
+        public_full_topic: سيتم نشر كل منشور من كل موضوع علنًا عبر ActivityPub.
+        public_first_post: سيتم نشر أول منشور من كل موضوع علنًا عبر ActivityPub.
+        followers_only_full_topic: يتم نشر كل منشور من كل موضوع لمتابعي ActivityPub فقط.
+        followers_only_first_post: يتم نشر أول منشور من كل موضوع لمتابعي ActivityPub فقط.
+      handle:
+        label: على خدمات ActivityPub الأخرى
+        description: استخدم هذا المعرف للعثور على هذه الفئة ومتابعتها.
       follow:
+        label: متابعة
+        title: متابعة الجهة الفاعلة %{actor} عبر ActivityPub
         domain:
+          label: Mastodon
           placeholder: النطاق
+          btn_label: متابعة
+          btn_title: تابع على هذا النطاق في Mastodon
+          description: نطاق حسابك على Mastodon
+          verifying: جارٍ التحقق من النطاق...
+          invalid: هذا ليس نطاقًا صالحًا في Mastodon
+      actor_follow:
+        label: متابعة جديدة
+        title: متابعة جديدة للجهة الفاعلة %{actor} عبر ActivityPub
+        find:
+          label: البحث عن الجهة الفاعلة لمتابعتها
+          btn_label: البحث
+          btn_title: البحث عن المعرف
+          description: "على سبيل المثال @announcements@meta.discourse.org"
+          validating: جارٍ التحقق من المعرف...
+          invalid: معرف غير صالح
+          finding: جارٍ البحث عن الجهة الفاعلة...
+          not_found: 'تعذر العثور على "%{handle}"'
+        follow:
+          label: متابعة
+          title: 'إنشاء متابعة للجهة الفاعلة "%{follow_actor}" نيابة عن %{actor}'
+        following:
+          label: المتابعة
+          title: 'تتابع %{actor} الجهة الفاعلة %{follow_actor}'
+        follow_requested:
+          label: تم طلب المتابعة
+          title: 'طلبت %{actor} متابعة الجهة الفاعلة %{follow_actor}'
+      actor_unfollow:
+        label: إلغاء المتابعة
+        title: إلغاء متابعة الجهة الفاعلة %{actor} عبر ActivityPub
+        modal_title: تأكيد إلغاء المتابعة
+        confirm: هل أنت متأكد من رغبتك في أن تلغي الجهة الفاعلة %{actor} متابعة %{followed_actor}؟
       actor_reject:
         label: رفض
+        title: رفض متابعة الجهة الفاعلة %{actor} عبر ActivityPub
+        modal_title: تأكيد رفض المتابعة
+        confirm: هل أنت متأكد من رغبتك في رفض متابعة %{follower} للجهة الفاعلة %{actor}؟
       follow_table:
+        actor: الجهة الفاعلة
         user: المستخدم
+        followed_at: تمت المتابعة
         follow_pending: قيد الانتظار
         actions: الإجراءات
       visibility:
         label:
+          private: المتابعون فقط
           public: عامة
+        description:
+          private: "%{object_type} موجهة للمتابعين."
+          public: "%{object_type} موجهة بشكل علني."
       object_type:
         label:
           note: ملاحظة
+          article: مقال
+          collection: مجموعة
+          ordered_collection: مجموعة مرتبة
+        description:
+          note: الأفضل لمنصات التدوين المصغر (مثل Mastodon).
+          article: الأفضل للمنصات الطويلة الشكل (مثل Lemmy).
+      publication_type:
+        label:
+          first_post: أول منشور (First Post)
+          full_topic: الموضوع الكامل (Full Topic)
+        description:
+          first_post: يُنشر أول منشور في كل موضوع ضمن هذا %{model_type} عبر ActivityPub.
+          full_topic: يُنشر أول منشور في كل موضوع ضمن هذا %{model_type} عبر ActivityPub. وتُستورد الردود من خوادم ActivityPub الأخرى كردود داخل Discourse.
+      copy_uri:
+        copied: تم نسخ عنوان URI!
       model:
         actions: الإجراءات
+        group_actors: المجموعات من الجهات الفاعلة
+        attributes: السمات
         status: الحالة
+        menu: إجراءات ActivityPub...
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub للمنشور رقم %{post_number}"
+        status:
+          published: "تم نشر المنشور عبر ActivityPub في %{datetime}."
+          scheduled: "تم جدولة المنشور للنشر عبر ActivityPub في %{datetime}."
+          scheduled_past: "كان المنشور مجدولًا للنشر عبر ActivityPub في %{datetime}."
+          deleted: "تم حذف المنشور عبر ActivityPub في %{datetime}."
+          updated: "تم تحديث المنشور عبر ActivityPub في %{datetime}."
+          published_remote: "تم نشر المنشور عبر ActivityPub بواسطة الجهة الفاعلة %{actor} في %{datetime}."
+          not_published: "لم يتم نشر المنشور عبر ActivityPub."
+          delivered: "تم تسليم المنشور عبر ActivityPub في %{datetime}."
+        info_status:
+          published: "تم نشر المنشور في %{datetime}."
+          scheduled: "تم جدولة المنشور للنشر في %{datetime}."
+          scheduled_past: "تم جدولة المنشور للنشر في %{datetime}."
+          deleted: "تم حذف المنشور في %{datetime}."
+          updated: "تم تحديث المنشور في %{datetime}."
+          published_remote: "تم نشر المنشور في %{datetime}."
+          not_published: "لم يتم نشر المنشور."
+          delivered: "تم تسليم المنشور في %{datetime}."
+        actions:
+          publish:
+            label: "نشر المنشور رقم %{post_number}"
+            description:
+              followers: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة."
+              no_followers: "نشر المنشور رقم %{post_number} دون تسليمه. لا تحتوي مجموعات الجهات الفاعلة على متابعين للتسليم إليهم."
+              topic_not_published: "تم تعطيل النشر للمنشور رقم %{post_number}. لم يتم نشر الموضوع رقم %{topic_id}."
+              post_is_scheduled: "تم تعطيل النشر للمنشور رقم %{post_number}. المنشور رقم %{post_number} مجدول للنشر."
+          deliver:
+            label: "تسليم المنشور رقم %{post_number}"
+            description:
+              followers: "تسليم المنشور رقم %{post_number} لمتابعي مجموعات الجهات الفاعلة."
+              no_followers: "تم تعطيل التسليم للمنشور رقم %{post_number}. لا تحتوي مجموعات الجهات الفاعلة على متابعين للتسليم إليهم."
+              topic_not_delivered: "تم تعطيل التسليم للمنشور رقم %{post_number}. لم يُسلم الموضوع رقم %{topic_id}."
+              delivered: "تم تسليم المنشور رقم %{post_number} لمتابعي مجموعات الجهات الفاعلة للتو."
+          schedule:
+            label: "جدولة المنشور رقم %{post_number}"
+            description:
+              followers: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد %{minutes} دقيقة."
+              no_followers: "تم تعطيل جدولة المنشور رقم %{post_number}. لا تحتوي مجموعات الجهات الفاعلة على متابعين للتسليم إليهم."
+          unschedule:
+            label: "إلغاء جدولة المنشور رقم %{post_number}"
+            description: "إلغاء جدولة نشر المنشور رقم %{post_number}."
+    topic:
+      discourse_activity_pub:
+        title: "ActivityPub للموضوع رقم %{topic_id}"
+        status:
+          scheduled: تم جدولة نشر الموضوع عبر ActivityPub في %{datetime}.
+          scheduled_past: تم جدولة نشر الموضوع عبر ActivityPub في %{datetime}.
+          published: تم نشر الموضوع عبر ActivityPub في %{datetime}.
+          published_remote: تم نشر الموضوع عبر ActivityPub بواسطة %{actor} في %{datetime}.
+          deleted: تم حذف الموضوع عبر ActivityPub في %{datetime}.
+          not_published: لم يتم نشر الموضوع عبر ActivityPub.
+        info_status:
+          scheduled: "تم جدولة الموضوع للنشر في %{datetime}."
+          scheduled_past: "تم جدولة الموضوع للنشر في %{datetime}."
+          published: "تم نشر الموضوع في %{datetime}."
+          published_remote: "تم نشر الموضوع في %{datetime}."
+          deleted: "تم حذف الموضوع في %{datetime}."
+          not_published: "لم يتم نشر الموضوع."
+        posts_status:
+          label: حالة المنشورات
+          published: نُشرت جميع المنشورات في هذا الموضوع.
+          some_published: "نُشر %{count} من أصل %{total} منشور في هذا الموضوع."
+          none_published: لا توجد منشورات منشورة في هذا الموضوع.
+          scheduled: تم جدولة نشر هذا الموضوع.
+        actions:
+          label: إجراءات الموضوع
+        actors:
+          label: الجهات الفاعلة للموضوع
+        publish:
+          label: نشر جميع المنشورات
+          description:
+            unpublished: "نشر %{count} منشورًا غير منشور في الموضوع رقم %{topic_id}. لن تُسلم المنشورات لمتابعي مجموعات الجهات الفاعلة."
+            published: "تم تعطيل خيار نشر جميع المنشورات. جميع المنشورات في الموضوع رقم %{topic_id} منشورة بالفعل."
+            scheduled: "تم تعطيل خيار نشر جميع المنشورات. الموضوع رقم %{topic_id} مجدول للنشر."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: الجهات الفاعلة المرتبطة
+          description: سيتم نسب المنشورات المرتبطة بالجهة الفاعلة المرتبطة إلى حسابك.
+        actor: الجهة الفاعلة
         auth_type: النوع
         actions: الإجراءات
         authorize:
           auth_type:
+            none:
+              label: اختر نوعًا...
+              placeholder: "أدخل النطاق"
+            mastodon:
+              title: Mastodon
+              placeholder: على سبيل المثال mastodon.social
             discourse:
               title: Discourse
+              placeholder: على سبيل المثال meta.discourse.org
+        clear_domain_button:
+          title: مسح النطاق المؤكد.
+        verify_domain_button:
+          label: تحقق
+          title: التحقق من أن النطاق مدعوم.
         authorize_button:
           label: السماح
+          title: تفويض جهة فاعلة على النطاق.
+        authorize_error:
+          title: فشل التفويض
+        authorizations:
+          title: الجهات الفاعلة المرتبطة
+        authorization:
+          confirm_remove: هل ترغب بالتأكيد في إزالة الرابط مع %{handle}؟
         remove_authorization_button:
+          title: إزالة التفويض
           label: إزالة

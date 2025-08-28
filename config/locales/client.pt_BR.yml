@@ -15,7 +15,7 @@ pt_BR:
         actor:
           add:
             category:
-              title: Adicionar ator(a) do ActivityPub de categoria
+              title: Adicionar ator do ActivityPub de categoria
               label: Adicionar ator de categoria
             tag:
               title: Adicionar ator do ActivityPub de etiqueta
@@ -57,7 +57,7 @@ pt_BR:
             label: Excluído
           enabled:
             title: Ator do ActivityPub excluído ativado
-            label: Ativada
+            label: Ativado(a)
           disabled:
             title: Ator do ActivityPub excluído desativado
             label: Desativada
@@ -129,9 +129,9 @@ pt_BR:
             other: "%{count} seguidores(as)"
       status:
         title:
-          publishing_disabled: A publicação pelo ActivityPub foi desativada pela configuração do site que exigiu o login. As atividades recebidas e solicitações para seguir enviados foram ativados.
+          publishing_disabled: A publicação pelo ActivityPub foi desativada pela configuração do site que exigiu o login. As atividades recebidas e solicitações para seguir enviadas foram ativadas.
           plugin_disabled: O plugin do ActivityPub está desativado
-          category_read_restricted: O ActivityPub não funcoina com ategorias privadas
+          category_read_restricted: O ActivityPub não funcoina com categorias privadas
           model_disabled: O ActivityPub está destivado para %{model_type}
           model_not_ready: O ActivityPub não está pronto para %{model_type}
           model_not_active: O ActivityPub está ativo para %{model_type}
@@ -145,7 +145,7 @@ pt_BR:
         label: Federação
         description: Federação para %{model_name}
         followers: Seguidores(as)
-        follows: Segue
+        follows: Está seguindo
       banner:
         text: Seguir %{model_name} em todos os serviços compatíveis com a federação
         responsive_text: Federado(a)
@@ -158,7 +158,7 @@ pt_BR:
         description: Use este identificador para localizar e seguir esta categoria.
       follow:
         label: Seguir
-        title: Seugir %{actor} por meio do ActivityPub
+        title: Seguir %{actor} por meio do ActivityPub
         domain:
           label: Mastodon
           placeholder: domínio
@@ -187,15 +187,15 @@ pt_BR:
           title: '%{actor} está seguindo %{follow_actor}'
         follow_requested:
           label: Solicitação para seguir enviada
-          title: '%{actor} solicitou seguir %{follow_actor}'
+          title: '%{actor} solicitou para seguir %{follow_actor}'
       actor_unfollow:
         label: Parar de seguir
         title: Parar de seguir %{actor} pelo ActivityPub
-        modal_title: Confirmar para parar de seguir
+        modal_title: Confirme para parar de seguir
         confirm: Deseja mesmo que %{actor} pare de seguir %{followed_actor}?
       actor_reject:
         label: Rejeitar
-        title: Recusar %{actor} como seguidor(a) por meio do ActivityPub
+        title: Rejeitar %{actor} como seguidor(a) por meio do ActivityPub
         modal_title: Configurar recusa de solicitação para seguir
         confirm: Deseja mesmo recusar que %{follower} siga %{actor}?
       follow_table:
@@ -231,7 +231,7 @@ pt_BR:
         copied: URL copiada!
       model:
         actions: Ações
-        group_actors: Agores em grupo
+        group_actors: Atores em grupo
         attributes: Atributos
         status: Status
         menu: Ações do ActivityPub...
@@ -287,7 +287,7 @@ pt_BR:
           scheduled_past: O tópico foi programado para ser publicado pelo ActivityPub em %{datetime}.
           published: O tópico foi publicado pelo ActivityPub em %{datetime}.
           published_remote: O tópico foi publicado pelo ActivityPub por %{actor} em %{datetime}.
-          deleted: A tópico foi excluídoj pelo ActivityPub em %{datetime}.
+          deleted: A tópico foi excluído pelo ActivityPub em %{datetime}.
           not_published: O tópico não foi publicado pelo ActivityPub.
         info_status:
           scheduled: "O tópico está programado para ser publicado em %{datetime}."
@@ -345,7 +345,7 @@ pt_BR:
         authorizations:
           title: Atores vinculados
         authorization:
-          confirm_remove: Tem certeza que deseja remover o link com %{handle}?
+          confirm_remove: Tem certeza de que deseja remover o link com %{handle}?
         remove_authorization_button:
           title: Remover autorização
           label: Remover

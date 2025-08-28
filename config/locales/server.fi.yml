@@ -85,6 +85,7 @@ fi:
         activity_already_processed: "Toiminto on jo käsitelty"
         activity_not_supported: "Toimintoa ei tueta actorille ja objektille"
         invalid_create_actor: "Actor ei voi luoda viestejä"
+        cannot_reply_to_deleted_post: "Objektia ei voi luoda vastauksena poistettuun viestiin"
         undo_actor_must_match_object_actor: "Kumoamis-actorin täytyy vastata objekti-actoria"
         activity_host_must_match_object_host: "Toiminnon isännän täytyy vastata objektin isäntää"
         cant_find_post: "Viestiä ei löydy"
@@ -107,7 +108,7 @@ fi:
         failed_to_save_actor: "Actorin tallennus epäonnistui: %{actor_id}"
         failed_to_save_collection: "Kokoelman tallentaminen epäonnistui: %{collection_id}"
       info:
-        shared_inbox: "jaettu postilaatikko"
+        shared_inbox: "jaetut saapuneet"
         received_json: "Kohteeseen %{delivered_to} toimitettu JSON vastaanotettiin"
         processing_json: "Kohteeseen %{delivered_to} toimitettua JSON:ää käsitellään"
     webfinger:
@@ -160,7 +161,7 @@ fi:
         cant_create_actor_for_model_type: "Actorin luominen mallille %{model_type} %{model_id} ei onnistu"
         not_allowed_to_create_actor_for_model: "Actorin luomista mallille %{model_id} ei sallita"
         no_options: "ActorHandlerille ei annettu asetuksia"
-        invalid_username: "Käyttäjänimen täytyy olla %{min_length}–%{max_length} kirjainta, numeroa, viivaa tai alaviivaa."
+        invalid_username: "Käyttäjänimessä täytyy olla %{min_length}–%{max_length} kirjainta, numeroa, viivaa tai alaviivaa."
         username_taken: "Tämä käyttäjänimi on jo käytössä tällä palvelimella."
     auth:
       error:
