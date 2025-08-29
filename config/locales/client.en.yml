@@ -3,7 +3,7 @@ en:
     admin:
       site_settings:
         categories:
-          discourse_activity_pub: "Discourse Activity Pub"
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -13,8 +13,8 @@ en:
               label: Add Category Actor
             tag:
               title: Add Tag ActivityPub actor
-              label: Add Tag Actor 
-          save: 
+              label: Add Tag Actor
+          save:
             title: Save ActivityPub actor
             label: Save Actor
           delete:
@@ -107,7 +107,7 @@ en:
               title: Copy JSON to clipboard.
               success: Copied!
             logged_at: Logged %{logged_at}
-  js:   
+  js:
     discourse_activity_pub:
       about:
         navigation:
@@ -320,7 +320,7 @@ en:
         actions: Actions
         authorize:
           auth_type:
-            none: 
+            none:
               label: Select a type...
               placeholder: "enter a domain"
             mastodon:
