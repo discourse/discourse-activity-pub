@@ -7,9 +7,6 @@
 cs:
   admin_js:
     admin:
-      site_settings:
-        categories:
-          discourse_activity_pub: "Discourse Activity Pub"
       discourse_activity_pub:
         label: ActivityPub
         actor:

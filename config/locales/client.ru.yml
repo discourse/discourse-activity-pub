@@ -31,7 +31,7 @@ ru:
               title: "Действительно удалить актор «%{actor}»?"
               message: |
                 <ul>
-                <li>Актор «%{actor}» больше не будет доступен во федеративной сети (Fediverse).</li>
+                <li>Актор «%{actor}» больше не будет доступен в федеративной сети (Fediverse).</li>
                 <li>Объект «%{model}» (%{model_type}) удален не будет.</li>
                 <li>Вы можете восстановить удаленные акторы.</li>
                 </ul>
@@ -80,14 +80,21 @@ ru:
           post_object_type: Тип объекта публикации
           post_object_type_description: Для коротких публикаций (например, Mastodon) используйте тип Note, а для длинных — Article.
           publication_type: Тип публикации
+          publication_type_description: Если выбран тип «Первая публикация», размещается только первая публикация каждой темы, а если — «Вся тема», то размещаются все публикации и обрабатываются ответы.
           table:
+            actor: Актор
+            model: Модель
             auth_type: Тип
             status: Статус
             actions: Действия
           category:
             label: Категории
+            title: Акторы категорий
+            none: Выберите категорию
           tag:
             label: Теги
+            title: Акторы тегов
+            none: Выберите тег
             filter: фильтрация тегов
         log:
           label: Журналы
@@ -96,44 +103,251 @@ ru:
           level: Уровень
           message: Сообщение
           json:
+            label: JSON
+            title: JSON активности
+            show:
+              label: JSON
+              title: Показать JSON активности
             copy:
               label: Копировать
+              title: Копировать JSON в буфер обмена.
               success: Скопировано!
+            logged_at: Записано %{logged_at}
   js:
     discourse_activity_pub:
       about:
+        navigation:
+          label: Федерация
+          title: Обзор федерации ActivityPub этого сообщества
+        title: Федерация
+        description: Эти категории и теги поддерживают федерацию ActivityPub. Если вы используете Mastodon или другие платформы ActivityPub, вы можете подписаться на них и видеть их темы и публикации в своей ленте.
         categories: Категории
         tags: Теги
+        actor:
+          follower_count:
+            one: "%{count} подписчик"
+            few: "%{count} подписчика"
+            many: "%{count} подписчиков"
+            other: "%{count} подписчика"
       status:
+        title:
+          publishing_disabled: Публикация через ActivityPub отключена настройкой сайта «Требуется авторизация». Входящие активности и исходящие подписки включены.
+          plugin_disabled: Плагин ActivityPub отключен
+          category_read_restricted: ActivityPub не работает с закрытыми категориями
+          model_disabled: ActivityPub отключен для модели «%{model_type}»
+          model_not_ready: ActivityPub не готов для модели «%{model_type}»
+          model_not_active: ActivityPub не активен для модели «%{model_type}»
+          model_active:
+            first_post: Первая публикация новой темы будет опубликована через %{delay_minutes} мин. после размещения
         label:
           active: Действует
+          not_active: Неактивен
+          publishing_disabled: Публикация отключена
+      discovery:
+        label: Федерация
+        description: Федерация для модели «%{model_name}»
+        followers: Подписчики
+        follows: Подписки
+      banner:
+        text: Подписывайтесь на модель (%{model_name}) в любом сервисе с поддержкой федерации
+        responsive_text: В федерации
+        public_full_topic: Каждая публикация каждой темы будет размещаться публично через ActivityPub.
+        public_first_post: Первая публикация каждой темы будет размещаться публично через ActivityPub.
+        followers_only_full_topic: Каждая публикация каждой темы размещается только для подписчиков ActivityPub.
+        followers_only_first_post: Первая публикация каждой темы размещается только для подписчиков ActivityPub.
+      handle:
+        label: В других сервисах ActivityPub
+        description: Используйте этот идентификатор, чтобы найти и подписаться на категорию.
       follow:
+        label: Подписаться
+        title: Подписаться на актор «%{actor}» через ActivityPub
         domain:
+          label: Mastodon
           placeholder: домен
+          btn_label: Подписаться
+          btn_title: Подписаться на этом домене Mastodon
+          description: домен вашего аккаунта Mastodon
+          verifying: проверка домена...
+          invalid: недействительный домен Mastodon
+      actor_follow:
+        label: Новая подписка
+        title: Новая подписка на актор «%{actor}» через ActivityPub
+        find:
+          label: Найти актора для подписки
+          btn_label: Найти
+          btn_title: Найти идентификатор
+          description: "например, @announcements@meta.discourse.org"
+          validating: проверка идентификатора...
+          invalid: недопустимый идентификатор
+          finding: поиск актора...
+          not_found: 'не удалось найти «%{handle}»'
+        follow:
+          label: Подписаться
+          title: 'Создать подписку на «%{follow_actor}» для актора «%{actor}»'
+        following:
+          label: Подписан
+          title: 'Актор «%{actor}» подписан на актор «%{follow_actor}»'
+        follow_requested:
+          label: Отправлен запрос на подписку
+          title: 'Актор «%{actor}» отправил запрос на подписку на актор «%{follow_actor}»'
+      actor_unfollow:
+        label: Отписаться
+        title: Отписаться от актора «%{actor}» через ActivityPub
+        modal_title: Подтвердите отписку
+        confirm: Действительно отписать актор «%{actor}» от актора «%{followed_actor}»?
       actor_reject:
         label: Отклонить
+        title: Отклонить подписку на актор %{actor} через ActivityPub
+        modal_title: Подтвердите отклонение подписки
+        confirm: '%{follower} отправил(-а) запрос на подписку к актору %{actor}. Действительно отклонить?'
       follow_table:
+        actor: Актор
         user: Пользователь
+        followed_at: Дата подписки
         follow_pending: ожидают одобрения
         actions: Действия
       visibility:
         label:
+          private: Только для подписчиков
           public: Публичное
+        description:
+          private: "Объект «%{object_type}» доступен только подписчикам."
+          public: "Объект «%{object_type}» доступен всем."
       object_type:
         label:
-          note: Примечание
+          note: Заметка
+          article: Статья
+          collection: Коллекция
+          ordered_collection: Упорядоченная коллекция
+        description:
+          note: Лучше всего подходит для платформ микроблогов (например, Mastodon).
+          article: Лучше всего подходит для платформ с длинными публикациями (например, Lemmy).
+      publication_type:
+        label:
+          first_post: Первая публикация
+          full_topic: Вся тема
+        description:
+          first_post: 'Первая публикация каждой темы (здесь: %{model_type}) публикуется через ActivityPub.'
+          full_topic: 'Каждая публикация каждой темы (здесь: %{model_type}) публикуется через ActivityPub, а ответы с других серверов ActivityPub импортируются как ответы в Discourse.'
+      copy_uri:
+        copied: URI скопирован!
       model:
         actions: Действия
+        group_actors: Акторы группы
+        attributes: Атрибуты
         status: Статус
+        menu: Действия ActivityPub...
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub для публикации №%{post_number}"
+        status:
+          published: "Публикация была размещена через ActivityPub %{datetime}."
+          scheduled: "Размещение публикации запланировано через ActivityPub на %{datetime}."
+          scheduled_past: "Размещение публикации было запланировано через ActivityPub на %{datetime}."
+          deleted: "Публикация была удалена через ActivityPub %{datetime}."
+          updated: "Публикация была обновлена через ActivityPub %{datetime}."
+          published_remote: "Публикация была размещена через ActivityPub актором «%{actor}» %{datetime}."
+          not_published: "Публикация не размещена через ActivityPub."
+          delivered: "Публикация была доставлена через ActivityPub %{datetime}."
+        info_status:
+          published: "Публикация размещена %{datetime}."
+          scheduled: "Размещение публикации запланировано на %{datetime}."
+          scheduled_past: "Размещение публикации было запланировано на %{datetime}."
+          deleted: "Публикация удалена %{datetime}."
+          updated: "Публикация обновлена %{datetime}."
+          published_remote: "Публикация размещена %{datetime}."
+          not_published: "Публикация не размещена."
+          delivered: "Публикация доставлена %{datetime}."
+        actions:
+          publish:
+            label: "Разместить публикацию №%{post_number}"
+            description:
+              followers: "Разместить публикацию №%{post_number} и разослать ее подписчикам акторов группы."
+              no_followers: "Разместить публикацию №%{post_number}, но не рассылать ее. У акторов группы нет подписчиков для рассылки."
+              topic_not_published: "Размещение отключено для публикации №%{post_number}. Тема №%{topic_id} не опубликована."
+              post_is_scheduled: "Размещение отключено для публикации №%{post_number}. Запланировано размещение публикации №%{post_number}."
+          deliver:
+            label: "Разослать публикацию №%{post_number}"
+            description:
+              followers: "Разослать публикацию №%{post_number} подписчикам акторов группы."
+              no_followers: "Рассылка отключена для публикации №%{post_number}. У акторов группы нет подписчиков для рассылки."
+              topic_not_delivered: "Рассылка отключена для публикации №%{post_number}. Тема №%{topic_id} не разослана."
+              delivered: "Публикация №%{post_number} только что разослана подписчикам акторов группы."
+          schedule:
+            label: "Запланировать публикацию №%{post_number}"
+            description:
+              followers: "Разместить публикацию №%{post_number} и разослать ее подписчикам акторов группы через %{minutes} мин."
+              no_followers: "Планирование отключено для публикации №%{post_number}. У акторов группы нет подписчиков для рассылки."
+          unschedule:
+            label: "Отменить запланированную публикацию №%{post_number}"
+            description: "Отменить запланированное размещение публикации №%{post_number}."
+    topic:
+      discourse_activity_pub:
+        title: "ActivityPub для темы №%{topic_id}"
+        status:
+          scheduled: Публикация темы запланирована через ActivityPub на %{datetime}.
+          scheduled_past: Публикация темы была запланирована через ActivityPub на %{datetime}.
+          published: Тема была опубликована через ActivityPub %{datetime}.
+          published_remote: Тема была опубликована через ActivityPub актором «%{actor}» %{datetime}.
+          deleted: Тема была удалена через ActivityPub %{datetime}.
+          not_published: Тема не опубликована через ActivityPub.
+        info_status:
+          scheduled: "Публикация темы запланирована на %{datetime}."
+          scheduled_past: "Публикация темы была запланирована на %{datetime}."
+          published: "Тема была опубликована %{datetime}."
+          published_remote: "Тема была опубликована %{datetime}."
+          deleted: "Тема была удалена %{datetime}."
+          not_published: "Тема не опубликована."
+        posts_status:
+          label: Статус публикаций
+          published: Все публикации в этой теме опубликованы.
+          some_published: "В этой теме опубликовано публикаций: %{count} из %{total}."
+          none_published: В этой теме нет опубликованных публикаций.
+          scheduled: Запланирована публикация этой темы.
+        actions:
+          label: Действия с темой
+        actors:
+          label: Акторы темы
+        publish:
+          label: Опубликовать все публикации
+          description:
+            unpublished: "Разместить неопубликованные публикации (%{count}) в теме №%{topic_id}. Публикации не будут разосланы подписчикам акторов группы."
+            published: "Размещение всех публикаций отключено. Все публикации в теме №%{topic_id} уже размещены."
+            scheduled: "Размещение всех публикаций отключено. Запланирована публикация темы №%{topic_id}."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Связанные акторы
+          description: Публикации, размещенные через связанного актора, будут отображаться от имени вашего аккаунта.
+        actor: Актор
         auth_type: Тип
         actions: Действия
         authorize:
           auth_type:
+            none:
+              label: Выберите тип...
+              placeholder: "введите домен"
+            mastodon:
+              title: Mastodon
+              placeholder: например, mastodon.social
             discourse:
               title: Discourse
+              placeholder: например, meta.discourse.org
+        clear_domain_button:
+          title: Очистить подтвержденный домен.
+        verify_domain_button:
+          label: Подтвердить
+          title: Убедитесь, что этот домен поддерживается.
         authorize_button:
           label: Разрешить
+          title: Авторизовать актор на домене.
+        authorize_error:
+          title: Не удалось авторизовать
+        authorizations:
+          title: Связанные акторы
+        authorization:
+          confirm_remove: Действительно убрать привязку к актору %{handle}?
         remove_authorization_button:
+          title: Удалить авторизацию
           label: Отозвать
