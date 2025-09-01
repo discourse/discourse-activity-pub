@@ -7,9 +7,6 @@
 ar:
   admin_js:
     admin:
-      site_settings:
-        categories:
-          discourse_activity_pub: "منشور نشاط منصة Discourse"
       discourse_activity_pub:
         label: ActivityPub
         actor:

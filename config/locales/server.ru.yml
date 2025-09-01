@@ -25,6 +25,7 @@ ru:
         discourse_activity_pub_client:
           attributes:
             credentials:
+              required: "требуется заполнить"
               invalid: "— недопустимый тип"
         discourse_activity_pub_attachment:
           attributes:
@@ -34,15 +35,297 @@ ru:
           attributes:
             model_type:
               invalid: "— недопустимый тип"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: Изменение заметки ActivityPub после публикации сейчас не поддерживается.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub не включен"
+    request:
+      error:
+        json_not_valid: "Недопустимый JSON-LD"
+        not_found: "Объект не найден"
+        not_available: "ActivityPub недоступен для этой модели"
+        bad_request: "Некорректный запрос"
+        not_authorized: "Не авторизовано"
+        forbidden: "Запрещено"
+        not_signed: "Запрос не подписан"
+        missing_signature_params: "Некорректная подпись запроса. Поля keyId и signature обязательны"
+        unsupported_signature_algorithm: "Неподдерживаемый алгоритм подписи (поддерживаются только rsa-sha256 и hs2019)"
+        stale_request: "Дата запроса не соответствует допустимому временному интервалу"
+        invalid_signature_key: "Некорректный ключ подписи"
+        actor_not_found_for_key: "Актор не найден для ключа %{key_id}"
+        signature_verification_failed: "Не удалось проверить %{id} с использованием rsa-sha256 (RSASSA-PKCS1-v1_5 с SHA-256)"
+        signature_parse_failed: "Ошибка анализа подписи"
+        date_must_be_signed: "Заголовок Date или псевдозаголовок (created) должны быть подписаны"
+        digest_must_be_signed: "Заголовок Digest или псевдозаголовок (request-target) должны быть подписаны"
+        host_must_be_signed: "При GET-запросе необходимо подписывать заголовок Host"
+        digest_must_be_signed_on_post: "При POST-запросе необходимо подписывать заголовок Digest"
+        digest_header_missing: "Отсутствует заголовок Digest"
+        invalid_digest_header_algorithm: "Для заголовка Digest требуется SHA-256. Указанные алгоритмы: %{algorithms}"
+        invalid_digest_base64: "Некорректное значение Digest. Указанное значение не является корректной строкой base64. Получено: %{digest}"
+        invalid_digest_sha256: "Некорректное значение Digest. Указанное значение не соответствует формату SHA-256. Получено: %{digest}"
+        invalid_digest: "Некорректное значение Digest. Ожидалось (SHA-256): %{computed}; получено: %{digest}"
+        invalid_signature_pseudo_header: "Некорректный псевдозаголовок в подписи (%{header})"
+        invalid_date_header: "Некорректный заголовок Date: %{reason}"
+        request_to_failed: "Не удалось выполнить %{method}-запрос к %{uri}: %{message}"
+        request_from_failed: "Не удалось выполнить %{method}-запрос к %{uri}: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Не удалось обработать %{object_id}"
+        cant_resolve_actor: "Не удалось получить данные об акторе"
+        cant_resolve_object: "Не удалось получить данные об объекте"
+        object_not_supported: "Объект не поддерживается"
+        cant_create_actor: "Не удалось создать актор"
+        cant_find_object: "Не удалось найти объект"
+        object_not_ready: "Объект не готов"
+        activity_already_processed: "Активность уже обработана"
+        activity_not_supported: "Активность не поддерживается для этого актора и объекта"
+        invalid_create_actor: "Актор не может создавать публикации"
+        cannot_reply_to_deleted_post: "Невозможно создать объект в ответ на удаленную публикацию"
+        undo_actor_must_match_object_actor: "Актор отмены должен совпадать с актором объекта"
+        activity_host_must_match_object_host: "Хост активности должен совпадать с хостом объекта"
+        cant_find_post: "Не удалось найти публикацию"
         post_is_deleted: "Публикация удалена"
+        full_topic_not_enabled: "Тип публикации «Вся тема» не включен"
+        announce_not_publicly_addressed: "Репост не помечен как публичный."
+        actor_does_not_accept_new_topics: "Для этого актора создание новых тем недоступно."
+        only_followed_actors_create_new_topics: "Создание новых тем разрешено только подписанным акторам."
+        actor_already_following: "Актор уже подписан на этот объект"
+        invalid_collection_item: "Некорректный элемент"
+        cannot_resolve_context: "Не удалось получить контекст объекта"
+        cant_resolve_collection: "Не удалось получить коллекцию"
+        actor_cannot_be_deleted: "Актор нельзя удалить"
+      error:
+        failed_to_create_user: "Не удалось создать пользователя для актора %{actor_id}"
+        failed_to_create_post: "Не удалось создать публикацию для объекта %{object_id}"
+        failed_to_respond_to_follow: "Не удалось ответить на подписку: %{activity_id}"
+        failed_to_save_activity: "Не удалось сохранить активность: %{activity_id}"
+        failed_to_save_object: "Не удалось сохранить объект: %{object_id}"
+        failed_to_save_actor: "Не удалось сохранить актор: %{actor_id}"
+        failed_to_save_collection: "Не удалось сохранить коллекцию: %{collection_id}"
+      info:
+        shared_inbox: "общий почтовый ящик"
+        received_json: "Полученный JSON доставлен сюда: %{delivered_to}"
+        processing_json: "Обработка JSON, доставленного сюда: %{delivered_to}"
+    webfinger:
+      error:
+        resource_not_supported: "Ресурс не поддерживается"
+        resource_not_found: "Ресурс не найден"
     category:
       error:
         category_not_found: "Категория не найдена"
+    post:
+      error:
+        post_not_found: "Публикация не найдена"
+        cant_deliver_post: "Не удалось доставить публикацию"
+        cant_publish_post: "Не удалось разместить публикацию"
+        cant_schedule_post: "Не удалось запланировать публикацию"
+        cant_unschedule_post: "Не удалось отменить запланированную публикацию"
+        not_first_post: "Эта публикация не является первой в теме"
+        failed_to_create: "Не удалось создать публикацию для объекта %{object_id}: %{message}"
+      deleted: "Получена команда на удаление объекта %{object_type}, связанного с публикацией."
     topic:
       error:
         topic_not_found: "Тема не найдена"
+        cant_publish_topic: "Не удалось опубликовать тему"
+    user:
+      error:
+        failed_to_create: "Не удалось создать пользователя для актора %{actor_id}: %{message}"
+      destroyed: "Пользователь полностью удален с помощью активности Delete в ActivityPub: %{username}"
+    object:
+      note:
+        link_to_forum: Обсудить заметку на нашем форуме.
+    actor:
+      followers:
+        summary: "Подписчики актора «%{actor}»"
+      outbox:
+        summary: "Активности актора «%{actor}»"
+      error:
+        actor_not_found: "Актор не найден"
+        invalid_model: "Некорректная модель"
+        model_not_found: "Модель не найдена"
+        target_actor_not_found: "Целевой актор не найден"
+        not_following_target_actor: "Актор не подписан на целевого актора"
+        cant_follow_target_actor: "Актор не может подписаться на целевого актора"
+        username_required: Для создания актора требуется имя пользователя ActivityPub.
+        full_topic_must_be_public: "Тип публикации «Вся тема» требует, чтобы публикации были публичными."
+        user_not_authorized: "Пользователь не авторизован"
+        not_following_actor: "Целевой актор не подписан на этого актора"
+        actor_cant_be_restored: "Восстановление актора невозможно"
+      warning:
+        cant_create_model_for_actor_type: "Не удалось создать модель для актора «%{actor_type}» (%{actor_id})"
+        cant_create_actor_for_model_type: "Не удалось создать актор для модели «%{model_type}» (%{model_id})"
+        not_allowed_to_create_actor_for_model: "Создание актора для модели %{model_id} не разрешено"
+        no_options: "В ActorHandler не были переданы параметры"
+        invalid_username: "Имя пользователя должно содержать %{min_length}–%{max_length} симв.: буквы, цифры, дефисы или подчеркивания."
+        username_taken: "Это имя пользователя уже занято на данном сервере."
+    auth:
+      error:
+        not_enabled: "Авторизация не включена"
+        invalid_domain: "Некорректный домен ActivityPub"
+        invalid_auth_redirect: "Некорректное перенаправление при авторизации"
+        invalid_redirect_params: "Некорректные параметры перенаправления"
+        authorization_required: "Запись авторизации обязательна"
+        session_expired: "Сессия авторизации истекла"
+        failed_to_authorize: "Не удалось авторизовать"
+        failed_to_get_actor: "Не удалось получить актор"
+        failed_to_create_client: "Не удалось создать клиент"
+        failed_to_verify_client: "Проверка клиента не удалась. Повторите попытку."
+        failed_to_get_token: "Не удалось получить токен"
+        failed_to_decrypt_payload: "Не удалось расшифровать данные"
+        failed_to_verify_nonce: "Не удалось проверить nonce"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} не удалось запланировать доставку %{object_id}: %{reason}"
+        failed_to_deliver: "%{from_actor} не удалось доставить в %{send_to}"
+      info:
+        successfully_delivered: "Доставка от актора %{from_actor} в %{send_to} выполнена успешно"
+    bulk:
+      process:
+        warning:
+          did_not_start: "Актор «%{actor}» не смог обработать outbox актора «%{target_actor}»"
+          actors_not_ready: "Акторы не готовы"
+          not_following_target: "Актор «%{actor}» не подписан на актор «%{target_actor}»"
+          outbox_response_invalid: "outbox актора %{target_actor} вернул некорректный ответ"
+        info:
+          started: "Актор «%{actor}» начал обработку активностей актора «%{target_actor}»."
+          finished: "Актор «%{actor}» завершил обработку активностей актора «%{target_actor}»."
+          created_actors:
+            one: "Создан %{count} актор."
+            few: "Создано %{count} актора."
+            many: "Создано %{count} акторов."
+            other: "Создано %{count} актора."
+          updated_actors:
+            one: "Обновлен %{count} актор."
+            few: "Обновлено %{count} актора."
+            many: "Обновлено %{count} акторов."
+            other: "Обновлено %{count} актора."
+          created_objects:
+            one: "Создан %{count} объект."
+            few: "Создано %{count} объекта."
+            many: "Создан %{count} объектов."
+            other: "Создано %{count} объекта."
+          updated_objects:
+            one: "Обновлен %{count} объект."
+            few: "Обновлено %{count} объекта."
+            many: "Обновлено %{count} объектов."
+            other: "Обновлено %{count} объекта."
+          created_collections:
+            one: "Создана %{count} коллекция."
+            few: "Создано %{count} коллекции."
+            many: "Создано %{count} коллекций."
+            other: "Создано %{count} коллекции."
+          updated_collections:
+            one: "Обновлена %{count} коллекция."
+            few: "Обновлено %{count} коллекции."
+            many: "Обновлено %{count} коллекций."
+            other: "Обновлено %{count} коллекции."
+          created_activities:
+            one: "Создана %{count} активность."
+            few: "Создано %{count} активности."
+            many: "Создано %{count} активностей."
+            other: "Создано %{count} активности."
+          updated_activities:
+            one: "Обновлена %{count} активность."
+            few: "Обновлено %{count} активности."
+            many: "Обновлено %{count} активностей."
+            other: "Обновлено %{count} активности."
+          created_users:
+            one: "Создан %{count} пользователь."
+            few: "Создано %{count} пользователя."
+            many: "Создано %{count} пользователей."
+            other: "Создано %{count} пользователя."
+          updated_users:
+            one: "Обновлен %{count} пользователь."
+            few: "Обновлено %{count} пользователя."
+            many: "Обновлено %{count} пользователей."
+            other: "Обновлено %{count} пользователя."
+          created_topics:
+            one: "Создана %{count} тема."
+            few: "Создано %{count} темы."
+            many: "Создано %{count} тем."
+            other: "Создано %{count} темы."
+          updated_topics:
+            one: "Обновлена %{count} тема."
+            few: "Обновлено %{count} темы."
+            many: "Обновлено %{count} тем."
+            other: "Обновлено %{count} темы."
+          created_replies:
+            one: "Создан %{count} ответ."
+            few: "Создано %{count} ответа."
+            many: "Создано %{count} ответов."
+            other: "Создано %{count} ответа."
+          updated_replies:
+            one: "Обновлен %{count} ответ."
+            few: "Обновлено %{count} ответа."
+            many: "Обновлено %{count} ответов."
+            other: "Обновлено %{count} ответа."
+      publish:
+        warning:
+          publish_did_not_start: "Не удалось массово опубликовать активности целевого актора «%{target}»"
+          actor_not_found: "Актор не найден"
+          actor_not_ready: "Актор не готов"
+          actor_model_not_supported: "Модель актора не поддерживается"
+        info:
+          started: "Начата публикация активностей целевого актора «%{target}»."
+          finished: "Завершена публикация активностей целевого актора «%{target}»."
+          created_actors:
+            one: "Создан %{count} актор."
+            few: "Создано %{count} актора."
+            many: "Создан %{count} акторов."
+            other: "Создано %{count} актора."
+          updated_actors:
+            one: "Обновлен %{count} актор."
+            few: "Обновлено %{count} актора."
+            many: "Обновлено %{count} акторов."
+            other: "Обновлено %{count} актора."
+          created_objects:
+            one: "Создан %{count} объект."
+            few: "Создано %{count} объекта."
+            many: "Создан %{count} объектов."
+            other: "Создано %{count} объекта."
+          updated_objects:
+            one: "Обновлен %{count} объект."
+            few: "Обновлено %{count} объекта."
+            many: "Обновлено %{count} объектов."
+            other: "Обновлено %{count} объекта."
+          created_collections:
+            one: "Создана %{count} коллекция."
+            few: "Создано %{count} коллекции."
+            many: "Создано %{count} коллекций."
+            other: "Создано %{count} коллекции."
+          updated_collections:
+            one: "Обновлена %{count} коллекция."
+            few: "Обновлено %{count} коллекции."
+            many: "Обновлено %{count} коллекций."
+            other: "Обновлено %{count} коллекции."
+          created_activities:
+            one: "Создана %{count} активность."
+            few: "Создано %{count} активности."
+            many: "Создано %{count} активностей."
+            other: "Создано %{count} активности."
+          updated_activities:
+            one: "Обновлена %{count} активность."
+            few: "Обновлено %{count} активности."
+            many: "Обновлено %{count} активностей."
+            other: "Обновлено %{count} активности."
   site_settings:
     activity_pub_enabled: "Включить плагин ActivityPub."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Лимит POST-запросов в inbox актора (в минуту)."
+    activity_pub_rate_limit_get_objects_per_minute: "Лимит GET-запросов к объектам ActivityPub (в минуту)."
+    activity_pub_note_excerpt_maxlength: "Максимальная длина для отрывков публикаций, размещаемых в объектах ActivityPub типа Note (0 — без ограничения)."
+    activity_pub_note_link_to_forum: "Добавлять ссылку на этот форум объектам ActivityPub типа Note."
+    activity_pub_require_signed_requests: "Требовать, чтобы запросы ActivityPub были подписаны HTTP-подписями."
+    activity_pub_allowed_request_origins: "Список доменов, которым разрешено выполнять запросы ActivityPub."
+    activity_pub_blocked_request_origins: "Список доменов, которым не разрешено выполнять запросы ActivityPub."
+    activity_pub_delivery_delay_minutes: "Время задержки (в минутах) перед доставкой активностей ActivityPub ('delete' доставляются мгновенно)."
+    activity_pub_verbose_logging: "Включить подробные журналы ActivityPub."
+    activity_pub_object_logging: "Записывать в журналах все входящие и исходящие объекты ActivityPub (должна быть включена настройка ведения подробных журналов)."
+    activity_pub_post_status_visibility_groups: "Группы, имеющие доступ к статусам публикаций ActivityPub."
+    activity_pub_logs_max_days_old: "Количество дней хранения журналов ActivityPub."
+    errors:
+      signed_requests_required: Для этой настройки требуются подписанные запросы.

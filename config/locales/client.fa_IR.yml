@@ -7,9 +7,6 @@
 fa_IR:
   admin_js:
     admin:
-      site_settings:
-        categories:
-          discourse_activity_pub: "اکتیویتی‌پاب Discourse"
       discourse_activity_pub:
         label: اکتیویتی‌پاب
         actor:
