@@ -109,14 +109,10 @@ export default {
                 activity_pub_updated_at: data.model.updated_at,
                 activity_pub_delivered_at: data.model.delivered_at,
               };
-              topic.postStream
-                .triggerActivityPubStateChange(data.model.id, props)
-                .then(() =>
-                  // TODO (glimmer-post-stream) the Glimmer Post Stream does not listen to this event
-                  this.appEvents.trigger("post-stream:refresh", {
-                    id: data.model.id,
-                  })
-                );
+              topic.postStream.triggerActivityPubStateChange(
+                data.model.id,
+                props
+              );
               this.appEvents.trigger(
                 "activity-pub:post-updated",
                 data.model.id,
