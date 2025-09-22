@@ -176,6 +176,10 @@ export default class ActivityPubPostActions extends Component {
     return this.status === "scheduled" ? "unschedule" : "schedule";
   }
 
+  get scheduleActionFunction() {
+    return this.status === "scheduled" ? this.unschedule : this.schedule;
+  }
+
   get scheduleLabel() {
     return i18n(
       `post.discourse_activity_pub.actions.${this.scheduleAction}.label`,
@@ -298,7 +302,7 @@ export default class ActivityPubPostActions extends Component {
             <div class="action-button">
               <DButton
                 @translatedLabel={{this.scheduleLabel}}
-                @action={{action this.scheduleAction}}
+                @action={{this.scheduleActionFunction}}
                 @disabled={{this.noFollowers}}
                 class={{this.scheduleAction}}
               />
