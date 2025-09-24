@@ -123,7 +123,7 @@ export default class ActivityPubActorAdminRow extends Component {
             @label="admin.discourse_activity_pub.actor.edit.label"
             @title="admin.discourse_activity_pub.actor.edit.title"
             @icon="pencil"
-            class="activity-pub-edit-actor-btn"
+            class="btn-default activity-pub-edit-actor-btn"
           />
         {{/if}}
       </div>
