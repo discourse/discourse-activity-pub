@@ -62,6 +62,6 @@ export default class AdminPluginsActivityPubActor extends Controller {
 
   @action
   removeActor(actorId) {
-    this.actors.removeObject(this.actors.findBy("id", actorId));
+    this.actors.removeObject(this.actors.find((item) => item.id === actorId));
   }
 }
