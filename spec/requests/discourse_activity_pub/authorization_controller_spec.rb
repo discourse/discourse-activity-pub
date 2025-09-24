@@ -121,7 +121,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
           it "sets the domain as the verified domain in the session" do
             post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "mastodon" }
-            expect(read_secure_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
+            expect(server_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
           end
 
           it "creates a client" do
@@ -158,7 +158,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
         it "does not set the domain in the session" do
           post "/ap/auth/verify", params: { domain: external_domain2, auth_type: "mastodon" }
-          expect(read_secure_session[described_class::DOMAIN_SESSION_KEY]).to eq(nil)
+          expect(server_session[described_class::DOMAIN_SESSION_KEY]).to eq(nil)
         end
 
         it "does not create a client" do
@@ -211,7 +211,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
         it "sets the domain as the verified domain in the session" do
           post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "discourse" }
-          expect(read_secure_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
+          expect(server_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
         end
 
         it "creates a client" do
@@ -239,10 +239,9 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
 
     context "with a verified domain in the session" do
       before do
-        write_secure_session(
-          DiscourseActivityPub::AuthorizationController::DOMAIN_SESSION_KEY,
-          external_domain1,
-        )
+        server_session[
+          DiscourseActivityPub::AuthorizationController::DOMAIN_SESSION_KEY
+        ] = external_domain1
       end
 
       context "with an invalid auth_type" do
@@ -288,7 +287,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           get "/ap/auth/authorize/discourse"
           expect(
             DiscourseActivityPubAuthorization.exists?(
-              read_secure_session[described_class::AUTHORIZATION_SESSION_KEY].to_i,
+              server_session[described_class::AUTHORIZATION_SESSION_KEY].to_i,
             ),
           ).to eq(true)
         end
@@ -296,7 +295,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
         it "saves a nonce to the session" do
           ENV["ACTIVITY_PUB_TEST_RANDOM_HEX"] = "123"
           get "/ap/auth/authorize/discourse"
-          expect(read_secure_session[described_class::NONCE_SESSION_KEY]).to eq("123")
+          expect(server_session[described_class::NONCE_SESSION_KEY]).to eq("123")
         end
 
         it "redirects to the authorize url for the app" do
@@ -323,10 +322,9 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
       let!(:authorization) { Fabricate(:discourse_activity_pub_authorization_mastodon, user: user) }
 
       before do
-        write_secure_session(
-          DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY,
-          authorization.id,
-        )
+        server_session[
+          DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY
+        ] = authorization.id
       end
 
       context "with mastodon" do
@@ -436,20 +434,18 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           end
 
           before do
-            write_secure_session(
-              DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY,
-              authorization.id,
-            )
+            server_session[
+              DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY
+            ] = authorization.id
           end
 
           context "with a nonce in the session" do
             let!(:nonce) { "12345" }
 
             before do
-              write_secure_session(
-                DiscourseActivityPub::AuthorizationController::NONCE_SESSION_KEY,
-                nonce,
-              )
+              server_session[
+                DiscourseActivityPub::AuthorizationController::NONCE_SESSION_KEY
+              ] = nonce
             end
 
             context "when the callback has a valid payload" do
