@@ -190,11 +190,11 @@ module DiscourseActivityPub
     end
 
     def get_session_value(key)
-      secure_session[key]
+      server_session[key]
     end
 
     def set_session_value(key, value)
-      secure_session.set(key, value, expires: SESSION_EXPIRY_MINUTES.minutes)
+      server_session.set(key, value, expires: SESSION_EXPIRY_MINUTES.minutes)
     end
 
     def redirect_params
