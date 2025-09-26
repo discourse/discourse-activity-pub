@@ -4,7 +4,7 @@ import LoadMore from "discourse/components/load-more";
 import ResponsiveTable from "discourse/components/responsive-table";
 import TableHeaderToggle from "discourse/components/table-header-toggle";
 import { i18n } from "discourse-i18n";
-import ActivityPubActorAdminRow from "../components/activity-pub-actor-admin-row";
+import ActivityPubActorAdminRow from "../../../components/activity-pub-actor-admin-row";
 
 export default RouteTemplate(
   <template>

@@ -1,6 +1,6 @@
 import { A } from "@ember/array";
 import DiscourseRoute from "discourse/routes/discourse";
-import ActivityPubLog from "../models/activity-pub-log";
+import ActivityPubLog from "../../../models/activity-pub-log";
 
 export default class AdminPluginsActivityPubLogRoute extends DiscourseRoute {
   queryParams = {

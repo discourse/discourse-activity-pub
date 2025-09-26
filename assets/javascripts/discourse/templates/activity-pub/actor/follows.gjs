@@ -8,8 +8,8 @@ import avatar from "discourse/helpers/avatar";
 import boundDate from "discourse/helpers/bound-date";
 import routeAction from "discourse/helpers/route-action";
 import { i18n } from "discourse-i18n";
-import ActivityPubActor from "../components/activity-pub-actor";
-import ActivityPubFollowBtn from "../components/activity-pub-follow-btn";
+import ActivityPubActor from "../../../components/activity-pub-actor";
+import ActivityPubFollowBtn from "../../../components/activity-pub-follow-btn";
 
 export default RouteTemplate(
   <template>

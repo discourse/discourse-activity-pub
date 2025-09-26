@@ -5,8 +5,8 @@ import { notEmpty } from "@ember/object/computed";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import ActivityPubLogJsonModal from "../components/modal/activity-pub-log-json";
-import ActivityPubLog from "../models/activity-pub-log";
+import ActivityPubLogJsonModal from "../../../components/modal/activity-pub-log-json";
+import ActivityPubLog from "../../../models/activity-pub-log";
 
 export default class AdminPluginsActivityPubLog extends Controller {
   @service modal;
