@@ -1,9 +1,9 @@
 import Controller, { inject as controller } from "@ember/controller";
 import { readOnly } from "@ember/object/computed";
-import { newActor } from "../models/activity-pub-actor";
+import { newActor } from "../../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPub extends Controller {
-  @controller adminPluginsActivityPubActor;
+  @controller("admin-plugins.activity-pub.actor") adminPluginsActivityPubActor;
 
   @readOnly("adminPluginsActivityPubActor.model_type") modelType;
 

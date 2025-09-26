@@ -1,8 +1,8 @@
 import RouteTemplate from "ember-route-template";
 import Navigation from "discourse/components/discovery/navigation";
 import routeAction from "discourse/helpers/route-action";
-import ActivityPubBanner from "../components/activity-pub-banner";
-import ActivityPubNav from "../components/activity-pub-nav";
+import ActivityPubBanner from "../../components/activity-pub-banner";
+import ActivityPubNav from "../../components/activity-pub-nav";
 
 export default RouteTemplate(
   <template>
