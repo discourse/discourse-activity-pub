@@ -4,7 +4,7 @@ import { action } from "@ember/object";
 import { notEmpty } from "@ember/object/computed";
 import { service } from "@ember/service";
 import { i18n } from "discourse-i18n";
-import ActivityPubAuthorization from "../models/activity-pub-authorization";
+import ActivityPubAuthorization from "../../models/activity-pub-authorization";
 
 export default class PreferencesActivityPubController extends Controller {
   @service dialog;
