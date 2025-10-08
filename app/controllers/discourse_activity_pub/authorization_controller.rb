@@ -96,7 +96,7 @@ module DiscourseActivityPub
       if authorization && authorization.destroy!
         render json: success_json
       else
-        render json: failed_json, status: 422
+        render json: failed_json, status: :unprocessable_content
       end
     end
 

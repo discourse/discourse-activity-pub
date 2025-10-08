@@ -13,7 +13,7 @@ module DiscourseActivityPub
 
     def index
       # TODO: is this Cache Control correct for webfinger?
-      expires_in 1.minutes
+      expires_in 1.minute
       render json: serialized_resource, content_type: Webfinger::CONTENT_TYPE
     end
 

@@ -78,7 +78,7 @@ module DiscourseActivityPub
       if actor
         render json: actor.ap.json
       else
-        render json: failed_json, status: 404
+        render json: failed_json, status: :not_found
       end
     end
 

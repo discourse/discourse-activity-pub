@@ -7,7 +7,7 @@ RSpec.describe Topic do
   end
 
   fab!(:user1) { Fabricate(:user, admin: true) }
-  fab!(:user2) { Fabricate(:user) }
+  fab!(:user2, :user)
   fab!(:category1) { Fabricate(:category, user: user1) }
   fab!(:category2) { Fabricate(:category, user: user1) }
   fab!(:topic1) { Fabricate(:topic, user: user1, category: category1, created_at: 4.hours.ago) }

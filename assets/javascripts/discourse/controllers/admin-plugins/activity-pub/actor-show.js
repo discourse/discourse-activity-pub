@@ -10,7 +10,10 @@ import ActivityPubActor from "../../../models/activity-pub-actor";
 export default class AdminPluginsActivityPubActorShow extends Controller {
   @service dialog;
   @service router;
-  @service site;
+  // eslint-disable-next-line discourse/no-unused-services
+  @service site; // used in the template
+  // eslint-disable-next-line discourse/no-unused-services
+  @service siteSettings; // used in the template
 
   @tracked categoryId = null;
   @tracked tags = [];

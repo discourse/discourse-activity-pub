@@ -9,7 +9,6 @@ import ActivityPubTopicActions from "../activity-pub-topic-actions";
 import ActivityPubTopicInfo from "../activity-pub-topic-info";
 
 export default class ActivityPubTopicModal extends Component {
-  @service modal;
   @service currentUser;
 
   get topic() {

@@ -10,7 +10,6 @@ import ActivityPubLog from "../../../models/activity-pub-log";
 
 export default class AdminPluginsActivityPubLog extends Controller {
   @service modal;
-  @service router;
 
   @tracked order = "";
   @tracked asc = null;

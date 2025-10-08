@@ -21,7 +21,7 @@ module DiscourseActivityPub
       if @post.activity_pub_deliver!
         render json: success_json
       else
-        render json: failed_json, status: 422
+        render json: failed_json, status: :unprocessable_content
       end
     end
 
@@ -36,7 +36,7 @@ module DiscourseActivityPub
       if @post.activity_pub_publish!
         render json: success_json
       else
-        render json: failed_json, status: 422
+        render json: failed_json, status: :unprocessable_content
       end
     end
 
@@ -49,7 +49,7 @@ module DiscourseActivityPub
       if @post.activity_pub_schedule!
         render json: success_json
       else
-        render json: failed_json, status: 422
+        render json: failed_json, status: :unprocessable_content
       end
     end
 
@@ -61,7 +61,7 @@ module DiscourseActivityPub
       if @post.activity_pub_unschedule!
         render json: success_json
       else
-        render json: failed_json, status: 422
+        render json: failed_json, status: :unprocessable_content
       end
     end
 
