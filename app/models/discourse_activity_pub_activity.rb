@@ -68,7 +68,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
     result << DiscourseActivityPub::JsonLd.public_collection_id if public?
     result << audience if audience
 
-    result.present? ? result : nil
+    (result.presence)
   end
 
   def cc
@@ -80,7 +80,7 @@ class DiscourseActivityPubActivity < ActiveRecord::Base
       result << reply_to_audience if reply_to_audience && to != reply_to_audience
     end
 
-    result.present? ? result : nil
+    (result.presence)
   end
 
   def announce!(actor_id)

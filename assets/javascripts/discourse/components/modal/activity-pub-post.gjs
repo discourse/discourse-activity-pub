@@ -7,7 +7,6 @@ import ActivityPubPostActions from "../activity-pub-post-actions";
 import ActivityPubPostInfo from "../activity-pub-post-info";
 
 export default class ActivityPubPostModal extends Component {
-  @service modal;
   @service currentUser;
 
   get post() {

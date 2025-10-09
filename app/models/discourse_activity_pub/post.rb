@@ -94,11 +94,10 @@ module DiscourseActivityPub::Post
   def activity_pub_content
     return nil unless activity_pub_enabled
 
-    if custom_fields["activity_pub_content"].present?
-      custom_fields["activity_pub_content"]
-    else
-      DiscourseActivityPub::ContentParser.get_content(self)
-    end
+    (
+      custom_fields["activity_pub_content"].presence ||
+        DiscourseActivityPub::ContentParser.get_content(self)
+    )
   end
 
   def activity_pub_published_at

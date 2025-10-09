@@ -126,7 +126,7 @@ module Admin::DiscourseActivityPub
                      DiscourseActivityPub::DetailedActorSerializer.new(actor, root: false).as_json,
                  )
       else
-        render json: failed_json.merge(errors: handler.errors.map(&:message)), status: 400
+        render json: failed_json.merge(errors: handler.errors.map(&:message)), status: :bad_request
       end
     end
 

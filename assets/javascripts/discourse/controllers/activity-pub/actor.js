@@ -4,8 +4,8 @@ import { service } from "@ember/service";
 
 export default class ActivityPubActor extends Controller {
   @service composer;
-  @service site;
-  @service currentUser;
+  // eslint-disable-next-line discourse/no-unused-services
+  @service site; // used in the template
 
   @action
   createTopic() {
