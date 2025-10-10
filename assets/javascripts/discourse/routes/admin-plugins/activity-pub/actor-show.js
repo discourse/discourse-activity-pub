@@ -3,7 +3,7 @@ import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor, {
   actorAdminPath,
   newActor,
-} from "../models/activity-pub-actor";
+} from "../../../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActorShowRoute extends DiscourseRoute {
   model(params, transition) {

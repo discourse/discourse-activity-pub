@@ -1,4 +1,4 @@
-import Service, { service } from "@ember/service";
+import Service from "@ember/service";
 import { TrackedMap } from "@ember-compat/tracked-built-ins";
 import { bind } from "discourse/lib/decorators";
 
@@ -13,8 +13,6 @@ const trackedAttributes = [
 ];
 
 export default class ActivityPubTopicTrackingState extends Service {
-  @service appEvents;
-
   attributes = new TrackedMap();
   statuses = new TrackedMap();
 

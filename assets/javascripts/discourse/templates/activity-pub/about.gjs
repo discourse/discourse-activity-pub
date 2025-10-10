@@ -1,6 +1,6 @@
 import RouteTemplate from "ember-route-template";
 import { i18n } from "discourse-i18n";
-import ActivityPubActorCard from "../components/activity-pub-actor-card";
+import ActivityPubActorCard from "../../components/activity-pub-actor-card";
 
 export default RouteTemplate(
   <template>

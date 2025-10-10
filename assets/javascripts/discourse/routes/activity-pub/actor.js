@@ -1,7 +1,7 @@
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DiscourseRoute from "discourse/routes/discourse";
-import ActivityPubActor from "../models/activity-pub-actor";
+import ActivityPubActor from "../../models/activity-pub-actor";
 
 export default class ActivityPubActorRoute extends DiscourseRoute {
   @service router;

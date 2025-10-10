@@ -34,7 +34,7 @@ class CreateDiscourseActivityPubAuthorizations < ActiveRecord::Migration[7.1]
     clients_by_domain =
       DiscourseActivityPubClient
         .where(auth_type: DiscourseActivityPubClient.auth_types[:mastodon])
-        .each_with_object({}) { |client, result| result[client.domain] = client }
+        .index_by { |client| client.domain }
 
     authorizations =
       DiscourseActivityPubActor

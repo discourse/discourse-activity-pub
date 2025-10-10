@@ -3,9 +3,9 @@
 RSpec.describe ListController do
   describe "#index" do
     context "with activity pub topics" do
-      fab!(:category1) { Fabricate(:category) }
-      fab!(:category2) { Fabricate(:category) }
-      fab!(:category3) { Fabricate(:category) }
+      fab!(:category1, :category)
+      fab!(:category2, :category)
+      fab!(:category3, :category)
       fab!(:topic_ids) do
         topic_ids = []
         [category1, category2].each do |category|

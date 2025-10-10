@@ -8,7 +8,7 @@ class DiscourseActivityPub::AP::SharedInboxesController < DiscourseActivityPub::
 
   def create
     process_json
-    head 202
+    head :accepted
   end
 
   protected

@@ -86,8 +86,8 @@ def build_signature(
     verb: verb,
     path: path,
     key_id: key_id || signature_key_id(actor),
-    keypair: keypair.present? ? keypair : actor.keypair,
-    headers: headers.present? ? headers : default_headers,
+    keypair: (keypair.presence || actor.keypair),
+    headers: (headers.presence || default_headers),
     custom_params: params,
   )
 end
@@ -108,7 +108,7 @@ def build_headers(
     verb: verb,
     path: path || DiscourseActivityPub::URI.parse(object.ap_id).path,
     key_id: key_id || signature_key_id(actor),
-    keypair: keypair.present? ? keypair : actor.keypair,
+    keypair: (keypair.presence || actor.keypair),
     headers: _headers,
     params: params,
   )

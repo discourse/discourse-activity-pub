@@ -72,7 +72,7 @@ export default RouteTemplate(
                       @icon="code"
                       @label="admin.discourse_activity_pub.log.json.show.label"
                       @title="admin.discourse_activity_pub.log.json.show.title"
-                      class="activity-pub-log-show-json-btn"
+                      class="btn-default activity-pub-log-show-json-btn"
                     />
                   {{/if}}
                 </div>

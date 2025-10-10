@@ -7,15 +7,15 @@ import ConditionalLoadingSpinner from "discourse/components/conditional-loading-
 import DButton from "discourse/components/d-button";
 import DToggleSwitch from "discourse/components/d-toggle-switch";
 import { i18n } from "discourse-i18n";
-import ActivityPubActorModel from "../components/activity-pub-actor-model";
-import ActivityPubActorStatus from "../components/activity-pub-actor-status";
-import ActivityPubCategoryChooser from "../components/activity-pub-category-chooser";
-import ActivityPubHandle from "../components/activity-pub-handle";
-import ActivityPubPostObjectTypeDropdown from "../components/activity-pub-post-object-type-dropdown";
-import ActivityPubPublicationTypeDropdown from "../components/activity-pub-publication-type-dropdown";
-import ActivityPubSiteSettingNotice from "../components/activity-pub-site-setting-notice";
-import ActivityPubTagChooser from "../components/activity-pub-tag-chooser";
-import ActivityPubVisibilityDropdown from "../components/activity-pub-visibility-dropdown";
+import ActivityPubActorModel from "../../../components/activity-pub-actor-model";
+import ActivityPubActorStatus from "../../../components/activity-pub-actor-status";
+import ActivityPubCategoryChooser from "../../../components/activity-pub-category-chooser";
+import ActivityPubHandle from "../../../components/activity-pub-handle";
+import ActivityPubPostObjectTypeDropdown from "../../../components/activity-pub-post-object-type-dropdown";
+import ActivityPubPublicationTypeDropdown from "../../../components/activity-pub-publication-type-dropdown";
+import ActivityPubSiteSettingNotice from "../../../components/activity-pub-site-setting-notice";
+import ActivityPubTagChooser from "../../../components/activity-pub-tag-chooser";
+import ActivityPubVisibilityDropdown from "../../../components/activity-pub-visibility-dropdown";
 
 export default RouteTemplate(
   <template>

@@ -6,7 +6,7 @@ import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { i18n } from "discourse-i18n";
-import ActivityPubActor, { newActor } from "../models/activity-pub-actor";
+import ActivityPubActor, { newActor } from "../../../models/activity-pub-actor";
 
 export default class AdminPluginsActivityPubActor extends Controller {
   @service router;
