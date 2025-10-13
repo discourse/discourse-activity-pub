@@ -31,7 +31,7 @@ export default {
         if (topic.activity_pub_enabled && currentUser?.staff) {
           const firstPost = topic
             .get("postStream.posts")
-            .findBy("post_number", 1);
+            .find((item) => item.post_number === 1);
           return {
             icon: "discourse-activity-pub",
             className: "show-activity-pub-topic-admin",
@@ -82,7 +82,7 @@ export default {
           class extends Superclass {
             getActivityPubPostActor(postId) {
               const postActors = this.activity_pub_post_actors || [];
-              return postActors.findBy("post_id", postId);
+              return postActors.find((item) => item.post_id === postId);
             }
           }
       );
