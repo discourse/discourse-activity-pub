@@ -103,7 +103,7 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
           if (result?.success) {
             this.actor.set("ap_type", "Tombstone");
             updateSiteActor(this.actor);
-            return this.router.transitionTo("adminPlugins.activityPub.actor");
+            this.router.transitionTo("adminPlugins.activityPub.actor");
           }
           this.loading = false;
         });
