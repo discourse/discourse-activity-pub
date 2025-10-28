@@ -13,6 +13,7 @@ export default class AdminPluginsActivityPubLog extends Controller {
 
   @tracked order = "";
   @tracked asc = null;
+  @tracked loadingMore = false;
   loadMoreUrl = "";
   total = "";
 
@@ -21,29 +22,30 @@ export default class AdminPluginsActivityPubLog extends Controller {
   queryParams = ["order", "asc"];
 
   @action
-  loadMore() {
+  async loadMore() {
     if (!this.loadMoreUrl || this.total <= this.logs.length) {
       return;
     }
 
-    this.set("loadingMore", true);
+    this.loadingMore = true;
 
-    return ajax(this.loadMoreUrl)
-      .then((response) => {
-        if (response) {
-          this.logs.pushObjects(
-            (response.logs || []).map((log) => {
-              return ActivityPubLog.create(log);
-            })
-          );
-          this.setProperties({
-            loadMoreUrl: response.meta.load_more_url,
-            total: response.meta.total,
-            loadingMore: false,
-          });
-        }
-      })
-      .catch(popupAjaxError);
+    try {
+      const response = await ajax(this.loadMoreUrl);
+      if (response) {
+        this.logs.push(
+          ...(response.logs || []).map((log) => {
+            return ActivityPubLog.create(log);
+          })
+        );
+        this.setProperties({
+          loadMoreUrl: response.meta.load_more_url,
+          total: response.meta.total,
+          loadingMore: false,
+        });
+      }
+    } catch (error) {
+      popupAjaxError(error);
+    }
   }
 
   @action

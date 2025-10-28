@@ -13,6 +13,7 @@ export default class AdminPluginsActivityPubActor extends Controller {
 
   @tracked order = "";
   @tracked asc = null;
+  @tracked loadingMore = false;
   @tracked model_type = "category";
   loadMoreUrl = "";
   total = "";
@@ -26,29 +27,31 @@ export default class AdminPluginsActivityPubActor extends Controller {
   }
 
   @action
-  loadMore() {
+  async loadMore() {
     if (!this.loadMoreUrl || this.total <= this.actors.length) {
       return;
     }
 
-    this.set("loadingMore", true);
+    this.loadingMore = true;
 
-    return ajax(this.loadMoreUrl)
-      .then((response) => {
-        if (response) {
-          this.actors.pushObjects(
-            (response.actors || []).map((actor) => {
-              return ActivityPubActor.create(actor);
-            })
-          );
-          this.setProperties({
-            loadMoreUrl: response.meta.load_more_url,
-            total: response.meta.total,
-            loadingMore: false,
-          });
-        }
-      })
-      .catch(popupAjaxError);
+    try {
+      const response = await ajax(this.loadMoreUrl);
+
+      if (response) {
+        this.actors.push(
+          ...(response.actors || []).map((actor) => {
+            return ActivityPubActor.create(actor);
+          })
+        );
+        this.setProperties({
+          loadMoreUrl: response.meta.load_more_url,
+          total: response.meta.total,
+          loadingMore: false,
+        });
+      }
+    } catch (error) {
+      popupAjaxError(error);
+    }
   }
 
   @action

@@ -8,6 +8,7 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 export default class ActivityPubActorFollowers extends Controller {
   @tracked order = "";
   @tracked asc = null;
+  @tracked loadingMore = false;
 
   queryParams = ["order", "asc"];
 
@@ -22,23 +23,24 @@ export default class ActivityPubActorFollowers extends Controller {
   }
 
   @action
-  loadMore() {
+  async loadMore() {
     if (!this.loadMoreUrl || this.total <= this.actors.length) {
       return;
     }
 
-    this.set("loadingMore", true);
+    this.loadingMore = true;
 
-    return ajax(this.loadMoreUrl)
-      .then((response) => {
-        if (response) {
-          this.actors.pushObjects(response.actors);
-          this.setProperties({
-            loadMoreUrl: response.meta.load_more_url,
-            loadingMore: false,
-          });
-        }
-      })
-      .catch(popupAjaxError);
+    try {
+      const response = await ajax(this.loadMoreUrl);
+      if (response) {
+        this.actors.push(...response.actors);
+        this.setProperties({
+          loadMoreUrl: response.meta.load_more_url,
+          loadingMore: false,
+        });
+      }
+    } catch (error) {
+      popupAjaxError(error);
+    }
   }
 }
