@@ -130,7 +130,9 @@ en:
           model_not_ready: ActivityPub is not ready for this %{model_type}
           model_not_active: ActivityPub is not active for this %{model_type}
           model_active:
-            first_post: The first post of a new topic will be published %{delay_minutes} minutes after being posted
+            first_post:
+              one: The first post of a new topic will be published %{delay_minutes} minute after being posted
+              other: The first post of a new topic will be published %{delay_minutes} minutes after being posted
         label:
           active: Active
           not_active: Not Active
@@ -269,7 +271,9 @@ en:
           schedule:
             label: "Schedule Post #%{post_number}"
             description:
-              followers: "Publish Post #%{post_number} and deliver it to the followers of the Group Actors in %{minutes} minutes."
+              followers:
+                one: "Publish Post #%{post_number} and deliver it to the followers of the Group Actors in %{minutes} minute."
+                other: "Publish Post #%{post_number} and deliver it to the followers of the Group Actors in %{minutes} minutes."
               no_followers: "Scheduling is disabled for Post #%{post_number}. The Group Actors have no followers to deliver to."
           unschedule:
             label: "Unschedule Post #%{post_number}"
@@ -295,7 +299,9 @@ en:
         posts_status:
           label: Posts Status
           published: All posts in this topic are published.
-          some_published: "%{count} of %{total} posts in this topic are published."
+          some_published:
+            one: "%{count} of %{total} post in this topic is published."
+            other: "%{count} of %{total} posts in this topic are published."
           none_published: No posts in this topic are published.
           scheduled: This topic is scheduled to be published.
         actions:
@@ -305,7 +311,9 @@ en:
         publish:
           label: Publish All Posts
           description:
-            unpublished: "Publish %{count} unpublished posts in Topic #%{topic_id}. Posts will not be delivered to the followers of the Group Actors."
+            unpublished:
+              one: "Publish %{count} unpublished post in Topic #%{topic_id}. Post will not be delivered to the followers of the Group Actors."
+              other: "Publish %{count} unpublished posts in Topic #%{topic_id}. Posts will not be delivered to the followers of the Group Actors."
             published: "Publish all posts is disabled. All posts in Topic #%{topic_id} are already published."
             scheduled: "Publish all posts is disabled. Topic #%{topic_id} is scheduled to be published."
 
