@@ -97,8 +97,6 @@ cs:
           model_disabled: ActivityPub je pro %{model_type} zakázán
           model_not_ready: ActivityPub není připraven na %{model_type}
           model_not_active: ActivityPub není pro %{model_type} aktivní
-          model_active:
-            first_post: První příspěvek nového tématu bude zveřejněn %{delay_minutes} minut po zveřejnění
         label:
           active: Aktivní
           not_active: Není aktivní

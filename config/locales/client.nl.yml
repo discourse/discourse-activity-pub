@@ -132,8 +132,6 @@ nl:
           model_disabled: ActivityPub is uitgeschakeld voor deze %{model_type}
           model_not_ready: ActivityPub is niet gereed voor deze %{model_type}
           model_not_active: ActivityPub is niet actief voor deze %{model_type}
-          model_active:
-            first_post: Het eerste bericht van een nieuw topic wordt %{delay_minutes} minuten na plaatsing gepubliceerd
         label:
           active: Actief
           not_active: Niet actief
@@ -271,7 +269,6 @@ nl:
           schedule:
             label: "Bericht %{post_number} plannen"
             description:
-              followers: "Publiceer bericht %{post_number} en deel het met de volgers van de groepsactors in %{minutes} minuten."
               no_followers: "Planning is uitgeschakeld voor bericht %{post_number}. De groepsactors hebben geen volgers om aan te leveren."
           unschedule:
             label: "Bericht %{post_number} ontplannen"
@@ -296,7 +293,6 @@ nl:
         posts_status:
           label: Berichtenstatus
           published: Alle berichten in dit topic zijn gepubliceerd.
-          some_published: "%{count} van %{total} berichten in dit topic zijn gepubliceerd."
           none_published: Er zijn geen berichten in dit topic gepubliceerd.
           scheduled: Dit topic is gepland voor publicatie.
         actions:
@@ -306,7 +302,6 @@ nl:
         publish:
           label: Alle berichten publiceren
           description:
-            unpublished: "Publiceer %{count} ongepubliceerde berichten in topic %{topic_id}. Berichten worden niet geleverd aan de volgers van de groepsactors."
             published: "Publicatie van alle berichten is uitgeschakeld. Alle berichten in topic %{topic_id} zijn al gepubliceerd."
             scheduled: "Publicatie van alle berichten is uitgeschakeld. Topic %{topic_id} is gepland voor publicatie."
     user:

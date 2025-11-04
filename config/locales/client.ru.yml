@@ -137,8 +137,6 @@ ru:
           model_disabled: ActivityPub отключен для модели «%{model_type}»
           model_not_ready: ActivityPub не готов для модели «%{model_type}»
           model_not_active: ActivityPub не активен для модели «%{model_type}»
-          model_active:
-            first_post: Первая публикация новой темы будет опубликована через %{delay_minutes} мин. после размещения
         label:
           active: Действует
           not_active: Неактивен
@@ -276,7 +274,6 @@ ru:
           schedule:
             label: "Запланировать публикацию №%{post_number}"
             description:
-              followers: "Разместить публикацию №%{post_number} и разослать ее подписчикам акторов группы через %{minutes} мин."
               no_followers: "Планирование отключено для публикации №%{post_number}. У акторов группы нет подписчиков для рассылки."
           unschedule:
             label: "Отменить запланированную публикацию №%{post_number}"
@@ -301,7 +298,6 @@ ru:
         posts_status:
           label: Статус публикаций
           published: Все публикации в этой теме опубликованы.
-          some_published: "В этой теме опубликовано публикаций: %{count} из %{total}."
           none_published: В этой теме нет опубликованных публикаций.
           scheduled: Запланирована публикация этой темы.
         actions:
@@ -311,7 +307,6 @@ ru:
         publish:
           label: Опубликовать все публикации
           description:
-            unpublished: "Разместить неопубликованные публикации (%{count}) в теме №%{topic_id}. Публикации не будут разосланы подписчикам акторов группы."
             published: "Размещение всех публикаций отключено. Все публикации в теме №%{topic_id} уже размещены."
             scheduled: "Размещение всех публикаций отключено. Запланирована публикация темы №%{topic_id}."
     user:

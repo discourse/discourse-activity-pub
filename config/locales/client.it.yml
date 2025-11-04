@@ -132,8 +132,6 @@ it:
           model_disabled: ActivityPub è disabilitato per questo %{model_type}
           model_not_ready: ActivityPub non è pronto per questo %{model_type}
           model_not_active: ActivityPub non è attivo per questo %{model_type}
-          model_active:
-            first_post: Il primo messaggio di un nuovo argomento verrà pubblicato %{delay_minutes} minuti dopo l'invio
         label:
           active: Attiva
           not_active: Non attivo
@@ -271,7 +269,6 @@ it:
           schedule:
             label: "Programma il messaggio n.%{post_number}"
             description:
-              followers: "Pubblica il messaggio n.%{post_number} e recapitalo ai follower degli Attori del gruppo tra %{minutes} minuti."
               no_followers: "La programmazione è disabilitata per il messaggio n.%{post_number}. Gli Attori del gruppo non hanno follower a cui inviarlo."
           unschedule:
             label: "Annulla la programmazione del messaggio n.%{post_number}"
@@ -296,7 +293,6 @@ it:
         posts_status:
           label: Stato dei messaggi
           published: Tutti i messaggi in questo argomento sono pubblicati.
-          some_published: "%{count} di %{total} messaggi in questo argomento sono pubblicati."
           none_published: Nessun messaggio pubblicato in questo argomento.
           scheduled: L'argomento è programmato per la pubblicazione.
         actions:
@@ -306,7 +302,6 @@ it:
         publish:
           label: Pubblica tutti i messaggi
           description:
-            unpublished: "Pubblica %{count} messaggi non pubblicati nell'argomento n.%{topic_id}. I messaggi non verranno consegnati ai follower degli Attori del gruppo."
             published: "La pubblicazione di tutti i messaggi è disabilitata. Tutti i messaggi nell'argomento n.%{topic_id} sono già pubblicati."
             scheduled: "La pubblicazione di tutti i messaggi è disabilitata. L'argomento n.%{topic_id} è programmato per la pubblicazione."
     user:

@@ -132,7 +132,8 @@ zh_CN:
           model_not_ready: ActivityPub 未对此%{model_type}准备就绪
           model_not_active: ActivityPub 未对此%{model_type}激活
           model_active:
-            first_post: 新话题的第一个帖子将在发布 %{delay_minutes} 分钟后发布
+            first_post:
+              other: 新话题的第一个帖子将在发布 %{delay_minutes} 分钟后发布
         label:
           active: 有效
           not_active: 停用
@@ -270,7 +271,8 @@ zh_CN:
           schedule:
             label: "安排帖子 #%{post_number}"
             description:
-              followers: "发布帖子 #%{post_number} 并在 %{minutes} 分钟内将其递送给群组参与者的关注者。"
+              followers:
+                other: "发布帖子 #%{post_number} 并在 %{minutes} 分钟内将其递送给群组参与者的关注者。"
               no_followers: "帖子 #%{post_number} 的安排功能已禁用。群组参与者没有可递送的关注者。"
           unschedule:
             label: "取消安排帖子 #%{post_number}"
@@ -295,7 +297,8 @@ zh_CN:
         posts_status:
           label: 帖子状态
           published: 此话题下的所有帖子均已发布。
-          some_published: "此话题下的 %{total} 个帖子中有 %{count} 个已发布。"
+          some_published:
+            other: "此话题下的 %{total} 个帖子中有 %{count} 个已发布。"
           none_published: 此话题下尚未发布任何帖子。
           scheduled: 此话题已安排发布。
         actions:
@@ -305,7 +308,8 @@ zh_CN:
         publish:
           label: 发布所有帖子
           description:
-            unpublished: "在话题 #%{topic_id} 中发布 %{count} 篇未发布的帖子。帖子不会递送给群组参与者的关注者。"
+            unpublished:
+              other: "在话题 #%{topic_id} 中发布 %{count} 篇未发布的帖子。帖子不会递送给群组参与者的关注者。"
             published: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 下的所有帖子均已发布。"
             scheduled: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 已安排发布。"
     user:

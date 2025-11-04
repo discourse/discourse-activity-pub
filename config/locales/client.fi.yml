@@ -132,8 +132,6 @@ fi:
           model_disabled: ActivityPub on poistettu käytöstä tässä mallissa %{model_type}
           model_not_ready: ActivityPub ei ole valmis tälle mallille %{model_type}
           model_not_active: ActivityPub ei ole aktiivinen tälle mallille %{model_type}
-          model_active:
-            first_post: Uuden ketjun ensimmäinen viesti julkaistaan %{delay_minutes} minuuttia julkaisun jälkeen
         label:
           active: Aktiivinen
           not_active: Ei aktiivinen
@@ -271,7 +269,6 @@ fi:
           schedule:
             label: "Ajoita viesti %{post_number}"
             description:
-              followers: "Julkaise viesti %{post_number} ja toimita se ryhmä-actoreiden seuraajille %{minutes} minuutin kuluttua."
               no_followers: "Ajoitus on poistettu käytöstä viestille %{post_number}. Ryhmä-actoreilla ei ole seuraajia, joille toimittaa."
           unschedule:
             label: "Peru viestin %{post_number} ajoitus"
@@ -296,7 +293,6 @@ fi:
         posts_status:
           label: Viestien tila
           published: Kaikki tämän ketjun viestit julkaistaan.
-          some_published: "%{count}/%{total} viestiä tässä ketjussa on julkaistu."
           none_published: Tämän ketjun viestejä ei julkaista.
           scheduled: Tämä ketju on ajoitettu julkaistavaksi.
         actions:
@@ -306,7 +302,6 @@ fi:
         publish:
           label: Julkaise kaikki viestit
           description:
-            unpublished: "Julkaise %{count} julkaisematonta viestiä ketjussa %{topic_id}. Viestejä ei toimiteta ryhmä-actoreiden seuraajille."
             published: "Kaikkien viestien julkaiseminen on poistettu käytöstä. Kaikki ketjun %{topic_id} viestit on jo julkaistu."
             scheduled: "Kaikkien viestien julkaiseminen on poistettu käytöstä. Ketju %{topic_id} on ajoitettu julkaistavaksi."
     user:

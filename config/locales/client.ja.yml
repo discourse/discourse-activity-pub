@@ -132,7 +132,8 @@ ja:
           model_not_ready: この %{model_type} の ActivityPub は準備されていません
           model_not_active: この %{model_type} の ActivityPub はアクティブではありません
           model_active:
-            first_post: 新しいトピックの最初の投稿は、投稿から %{delay_minutes} 分後に公開されます
+            first_post:
+              other: 新しいトピックの最初の投稿は、投稿から %{delay_minutes} 分後に公開されます
         label:
           active: アクティブ
           not_active: 非アクティブ
@@ -270,7 +271,8 @@ ja:
           schedule:
             label: "投稿 #%{post_number} をスケジュール"
             description:
-              followers: "投稿 #%{post_number} を公開して、%{minutes} 分後にグループアクターのフォロワーに配信します。"
+              followers:
+                other: "投稿 #%{post_number} を公開して、%{minutes} 分後にグループアクターのフォロワーに配信します。"
               no_followers: "投稿 #%{post_number} のスケジュール設定は無効になっています。グループアクターには配信するフォロワーがいません。"
           unschedule:
             label: "投稿 #%{post_number} のスケジュールを取り消す"
@@ -295,7 +297,8 @@ ja:
         posts_status:
           label: 投稿ステータス
           published: このトピックのすべての投稿は公開されています。
-          some_published: "このトピックの %{total} 件中 %{count} 件の投稿が公開されています。"
+          some_published:
+            other: "このトピックの %{total} 件中 %{count} 件の投稿が公開されています。"
           none_published: このトピックの投稿はどれも公開されていません。
           scheduled: このトピックには公開スケジュールが設定されています。
         actions:
@@ -305,7 +308,8 @@ ja:
         publish:
           label: すべての投稿を公開
           description:
-            unpublished: "トピック #%{topic_id} に %{count} 件の未公開投稿を公開します。投稿はグループアクターのフォロワーに配信されません。"
+            unpublished:
+              other: "トピック #%{topic_id} に %{count} 件の未公開投稿を公開します。投稿はグループアクターのフォロワーに配信されません。"
             published: "すべての投稿の公開が無効になっています。トピック #%{topic_id} のすべての投稿はすでに公開されています。"
             scheduled: "すべての投稿の公開が無効になっています。トピック #%{topic_id} には公開スケジュールが設定されています。"
     user:

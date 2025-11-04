@@ -132,8 +132,6 @@ pt_BR:
           model_disabled: O ActivityPub está destivado para %{model_type}
           model_not_ready: O ActivityPub não está pronto para %{model_type}
           model_not_active: O ActivityPub está ativo para %{model_type}
-          model_active:
-            first_post: A primeira postagem de um tópico novo será publicada %{delay_minutes} minuto(s) após ser postada
         label:
           active: Ativo(a)
           not_active: Não ativo(a)
@@ -271,7 +269,6 @@ pt_BR:
           schedule:
             label: "Progamar postagem #%{post_number}"
             description:
-              followers: "Publique a postagem #%{post_number} e entregue-a aos(às) seguidores(as) dos atores do grupo em %{minutes} minuto(s)."
               no_followers: "A programação está desativada para a postagem #%{post_number}. Os atores do grupo não têm seguidores(as) para os(as) quais entregar."
           unschedule:
             label: "Cancelar programação da postagem #%{post_number}"
@@ -296,7 +293,6 @@ pt_BR:
         posts_status:
           label: Status das postagens
           published: Todas as postagens deste tópico estão publicadas.
-          some_published: "%{count} de %{total} postagens deste tópico estão publicadas."
           none_published: Nenhuma postagem deste tópico está publicada.
           scheduled: Este tópico está programado para ser publicado.
         actions:
@@ -306,7 +302,6 @@ pt_BR:
         publish:
           label: Publicar todas as postagens
           description:
-            unpublished: "Publique %{count} postagens não publicadas no tópico #%{topic_id}. As postagens não serão entregues para os(as) seguidores(as) dos atores do grupo."
             published: "A publicação de todas as postagens está desabilitada. Todas as postagens do tópico #%{topic_id} já estão publicadas."
             scheduled: "A publicação de todas as postagens está desabilitada. O tópico #%{topic_id} está programado para ser publicado."
     user:
