@@ -136,8 +136,6 @@ ar:
           model_disabled: تم تعطيل ActivityPub لهذا %{model_type}
           model_not_ready: ActivityPub غير جاهز لهذا %{model_type}
           model_not_active: ActivityPub غير نشط لهذا %{model_type}
-          model_active:
-            first_post: سيتم نشر أول منشور في موضوع جديد بعد %{delay_minutes} دقيقة من تاريخ النشر
         label:
           active: نشطة
           not_active: غير نشط
@@ -275,7 +273,6 @@ ar:
           schedule:
             label: "جدولة المنشور رقم %{post_number}"
             description:
-              followers: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد %{minutes} دقيقة."
               no_followers: "تم تعطيل جدولة المنشور رقم %{post_number}. لا تحتوي مجموعات الجهات الفاعلة على متابعين للتسليم إليهم."
           unschedule:
             label: "إلغاء جدولة المنشور رقم %{post_number}"
@@ -300,7 +297,6 @@ ar:
         posts_status:
           label: حالة المنشورات
           published: نُشرت جميع المنشورات في هذا الموضوع.
-          some_published: "نُشر %{count} من أصل %{total} منشور في هذا الموضوع."
           none_published: لا توجد منشورات منشورة في هذا الموضوع.
           scheduled: تم جدولة نشر هذا الموضوع.
         actions:
@@ -310,7 +306,6 @@ ar:
         publish:
           label: نشر جميع المنشورات
           description:
-            unpublished: "نشر %{count} منشورًا غير منشور في الموضوع رقم %{topic_id}. لن تُسلم المنشورات لمتابعي مجموعات الجهات الفاعلة."
             published: "تم تعطيل خيار نشر جميع المنشورات. جميع المنشورات في الموضوع رقم %{topic_id} منشورة بالفعل."
             scheduled: "تم تعطيل خيار نشر جميع المنشورات. الموضوع رقم %{topic_id} مجدول للنشر."
     user:

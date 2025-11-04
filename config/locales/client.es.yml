@@ -135,8 +135,6 @@ es:
           model_disabled: ActivityPub está deshabilitado para este %{model_type}
           model_not_ready: ActivityPub no está listo para este %{model_type}
           model_not_active: ActivityPub no está activo para este %{model_type}
-          model_active:
-            first_post: La primera publicación de un tema nuevo se publicará %{delay_minutes} minutos después de ser publicada
         label:
           active: Activo
           not_active: No activo
@@ -274,7 +272,6 @@ es:
           schedule:
             label: "Programar publicación n.º %{post_number}"
             description:
-              followers: "Publicar publicación n.º %{post_number} y enviarla a los seguidores de los actores del grupo en %{minutes} minutos."
               no_followers: "La programación está deshabilitada para la publicación n.º %{post_number}. Los actores del grupo no tienen seguidores a quienes enviar."
           unschedule:
             label: "Cancelar la programación de la publicación n.º %{post_number}"
@@ -299,7 +296,6 @@ es:
         posts_status:
           label: Estado de las publicaciones
           published: Se han publicado todas las publicaciones en este tema.
-          some_published: "Se han publicado %{count} de %{total} publicaciones en este tema."
           none_published: No se han publicado publicaciones en este tema.
           scheduled: Este tema está programado para publicarse.
         actions:
@@ -309,7 +305,6 @@ es:
         publish:
           label: Publicar todas las publicaciones
           description:
-            unpublished: "Publica %{count} publicaciones no publicadas en el tema n.º %{topic_id}. Las publicaciones no se enviarán a los seguidores de los actores del grupo."
             published: "La publicación de todas las publicaciones está deshabilitada. Todas las publicaciones del tema n.º %{topic_id} ya están publicadas."
             scheduled: "La publicación de todas las publicaciones está deshabilitada. El tema n.º %{topic_id} está programado para publicarse."
     user:

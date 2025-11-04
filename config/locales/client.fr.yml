@@ -132,8 +132,6 @@ fr:
           model_disabled: ActivityPub est désactivé pour ce %{model_type}
           model_not_ready: ActivityPub n'est pas prêt pour ce %{model_type}
           model_not_active: ActivityPub n'est pas actif pour ce %{model_type}
-          model_active:
-            first_post: La première publication d'un nouveau sujet sera publiée %{delay_minutes} minutes après sa création
         label:
           active: Actif
           not_active: Inactif
@@ -271,7 +269,6 @@ fr:
           schedule:
             label: "Planifier la publication n° %{post_number}"
             description:
-              followers: "Publiez la publication n° %{post_number} et transmettez-la aux abonnés des acteurs du groupe dans %{minutes} minutes."
               no_followers: "La publication est désactivée pour la publication n° %{post_number}. Les acteurs du groupe n'ont aucun abonné à qui livrer."
           unschedule:
             label: "Annuler la publication n°%{post_number}"
@@ -296,7 +293,6 @@ fr:
         posts_status:
           label: Statut des publications
           published: Toutes les publications de ce sujet sont publiées.
-          some_published: "%{count} des %{total} publications de ce sujet sont publiées."
           none_published: Aucune publication de ce sujet n'est publiée.
           scheduled: Ce sujet est prévu pour être publié.
         actions:
@@ -306,7 +302,6 @@ fr:
         publish:
           label: Publier toutes les publications
           description:
-            unpublished: "Publiez %{count} publications non publiées dans le sujet n° %{topic_id}. Les publications ne seront pas envoyées aux abonnés des acteurs du groupe."
             published: "La publication de toutes les publications est désactivée. Toutes les publications du sujet n° %{topic_id} sont déjà publiées."
             scheduled: "La publication de toutes les publications est désactivée. La publication du sujet n° %{topic_id} est prévue."
     user:

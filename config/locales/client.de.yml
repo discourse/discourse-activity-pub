@@ -136,7 +136,9 @@ de:
           model_not_ready: ActivityPub ist für diesen %{model_type} nicht bereit
           model_not_active: ActivityPub ist für diesen %{model_type} nicht aktiv
           model_active:
-            first_post: Der erste Beitrag eines neuen Themas wird %{delay_minutes} Minuten nach der Veröffentlichung im Forum veröffentlicht
+            first_post:
+              one: Der erste Beitrag eines neuen Themas wird %{delay_minutes} Minute nach der Veröffentlichung im Forum veröffentlicht
+              other: Der erste Beitrag eines neuen Themas wird %{delay_minutes} Minuten nach der Veröffentlichung im Forum veröffentlicht
         label:
           active: Aktiv
           not_active: Nicht aktiv
@@ -274,7 +276,9 @@ de:
           schedule:
             label: "Beitrag #%{post_number} planen"
             description:
-              followers: "Veröffentliche Beitrag #%{post_number} und stelle ihn in %{minutes} Minuten den Followern der Gruppen-Actor zu."
+              followers:
+                one: "Veröffentliche Beitrag #%{post_number} und stelle ihn in %{minutes} Minute den Followern der Gruppen-Actor zu."
+                other: "Veröffentliche Beitrag #%{post_number} und stelle ihn in %{minutes} Minuten den Followern der Gruppen-Actor zu."
               no_followers: "Für Beitrag #%{post_number} ist keine Planung aktiv, da die Gruppen-Actor keine Follower zum Zustellen haben."
           unschedule:
             label: "Planung für Beitrag #%{post_number} aufheben"
@@ -299,7 +303,6 @@ de:
         posts_status:
           label: Status der Beiträge
           published: Alle Beiträge in diesem Thema sind veröffentlicht.
-          some_published: "%{count} von %{total} Beiträgen in diesem Thema sind veröffentlicht."
           none_published: Keine Beiträge in diesem Thema sind veröffentlicht.
           scheduled: Die Veröffentlichung dieses Themas ist geplant.
         actions:
@@ -309,7 +312,9 @@ de:
         publish:
           label: Alle Beiträge veröffentlichen
           description:
-            unpublished: "Veröffentliche %{count} unveröffentlichte Beiträge im Thema #%{topic_id}. Diese werden nicht an die Follower der Gruppen-Actor übermittelt."
+            unpublished:
+              one: "Veröffentliche %{count} unveröffentlichten Beitrag im Thema #%{topic_id}. Dieser wird nicht an die Follower der Gruppen-Actor übermittelt."
+              other: "Veröffentliche %{count} unveröffentlichte Beiträge im Thema #%{topic_id}. Diese werden nicht an die Follower der Gruppen-Actor übermittelt."
             published: "„Alle Beiträge veröffentlichen“ ist deaktiviert. Alle Beiträge im Thema #%{topic_id} sind bereits veröffentlicht."
             scheduled: "„Alle Beiträge veröffentlichen“ ist deaktiviert. Die Veröffentlichung von Thema #%{topic_id} ist geplant."
     user:
