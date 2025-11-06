@@ -16,7 +16,7 @@ class ActivityPubFollowers extends EmberObject {
     return ajax(this.loadMoreUrl)
       .then((response) => {
         if (response) {
-          this.followers.pushObjects(response.followers);
+          this.followers.push(...response.followers);
           this.setProperties({
             loadMoreUrl: response.meta.load_more_url,
             loadingMore: false,

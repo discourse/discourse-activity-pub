@@ -1,5 +1,5 @@
-import { A } from "@ember/array";
 import { service } from "@ember/service";
+import { TrackedArray } from "@ember-compat/tracked-built-ins";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../../../models/activity-pub-actor";
 
@@ -30,7 +30,7 @@ export default class ActivityPubActorFollowers extends DiscourseRoute {
   setupController(controller) {
     controller.setProperties({
       actor: this.modelFor("activityPub.actor"),
-      actors: A(this.actors || []),
+      actors: new TrackedArray(this.actors || []),
       loadMoreUrl: this.meta?.load_more_url,
       total: this.meta?.total,
     });
