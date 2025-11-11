@@ -27,6 +27,8 @@ fa_IR:
             label: فعال شده
           disabled:
             label: غیرفعال
+          site_setting:
+            title: تنظیمات سایت
           username: نام‌کاربری
           name: نام
           default_visibility: قابل مشاهده
