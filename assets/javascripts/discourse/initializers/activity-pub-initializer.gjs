@@ -1,10 +1,7 @@
 import { service } from "@ember/service";
-import { hbs } from "ember-cli-htmlbars";
 import { Promise } from "rsvp";
 import { bind } from "discourse/lib/decorators";
-import { withSilencedDeprecations } from "discourse/lib/deprecated";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import RenderGlimmer from "discourse/widgets/render-glimmer";
 import { i18n } from "discourse-i18n";
 import ActivityPubPostStatus from "../components/activity-pub-post-status";
 import ActivityPubTopicMap from "../components/activity-pub-topic-map";
@@ -109,14 +106,10 @@ export default {
                 activity_pub_updated_at: data.model.updated_at,
                 activity_pub_delivered_at: data.model.delivered_at,
               };
-              topic.postStream
-                .triggerActivityPubStateChange(data.model.id, props)
-                .then(() =>
-                  // TODO (glimmer-post-stream) the Glimmer Post Stream does not listen to this event
-                  this.appEvents.trigger("post-stream:refresh", {
-                    id: data.model.id,
-                  })
-                );
+              topic.postStream.triggerActivityPubStateChange(
+                data.model.id,
+                props
+              );
               this.appEvents.trigger(
                 "activity-pub:post-updated",
                 data.model.id,
@@ -229,53 +222,5 @@ function customizePost(api, container) {
         },
       };
     }
-  });
-
-  withSilencedDeprecations("discourse.post-stream-widget-overrides", () =>
-    customizeWidgetPost(api, container)
-  );
-}
-
-function customizeWidgetPost(api, container) {
-  const currentUser = api.getCurrentUser();
-  const site = container.lookup("service:site");
-  const siteSettings = container.lookup("service:site-settings");
-
-  api.reopenWidget("post-meta-data", {
-    html(attrs) {
-      const result = this._super(attrs);
-      let postStatuses = result[result.length - 1].children;
-      postStatuses = postStatuses.filter(
-        (n) => n.renderInto !== "div.post-info.activity-pub"
-      );
-      if (
-        site.activity_pub_enabled &&
-        attrs.activity_pub_enabled &&
-        attrs.post_number !== 1 &&
-        showStatusToUser(currentUser, siteSettings)
-      ) {
-        const status = activityPubPostStatus(attrs);
-        if (status) {
-          let replyToTabIndex = postStatuses.findIndex((postStatus) => {
-            return postStatus.name === "reply-to-tab";
-          });
-          const post = this.findAncestorModel();
-          postStatuses.splice(
-            replyToTabIndex !== -1 ? replyToTabIndex + 1 : 0,
-            0,
-            new RenderGlimmer(
-              this,
-              "div.post-info.activity-pub",
-              hbs`<ActivityPubPostStatus @post={{@data.post}} />`,
-              {
-                post,
-              }
-            )
-          );
-        }
-      }
-      result[result.length - 1].children = postStatuses;
-      return result;
-    },
   });
 }
