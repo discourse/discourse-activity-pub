@@ -1,18 +1,21 @@
 import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
 import { action } from "@ember/object";
-import { notEmpty } from "@ember/object/computed";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { trackedArray } from "discourse/lib/tracked-tools";
 
 export default class ActivityPubActorFollowers extends Controller {
   @tracked order = "";
   @tracked asc = null;
   @tracked loadingMore = false;
+  @trackedArray actors;
 
   queryParams = ["order", "asc"];
 
-  @notEmpty("actors") hasActors;
+  get hasActors() {
+    return this.actors?.length > 0;
+  }
 
   get tableClass() {
     let result = "activity-pub-follow-table followers";

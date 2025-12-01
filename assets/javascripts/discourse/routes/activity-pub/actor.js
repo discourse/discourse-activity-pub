@@ -1,5 +1,6 @@
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { removeValueFromArray } from "discourse/lib/array-tools";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor from "../../models/activity-pub-actor";
 
@@ -39,7 +40,7 @@ export default class ActivityPubActorRoute extends DiscourseRoute {
   @action
   follow(actor, followActor) {
     return ActivityPubActor.follow(actor.id, followActor.id).then((result) => {
-      this.controllerFor(this.router.currentRouteName).actors.unshiftObject(
+      this.controllerFor(this.router.currentRouteName).actors.unshift(
         followActor
       );
       return result;
@@ -50,7 +51,8 @@ export default class ActivityPubActorRoute extends DiscourseRoute {
   unfollow(actor, followedActor) {
     return ActivityPubActor.unfollow(actor.id, followedActor.id).then(
       (result) => {
-        this.controllerFor(this.router.currentRouteName).actors.removeObject(
+        removeValueFromArray(
+          this.controllerFor(this.router.currentRouteName).actors,
           followedActor
         );
         return result;
@@ -61,7 +63,8 @@ export default class ActivityPubActorRoute extends DiscourseRoute {
   @action
   reject(actor, follower) {
     return ActivityPubActor.reject(actor.id, follower.id).then((result) => {
-      this.controllerFor(this.router.currentRouteName).actors.removeObject(
+      removeValueFromArray(
+        this.controllerFor(this.router.currentRouteName).actors,
         follower
       );
       return result;
