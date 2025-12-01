@@ -1,10 +1,10 @@
 import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
 import { action } from "@ember/object";
-import { notEmpty } from "@ember/object/computed";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { trackedArray } from "discourse/lib/tracked-tools";
 import { i18n } from "discourse-i18n";
 import ActivityPubActor, { newActor } from "../../../models/activity-pub-actor";
 
@@ -15,12 +15,16 @@ export default class AdminPluginsActivityPubActor extends Controller {
   @tracked asc = null;
   @tracked loadingMore = false;
   @tracked model_type = "category";
+  @trackedArray actors;
+
   loadMoreUrl = "";
   total = "";
 
-  @notEmpty("actors") hasActors;
-
   queryParams = ["model_type", "order", "asc"];
+
+  get hasActors() {
+    return this.actors?.length > 0;
+  }
 
   get title() {
     return i18n(`admin.discourse_activity_pub.actor.${this.model_type}.title`);
@@ -65,6 +69,6 @@ export default class AdminPluginsActivityPubActor extends Controller {
 
   @action
   removeActor(actorId) {
-    this.actors.removeObject(this.actors.find((item) => item.id === actorId));
+    this.actors = this.actors.filter((item) => item.id !== actorId);
   }
 }

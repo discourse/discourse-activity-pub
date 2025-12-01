@@ -1,4 +1,3 @@
-import { TrackedArray } from "@ember-compat/tracked-built-ins";
 import { ajax } from "discourse/lib/ajax";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubActor, {
@@ -24,11 +23,9 @@ export default class AdminPluginsActivityPubActorRoute extends DiscourseRoute {
 
   setupController(controller, model) {
     controller.setProperties({
-      actors: new TrackedArray(
-        (model.actors || []).map((actor) => {
-          return ActivityPubActor.create(actor);
-        })
-      ),
+      actors: (model.actors || []).map((actor) => {
+        return ActivityPubActor.create(actor);
+      }),
     });
   }
 }
