@@ -19,7 +19,7 @@ class DiscourseActivityPub::AP::ActorsController < DiscourseActivityPub::AP::Obj
   protected
 
   def ensure_actor_exists
-    unless @actor = DiscourseActivityPubActor.find_by(ap_key: params[:key])
+    unless @actor = DiscourseActivityPubActor.includes(:model).find_by(ap_key: params[:key])
       render_activity_pub_error("not_found", 404)
     end
   end
