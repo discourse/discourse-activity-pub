@@ -390,33 +390,34 @@ end
 # Table name: discourse_activity_pub_actors
 #
 #  id                 :bigint           not null, primary key
-#  ap_id              :string           not null
+#  ap_former_type     :string
 #  ap_key             :string
 #  ap_type            :string           not null
-#  domain             :string
-#  local              :boolean
 #  available          :boolean          default(TRUE)
+#  default_visibility :string
+#  deleted_at         :datetime
+#  domain             :string
+#  enabled            :boolean
+#  icon_url           :string
 #  inbox              :string
-#  outbox             :string
-#  username           :string
-#  name               :string
-#  model_id           :integer
+#  local              :boolean
 #  model_type         :string
+#  name               :string
+#  outbox             :string
+#  post_object_type   :string
 #  private_key        :text
 #  public_key         :text
+#  publication_type   :string
+#  shared_inbox       :string
+#  username           :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
-#  icon_url           :string
-#  shared_inbox       :string
-#  enabled            :boolean
-#  default_visibility :string
-#  publication_type   :string
-#  post_object_type   :string
-#  deleted_at         :datetime
-#  ap_former_type     :string
+#  ap_id              :string           not null
+#  model_id           :integer
 #
 # Indexes
 #
-#  index_discourse_activity_pub_actors_on_ap_id  (ap_id) UNIQUE
-#  unique_activity_pub_actor_models              (model_type,model_id) UNIQUE
+#  index_discourse_activity_pub_actors_on_ap_id   (ap_id) UNIQUE
+#  index_discourse_activity_pub_actors_on_ap_key  (ap_key) UNIQUE
+#  unique_activity_pub_actor_models               (model_type,model_id) UNIQUE
 #

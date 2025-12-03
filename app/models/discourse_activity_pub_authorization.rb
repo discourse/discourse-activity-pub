@@ -13,12 +13,12 @@ end
 # Table name: discourse_activity_pub_authorizations
 #
 #  id         :bigint           not null, primary key
-#  user_id    :integer          not null
-#  actor_id   :bigint
-#  client_id  :bigint
-#  token      :string(1000)
+#  token      :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  actor_id   :bigint
+#  client_id  :bigint
+#  user_id    :integer          not null
 #
 # Indexes
 #
