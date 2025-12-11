@@ -29,7 +29,7 @@ export default class ActivityPubAttribute extends Component {
     }
     await clipboardCopy(this.args.uri);
     this.toasts.success({
-      duration: 2500,
+      duration: "short",
       data: {
         message: i18n("discourse_activity_pub.copy_uri.copied"),
       },
