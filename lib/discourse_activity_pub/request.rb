@@ -12,7 +12,7 @@ module DiscourseActivityPub
     REQUEST_TARGET_HEADER = "(request-target)"
     CREATED_HEADER = "(created)"
     EXPIRES_HEADER = "(expires)"
-    SIGNAUTRE_ALGORITHM = "hs2019"
+    SIGNATURE_ALGORITHM = "hs2019"
 
     attr_accessor :uri, :headers, :body, :expects, :middlewares, :allowed_errors
     attr_writer :actor
@@ -109,7 +109,7 @@ module DiscourseActivityPub
 
       params = {
         "keyId" => key_id,
-        "algorithm" => SIGNAUTRE_ALGORITHM,
+        "algorithm" => SIGNATURE_ALGORITHM,
         "headers" => combined_headers.keys.join(" ").downcase,
         "signature" => signature,
         "created" => created,
@@ -134,7 +134,13 @@ module DiscourseActivityPub
     protected
 
     def default_headers
-      { "Host" => uri.host, "Date" => Time.now.utc.httpdate }
+      headers = { "Host" => uri.host, "Date" => Time.now.utc.httpdate }
+      if SiteSetting.activity_pub_send_user_agent
+        headers[
+          "User-Agent"
+        ] = "Discourse-ActivityPub/#{Discourse::VERSION::STRING} (+#{Discourse.base_url})"
+      end
+      headers
     end
 
     def final_headers(verb)

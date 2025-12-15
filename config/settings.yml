@@ -32,6 +32,8 @@ discourse_activity_pub:
     allow_any: false
     refresh: true
     client: true
+  activity_pub_send_user_agent:
+    default: true
   activity_pub_verbose_logging:
     default: false
   activity_pub_object_logging:
