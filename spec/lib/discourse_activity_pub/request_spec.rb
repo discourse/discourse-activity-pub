@@ -118,6 +118,30 @@ RSpec.describe DiscourseActivityPub::Request do
     end
   end
 
+  describe "User-Agent header" do
+    let(:uri) { "https://remote.com/u/angus" }
+
+    context "when activity_pub_send_user_agent is enabled" do
+      before { SiteSetting.activity_pub_send_user_agent = true }
+
+      it "includes User-Agent header with Discourse version and base URL" do
+        request = described_class.new(uri: uri)
+        expect(request.headers["User-Agent"]).to eq(
+          "Discourse-ActivityPub/#{Discourse::VERSION::STRING} (+#{Discourse.base_url})",
+        )
+      end
+    end
+
+    context "when activity_pub_send_user_agent is disabled" do
+      before { SiteSetting.activity_pub_send_user_agent = false }
+
+      it "does not include User-Agent header" do
+        request = described_class.new(uri: uri)
+        expect(request.headers).not_to have_key("User-Agent")
+      end
+    end
+  end
+
   describe "#get_json_ld" do
     context "with a successful response" do
       before do
