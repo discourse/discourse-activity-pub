@@ -101,6 +101,11 @@ module DiscourseActivityPub
       opts[:body] = body.to_json if body
       opts[:headers] = {}
       opts[:headers]["Content-Type"] = "application/json" if body
+      if SiteSetting.activity_pub_send_user_agent
+        opts[:headers][
+          "User-Agent"
+        ] = "Discourse-ActivityPub/#{::Discourse::VERSION::STRING} (+#{::Discourse.base_url})"
+      end
       headers.each { |k, v| opts[:headers][k] = v } if headers
 
       begin
