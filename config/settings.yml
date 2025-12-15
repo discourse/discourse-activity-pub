@@ -34,6 +34,7 @@ discourse_activity_pub:
     client: true
   activity_pub_send_user_agent:
     default: true
+    hidden: true
   activity_pub_verbose_logging:
     default: false
   activity_pub_object_logging:
