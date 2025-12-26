@@ -28,10 +28,11 @@ export default class ActivityPubActorRoute extends DiscourseRoute {
     }
     if (actor.model_type === "tag") {
       const tag = this.store.createRecord("tag", {
-        id: actor.model_name,
+        id: actor.model_id,
+        name: actor.model_name,
       });
       props.tag = tag;
-      props.tags = [tag.id];
+      props.tags = [tag.name];
       props.canCreateTopicOnTag = !actor.model.staff || this.currentUser?.staff;
     }
     controller.setProperties(props);
