@@ -60,6 +60,11 @@ vi:
       model:
         actions: Hành động
         status: Trạng thái
+    topic:
+      discourse_activity_pub:
+        status:
+          published: Chủ đề đã được đăng qua ActivityPub vào %{datetime}.
+          published_remote: Chủ đề đã được đăng qua ActivityPub bằng %{actor} vào %{datetime}.
     user:
       discourse_activity_pub:
         auth_type: Loại
