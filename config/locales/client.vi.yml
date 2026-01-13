@@ -21,11 +21,12 @@ vi:
           name: Tên
           default_visibility: Khả năng hiển thị
           table:
+            actor: Tác nhân
             auth_type: Loại
             status: Trạng thái
             actions: Hành động
           category:
-            label: Danh mục
+            label: Chuyên mục
           tag:
             label: Thẻ
         log:
@@ -40,18 +41,31 @@ vi:
   js:
     discourse_activity_pub:
       about:
-        categories: Danh mục
+        navigation:
+          label: Liên hợp
+        title: Liên hợp
+        description: Các chuyên mục và thẻ này hỗ trợ Liên hợp ActivityPub. Nếu bạn sử dụng Mastodon hoặc các nền tảng ActivityPub khác, bạn có thể theo dõi chúng để xem các chủ đề và tút của chúng trong nguồn cấp dữ liệu của mình.
+        categories: Chuyên mục
         tags: Thẻ
       status:
         label:
           active: Kích hoạt
+      discovery:
+        label: Liên hợp
+        description: Liên hợp cho %{model_name}
+        followers: Người theo dõi
+        follows: Đang theo dõi
+      banner:
+        text: Theo dõi %{model_name} trên bất kỳ dịch vụ nào hỗ trợ liên hợp
       follow:
+        label: Theo dõi
         domain:
           placeholder: tên miền
       actor_reject:
         label: Từ chối
       follow_table:
         user: Người dùng
+        followed_at: Đã theo dõi
         follow_pending: đang chờ xử lý
         actions: Hành động
       visibility:
@@ -59,12 +73,32 @@ vi:
           public: Công khai
       model:
         actions: Hành động
+        attributes: Thuộc tính
         status: Trạng thái
+    post:
+      discourse_activity_pub:
+        title: "ActivityPub cho Tút #%{post_number}"
+        status:
+          published: "Tút đã được đăng qua ActivityPub vào %{datetime}."
+          scheduled_past: "Tút đã được lên lịch đăng qua ActivityPub vào %{datetime}."
+          published_remote: "Tút đã được đăng qua ActivityPub bằng %{actor} vào %{datetime}."
+          not_published: "Tút chưa được đăng qua ActivityPub."
+        info_status:
+          published: "Tút đã được đăng vào %{datetime}."
+          scheduled_past: "Tút đã được lên lịch đăng vào %{datetime}."
+          published_remote: "Tút đã được đăng vào %{datetime}."
     topic:
       discourse_activity_pub:
+        title: "ActivityPub cho Chủ đề #%{topic_id}"
         status:
+          scheduled_past: Chủ đề đã được lên lịch đăng qua ActivityPub vào %{datetime}.
           published: Chủ đề đã được đăng qua ActivityPub vào %{datetime}.
           published_remote: Chủ đề đã được đăng qua ActivityPub bằng %{actor} vào %{datetime}.
+          not_published: Chủ đề chưa được đăng qua ActivityPub.
+        info_status:
+          scheduled_past: "Chủ đề đã được lên lịch đăng vào %{datetime}."
+          published: "Chủ đề đã được đăng vào %{datetime}."
+          published_remote: "Chủ đề đã được đăng vào %{datetime}."
     user:
       discourse_activity_pub:
         auth_type: Loại
