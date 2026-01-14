@@ -7,49 +7,140 @@
 vi:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
+        label: ActivityPub
         actor:
+          add:
+            category:
+              title: Thêm tác nhân ActivityPub Chuyên mục
+              label: Thêm tác nhân Chuyên mục
+            tag:
+              title: Thêm tác nhân ActivityPub Thẻ
+              label: Thêm tác nhân Thẻ
+          save:
+            title: Lưu tác nhân ActivityPub
+            label: Lưu tác nhân
+          delete:
+            title: Xóa tác nhân ActivityPub
+            label: Xóa tác nhân
+            failed: Chưa bị xóa
+            confirm:
+              title: "Bạn có chắc muốn xóa %{actor}?"
+              message: |
+                <ul>
+                <li>%{actor} sẽ không còn khả dụng trên fediverse nữa.</li>
+                <li>%{model} %{model_type} sẽ không bị xóa.</li>
+                <li>Bạn có thể khôi phục các tác nhân đã bị xóa.</li>
+                </ul>
           restore:
+            title: Khôi phục tác nhân ActivityPub
             label: Khôi phục
+          destroy:
+            title: Xóa tác nhân ActivityPub
+            label: Xóa
+            confirm:
+              title: Bạn có chắc muốn xóa tác nhân %{actor}?
+              message: |
+                <ul>
+                <li>%{actor} sẽ bị xóa</li>
+                <li>%{model} %{model_type} sẽ không bị xóa.</li>
+                <li>Bạn không thể khôi phục các tác nhân đã bị xóa.</li>
+                </ul>
           edit:
+            title: Sửa tác nhân ActivityPub
             label: Sửa
           deleted:
+            title: Tác nhân ActivityPub đã bị xóa
             label: Đã xóa
+          enabled:
+            title: Tác nhân ActivityPub đã được kích hoạt
+            label: Đã kích hoạt
           disabled:
+            title: Tác nhân ActivityPub đã bị tắt
             label: Vô hiệu hóa
+          site_setting:
+            title: Cài đặt trang web
+            activity_pub_enabled:
+              label: Plugin đã được bật
+              title: Plugin ActivityPub được bật thông qua cài đặt trang web cho phép ActivityPub hoạt động.
+              description: Các hoạt động đến từ các tác nhân được bật sẽ được xử lý.
+            login_required:
+              label: Yêu cầu đăng nhập
+              title: Việc đăng nhập là bắt buộc theo cài đặt trang web.
+              description: Chỉ các yêu cầu theo dõi đi và các thuộc tính của các tác nhân được kích hoạt mới được đăng.
           username: Tên tài khoản
+          username_description: "Từ %{min_length} đến %{max_length} chữ cái, số, dấu gạch ngang hoặc dấu gạch dưới."
           name: Tên
+          name_description: Được sử dụng làm tên hiển thị trên một số dịch vụ.
           default_visibility: Khả năng hiển thị
+          default_visibility_description: Tất cả tút sẽ được đăng qua ActivityPub với chế độ hiển thị này.
+          post_object_type: Kiểu đối tượng tút
+          post_object_type_description: 'Sử dụng Note cho nội dung ngắn (ví dụ: Mastodon) và Article cho nội dung dài.'
+          publication_type: Kiểu đăng
+          publication_type_description: First Post đăng tút đầu tiên trong mỗi chủ đề. Full Topic đăng tất cả các tút và thu thập các trả lời.
           table:
             actor: Tác nhân
+            model: Mô hình
             auth_type: Loại
             status: Trạng thái
             actions: Hành động
           category:
             label: Chuyên mục
+            title: Tác nhân Chuyên mục
+            none: Chọn một chuyên mục
           tag:
             label: Thẻ
+            title: Tác nhân Thẻ
+            none: Chọn một thẻ
+            filter: lọc theo thẻ
         log:
           label: Log
           title: Log
           created_at: Được tạo tại
+          level: Mức độ
           message: Tin nhắn
           json:
+            label: JSON
+            title: Hoạt động JSON
+            show:
+              label: JSON
+              title: Hiển thị Hoạt động JSON
             copy:
               label: Sao chép
+              title: Sao chép JSON vào clipboard.
               success: Đã sao chép!
+            logged_at: Đã đăng nhập %{logged_at}
   js:
     discourse_activity_pub:
       about:
         navigation:
           label: Liên hợp
+          title: Khám phá liên hợp ActivityPub của cộng đồng này
         title: Liên hợp
         description: Các chuyên mục và thẻ này hỗ trợ Liên hợp ActivityPub. Nếu bạn sử dụng Mastodon hoặc các nền tảng ActivityPub khác, bạn có thể theo dõi chúng để xem các chủ đề và tút của chúng trong nguồn cấp dữ liệu của mình.
         categories: Chuyên mục
         tags: Thẻ
+        actor:
+          follower_count:
+            other: "%{count} người theo dõi"
       status:
+        title:
+          publishing_disabled: Tính năng đăng ActivityPub đã bị vô hiệu hóa do cài đặt trang web yêu cầu đăng nhập. Hoạt động đến và lượt theo dõi đi vẫn được bật.
+          plugin_disabled: Plugin ActivityPub đã bị tắt
+          category_read_restricted: ActivityPub không hoạt động với các chuyên mục riêng tư
+          model_disabled: ActivityPub bị tắt cho %{model_type}
+          model_not_ready: ActivityPub chưa sẵn sàng cho %{model_type}
+          model_not_active: ActivityPub không hoạt động cho %{model_type}
+          model_active:
+            first_post:
+              other: Tút đầu tiên của một chủ đề mới sẽ được đăng %{delay_minutes} phút sau khi được đăng
         label:
           active: Kích hoạt
+          not_active: Không hoạt động
+          publishing_disabled: Chức năng đăng bị tắt
       discovery:
         label: Liên hợp
         description: Liên hợp cho %{model_name}
@@ -57,55 +148,207 @@ vi:
         follows: Đang theo dõi
       banner:
         text: Theo dõi %{model_name} trên bất kỳ dịch vụ nào hỗ trợ liên hợp
+        responsive_text: Đã liên hợp
+        public_full_topic: Mỗi tút thuộc mỗi chủ đề sẽ được đăng công khai trên ActivityPub.
+        public_first_post: Tút đầu tiên của mỗi chủ đề sẽ được đăng công khai trên ActivityPub.
+        followers_only_full_topic: Mỗi tút thuộc mỗi chủ đề chỉ được đăng cho những người theo dõi ActivityPub.
+        followers_only_first_post: Tút đầu tiên của mỗi chủ đề chỉ được đăng cho những người theo dõi ActivityPub.
+      handle:
+        label: Trên các dịch vụ ActivityPub khác
+        description: Hãy sử dụng địa chỉ người dùng này để tìm và theo dõi chuyên mục này.
       follow:
         label: Theo dõi
+        title: Theo dõi %{actor} qua ActivityPub
         domain:
+          label: Mastodon
           placeholder: tên miền
+          btn_label: Theo dõi
+          btn_title: Theo dõi trên tên miền Mastodon này
+          description: tên miền của tài khoản Mastodon của bạn
+          verifying: Đang xác minh tên miền...
+          invalid: không phải là tên miền Mastodon hợp lệ
+      actor_follow:
+        label: Theo dõi mới
+        title: Theo dõi mới cho %{actor} qua ActivityPub
+        find:
+          label: Tìm một tác nhân để theo dõi
+          btn_label: Tìm
+          btn_title: Tìm địa chỉ người dùng
+          description: "ví dụ: @announcements@meta.discourse.org"
+          validating: đang xác thực địa chỉ...
+          invalid: không phải là địa chỉ hợp lệ
+          finding: đang tìm tác nhân...
+          not_found: 'không tìm thấy "%{handle}"'
+        follow:
+          label: Theo dõi
+          title: 'Tạo yêu cầu theo dõi "%{follow_actor}" cho %{actor}'
+        following:
+          label: Đang theo dõi
+          title: '%{actor} đang theo dõi %{follow_actor}'
+        follow_requested:
+          label: Đã yêu cầu theo dõi
+          title: '%{actor} đã yêu cầu theo dõi %{follow_actor}'
+      actor_unfollow:
+        label: Bỏ theo dõi
+        title: Bỏ theo dõi %{actor} qua ActivityPub
+        modal_title: Xác nhận bỏ theo dõi
+        confirm: Bạn có chắc muốn %{actor} hủy theo dõi %{followed_actor}?
       actor_reject:
         label: Từ chối
+        title: Từ chối theo dõi %{actor} qua ActivityPub
+        modal_title: Xác nhận từ chối theo dõi
+        confirm: Bạn có chắc muốn từ chối %{follower} theo dõi %{actor}?
       follow_table:
+        actor: Tác nhân
         user: Người dùng
         followed_at: Đã theo dõi
         follow_pending: đang chờ xử lý
         actions: Hành động
       visibility:
         label:
+          private: Chỉ người theo dõi
           public: Công khai
+        description:
+          private: "%{object_type} được gửi đến những người theo dõi."
+          public: "%{object_type} được truy cập công khai."
+      object_type:
+        label:
+          note: Note
+          article: Article
+          collection: Collection
+          ordered_collection: Ordered Collection
+        description:
+          note: 'Phù hợp cho các nền tảng tiểu blog (ví dụ: Mastodon).'
+          article: 'Phù hợp cho các nền tảng nội dung dài (ví dụ: Lemmy).'
+      publication_type:
+        label:
+          first_post: First Post
+          full_topic: Full Topic
+        description:
+          first_post: Tút đầu tiên của mỗi chủ đề trong %{model_type} này được đăng qua ActivityPub.
+          full_topic: Mọi tút thuộc mọi chủ đề trong %{model_type} này đều được đăng qua ActivityPub và các trả lời trên các máy chủ ActivityPub khác được nhập vào dưới dạng trả lời trong Discourse.
+      copy_uri:
+        copied: Đã sao chép URI!
       model:
         actions: Hành động
+        group_actors: Nhóm Tác nhân
         attributes: Thuộc tính
         status: Trạng thái
+        menu: Hành động ActivityPub...
     post:
       discourse_activity_pub:
         title: "ActivityPub cho Tút #%{post_number}"
         status:
           published: "Tút đã được đăng qua ActivityPub vào %{datetime}."
+          scheduled: "Tút đã được lên lịch đăng qua ActivityPub vào %{datetime}."
           scheduled_past: "Tút đã được lên lịch đăng qua ActivityPub vào %{datetime}."
+          deleted: "Tút đã bị xóa qua ActivityPub vào %{datetime}."
+          updated: "Tút đã cập nhật qua ActivityPub vào %{datetime}."
           published_remote: "Tút đã được đăng qua ActivityPub bằng %{actor} vào %{datetime}."
           not_published: "Tút chưa được đăng qua ActivityPub."
+          delivered: "Tút đã được gửi qua ActivityPub vào %{datetime}."
         info_status:
           published: "Tút đã được đăng vào %{datetime}."
+          scheduled: "Tút đã được lên lịch đăng vào %{datetime}."
           scheduled_past: "Tút đã được lên lịch đăng vào %{datetime}."
+          deleted: "Tút đã bị xóa vào %{datetime}."
+          updated: "Tút đã cập nhật vào %{datetime}."
           published_remote: "Tút đã được đăng vào %{datetime}."
+          not_published: "Tút chưa được đăng."
+          delivered: "Tút đã được gửi vào %{datetime}."
+        actions:
+          publish:
+            label: "Đăng Tút #%{post_number}"
+            description:
+              followers: "Đăng Tút #%{post_number} và gửi đến những người theo dõi Nhóm Tác nhân."
+              no_followers: "Đăng Tút #%{post_number} mà không gửi đi. Nhóm Tác Nhân không có người theo dõi nào để gửi."
+              topic_not_published: "Chức năng đăng đã bị vô hiệu hóa cho Tút #%{post_number}. Chủ đề #%{topic_id} chưa được đăng."
+              post_is_scheduled: "Chức năng đăng đã bị vô hiệu hóa cho Tút #%{post_number}. Chủ đề #%{post_number} đã được lên lịch đăng."
+          deliver:
+            label: "Gửi Tút #%{post_number}"
+            description:
+              followers: "Gửi Tút #%{post_number} cho những người theo dõi Nhóm Tác nhân."
+              no_followers: "Việc gửi đã bị vô hiệu hóa cho Tút #%{post_number}. Nhóm Tác nhân không có người theo dõi để gửi."
+              topic_not_delivered: "Chức năng gửi đã bị vô hiệu hóa cho Tút #%{post_number}. Chủ đề #%{topic_id} chưa được gửi."
+              delivered: "Tút #%{post_number} vừa được gửi đến những người theo dõi Nhóm Tác nhân."
+          schedule:
+            label: "Lên lịch tút #%{post_number}"
+            description:
+              followers:
+                other: "Đăng Tút #%{post_number} và gửi đến những người theo dõi Nhóm Tác nhân trong %{minutes} phút."
+              no_followers: "Việc lên lịch đã bị vô hiệu hóa cho Tút #%{post_number}. Nhóm Tác nhân không có người theo dõi nào để gửi."
+          unschedule:
+            label: "Hủy lên lịch tút #%{post_number}"
+            description: "Hủy lịch đăng tút #%{post_number}."
     topic:
       discourse_activity_pub:
         title: "ActivityPub cho Chủ đề #%{topic_id}"
         status:
+          scheduled: Chủ đề đã được lên lịch đăng qua ActivityPub vào %{datetime}.
           scheduled_past: Chủ đề đã được lên lịch đăng qua ActivityPub vào %{datetime}.
           published: Chủ đề đã được đăng qua ActivityPub vào %{datetime}.
           published_remote: Chủ đề đã được đăng qua ActivityPub bằng %{actor} vào %{datetime}.
+          deleted: Chủ đề đã bị xóa qua ActivityPub vào %{datetime}.
           not_published: Chủ đề chưa được đăng qua ActivityPub.
         info_status:
+          scheduled: "Chủ đề đã được lên lịch đăng vào %{datetime}."
           scheduled_past: "Chủ đề đã được lên lịch đăng vào %{datetime}."
           published: "Chủ đề đã được đăng vào %{datetime}."
           published_remote: "Chủ đề đã được đăng vào %{datetime}."
+          deleted: "Tút đã bị xóa vào %{datetime}."
+          not_published: "Chủ đề chưa được đăng."
+        posts_status:
+          label: Trạng thái tút
+          published: Tất cả tút trong chủ đề này đều đã được đăng.
+          some_published:
+            other: "%{count} trong %{total} tút trong chủ đề này đã được đăng."
+          none_published: Không có tút nào trong chủ đề này được đăng.
+          scheduled: Chủ đề này dự kiến sẽ được đăng.
+        actions:
+          label: Hành động chủ đề
+        actors:
+          label: Tác nhân chủ đề
+        publish:
+          label: Đăng tất cả tút
+          description:
+            unpublished:
+              other: "Đăng %{count} tút chưa được đăng trong Chủ đề #%{topic_id}. Tút sẽ không được gửi đến những người theo dõi Nhóm Tác nhân."
+            published: "Chức năng \"Đăng tải tất tút\" đã bị vô hiệu hóa. Tất cả tút trong Chủ đề #%{topic_id} đã được đăng."
+            scheduled: "Chức năng \"Đăng tất cả tút\" đã bị vô hiệu hóa. Chủ đề #%{topic_id} dự kiến sẽ được đăng."
     user:
       discourse_activity_pub:
+        title: ActivityPub
+        actors:
+          title: Tác nhân được liên kết
+          description: Các tút được liên kết với một tác nhân đã liên kết sẽ được gán cho tài khoản của bạn.
+        actor: Tác nhân
         auth_type: Loại
         actions: Hành động
         authorize:
           auth_type:
+            none:
+              label: Chọn loại
+              placeholder: "Nhập tên miền"
+            mastodon:
+              title: Mastodon
+              placeholder: 'Ví dụ: mastodon.social'
             discourse:
               title: Discourse
+              placeholder: 'Ví dụ: meta.discourse.org'
+        clear_domain_button:
+          title: Xóa tên miền đã được xác minh.
+        verify_domain_button:
+          label: Xác minh
+          title: Xác minh tên miền có hỗ trợ không.
+        authorize_button:
+          label: Ủy quyền
+          title: Ủy quyền cho một tác nhân trên tên miền.
+        authorize_error:
+          title: Không thể ủy quyền
+        authorizations:
+          title: Tác nhân được liên kết
+        authorization:
+          confirm_remove: Bạn có chắc muốn xóa liên kết với %{handle}?
         remove_authorization_button:
+          title: Xóa ủy quyền
           label: Xoá

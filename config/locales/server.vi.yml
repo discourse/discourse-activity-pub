@@ -35,13 +35,232 @@ vi:
           attributes:
             model_type:
               invalid: "không hợp lệ"
+  post:
+    discourse_activity_pub:
+      error:
+        edit_after_publication: Việc chỉnh sửa một note ActivityPub sau khi đã đăng chưa được hỗ trợ.
+  user_api_key:
+    scopes:
+      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
+    not_enabled: "ActivityPub chưa được kích hoạt"
+    request:
+      error:
+        json_not_valid: "JSON-LD không hợp lệ"
+        not_found: "Không tìm thấy đối tượng"
+        not_available: "ActivityPub không khả dụng cho mô hình đó"
+        bad_request: "Yêu cầu không hợp lệ"
+        not_authorized: "Không được ủy quyền"
+        forbidden: "Cấm"
+        not_signed: "Yêu cầu chưa được ký"
+        missing_signature_params: "Chữ ký yêu cầu không tương thích. Cần có keyID và chữ ký"
+        unsupported_signature_algorithm: "Thuật toán chữ ký không được hỗ trợ (chỉ hỗ trợ rsa-sha256 và hs2019)"
+        stale_request: "Yêu cầu ngày nằm ngoài khung thời gian chấp nhận được"
+        invalid_signature_key: "Khóa chữ ký không hợp lệ"
+        actor_not_found_for_key: "Không tìm thấy tác nhân cho khóa %{key_id}"
+        signature_verification_failed: "Xác minh không thành công cho %{id} bằng cách sử dụng rsa-sha256 (RSASSA-PKCS1-v1_5 với SHA-256)"
+        signature_parse_failed: "Lỗi phân tích chữ ký"
+        date_must_be_signed: "Tiêu đề ngày hoặc tiêu đề giả (đã tạo) phải được ký"
+        digest_must_be_signed: "Tiêu đề bản phân tích hoặc tiêu đề giả (yêu cầu-mục tiêu) phải được ký"
+        host_must_be_signed: "Tiêu đề máy chủ phải được ký khi thực hiện yêu cầu GET"
+        digest_must_be_signed_on_post: "Tiêu đề bản phân tích phải được ký khi thực hiện yêu cầu POST"
+        digest_header_missing: "Thiếu tiêu đề bản phân tích"
+        invalid_digest_header_algorithm: "Tiêu đề bản phân tích yêu cầu SHA-256. Các thuật toán được cung cấp: %{algorithms}"
+        invalid_digest_base64: "Giá trị bản phân tích không hợp lệ. Giá trị Digest được cung cấp không phải là chuỗi base64 hợp lệ. Tóm tắt được đưa ra: %{digest}"
+        invalid_digest_sha256: "Giá trị Digest không hợp lệ. Giá trị Digest được cung cấp không phải là chuỗi SHA-265 hợp lệ. Tóm tắt được đưa ra: %{digest}"
+        invalid_digest: "Giá trị Digest không hợp lệ. Giá trị Digest SHA-256 được tính toán: %{computed}; đã cho: %{digest}"
+        invalid_signature_pseudo_header: "Tiêu đề giả chữ ký không hợp lệ (%{header})"
+        invalid_date_header: "Tiêu đề ngày không hợp lệ: %{reason}"
+        request_to_failed: "%{method} yêu cầu đến %{uri} đã thất bại: %{message}"
+        request_from_failed: "%{method} yêu cầu gửi %{uri} đã thất bại: %{status} %{message}"
     process:
       warning:
+        failed_to_process: "Không thể xử lý %{object_id}"
+        cant_resolve_actor: "Không thể xác định tác nhân"
+        cant_resolve_object: "Không thể giải quyết đối tượng"
+        object_not_supported: "Đối tượng không được hỗ trợ"
+        cant_create_actor: "Không thể tạo tác nhân"
+        cant_find_object: "Không tìm thấy đối tượng"
+        object_not_ready: "Đối tượng chưa sẵn sàng"
+        activity_already_processed: "Hoạt động đã được xử lý"
+        activity_not_supported: "Hoạt động không được hỗ trợ cho tác nhân và đối tượng"
+        invalid_create_actor: "Tác nhân không thể tạo tút"
+        cannot_reply_to_deleted_post: "Không thể tạo đối tượng để trả lời tút đã bị xóa"
+        undo_actor_must_match_object_actor: "Hoàn tác Tác nhân phải khớp với Đối tượng Tác nhân"
+        activity_host_must_match_object_host: "Máy chủ hoạt động phải khớp với máy chủ đối tượng"
+        cant_find_post: "Không tìm thấy tút"
         post_is_deleted: "Bài đăng bị xóa"
+        full_topic_not_enabled: "Full topic chưa được kích hoạt"
+        announce_not_publicly_addressed: "Thông báo này không được công khai."
+        actor_does_not_accept_new_topics: "Tác nhân này không nhận thêm chủ đề mới."
+        only_followed_actors_create_new_topics: "Chỉ những tác nhân đã theo dõi mới có thể tạo chủ đề mới."
+        actor_already_following: "Tác nhân đang theo dõi đối tượng đó"
+        invalid_collection_item: "Mục không hợp lệ"
+        cannot_resolve_context: "Không thể giải quyết ngữ cảnh đối tượng"
+        cant_resolve_collection: "Không thể giải quyết collection"
+        actor_cannot_be_deleted: "Tác nhân không thể bị xóa"
+      error:
+        failed_to_create_user: "Không thể tạo tài khoản người dùng cho %{actor_id}"
+        failed_to_create_post: "Không thể tạo tút cho %{object_id}"
+        failed_to_respond_to_follow: "Không thể phản hồi để theo dõi: %{activity_id}"
+        failed_to_save_activity: "Không thể lưu hoạt động: %{activity_id}"
+        failed_to_save_object: "Không thể lưu đối tượng: %{object_id}"
+        failed_to_save_actor: "Không thể lưu tác nhân: %{actor_id}"
+        failed_to_save_collection: "Không thể lưu collection: %{collection_id}"
+      info:
+        shared_inbox: "hộp thư chung"
+        received_json: "Đã nhận JSON được gửi đến %{delivered_to}"
+        processing_json: "Đang xử lý JSON được gửi đến %{delivered_to}"
+    webfinger:
+      error:
+        resource_not_supported: "Tài nguyên không được hỗ trợ"
+        resource_not_found: "Không tìm thấy tài nguyên"
     category:
       error:
         category_not_found: "Không tìm thấy chuyên mục"
+    post:
+      error:
+        post_not_found: "Không tìm thấy tút"
+        cant_deliver_post: "Không thể gửi tút"
+        cant_publish_post: "Không thể đăng tút"
+        cant_schedule_post: "Không thể lên lịch tút"
+        cant_unschedule_post: "Không thể hủy lên lịch tút"
+        not_first_post: "Tút này không phải là tút đầu tiên"
+        failed_to_create: "Không thể tạo tút cho %{object_id}: %{message}"
+      deleted: "Đã nhận được yêu cầu Xóa cho %{object_type} liên quan đến tút."
     topic:
       error:
         topic_not_found: "Không tìm thấy chủ đề"
+        cant_publish_topic: "Không thể đăng chủ đề"
+    user:
+      error:
+        failed_to_create: "Không thể tạo người dùng cho %{actor_id}: %{message}"
+      destroyed: "Người dùng bị xóa bởi ActivityPub Xóa hoạt động: %{username}"
+    object:
+      note:
+        link_to_forum: Thảo luận về điều này trên diễn đàn của chúng tôi.
+    actor:
+      followers:
+        summary: "Người theo dõi %{actor}"
+      outbox:
+        summary: "Hoạt động của %{actor}"
+      error:
+        actor_not_found: "Không tìm thấy tác nhân"
+        invalid_model: "Mô hình không hợp lệ"
+        model_not_found: "Không tìm thấy mô hình"
+        target_actor_not_found: "Không tìm thấy tác nhân mục tiêu"
+        not_following_target_actor: "Tác nhân không tuân theo tác nhân mục tiêu"
+        cant_follow_target_actor: "Tác nhân không thể theo dõi tác nhân mục tiêu"
+        username_required: Cần có tên người dùng ActivityPub để tạo tác nhân.
+        full_topic_must_be_public: "Việc đăng Full Topic yêu cầu phải đăng công khai."
+        user_not_authorized: "Người dùng không được ủy quyền"
+        not_following_actor: "Tác nhân mục tiêu không theo dõi tác nhân"
+        actor_cant_be_restored: "Không thể khôi phục tác nhân"
+      warning:
+        cant_create_model_for_actor_type: "Không thể tạo mô hình cho %{actor_type} %{actor_id}"
+        cant_create_actor_for_model_type: "Không thể tạo tác nhân cho %{model_type} %{model_id}"
+        not_allowed_to_create_actor_for_model: "Không được phép tạo tác nhân cho %{model_id}"
+        no_options: "Không có tùy chọn nào được chuyển cho ActorHandler"
+        invalid_username: "Tên người dùng phải bao gồm từ %{min_length} đến %{max_length} chữ cái, số, dấu gạch ngang hoặc dấu gạch dưới."
+        username_taken: "Tên người dùng đó đã được sử dụng trên máy chủ này."
+    auth:
+      error:
+        not_enabled: "Xác thực chưa được kích hoạt"
+        invalid_domain: "Tên miền ActivityPub không hợp lệ"
+        invalid_auth_redirect: "Chuyển hướng xác thực không hợp lệ"
+        invalid_redirect_params: "Tham số chuyển hướng không hợp lệ"
+        authorization_required: "Hồ sơ ủy quyền là bắt buộc"
+        session_expired: "Phiên xác thực đã hết hạn"
+        failed_to_authorize: "Không thể ủy quyền"
+        failed_to_get_actor: "Không tìm được tác nhân"
+        failed_to_create_client: "Không thể tạo khách hàng"
+        failed_to_verify_client: "Không thể xác minh máy khách. Vui lòng thử xác minh lại."
+        failed_to_get_token: "Không thể lấy token"
+        failed_to_decrypt_payload: "Không giải mã payload"
+        failed_to_verify_nonce: "Không thể xác minh nonce"
+    deliver:
+      warning:
+        failed_to_schedule: "%{actor_id} không thể lên lịch %{object_id} để gửi: %{reason}"
+        failed_to_deliver: "%{from_actor} không thể gửi đến %{send_to}"
+      info:
+        successfully_delivered: "%{from_actor} đã được gửi thành công đến %{send_to}"
+    bulk:
+      process:
+        warning:
+          did_not_start: "%{actor} không thể xử lý hộp thư đi của %{target_actor}"
+          actors_not_ready: "Tác nhân chưa sẵn sàng"
+          not_following_target: "%{actor} không theo dõi %{target_actor}"
+          outbox_response_invalid: "hộp thư đi của %{target_actor} đã trả về phản hồi không hợp lệ"
+        info:
+          started: "%{actor} bắt đầu xử lý các hoạt động của %{target_actor}."
+          finished: "%{actor} đã hoàn thành xử lý các hoạt động của %{target_actor}."
+          created_actors:
+            other: "Đã tạo %{count} tác nhân."
+          updated_actors:
+            other: "Đã cập nhật %{count} tác nhân."
+          created_objects:
+            other: "Đã tạo %{count} đối tượng."
+          updated_objects:
+            other: "Đã cập nhật %{count} đối tượng."
+          created_collections:
+            other: "Đã tạo %{count} collection."
+          updated_collections:
+            other: "Đã cập nhật %{count} collection."
+          created_activities:
+            other: "Đã tạo %{count} hoạt động."
+          updated_activities:
+            other: "Đã cập nhật %{count} hoạt động."
+          created_users:
+            other: "Đã tạo %{count} người dùng."
+          updated_users:
+            other: "Đã cập nhật %{count} người dùng."
+          created_topics:
+            other: "Đã tạo %{count} chủ đề."
+          updated_topics:
+            other: "Đã cập nhật %{count} chủ đề."
+          created_replies:
+            other: "Đã tạo %{count} trả lời."
+          updated_replies:
+            other: "Đã cập nhật %{count} trả lời."
+      publish:
+        warning:
+          publish_did_not_start: "Không thể đăng hàng loạt các hoạt động của %{target}"
+          actor_not_found: "Không tìm thấy tác nhân"
+          actor_not_ready: "Tác nhân chưa sẵn sàng"
+          actor_model_not_supported: "Mô hình tác nhân không được hỗ trợ"
+        info:
+          started: "Bắt đầu đăng các hoạt động của %{target}."
+          finished: "Đã hoàn tất việc đăng các hoạt động của %{target}."
+          created_actors:
+            other: "Đã tạo %{count} tác nhân."
+          updated_actors:
+            other: "Đã cập nhật %{count} tác nhân."
+          created_objects:
+            other: "Đã tạo %{count} đối tượng."
+          updated_objects:
+            other: "Đã cập nhật %{count} đối tượng."
+          created_collections:
+            other: "Đã tạo %{count} collection."
+          updated_collections:
+            other: "Đã cập nhật %{count} collection."
+          created_activities:
+            other: "Đã tạo %{count} hoạt động."
+          updated_activities:
+            other: "Đã cập nhật %{count} hoạt động."
+  site_settings:
+    activity_pub_enabled: "Kích hoạt plugin ActivityPub."
+    activity_pub_rate_limit_post_to_inbox_per_minute: "Số lượng yêu cầu POST có thể được gửi đến hộp thư đến của một tác nhân mỗi phút."
+    activity_pub_rate_limit_get_objects_per_minute: "Số lượng yêu cầu GET có thể được thực hiện trên các đối tượng ActivityPub mỗi phút."
+    activity_pub_note_excerpt_maxlength: "Độ dài tối đa của đoạn trích tút trong ActivityPub Notes (0 để không có giới hạn độ dài)."
+    activity_pub_note_link_to_forum: "Thêm liên kết đến diễn đàn này vào note ActivityPub."
+    activity_pub_require_signed_requests: "Yêu cầu các yêu cầu ActivityPub phải được ký bằng chữ ký HTTP."
+    activity_pub_allowed_request_origins: "Danh sách các tên miền được phép thực hiện yêu cầu ActivityPub."
+    activity_pub_blocked_request_origins: "Danh sách các tên miền không được phép thực hiện yêu cầu ActivityPub."
+    activity_pub_delivery_delay_minutes: "Số phút trì hoãn việc gửi các hoạt động ActivityPub ('hoạt động xóa' được gửi ngay lập tức)."
+    activity_pub_send_user_agent: "Hãy thiết lập tiêu đề User-Agent khi thực hiện các yêu cầu ActivityPub. Khi được bật, định dạng tác nhân sẽ là 'Discourse-ActivityPub/xyz (+https://siteurl.com)'."
+    activity_pub_verbose_logging: "Bật chế độ ghi nhật ký chi tiết của ActivityPub."
+    activity_pub_object_logging: "In tất cả đối tượng ActivityPub đến và đi trong nhật ký (yêu cầu ghi nhật ký chi tiết)."
+    activity_pub_post_status_visibility_groups: "Các nhóm có thể xem trạng thái tút ActivityPub."
+    activity_pub_logs_max_days_old: "Số ngày lưu trữ nhật ký ActivityPub."
+    errors:
+      signed_requests_required: Yêu cầu có chữ ký là bắt buộc cho cài đặt này.
