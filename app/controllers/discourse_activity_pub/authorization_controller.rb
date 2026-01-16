@@ -22,7 +22,7 @@ module DiscourseActivityPub
     skip_before_action :preload_json, :check_xhr, only: %i[redirect]
 
     rescue_from DiscourseActivityPub::AuthFailed do |e|
-      @authorization.destroy! if @authorization.present?
+      @authorization&.destroy!
       redirect_to "/u/#{current_user.username}/preferences/activity-pub?error=#{CGI.escape(e.message)}"
     end
 

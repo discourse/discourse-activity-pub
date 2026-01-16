@@ -150,11 +150,11 @@ module Jobs
       end
 
       def before_perform_request
-        object.before_deliver if object.present?
+        object&.before_deliver
       end
 
       def after_perform_request
-        object.after_deliver(@delivered) if object.present?
+        object&.after_deliver(@delivered)
       end
     end
   end

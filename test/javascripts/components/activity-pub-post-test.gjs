@@ -27,8 +27,6 @@ module("Discourse Activity Pub | Component | post", function (hooks) {
   });
 
   skip("non activity pub topic", async function (assert) {
-    const self = this;
-
     this.currentUser.admin = true;
     this.currentUser.staff = true;
     this.post.activity_pub_enabled = false;
@@ -36,7 +34,7 @@ module("Discourse Activity Pub | Component | post", function (hooks) {
 
     await render(
       <template>
-        <Post @post={{self.post}} @changePostOwner={{self.changePostOwner}} />
+        <Post @post={{this.post}} @changePostOwner={{this.changePostOwner}} />
         <DMenus />
       </template>
     );
@@ -48,8 +46,6 @@ module("Discourse Activity Pub | Component | post", function (hooks) {
   });
 
   skip("activity pub topic", async function (assert) {
-    const self = this;
-
     this.currentUser.admin = true;
     this.currentUser.staff = true;
     this.post.activity_pub_enabled = true;
@@ -57,7 +53,7 @@ module("Discourse Activity Pub | Component | post", function (hooks) {
 
     await render(
       <template>
-        <Post @post={{self.post}} @changePostOwner={{self.changePostOwner}} />
+        <Post @post={{this.post}} @changePostOwner={{this.changePostOwner}} />
         <DMenus />
       </template>
     );

@@ -27,13 +27,11 @@ module(
     });
 
     test("with a non domain input", async function (assert) {
-      const self = this;
-
       let domain = "notADomain";
 
       await render(
         <template>
-          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+          <ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />
         </template>
       );
       await fillIn("#activity_pub_follow_domain_input", domain);
@@ -48,8 +46,6 @@ module(
     });
 
     test("with a non ActivityPub domain", async function (assert) {
-      const self = this;
-
       let domain = "google.com";
 
       pretender.get(`https://${domain}/${mastodonAboutPath}`, () => {
@@ -58,7 +54,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+          <ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />
         </template>
       );
       await fillIn("#activity_pub_follow_domain_input", domain);
@@ -73,8 +69,6 @@ module(
     });
 
     test("with an ActivityPub domain", async function (assert) {
-      const self = this;
-
       let domain = "mastodon.social";
 
       pretender.get(`https://${domain}/${mastodonAboutPath}`, () => {
@@ -87,7 +81,7 @@ module(
 
       await render(
         <template>
-          <ActivityPubFollowDomain @actor={{self.model.activity_pub_actor}} />
+          <ActivityPubFollowDomain @actor={{this.model.activity_pub_actor}} />
         </template>
       );
       await fillIn("#activity_pub_follow_domain_input", domain);
