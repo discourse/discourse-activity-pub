@@ -149,7 +149,10 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
     }
 
     this.actor.model_type = "Tag";
-    this.actor.model_name = tags[0];
+    // TODO(https://github.com/discourse/discourse/pull/36678): The string check can be
+    // removed using .discourse-compatibility once the PR is merged.
+    this.actor.model_name =
+      typeof tags[0] === "string" ? tags[0] : tags[0].name;
     this.showForm = true;
   }
 }
