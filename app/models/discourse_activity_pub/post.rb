@@ -225,7 +225,11 @@ module DiscourseActivityPub::Post
     if performing_activity&.create? && self.activity_pub_object&.ap&.tombstone?
       self.activity_pub_object.restore_tombstoned!
       if is_first_post? && activity_pub_full_topic
-        self.topic.activity_pub_object&.restore_tombstoned!
+        DiscourseActivityPubCollection
+          .unscoped
+          .where(model_type: "Topic", model_id: self.topic.id)
+          .first
+          &.restore_tombstoned!
       end
     end
   end
