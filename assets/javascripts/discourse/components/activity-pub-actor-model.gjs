@@ -20,7 +20,7 @@ export default class ActivityPubActorModel extends Component {
         {{htmlSafe this.rawCategoryBadgeHTML}}
       {{/if}}
       {{#if this.isTag}}
-        {{discourseTag @actor.model.name}}
+        {{discourseTag @actor.model}}
       {{/if}}
     </div>
   </template>
