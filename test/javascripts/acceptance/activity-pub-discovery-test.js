@@ -68,15 +68,15 @@ acceptance(
       server.get(`${followersPath}.json`, () =>
         helper.response(Followers[followersPath])
       );
-      server.get("/tag/:tag_name/notifications", (request) => {
+      server.get("/tag/:tag_id/notifications.json", (request) => {
         return helper.response({
           tag_notification: {
-            id: request.params.tag_name,
+            id: request.params.tag_id,
             notification_level: 1,
           },
         });
       });
-      server.get("/tag/:tag_name/l/latest.json", (request) => {
+      server.get("/tag/1/l/latest.json", (request) => {
         return helper.response({
           users: [],
           primary_groups: [],
@@ -89,7 +89,28 @@ acceptance(
             tags: [
               {
                 id: 1,
-                name: request.params.tag_name,
+                name: "monkey",
+                topic_count: 1,
+              },
+            ],
+            topics: [],
+          },
+        });
+      });
+      server.get("/tag/3/l/latest.json", (request) => {
+        return helper.response({
+          users: [],
+          primary_groups: [],
+          topic_list: {
+            can_create_topic: true,
+            draft: null,
+            draft_key: "new_topic",
+            draft_sequence: 1,
+            per_page: 30,
+            tags: [
+              {
+                id: 3,
+                name: "dog",
                 topic_count: 1,
               },
             ],
@@ -175,10 +196,13 @@ acceptance(
     test("when routing from a tag with an actor to one without", async function (assert) {
       Site.current().setProperties({
         activity_pub_actors: SiteActors,
-        top_tags: ["monkey", "dog"],
+        top_tags: [
+          { id: 1, name: "monkey", slug: "monkey" },
+          { id: 3, name: "dog", slug: "dog" },
+        ],
       });
 
-      await visit("/tag/monkey");
+      await visit("/tag/monkey/1");
 
       assert
         .dom(".activity-pub-route-nav.visible")
