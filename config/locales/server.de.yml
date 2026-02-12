@@ -279,6 +279,7 @@ de:
     activity_pub_allowed_request_origins: "Liste der Domains, die ActivityPub-Anfragen stellen dürfen."
     activity_pub_blocked_request_origins: "Liste der Domains, die keine ActivityPub-Anfragen stellen dürfen."
     activity_pub_delivery_delay_minutes: "Anzahl der Minuten, um die Zustellung von ActivityPub-Aktivitäten zu verzögern (Lösch-Aktivitäten werden sofort zugestellt)."
+    activity_pub_send_user_agent: "Setzt den User-Agent-Header beim Senden von ActivityPub-Anfragen. Wenn diese Option aktiviert ist, lautet das Agent-Format „Discourse-ActivityPub/xyz (+https://siteurl.com)“."
     activity_pub_verbose_logging: "Aktiviere ausführliche ActivityPub-Protokolle."
     activity_pub_object_logging: "Alle ein- und ausgehenden ActivityPub-Objekte in den Protokollen ausgeben (erfordert „verbose logging“)."
     activity_pub_post_status_visibility_groups: "Gruppen, die den Status der ActivityPub-Beiträge sehen können."
