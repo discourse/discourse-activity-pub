@@ -94,12 +94,12 @@ RSpec.describe Topic do
         context "when moved to an existing full_topic topic" do
           before do
             topic1.move_posts(user1, [post1.id, post3.id], destination_topic_id: topic2.id)
-            @first_post = topic2.first_post
           end
 
           it "moves the posts" do
+            first_post = topic2.reload.first_post
             expect(topic2.posts.size).to eq(2)
-            expect(@first_post.raw).to eq(post1.raw)
+            expect(first_post.raw).to eq(post1.raw)
             expect(post2.reload.topic_id).to eq(topic1.id)
             expect(post3.reload.topic_id).to eq(topic2.id)
           end
@@ -111,7 +111,8 @@ RSpec.describe Topic do
           end
 
           it "updates the note references" do
-            expect(note1.reload.model_id).to eq(@first_post.reload.id)
+            first_post = topic2.reload.first_post
+            expect(note1.reload.model_id).to eq(first_post.id)
             expect(note1.collection_id).to eq(collection2.id)
             expect(note2.reload.collection_id).to eq(collection1.id)
           end
