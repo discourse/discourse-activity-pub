@@ -92,9 +92,7 @@ RSpec.describe Topic do
         end
 
         context "when moved to an existing full_topic topic" do
-          before do
-            topic1.move_posts(user1, [post1.id, post3.id], destination_topic_id: topic2.id)
-          end
+          before { topic1.move_posts(user1, [post1.id, post3.id], destination_topic_id: topic2.id) }
 
           it "moves the posts" do
             first_post = topic2.reload.first_post
