@@ -150,7 +150,7 @@ en:
         model_not_found: "Model not found"
         target_actor_not_found: "Target actor not found"
         not_following_target_actor: "Actor is not following the target actor"
-        cant_follow_target_actor: "Actor cant follow the target actor"
+        cant_follow_target_actor: "Actor cannot follow the target actor"
         username_required: An ActivityPub username is required to create an actor.
         full_topic_must_be_public: "Full topic publication requires public publication."
         user_not_authorized: "User not authorized"
@@ -270,7 +270,7 @@ en:
             one: "Updated %{count} activity."
             other: "Updated %{count} activities."
   site_settings:
-    activity_pub_enabled: "Enable ActivityPub plugin."
+    activity_pub_enabled: "Enable ActivityPub plugin"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Number of POST requests that can be made to an actor's inbox per minute."
     activity_pub_rate_limit_get_objects_per_minute: "Number of GET requests that can be made on AcitivityPub objects per minute."
     activity_pub_note_excerpt_maxlength: "Maximum length of post excerpts in AcitivityPub Notes (0 for no maximum length)."
