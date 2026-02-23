@@ -150,7 +150,6 @@ tr_TR:
         model_not_found: "Model bulunamadı"
         target_actor_not_found: "Hedef aktör bulunamadı"
         not_following_target_actor: "Aktör, hedef aktörü takip etmiyor"
-        cant_follow_target_actor: "Aktör, hedef aktörü takip edemiyor"
         username_required: Aktör oluşturmak için ActivityPub kullanıcı adı gerekli.
         full_topic_must_be_public: "Konunun tamamının yayınlanması için herkese açık yayınlama yapılması gerekiyor."
         user_not_authorized: "Kullanıcı yetkili değil"
@@ -270,7 +269,7 @@ tr_TR:
             one: "%{count} aktiviteyi güncelledi."
             other: "%{count} aktiviteyi güncelledi."
   site_settings:
-    activity_pub_enabled: "ActivityPub eklentisini etkinleştirin."
+    activity_pub_enabled: "ActivityPub eklentisini etkinleştirin"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Bir aktörün gelen kutusuna dakikada yapılabilecek GÖNDERİ talebi sayısı."
     activity_pub_rate_limit_get_objects_per_minute: "AcitivityPub nesnelerine dakikada yapılabilecek AL talebi sayısı."
     activity_pub_note_excerpt_maxlength: "AcitivityPub Notlarında gönderi alıntılarının maksimum uzunluğu (maksimum uzunluk yok için 0)."

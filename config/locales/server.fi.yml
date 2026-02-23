@@ -150,7 +150,6 @@ fi:
         model_not_found: "Mallia ei löytynyt"
         target_actor_not_found: "Kohde-actoria ei löytynyt"
         not_following_target_actor: "Actor ei seuraa kohde-actoria"
-        cant_follow_target_actor: "Actor ei voi seurata kohde-actoria"
         username_required: Actorin luomiseen tarvitaan ActivityPub-käyttäjänimi.
         full_topic_must_be_public: "Koko ketjun julkaiseminen edellyttää julkista julkaisua."
         user_not_authorized: "Käyttäjä ei ole valtuutettu"
@@ -270,7 +269,7 @@ fi:
             one: "Päivitti %{count} toiminnon."
             other: "Päivitti %{count} toimintoa."
   site_settings:
-    activity_pub_enabled: "Ota ActivityPub-lisäosa käyttöön."
+    activity_pub_enabled: "Ota ActivityPub-lisäosa käyttöön"
     activity_pub_rate_limit_post_to_inbox_per_minute: "POST-pyyntöjen määrä, joka voidaan tehdä actorin saapuneisiin minuutissa."
     activity_pub_rate_limit_get_objects_per_minute: "GET-pyyntöjen määrä, joka voidaan tehdä ActivityPubin objekteissa minuutissa."
     activity_pub_note_excerpt_maxlength: "Viestien otteiden enimmäispituus ActivityPubin huomautuksissa (0 tarkoittaa ei enimmäispituutta)."

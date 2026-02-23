@@ -150,7 +150,6 @@ vi:
         model_not_found: "Không tìm thấy mô hình"
         target_actor_not_found: "Không tìm thấy tác nhân mục tiêu"
         not_following_target_actor: "Tác nhân không tuân theo tác nhân mục tiêu"
-        cant_follow_target_actor: "Tác nhân không thể theo dõi tác nhân mục tiêu"
         username_required: Cần có tên người dùng ActivityPub để tạo tác nhân.
         full_topic_must_be_public: "Việc đăng Full Topic yêu cầu phải đăng công khai."
         user_not_authorized: "Người dùng không được ủy quyền"
@@ -248,7 +247,7 @@ vi:
           updated_activities:
             other: "Đã cập nhật %{count} hoạt động."
   site_settings:
-    activity_pub_enabled: "Kích hoạt plugin ActivityPub."
+    activity_pub_enabled: "Kích hoạt plugin ActivityPub"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Số lượng yêu cầu POST có thể được gửi đến hộp thư đến của một tác nhân mỗi phút."
     activity_pub_rate_limit_get_objects_per_minute: "Số lượng yêu cầu GET có thể được thực hiện trên các đối tượng ActivityPub mỗi phút."
     activity_pub_note_excerpt_maxlength: "Độ dài tối đa của đoạn trích tút trong ActivityPub Notes (0 để không có giới hạn độ dài)."
