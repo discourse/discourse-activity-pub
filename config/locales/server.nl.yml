@@ -150,7 +150,6 @@ nl:
         model_not_found: "Model niet gevonden"
         target_actor_not_found: "Doelactor niet gevonden"
         not_following_target_actor: "Actor volgt de doelactor niet"
-        cant_follow_target_actor: "Actor kan de doelactor niet volgen"
         username_required: Om een actor aan te maken, is een ActivityPub-gebruikersnaam vereist.
         full_topic_must_be_public: "Publicatie van een volledig topic vereist openbare publicatie."
         user_not_authorized: "Gebruiker niet geautoriseerd"
@@ -270,7 +269,6 @@ nl:
             one: "%{count} activiteit bijgewerkt."
             other: "%{count} activiteiten bijgewerkt."
   site_settings:
-    activity_pub_enabled: "ActivityPub-plug-in inschakelen"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Aantal POST-verzoeken dat per minuut naar de inbox van een actor kan worden gestuurd."
     activity_pub_rate_limit_get_objects_per_minute: "Aantal GET-verzoeken dat per minuut kan worden gedaan op AcitivityPub-objecten."
     activity_pub_note_excerpt_maxlength: "Maximale lengte van berichtuittreksels in AcitivityPub-opmerkingen (0 is geen maximale lengte)."

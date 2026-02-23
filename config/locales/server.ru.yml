@@ -150,7 +150,6 @@ ru:
         model_not_found: "Модель не найдена"
         target_actor_not_found: "Целевой актор не найден"
         not_following_target_actor: "Актор не подписан на целевого актора"
-        cant_follow_target_actor: "Актор не может подписаться на целевого актора"
         username_required: Для создания актора требуется имя пользователя ActivityPub.
         full_topic_must_be_public: "Тип публикации «Вся тема» требует, чтобы публикации были публичными."
         user_not_authorized: "Пользователь не авторизован"
@@ -314,7 +313,7 @@ ru:
             many: "Обновлено %{count} активностей."
             other: "Обновлено %{count} активности."
   site_settings:
-    activity_pub_enabled: "Включить плагин ActivityPub."
+    activity_pub_enabled: "Включить плагин ActivityPub"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Лимит POST-запросов в inbox актора (в минуту)."
     activity_pub_rate_limit_get_objects_per_minute: "Лимит GET-запросов к объектам ActivityPub (в минуту)."
     activity_pub_note_excerpt_maxlength: "Максимальная длина для отрывков публикаций, размещаемых в объектах ActivityPub типа Note (0 — без ограничения)."

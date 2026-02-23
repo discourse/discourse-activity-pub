@@ -150,7 +150,6 @@ zh_CN:
         model_not_found: "找不到模型"
         target_actor_not_found: "找不到目标参与者"
         not_following_target_actor: "参与者未关注目标参与者"
-        cant_follow_target_actor: "参与者无法关注目标参与者"
         username_required: 创建参与者需要一个 ActivityPub 用户名。
         full_topic_must_be_public: "完整话题发布需要公开发布。"
         user_not_authorized: "用户未授权"
@@ -248,7 +247,6 @@ zh_CN:
           updated_activities:
             other: "更新了 %{count} 个活动。"
   site_settings:
-    activity_pub_enabled: "启用 ActivityPub 插件。"
     activity_pub_rate_limit_post_to_inbox_per_minute: "每分钟可以向参与者的收件箱发出的 POST 请求数。"
     activity_pub_rate_limit_get_objects_per_minute: "每分钟可以在 AcitivityPub 对象上发出的 GET 请求数。"
     activity_pub_note_excerpt_maxlength: "AcitivityPub 注释中帖子摘录的最大长度（0 表示无最大长度）。"

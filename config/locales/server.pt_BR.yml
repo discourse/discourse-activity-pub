@@ -150,7 +150,6 @@ pt_BR:
         model_not_found: "Modelo não encontrado"
         target_actor_not_found: "Ator-alvo não encontrado"
         not_following_target_actor: "O ator não está seguindo ator-alvo"
-        cant_follow_target_actor: "O ator não pode seguir o ator-alvo"
         username_required: É preciso ter um nome de usuário(a) do ActivityPub para criar um ator.
         full_topic_must_be_public: "É preciso fazer uma publicação pública para publicar o tópico inteiro."
         user_not_authorized: "Usuário(a) não autorizado(a)"
@@ -270,7 +269,7 @@ pt_BR:
             one: "%{count} atividade atualizada."
             other: "%{count} atividades atualizadas."
   site_settings:
-    activity_pub_enabled: "Ative o plugin do ActivityPub."
+    activity_pub_enabled: "Ative o plugin do ActivityPub"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Quantidade de solicitações POST que podem ser feitas na caixa de entrada do ator a cada minuto."
     activity_pub_rate_limit_get_objects_per_minute: "Quantidade de solicitações GET que podem ser feitas em objetos do ActivityPub a cada minuto."
     activity_pub_note_excerpt_maxlength: "O tamanho máximo dos trechos de postagens as Observações do ActivityPub (0 para nenhum tamanho máximo)."
