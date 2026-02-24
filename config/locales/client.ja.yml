@@ -7,6 +7,9 @@
 ja:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -309,7 +312,7 @@ ja:
           label: すべての投稿を公開
           description:
             unpublished:
-              other: "トピック #%{topic_id} に %{count} 件の未公開投稿を公開します。投稿はグループアクターのフォロワーに配信されません。"
+              other: "トピック #%{topic_id} の %{count} 件の未公開投稿を公開します。投稿はグループアクターのフォロワーには配信されません。"
             published: "すべての投稿の公開が無効になっています。トピック #%{topic_id} のすべての投稿はすでに公開されています。"
             scheduled: "すべての投稿の公開が無効になっています。トピック #%{topic_id} には公開スケジュールが設定されています。"
     user:

@@ -150,6 +150,7 @@ ja:
         model_not_found: "モデルが見つかりません"
         target_actor_not_found: "ターゲットアクターが見つかりません"
         not_following_target_actor: "アクターはターゲットアクターをフォローしていません"
+        cant_follow_target_actor: "アクターはターゲットアクターをフォローできません"
         username_required: アクターを作成するには ActivityPub ユーザー名が必要です。
         full_topic_must_be_public: "トピック全体の出版には公開出版が必要です。"
         user_not_authorized: "ユーザーは承認されていません"
@@ -247,6 +248,7 @@ ja:
           updated_activities:
             other: "%{count} 個のアクティビティを更新しました。"
   site_settings:
+    activity_pub_enabled: "ActivityPub プラグインを有効にする"
     activity_pub_rate_limit_post_to_inbox_per_minute: "アクターの受信トレイに対して 1 分あたりに送信できる POST リクエストの数。"
     activity_pub_rate_limit_get_objects_per_minute: "ActivityPub オブジェクトに対して 1 分あたりに送信できる GET リクエストの数。"
     activity_pub_note_excerpt_maxlength: "ActivityPub ノートに使用できる投稿の抜粋の最大長 (最大長を指定しない場合は 0)。"
@@ -255,6 +257,7 @@ ja:
     activity_pub_allowed_request_origins: "ActivityPub リクエストを許可されているドメインのリスト。"
     activity_pub_blocked_request_origins: "ActivityPub リクエストを許可されていないドメインのリスト。"
     activity_pub_delivery_delay_minutes: "ActivityPub アクティビティの配信を遅延する分数 (「削除」アクティビティは即座に配信されます)。"
+    activity_pub_send_user_agent: "ActivityPub リクエストを行う際に User-Agent ヘッダーを設定する。有効にすると、エージェントは 'Discourse-ActivityPub/x.y.z (+https://siteurl.com)' のように整形されます。"
     activity_pub_verbose_logging: "詳細な ActivityPub ログを有効にする。"
     activity_pub_object_logging: "すべての ActivityPub オブジェクトの受信と送信をログに出力する (「詳細なログ記録」が必要です)。"
     activity_pub_post_status_visibility_groups: "ActivityPub 投稿ステータスを閲覧できるグループ。"

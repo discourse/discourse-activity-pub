@@ -7,6 +7,9 @@
 zh_CN:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -133,7 +136,7 @@ zh_CN:
           model_not_active: ActivityPub 未对此%{model_type}激活
           model_active:
             first_post:
-              other: 新话题的第一个帖子将在发布 %{delay_minutes} 分钟后发布
+              other: 新话题的第一个帖子将在发帖 %{delay_minutes} 分钟后发布
         label:
           active: 有效
           not_active: 停用
@@ -309,7 +312,7 @@ zh_CN:
           label: 发布所有帖子
           description:
             unpublished:
-              other: "在话题 #%{topic_id} 中发布 %{count} 篇未发布的帖子。帖子不会递送给群组参与者的关注者。"
+              other: "在话题 #%{topic_id} 中发布 %{count} 个未发布的帖子。帖子不会递送给群组参与者的关注者。"
             published: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 下的所有帖子均已发布。"
             scheduled: "“发布所有帖子”功能已禁用。话题 #%{topic_id} 已安排发布。"
     user:
