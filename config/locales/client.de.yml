@@ -9,7 +9,7 @@ de:
     admin:
       site_settings:
         categories:
-          discourse_activity_pub: "Discourse – ActivityPub"
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -303,6 +303,9 @@ de:
         posts_status:
           label: Status der Beiträge
           published: Alle Beiträge in diesem Thema sind veröffentlicht.
+          some_published:
+            one: "%{count} von %{total} Beitrag in diesem Thema ist veröffentlicht."
+            other: "%{count} von %{total} Beiträgen in diesem Thema sind veröffentlicht."
           none_published: Keine Beiträge in diesem Thema sind veröffentlicht.
           scheduled: Die Veröffentlichung dieses Themas ist geplant.
         actions:

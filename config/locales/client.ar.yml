@@ -7,6 +7,9 @@
 ar:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -136,6 +139,14 @@ ar:
           model_disabled: تم تعطيل ActivityPub لهذا %{model_type}
           model_not_ready: ActivityPub غير جاهز لهذا %{model_type}
           model_not_active: ActivityPub غير نشط لهذا %{model_type}
+          model_active:
+            first_post:
+              zero: سيتم نشر أول منشور في موضوع جديد بعد %{delay_minutes} دقيقة من تاريخ النشر
+              one: سيتم نشر أول منشور في موضوع جديد بعد دقيقة واحدة (%{delay_minutes}) من تاريخ النشر
+              two: سيتم نشر أول منشور في موضوع جديد بعد دقيقتين (%{delay_minutes}) من تاريخ النشر
+              few: سيتم نشر أول منشور في موضوع جديد بعد %{delay_minutes} دقائق من تاريخ النشر
+              many: سيتم نشر أول منشور في موضوع جديد بعد %{delay_minutes} دقيقة من تاريخ النشر
+              other: سيتم نشر أول منشور في موضوع جديد بعد %{delay_minutes} دقيقة من تاريخ النشر
         label:
           active: نشطة
           not_active: غير نشط
@@ -273,6 +284,13 @@ ar:
           schedule:
             label: "جدولة المنشور رقم %{post_number}"
             description:
+              followers:
+                zero: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد %{minutes} دقيقة."
+                one: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد دقيقة (%{minutes})."
+                two: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد دقيقتين (%{minutes})."
+                few: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد %{minutes} دقائق."
+                many: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد %{minutes} دقيقة."
+                other: "نشر المنشور رقم %{post_number} وتسليمه لمتابعي مجموعات الجهات الفاعلة بعد %{minutes} دقيقة."
               no_followers: "تم تعطيل جدولة المنشور رقم %{post_number}. لا تحتوي مجموعات الجهات الفاعلة على متابعين للتسليم إليهم."
           unschedule:
             label: "إلغاء جدولة المنشور رقم %{post_number}"
@@ -297,6 +315,13 @@ ar:
         posts_status:
           label: حالة المنشورات
           published: نُشرت جميع المنشورات في هذا الموضوع.
+          some_published:
+            zero: "نُشر %{count} من أصل %{total} منشور في هذا الموضوع."
+            one: "نُشر %{count} من أصل %{total} منشور في هذا الموضوع."
+            two: "نُشر %{count} من أصل منشورين (%{total}) في هذا الموضوع."
+            few: "نُشر %{count} من أصل %{total} منشورات في هذا الموضوع."
+            many: "نُشر %{count} من أصل %{total} منشورًا في هذا الموضوع."
+            other: "نُشر %{count} من أصل %{total} منشور في هذا الموضوع."
           none_published: لا توجد منشورات منشورة في هذا الموضوع.
           scheduled: تم جدولة نشر هذا الموضوع.
         actions:
@@ -306,6 +331,13 @@ ar:
         publish:
           label: نشر جميع المنشورات
           description:
+            unpublished:
+              zero: "نشر %{count} من المنشورات غير المنشورة في الموضوع رقم %{topic_id}. لن تُسلم المنشورات لمتابعي مجموعات الجهات الفاعلة."
+              one: "نشر منشور (%{count}) غير منشور في الموضوع رقم %{topic_id}. لن يًسلم المنشور لمتابعي مجموعات الجهات الفاعلة."
+              two: "نشر منشورين (%{count}) غير منشورين في الموضوع رقم %{topic_id}. لن يُسلم المنشورين لمتابعي مجموعات الجهات الفاعلة."
+              few: "نشر %{count} منشورات غير منشورة في الموضوع رقم %{topic_id}. لن تُسلم المنشورات لمتابعي مجموعات الجهات الفاعلة."
+              many: "نشر %{count} منشورًا غير منشورة في الموضوع رقم %{topic_id}. لن تُسلم المنشورات لمتابعي مجموعات الجهات الفاعلة."
+              other: "نشر %{count} منشور غير منشورة في الموضوع رقم %{topic_id}. لن تُسلم المنشورات لمتابعي مجموعات الجهات الفاعلة."
             published: "تم تعطيل خيار نشر جميع المنشورات. جميع المنشورات في الموضوع رقم %{topic_id} منشورة بالفعل."
             scheduled: "تم تعطيل خيار نشر جميع المنشورات. الموضوع رقم %{topic_id} مجدول للنشر."
     user:

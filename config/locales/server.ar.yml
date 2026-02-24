@@ -150,6 +150,7 @@ ar:
         model_not_found: "النموذج غير موجود"
         target_actor_not_found: "تعذّر إيجاد الجهة الفاعلة المستهدفة"
         not_following_target_actor: "الجهة الفاعلة لا تتابع الجهة الفاعلة المستهدفة"
+        cant_follow_target_actor: "يتعذّر على الجهة الفاعلة متابعة الجهة الفاعلة المستهدفة"
         username_required: مطلوب اسم مستخدم ActivityPub لإنشاء الجهة الفاعلة.
         full_topic_must_be_public: "يتطلّب نشر الموضوع الكامل (Full topic) أن يكون النشر علنيًا."
         user_not_authorized: "المستخدم غير مصرح له"
@@ -357,7 +358,7 @@ ar:
             many: "تم تحديث %{count} نشاطًا."
             other: "تم تحديث %{count} نشاط."
   site_settings:
-    activity_pub_enabled: "فعّل إضافة ActivityPub"
+    activity_pub_enabled: "تمكين المكون الإضافي ActivityPub"
     activity_pub_rate_limit_post_to_inbox_per_minute: "عدد طلبات POST التي يمكن إرسالها إلى صندوق الوارد للجهة الفاعلة في الدقيقة الواحدة."
     activity_pub_rate_limit_get_objects_per_minute: "عدد طلبات GET التي يمكن إجراؤها على كائنات ActivityPub في الدقيقة الواحدة."
     activity_pub_note_excerpt_maxlength: "الحد الأقصى لطول مقتطفات المنشورات في ملاحظات ActivityPub (0 لعدم وجود حد أقصى)."
@@ -366,6 +367,7 @@ ar:
     activity_pub_allowed_request_origins: "قائمة النطاقات المسموح لها بإجراء طلبات ActivityPub."
     activity_pub_blocked_request_origins: "قائمة النطاقات غير المسموح لها بإجراء طلبات ActivityPub."
     activity_pub_delivery_delay_minutes: "عدد الدقائق لتأخير تسليم أنشطة ActivityPub (تُسلم أنشطة الحذف فورًا)."
+    activity_pub_send_user_agent: "قم بتعيين رأس User-Agent عند إرسال طلبات ActivityPub. وعند التمكين، سيكون تنسيق الوكيل هو 'Discourse-ActivityPub/xyz (+https://siteurl.com)'."
     activity_pub_verbose_logging: "تفعيل سجلات ActivityPub التفصيلية."
     activity_pub_object_logging: "طباعة جميع كائنات ActivityPub الواردة والصادرة في السجلات (يتطلب تفعيل السجلات التفصيلية)."
     activity_pub_post_status_visibility_groups: "المجموعات التي يمكنها مشاهدة حالات منشورات ActivityPub."
