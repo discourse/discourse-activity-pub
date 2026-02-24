@@ -73,7 +73,7 @@ export default RouteTemplate(
                   class="directory-table__cell activity-pub-follow-table-followed-at"
                 >
                   {{#if actor.followed_at}}
-                    {{ageWithTooltip actor.followed_at}}
+                    {{ageWithTooltip actor.followed_at format="medium"}}
                   {{else}}
                     {{i18n
                       "discourse_activity_pub.follow_table.follow_pending"

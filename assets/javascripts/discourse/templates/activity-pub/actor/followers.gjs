@@ -76,7 +76,7 @@ export default RouteTemplate(
                 <div
                   class="directory-table__cell activity-pub-follow-table-followed-at"
                 >
-                  {{ageWithTooltip follower.followed_at}}
+                  {{ageWithTooltip follower.followed_at format="medium"}}
                 </div>
                 {{#if @controller.currentUser.admin}}
                   <div
