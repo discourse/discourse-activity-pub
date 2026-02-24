@@ -5,7 +5,7 @@ import LoadMore from "discourse/components/load-more";
 import ResponsiveTable from "discourse/components/responsive-table";
 import TableHeaderToggle from "discourse/components/table-header-toggle";
 import avatar from "discourse/helpers/avatar";
-import boundDate from "discourse/helpers/bound-date";
+import ageWithTooltip from "discourse/helpers/age-with-tooltip";
 import routeAction from "discourse/helpers/route-action";
 import { i18n } from "discourse-i18n";
 import ActivityPubActor from "../../../components/activity-pub-actor";
@@ -76,7 +76,7 @@ export default RouteTemplate(
                 <div
                   class="directory-table__cell activity-pub-follow-table-followed-at"
                 >
-                  {{boundDate follower.followed_at}}
+                  {{ageWithTooltip follower.followed_at format="medium"}}
                 </div>
                 {{#if @controller.currentUser.admin}}
                   <div
