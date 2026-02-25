@@ -22,16 +22,18 @@ export default class AdminPluginsActivityPubActorShow extends Controller {
   @tracked loading = false;
   @tracked actor;
 
-  modelTypes = [
-    {
-      id: "category",
-      label: i18n("admin.discourse_activity_pub.actor.model_type.category"),
-    },
-    {
-      id: "tag",
-      label: i18n("admin.discourse_activity_pub.actor.model_type.tag"),
-    },
-  ];
+  get modelTypes() {
+    return [
+      {
+        id: "category",
+        label: i18n("admin.discourse_activity_pub.actor.model_type.category"),
+      },
+      {
+        id: "tag",
+        label: i18n("admin.discourse_activity_pub.actor.model_type.tag"),
+      },
+    ];
+  }
 
   get canSave() {
     return this.showForm && !this.actor.isDeleted;
