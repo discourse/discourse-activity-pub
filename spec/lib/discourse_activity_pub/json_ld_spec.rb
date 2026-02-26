@@ -111,9 +111,7 @@ RSpec.describe DiscourseActivityPub::JsonLd do
   end
 
   describe "#resolve_icon_url" do
-    before do
-      described_class.stubs(:safe_icon_url?).returns(true)
-    end
+    before { described_class.stubs(:safe_icon_url?).returns(true) }
 
     it "returns nil for nil input" do
       expect(described_class.resolve_icon_url(nil)).to be_nil
@@ -126,15 +124,18 @@ RSpec.describe DiscourseActivityPub::JsonLd do
     end
 
     it "extracts url from a hash" do
-      expect(
-        described_class.resolve_icon_url({ "url" => "https://example.com/avatar.png" }),
-      ).to eq("https://example.com/avatar.png")
+      expect(described_class.resolve_icon_url({ "url" => "https://example.com/avatar.png" })).to eq(
+        "https://example.com/avatar.png",
+      )
     end
 
     it "extracts url from the first element of an array" do
       expect(
         described_class.resolve_icon_url(
-          [{ "url" => "https://example.com/avatar.png" }, { "url" => "https://example.com/other.png" }],
+          [
+            { "url" => "https://example.com/avatar.png" },
+            { "url" => "https://example.com/other.png" },
+          ],
         ),
       ).to eq("https://example.com/avatar.png")
     end
@@ -198,7 +199,9 @@ RSpec.describe DiscourseActivityPub::JsonLd do
 
     it "returns false on DNS resolution failure" do
       Addrinfo.stubs(:getaddrinfo).raises(SocketError)
-      expect(described_class.safe_icon_url?("https://nonexistent.example.com/avatar.png")).to eq(false)
+      expect(described_class.safe_icon_url?("https://nonexistent.example.com/avatar.png")).to eq(
+        false,
+      )
     end
   end
 
