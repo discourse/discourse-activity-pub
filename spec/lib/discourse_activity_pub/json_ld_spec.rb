@@ -110,6 +110,98 @@ RSpec.describe DiscourseActivityPub::JsonLd do
     end
   end
 
+  describe "#resolve_icon_url" do
+    before do
+      described_class.stubs(:safe_icon_url?).returns(true)
+    end
+
+    it "returns nil for nil input" do
+      expect(described_class.resolve_icon_url(nil)).to be_nil
+    end
+
+    it "returns the URL when given a string" do
+      expect(described_class.resolve_icon_url("https://example.com/avatar.png")).to eq(
+        "https://example.com/avatar.png",
+      )
+    end
+
+    it "extracts url from a hash" do
+      expect(
+        described_class.resolve_icon_url({ "url" => "https://example.com/avatar.png" }),
+      ).to eq("https://example.com/avatar.png")
+    end
+
+    it "extracts url from the first element of an array" do
+      expect(
+        described_class.resolve_icon_url(
+          [{ "url" => "https://example.com/avatar.png" }, { "url" => "https://example.com/other.png" }],
+        ),
+      ).to eq("https://example.com/avatar.png")
+    end
+
+    it "returns nil for an empty array" do
+      expect(described_class.resolve_icon_url([])).to be_nil
+    end
+
+    it "returns nil for an array with a nil first element" do
+      expect(described_class.resolve_icon_url([nil])).to be_nil
+    end
+
+    it "returns nil for a hash without a url key" do
+      expect(described_class.resolve_icon_url({ "type" => "Image" })).to be_nil
+    end
+
+    it "returns nil for a blank string" do
+      expect(described_class.resolve_icon_url("")).to be_nil
+    end
+
+    it "returns nil when safe_icon_url? returns false" do
+      described_class.stubs(:safe_icon_url?).returns(false)
+      expect(described_class.resolve_icon_url("https://evil.com/avatar.png")).to be_nil
+    end
+  end
+
+  describe "#safe_icon_url?" do
+    it "returns true for a valid https URL" do
+      FinalDestination::SSRFDetector.stubs(:ip_allowed?).returns(true)
+      Addrinfo.stubs(:getaddrinfo).returns([stub(ip_address: "93.184.216.34")])
+      expect(described_class.safe_icon_url?("https://example.com/avatar.png")).to eq(true)
+    end
+
+    it "returns true for a valid http URL" do
+      FinalDestination::SSRFDetector.stubs(:ip_allowed?).returns(true)
+      Addrinfo.stubs(:getaddrinfo).returns([stub(ip_address: "93.184.216.34")])
+      expect(described_class.safe_icon_url?("http://example.com/avatar.png")).to eq(true)
+    end
+
+    it "returns false for a non-http scheme" do
+      expect(described_class.safe_icon_url?("ftp://example.com/avatar.png")).to eq(false)
+    end
+
+    it "returns false for a javascript URI" do
+      expect(described_class.safe_icon_url?("javascript:alert(1)")).to eq(false)
+    end
+
+    it "returns false when the host is blank" do
+      expect(described_class.safe_icon_url?("/relative/path.png")).to eq(false)
+    end
+
+    it "returns false when IP is not allowed (SSRF)" do
+      FinalDestination::SSRFDetector.stubs(:ip_allowed?).returns(false)
+      Addrinfo.stubs(:getaddrinfo).returns([stub(ip_address: "127.0.0.1")])
+      expect(described_class.safe_icon_url?("https://example.com/avatar.png")).to eq(false)
+    end
+
+    it "returns false for an invalid URI" do
+      expect(described_class.safe_icon_url?("ht!tp://not valid")).to eq(false)
+    end
+
+    it "returns false on DNS resolution failure" do
+      Addrinfo.stubs(:getaddrinfo).raises(SocketError)
+      expect(described_class.safe_icon_url?("https://nonexistent.example.com/avatar.png")).to eq(false)
+    end
+  end
+
   describe "#base_object_id" do
     let!(:object_id) { "1234" }
     let!(:object_json) { build_object_json(id: object_id) }

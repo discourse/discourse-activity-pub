@@ -105,9 +105,27 @@ module DiscourseActivityPub
 
     def resolve_icon_url(value)
       return nil if value.nil?
-      return value if value.is_a?(String)
-      return value["url"] if value.is_a?(Hash)
-      value.first["url"] if value.is_a?(Array)
+      url =
+        if value.is_a?(String)
+          value
+        elsif value.is_a?(Hash)
+          value["url"]
+        elsif value.is_a?(Array)
+          value.first&.dig("url")
+        end
+      return nil if url.blank?
+      safe_icon_url?(url) ? url : nil
+    end
+
+    def safe_icon_url?(url)
+      parsed = Addressable::URI.parse(url)
+      return false if parsed&.host.blank?
+      return false if %w[http https].exclude?(parsed.scheme)
+
+      resolved_ips = Addrinfo.getaddrinfo(parsed.host, nil, :UNSPEC, :STREAM).map(&:ip_address)
+      resolved_ips.all? { |ip| FinalDestination::SSRFDetector.ip_allowed?(ip) }
+    rescue Addressable::URI::InvalidURIError, SocketError
+      false
     end
 
     def publicly_addressed?(json)
@@ -165,6 +183,7 @@ module DiscourseActivityPub
     module_function :content_type_header
     module_function :public_collection_id
     module_function :resolve_icon_url
+    module_function :safe_icon_url?
     module_function :publicly_addressed?
     module_function :addressed_to
     module_function :generate_key
