@@ -150,6 +150,7 @@ tr_TR:
         model_not_found: "Model bulunamadı"
         target_actor_not_found: "Hedef aktör bulunamadı"
         not_following_target_actor: "Aktör, hedef aktörü takip etmiyor"
+        cant_follow_target_actor: "Aktör hedef aktörü takip edemez"
         username_required: Aktör oluşturmak için ActivityPub kullanıcı adı gerekli.
         full_topic_must_be_public: "Konunun tamamının yayınlanması için herkese açık yayınlama yapılması gerekiyor."
         user_not_authorized: "Kullanıcı yetkili değil"
@@ -278,6 +279,7 @@ tr_TR:
     activity_pub_allowed_request_origins: "ActivityPub talepleri yapmasına izin verilen alan adlarının listesi."
     activity_pub_blocked_request_origins: "ActivityPub talepleri yapmasına izin verilmeyen alan adlarının listesi."
     activity_pub_delivery_delay_minutes: "ActivityPub aktivitelerinin teslimatının geciktirileceği dakika sayısı (\"sil\" aktiviteleri anında teslim edilir)."
+    activity_pub_send_user_agent: "ActivityPub istekleri yaparken User-Agent başlığını ayarlayın. Etkinleştirildiğinde, aracı biçimi ‘Discourse-ActivityPub/x.y.z (+https://siteurl.com)’ olacaktır."
     activity_pub_verbose_logging: "Ayrıntılı ActivityPub günlüklerini etkinleştirin."
     activity_pub_object_logging: "Günlüklerdeki tüm gelen ve giden ActivityPub nesnelerini yazdırın (ayrıntılı günlük kaydı gerektirir)."
     activity_pub_post_status_visibility_groups: "ActivityPub gönderi durumlarını görebilen gruplar."

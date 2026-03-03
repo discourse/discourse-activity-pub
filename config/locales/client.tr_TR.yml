@@ -7,6 +7,9 @@
 tr_TR:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse Activity Pub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -132,6 +135,10 @@ tr_TR:
           model_disabled: ActivityPub bu %{model_type} için devre dışı bırakıldı
           model_not_ready: ActivityPub bu %{model_type} için hazır değil
           model_not_active: ActivityPub bu %{model_type} için aktif değil
+          model_active:
+            first_post:
+              one: Yeni bir konunun ilk gönderisi yayınlandıktan %{delay_minutes} dakika sonra yayınlanır
+              other: Yeni bir konunun ilk gönderisi yayınlandıktan %{delay_minutes} dakika sonra yayınlanır
         label:
           active: Aktif
           not_active: Aktif Değil
@@ -269,6 +276,9 @@ tr_TR:
           schedule:
             label: "%{post_number} numaralı Gönderiyi planla"
             description:
+              followers:
+                one: "%{post_number} numaralı Gönderiyi yayınlayın ve %{minutes} dakika içinde Grup Aktörlerinin takipçilerine teslim edin."
+                other: "%{post_number} numaralı Gönderiyi yayınlayın ve %{minutes} dakika içinde Grup Aktörlerinin takipçilerine teslim edin."
               no_followers: "%{post_number} numaralı Gönderi için planlama devre dışı bırakıldı. Grup Aktörlerinin teslimat yapılacak takipçisi yok."
           unschedule:
             label: "%{post_number} numaralı Gönderinin planlamasını kaldır"
@@ -293,6 +303,9 @@ tr_TR:
         posts_status:
           label: Gönderi Durumu
           published: Bu konudaki tüm gönderiler yayınlandı.
+          some_published:
+            one: "Bu konudaki %{total} mesajdan %{count} tanesi yayınlandı."
+            other: "Bu konudaki %{total} mesajdan %{count} tanesi yayınlandı."
           none_published: Bu konudaki hiçbir gönderi yayınlanmadı.
           scheduled: Bu konunun yayınlanması planlandı.
         actions:
@@ -302,6 +315,9 @@ tr_TR:
         publish:
           label: Tüm Gönderileri Yayınla
           description:
+            unpublished:
+              one: "%{topic_id} numaralı Konu altında yayınlanmamış %{count} gönderiyi yayınlayın. Gönderiler Grup Aktörlerinin takipçilerine teslim edilmez."
+              other: "%{topic_id} numaralı Konu altında yayınlanmamış %{count} gönderiyi yayınlayın. Gönderiler Grup Aktörlerinin takipçilerine teslim edilmez."
             published: "Tüm gönderileri yayınla seçeneği devre dışı. %{topic_id} numaralı Konudaki tüm gönderiler zaten yayınlanmış durumda."
             scheduled: "Tüm gönderileri yayınla devre dışı bırakıldı. %{topic_id} numaralı Konunun yayınlanması planlandı."
     user:
