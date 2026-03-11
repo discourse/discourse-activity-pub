@@ -2,8 +2,8 @@ import { getOwner } from "@ember/owner";
 import { click, render } from "@ember/test-helpers";
 import { module, skip } from "qunit";
 import Post from "discourse/components/post";
+import DMenus from "discourse/float-kit/components/d-menus";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import DMenus from "float-kit/components/d-menus";
 
 module("Discourse Activity Pub | Component | post", function (hooks) {
   setupRenderingTest(hooks);

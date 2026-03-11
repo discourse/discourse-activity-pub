@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-classic-components, ember/require-tagless-components */
 import Component from "@ember/component";
 import { classNames, tagName } from "@ember-decorators/component";
 import ActivityPubNavItem from "../../components/activity-pub-nav-item";

@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-classic-components, ember/no-observers */
 import Component from "@ember/component";
 import { tagName } from "@ember-decorators/component";
 import ActivityPubActorStatus from "../../components/activity-pub-actor-status";

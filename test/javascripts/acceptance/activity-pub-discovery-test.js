@@ -76,7 +76,7 @@ acceptance(
           },
         });
       });
-      server.get("/tag/1/l/latest.json", (request) => {
+      server.get("/tag/1/l/latest.json", () => {
         return helper.response({
           users: [],
           primary_groups: [],
@@ -97,7 +97,7 @@ acceptance(
           },
         });
       });
-      server.get("/tag/3/l/latest.json", (request) => {
+      server.get("/tag/3/l/latest.json", () => {
         return helper.response({
           users: [],
           primary_groups: [],
