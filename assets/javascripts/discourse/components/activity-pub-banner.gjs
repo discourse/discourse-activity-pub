@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
+import DTooltip from "discourse/float-kit/components/d-tooltip";
 import { i18n } from "discourse-i18n";
-import DTooltip from "float-kit/components/d-tooltip";
 import ActivityPubFollowBtn from "./activity-pub-follow-btn";
 import ActivityPubHandle from "./activity-pub-handle";
 

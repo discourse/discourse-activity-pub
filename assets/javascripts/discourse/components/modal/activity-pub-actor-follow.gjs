@@ -13,7 +13,6 @@ import ActivityPubActor0 from "../activity-pub-actor";
 import ActivityPubActorFollowBtn from "../activity-pub-actor-follow-btn";
 
 export default class ActivityPubFollowRemote extends Component {
-  @tracked verifying = false;
   @tracked error = null;
   @tracked followActor;
 

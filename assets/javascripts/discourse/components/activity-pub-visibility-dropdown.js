@@ -2,8 +2,8 @@ import { computed } from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { schedule } from "@ember/runloop";
 import { classNames } from "@ember-decorators/component";
+import ComboBoxComponent from "discourse/select-kit/components/combo-box";
 import { i18n } from "discourse-i18n";
-import ComboBoxComponent from "select-kit/components/combo-box";
 
 @classNames("activity-pub-visibility-dropdown")
 export default class ActivityPubVisibilityDropdown extends ComboBoxComponent {

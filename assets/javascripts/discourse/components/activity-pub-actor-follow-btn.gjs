@@ -5,22 +5,11 @@ import DButton from "discourse/components/d-button";
 import { i18n } from "discourse-i18n";
 
 export default class ActivityPubActorFollowBtn extends Component {
-  @tracked followed = !!this.args.followActor.followed_at;
   @tracked following = false;
   @tracked followRequested = false;
 
-  @action
-  follow() {
-    if (this.followed || this.followRequested) {
-      return;
-    }
-
-    this.following = true;
-
-    this.args.follow(this.args.actor, this.args.followActor).then((result) => {
-      this.followRequested = result;
-      this.following = false;
-    });
+  get followed() {
+    return !!this.args.followActor.followed_at;
   }
 
   get icon() {
@@ -56,6 +45,20 @@ export default class ActivityPubActorFollowBtn extends Component {
 
   get label() {
     return i18n(`discourse_activity_pub.actor_follow.${this.i18nKey}.label`);
+  }
+
+  @action
+  follow() {
+    if (this.followed || this.followRequested) {
+      return;
+    }
+
+    this.following = true;
+
+    this.args.follow(this.args.actor, this.args.followActor).then((result) => {
+      this.followRequested = result;
+      this.following = false;
+    });
   }
 
   <template>

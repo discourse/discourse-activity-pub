@@ -1,6 +1,6 @@
 import { classNames } from "@ember-decorators/component";
-import CategoryChooser from "select-kit/components/category-chooser";
-import { selectKitOptions } from "select-kit/components/select-kit";
+import CategoryChooser from "discourse/select-kit/components/category-chooser";
+import { selectKitOptions } from "discourse/select-kit/components/select-kit";
 import ActivityPubActor from "../models/activity-pub-actor";
 
 @selectKitOptions({

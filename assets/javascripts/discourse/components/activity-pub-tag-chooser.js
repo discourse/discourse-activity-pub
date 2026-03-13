@@ -1,7 +1,7 @@
 import { service } from "@ember/service";
 import { classNames } from "@ember-decorators/component";
-import { selectKitOptions } from "select-kit/components/select-kit";
-import TagChooser from "select-kit/components/tag-chooser";
+import { selectKitOptions } from "discourse/select-kit/components/select-kit";
+import TagChooser from "discourse/select-kit/components/tag-chooser";
 
 @selectKitOptions({
   allowUncategorized: false,
