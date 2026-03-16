@@ -18,7 +18,7 @@ module DiscourseActivityPub::Post
     post_class.after_destroy :cache_activity_pub_after_destroy
   end
 
-  def reload
+  def reload(options = nil)
     @activity_pub_enabled = nil
     @activity_pub_actor = nil
     @activity_pub_full_topic = nil
