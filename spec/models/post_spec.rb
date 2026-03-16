@@ -9,6 +9,12 @@ RSpec.describe Post do
 
   it { is_expected.to have_one(:activity_pub_object) }
 
+  describe "#reload" do
+    it "accepts options like ActiveRecord's reload" do
+      expect { post.reload(lock: true) }.not_to raise_error
+    end
+  end
+
   describe "#activity_pub_enabled" do
     context "with activity pub plugin enabled" do
       context "with activity pub set to first post on category" do
