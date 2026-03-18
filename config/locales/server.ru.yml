@@ -322,6 +322,7 @@ ru:
     activity_pub_allowed_request_origins: "Список доменов, которым разрешено выполнять запросы ActivityPub."
     activity_pub_blocked_request_origins: "Список доменов, которым не разрешено выполнять запросы ActivityPub."
     activity_pub_delivery_delay_minutes: "Время задержки (в минутах) перед доставкой активностей ActivityPub ('delete' доставляются мгновенно)."
+    activity_pub_send_user_agent: "При отправке запросов в ActivityPub необходимо установить заголовок User-Agent. Если он включен, формат агента будет выглядеть так: 'Discourse-ActivityPub/xyz (+https://siteurl.com)'."
     activity_pub_verbose_logging: "Включить подробные журналы ActivityPub."
     activity_pub_object_logging: "Записывать в журналах все входящие и исходящие объекты ActivityPub (должна быть включена настройка ведения подробных журналов)."
     activity_pub_post_status_visibility_groups: "Группы, имеющие доступ к статусам публикаций ActivityPub."
