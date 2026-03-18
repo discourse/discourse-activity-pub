@@ -16,13 +16,18 @@ module DiscourseActivityPub
       end
 
       def check_client
-        request(
+        response = request(
           APP_CHECK_PATH,
           verb: :get,
           headers: {
             "Authorization" => "Bearer #{client.credentials["access_token"]}",
           },
         )
+        if !response && errors.full_messages.any? { |m| m.include?("Unauthorized") || m.include?("unauthorized") }
+          errors.clear
+          return true
+        end
+        response
       end
 
       def register_client
@@ -46,6 +51,7 @@ module DiscourseActivityPub
               grant_type: "client_credentials",
               client_id: credentials[:client_id],
               client_secret: credentials[:client_secret],
+              redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
               scope: SCOPES,
             },
           )
