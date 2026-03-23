@@ -236,7 +236,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       it "returns an authorize url" do
         expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain1)).to eq(
           # https://docs.joinmastodon.org/methods/oauth/#query-parameters
-          "https://remote.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
+          "https://remote.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scopes=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
         )
       end
     end
