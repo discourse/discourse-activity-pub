@@ -68,7 +68,7 @@ module DiscourseActivityPub
             client_id: client.credentials["client_id"],
             response_type: "code",
             redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
-            scope: SCOPES,
+            scopes: SCOPES,
             force_login: true,
           )
         uri.to_s
