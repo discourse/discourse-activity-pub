@@ -1,4 +1,4 @@
-import { TrackedArray } from "@ember-compat/tracked-built-ins";
+import { trackedArray } from "@ember/reactive/collections";
 import DiscourseRoute from "discourse/routes/discourse";
 import ActivityPubLog from "../../../models/activity-pub-log";
 
@@ -16,7 +16,7 @@ export default class AdminPluginsActivityPubLogRoute extends DiscourseRoute {
     controller.setProperties({
       loadMoreUrl: model.meta.load_more_url,
       total: model.meta.total,
-      logs: new TrackedArray(
+      logs: trackedArray(
         (model.logs || []).map((actor) => {
           return ActivityPubLog.create(actor);
         })

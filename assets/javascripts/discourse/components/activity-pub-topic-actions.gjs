@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
@@ -94,7 +94,7 @@ export default class ActivityPubTopicActions extends Component {
           />
         </div>
         <div class="action-description">
-          {{htmlSafe this.publishDescription}}
+          {{trustHTML this.publishDescription}}
         </div>
       </div>
     </div>

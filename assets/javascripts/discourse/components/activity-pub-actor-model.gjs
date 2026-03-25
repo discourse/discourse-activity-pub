@@ -1,6 +1,6 @@
 import Component from "@glimmer/component";
 import { equal } from "@ember/object/computed";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import { categoryBadgeHTML } from "discourse/helpers/category-link";
 import discourseTag from "discourse/helpers/discourse-tag";
 
@@ -17,7 +17,7 @@ export default class ActivityPubActorModel extends Component {
   <template>
     <div class="activity-pub-actor-model">
       {{#if this.isCategory}}
-        {{htmlSafe this.rawCategoryBadgeHTML}}
+        {{trustHTML this.rawCategoryBadgeHTML}}
       {{/if}}
       {{#if this.isTag}}
         {{discourseTag @actor.model}}
