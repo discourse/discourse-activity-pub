@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
@@ -278,7 +278,7 @@ export default class ActivityPubPostActions extends Component {
               />
             </div>
             <div class="action-description">
-              {{htmlSafe this.deliverDescription}}
+              {{trustHTML this.deliverDescription}}
             </div>
           </div>
         {{/if}}
@@ -293,7 +293,7 @@ export default class ActivityPubPostActions extends Component {
               />
             </div>
             <div class="action-description">
-              {{htmlSafe this.publishDescription}}
+              {{trustHTML this.publishDescription}}
             </div>
           </div>
         {{/if}}
@@ -308,7 +308,7 @@ export default class ActivityPubPostActions extends Component {
               />
             </div>
             <div class="action-description">
-              {{htmlSafe this.scheduleDescription}}
+              {{trustHTML this.scheduleDescription}}
             </div>
           </div>
         {{/if}}

@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import formatDate from "discourse/helpers/format-date";
@@ -34,7 +34,7 @@ export default class ActivityPubLogJson extends Component {
       <:body>
         <div class="activity-pub-json-modal-header">
           <div class="activity-pub-json-modal-title">
-            {{htmlSafe
+            {{trustHTML
               (i18n
                 "admin.discourse_activity_pub.log.json.logged_at"
                 logged_at=(formatDate

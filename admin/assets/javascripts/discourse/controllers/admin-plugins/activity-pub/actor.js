@@ -4,7 +4,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { trackedArray } from "discourse/lib/tracked-tools";
+import { autoTrackedArray } from "discourse/lib/tracked-tools";
 import { i18n } from "discourse-i18n";
 import ActivityPubActor, { newActor } from "../../../models/activity-pub-actor";
 
@@ -15,7 +15,7 @@ export default class AdminPluginsActivityPubActor extends Controller {
   @tracked asc = null;
   @tracked loadingMore = false;
   @tracked model_type = "category";
-  @trackedArray actors;
+  @autoTrackedArray actors;
 
   loadMoreUrl = "";
   total = "";

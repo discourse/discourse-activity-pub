@@ -3,13 +3,13 @@ import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { trackedArray } from "discourse/lib/tracked-tools";
+import { autoTrackedArray } from "discourse/lib/tracked-tools";
 
 export default class ActivityPubActorFollows extends Controller {
   @tracked order = "";
   @tracked asc = null;
   @tracked loadingMore = false;
-  @trackedArray actors;
+  @autoTrackedArray actors;
 
   queryParams = ["order", "asc"];
 
