@@ -235,10 +235,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
 
       # https://docs.joinmastodon.org/methods/apps/#verify_credentials
       let!(:app_check_response_body) do
-        {
-          name: DiscourseActivityPub.host,
-          scopes: [DiscourseActivityPub::Auth::Mastodon::SCOPES],
-        }
+        { name: DiscourseActivityPub.host, scopes: [DiscourseActivityPub::Auth::Mastodon::SCOPES] }
       end
 
       before do
