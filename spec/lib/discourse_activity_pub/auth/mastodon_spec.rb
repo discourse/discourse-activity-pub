@@ -233,10 +233,27 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
         )
       end
 
+      # https://docs.joinmastodon.org/methods/apps/#verify_credentials
+      let!(:app_check_response_body) do
+        { name: DiscourseActivityPub.host, scopes: [DiscourseActivityPub::Auth::Mastodon::SCOPES] }
+      end
+
+      before do
+        expect_request(
+          domain: domain1,
+          verb: :get,
+          path: DiscourseActivityPub::Auth::Mastodon::APP_CHECK_PATH,
+          headers: {
+            "Authorization" => "Bearer #{access_token}",
+          },
+          response: build_response(body: app_check_response_body, status: 200),
+        )
+      end
+
       it "returns an authorize url" do
         expect(DiscourseActivityPub::Auth::Mastodon.get_authorize_url(domain1)).to eq(
           # https://docs.joinmastodon.org/methods/oauth/#query-parameters
-          "https://remote.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scopes=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
+          "https://remote.com/oauth/authorize?client_id=#{client_id}&response_type=code&redirect_uri=#{CGI.escape(redirect_uri)}&scope=#{CGI.escape(DiscourseActivityPub::Auth::Mastodon::SCOPES)}&force_login=true",
         )
       end
     end

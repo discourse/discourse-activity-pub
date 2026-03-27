@@ -37,6 +37,7 @@ module DiscourseActivityPub
             },
           )
         return nil unless client_response
+
         credentials = client_response.slice(:client_id, :client_secret)
 
         token_response =
@@ -62,13 +63,18 @@ module DiscourseActivityPub
       def get_authorize_url
         return nil unless client
 
+        client_response = check_client
+        auth_scopes = client_response["scopes"].join(",")
+
+        return nil unless auth_scopes
+
         uri = DiscourseActivityPub::URI.parse("https://#{domain}/#{AUTHORIZE_PATH}")
         uri.query =
           ::URI.encode_www_form(
             client_id: client.credentials["client_id"],
             response_type: "code",
             redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
-            scopes: SCOPES,
+            scope: auth_scopes,
             force_login: true,
           )
         uri.to_s
