@@ -63,6 +63,13 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
     end
   end
 
+  let!(:gotosocial_domain) { "gotosocial.example.com" }
+  let!(:gotosocial_client_id) { "TWhM-tNSuncnqN7DBJmoyeLnk6K3iJJ71KKXxgL1hPM" }
+  let!(:gotosocial_client_secret) { "ZEaFUFmF0umgBX1qKJDjaU99Q31lDkOU8NutzTOoliw" }
+  let!(:gotosocial_access_token) { "ZA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
+  let!(:gotosocial_code) { "123456" }
+  let!(:gotosocial_client_access_token) { "BA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
+
   describe "#verify" do
     before { sign_in(user) }
 
@@ -225,6 +232,139 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
         end
       end
     end
+
+    context "with gotosocial" do
+      context "when the domain returns valid nodeinfo" do
+        before do
+          stub_gotosocial_nodeinfo(domain: gotosocial_domain)
+          stub_gotosocial_software_detection(domain: gotosocial_domain, software: "gotosocial")
+          stub_request(
+            :post,
+            "https://#{gotosocial_domain}/#{DiscourseActivityPub::Auth::Gotosocial::APP_PATH}",
+          ).to_return(
+            body: {
+              id: "563419",
+              name: "test app",
+              website: "",
+              redirect_uri:
+                "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::Gotosocial::REDIRECT_PATH}",
+              client_id: gotosocial_client_id,
+              client_secret: gotosocial_client_secret,
+            }.to_json,
+            headers: {
+              "Content-Type" => "application/json",
+            },
+            status: 200,
+          )
+        end
+
+        context "when the registration flow succeeds" do
+          before do
+            stub_request(
+              :post,
+              "https://#{gotosocial_domain}/#{DiscourseActivityPub::Auth::Gotosocial::TOKEN_PATH}",
+            ).to_return(status: 200, body: { access_token: gotosocial_client_access_token }.to_json)
+          end
+
+          it "returns the domain" do
+            post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            expect(response.status).to eq(200)
+            expect(response.parsed_body["domain"]).to eq(gotosocial_domain)
+          end
+
+          it "sets the domain as the verified domain in the session" do
+            post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            expect(server_session[described_class::DOMAIN_SESSION_KEY]).to eq(gotosocial_domain)
+          end
+
+          it "creates a client" do
+            post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            client =
+              DiscourseActivityPubClient.find_by(
+                domain: gotosocial_domain,
+                auth_type: DiscourseActivityPubClient.auth_types[:gotosocial],
+              )
+            expect(client.credentials["client_id"]).to eq(gotosocial_client_id)
+          end
+        end
+
+        context "when the registration flow fails" do
+          before do
+            stub_request(
+              :post,
+              "https://#{gotosocial_domain}/#{DiscourseActivityPub::Auth::Gotosocial::TOKEN_PATH}",
+            ).to_return(status: 400)
+          end
+
+          it "returns an error" do
+            post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            expect(response.status).to eq(422)
+            expect(response.parsed_body["errors"].first).to eq(
+              I18n.t("discourse_activity_pub.auth.error.failed_to_create_client"),
+            )
+          end
+        end
+
+        context "when the app registration fails" do
+          before do
+            stub_request(
+              :post,
+              "https://#{gotosocial_domain}/#{DiscourseActivityPub::Auth::Gotosocial::APP_PATH}",
+            ).to_return(status: 400)
+          end
+
+          it "returns an error" do
+            post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            expect(response.status).to eq(422)
+            expect(response.parsed_body["errors"].first).to eq(
+              I18n.t("discourse_activity_pub.auth.error.failed_to_create_client"),
+            )
+          end
+
+          it "does not set the domain in the session" do
+            post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            expect(server_session[described_class::DOMAIN_SESSION_KEY]).to eq(nil)
+          end
+
+          it "does not create a client" do
+            expect {
+              post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+            }.not_to change { DiscourseActivityPubClient.count }
+          end
+        end
+      end
+
+      context "when the domain does not return valid nodeinfo" do
+        before do
+          stub_request(:get, "https://#{external_domain2}/.well-known/nodeinfo").to_return(
+            status: 404,
+          )
+        end
+
+        it "returns an error" do
+          post "/ap/auth/verify", params: { domain: external_domain2, auth_type: "gotosocial" }
+          expect(response.status).to eq(422)
+          expect(response.parsed_body["errors"].first).to eq(
+            I18n.t("discourse_activity_pub.auth.error.failed_to_verify_client"),
+          )
+        end
+      end
+
+      context "when the domain returns non-GoToSocial software" do
+        before do
+          stub_gotosocial_nodeinfo(domain: gotosocial_domain)
+          stub_gotosocial_mastodon_software_detection(domain: gotosocial_domain)
+        end
+
+        it "returns an error" do
+          post "/ap/auth/verify", params: { domain: gotosocial_domain, auth_type: "gotosocial" }
+          expect(response.status).to eq(422)
+          expect(response.parsed_body["errors"].first).to eq(
+            I18n.t("discourse_activity_pub.auth.error.failed_to_verify_client"),
+          )
+        end
+      end
+    end
   end
 
   describe "#authorize" do
@@ -303,6 +443,28 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           expect(response).to redirect_to(
             DiscourseActivityPub::Auth::Discourse.get_authorize_url(external_domain1),
           )
+        end
+      end
+
+      context "with gotosocial" do
+        context "when domain has an client" do
+          let!(:client) do
+            Fabricate(:discourse_activity_pub_client_gotosocial, domain: external_domain1)
+          end
+
+          it "redirects to the authorize url for the app" do
+            get "/ap/auth/authorize/gotosocial", params: { domain: external_domain1 }
+            expect(response).to redirect_to(
+              DiscourseActivityPub::Auth::Gotosocial.get_authorize_url(external_domain1),
+            )
+          end
+        end
+
+        context "when domain does not have a client" do
+          it "does not redirect and returns an error" do
+            get "/ap/auth/authorize/gotosocial"
+            expect(response.status).to eq(400)
+          end
         end
       end
     end
@@ -508,6 +670,106 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
                 get "/ap/auth/redirect/discourse", params: { payload: payload }
                 expect(response).to redirect_to("/u/#{user.username}/preferences/activity-pub")
               end
+            end
+          end
+        end
+      end
+
+      context "with gotosocial" do
+        let!(:authorization) do
+          Fabricate(
+            :discourse_activity_pub_authorization_gotosocial,
+            user: user,
+            client: Fabricate(:discourse_activity_pub_client_gotosocial, domain: gotosocial_domain),
+          )
+        end
+
+        before do
+          server_session[
+            DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY
+          ] = authorization.id
+        end
+
+        context "without a code param" do
+          it "redirects to the current user's activity pub settings with the right error" do
+            get "/ap/auth/redirect/gotosocial"
+            message = CGI.escape("Invalid redirect params")
+            expect(response).to redirect_to(
+              "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+            )
+          end
+        end
+
+        context "with an unsuccessful request for an access token for the domain" do
+          before do
+            stub_request(
+              :post,
+              "https://#{gotosocial_domain}/#{DiscourseActivityPub::Auth::Gotosocial::TOKEN_PATH}",
+            ).to_return(status: 400)
+          end
+
+          it "redirects to the current user's activity pub settings with the right error" do
+            get "/ap/auth/redirect/gotosocial", params: { code: gotosocial_code }
+            message = CGI.escape("Failed to get token")
+            expect(response).to redirect_to(
+              "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+            )
+          end
+        end
+
+        context "with a successful request for an access token for the domain" do
+          before do
+            DiscourseActivityPub::Auth::Gotosocial
+              .any_instance
+              .stubs(:get_token)
+              .with({ code: gotosocial_code })
+              .returns(gotosocial_access_token)
+          end
+
+          context "with a successful request for an actor id with the access token" do
+            let!(:actor) do
+              Fabricate(:discourse_activity_pub_actor_person, ap_id: external_actor_id)
+            end
+
+            before do
+              DiscourseActivityPub::Auth::Gotosocial
+                .any_instance
+                .stubs(:get_actor_ap_id)
+                .with(gotosocial_access_token)
+                .returns(external_actor_id)
+            end
+
+            it "adds the token to the authorization" do
+              get "/ap/auth/redirect/gotosocial", params: { code: gotosocial_code }
+              expect(authorization.reload.token).to eq(gotosocial_access_token)
+            end
+
+            it "adds the actor to the authorization" do
+              get "/ap/auth/redirect/gotosocial", params: { code: gotosocial_code }
+              expect(authorization.reload.actor.ap_id).to eq(external_actor_id)
+            end
+
+            it "redirects to the current user's activity pub settings" do
+              get "/ap/auth/redirect/gotosocial", params: { code: gotosocial_code }
+              expect(response).to redirect_to("/u/#{user.username}/preferences/activity-pub")
+            end
+          end
+
+          context "with an unsuccessful request for an actor id with the access token" do
+            before do
+              DiscourseActivityPub::Auth::Gotosocial
+                .any_instance
+                .stubs(:get_account)
+                .with(gotosocial_access_token)
+                .returns(nil)
+            end
+
+            it "redirects to the current user's activity pub settings with the right error" do
+              get "/ap/auth/redirect/gotosocial", params: { code: gotosocial_code }
+              message = CGI.escape("Failed to get actor")
+              expect(response).to redirect_to(
+                "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+              )
             end
           end
         end

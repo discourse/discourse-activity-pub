@@ -18,3 +18,8 @@ Fabricator(:discourse_activity_pub_client_discourse, from: :discourse_activity_p
     }.as_json
   end
 end
+
+Fabricator(:discourse_activity_pub_client_gotosocial, from: :discourse_activity_pub_client) do
+  auth_type { DiscourseActivityPubClient.auth_types[:gotosocial] }
+  credentials { { client_id: "12345", client_secret: "abcde", access_token: "12345" }.as_json }
+end

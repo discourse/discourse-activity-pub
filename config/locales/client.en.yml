@@ -337,6 +337,9 @@ en:
             discourse:
               title: Discourse
               placeholder: e.g. meta.discourse.org
+            gotosocial:
+              title: GoToSocial
+              placeholder: e.g. gotosocial.net
         clear_domain_button:
           title: Clear the verified domain.
         verify_domain_button:
