@@ -257,6 +257,22 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
             Fabricate(:discourse_activity_pub_client_mastodon, domain: external_domain1)
           end
 
+          before do
+            stub_request(
+              :get,
+              "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Mastodon::APP_CHECK_PATH}",
+            ).to_return(
+              status: 200,
+              body: {
+                name: DiscourseActivityPub.host,
+                scopes: [DiscourseActivityPub::Auth::Mastodon::SCOPES],
+              }.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+              },
+            )
+          end
+
           it "redirects to the authorize url for the app" do
             get "/ap/auth/authorize/mastodon", params: { domain: external_domain1 }
             expect(response).to redirect_to(
