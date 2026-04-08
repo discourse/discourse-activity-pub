@@ -11,7 +11,7 @@ import getURL from "discourse/lib/get-url";
 import ComboBox from "discourse/select-kit/components/combo-box";
 import { i18n } from "discourse-i18n";
 
-const supportedAuthTypes = ["discourse", "mastodon"];
+const supportedAuthTypes = ["discourse", "mastodon", "gotosocial"];
 
 export default class ActivityPubAuthorize extends Component {
   @tracked authType = null;
