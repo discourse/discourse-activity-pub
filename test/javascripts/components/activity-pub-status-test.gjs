@@ -223,13 +223,13 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasAttribute(
-        "title",
-        i18n("discourse_activity_pub.status.title.model_active.first_post", {
-          delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
-        }),
-        "has the right title"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasAttribute(
+          "title",
+          "The first post of a new topic will be published 5 minutes after being posted",
+          "has the right title"
+        );
       assert
         .dom(".activity-pub-actor-status")
         .hasText(
@@ -478,13 +478,13 @@ module(
       assert
         .dom(".activity-pub-actor-status")
         .hasClass("active", "has the right class");
-      assert.dom(".activity-pub-actor-status").hasAttribute(
-        "title",
-        i18n("discourse_activity_pub.status.title.model_active.first_post", {
-          delay_minutes: this.siteSettings.activity_pub_delivery_delay_minutes,
-        }),
-        "has the right title"
-      );
+      assert
+        .dom(".activity-pub-actor-status")
+        .hasAttribute(
+          "title",
+          "The first post of a new topic will be published 5 minutes after being posted",
+          "has the right title"
+        );
       assert
         .dom(".activity-pub-actor-status")
         .hasText(
