@@ -86,6 +86,7 @@ export default class ActivityPubActorStatus extends Component {
     if (this.active) {
       args.delay_minutes =
         this.siteSettings.activity_pub_delivery_delay_minutes;
+      args.count = args.delay_minutes;
     }
     return i18n(
       `discourse_activity_pub.status.title.${this.translatedTitleKey}`,
