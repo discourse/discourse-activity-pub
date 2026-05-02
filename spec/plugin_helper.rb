@@ -358,3 +358,162 @@ def read_integration_json(case_name, file_name)
     ).read,
   ).with_indifferent_access
 end
+
+def stub_gotosocial_nodeinfo(domain: "gotosocial.example.com", status: 200)
+  nodeinfo_response_body = {
+    links: [
+      {
+        rel: "http://nodeinfo.diaspora.software/ns/schema/2.1",
+        href: "https://#{domain}/nodeinfo/2.1",
+      },
+      {
+        rel: "http://nodeinfo.diaspora.software/ns/schema/2.0",
+        href: "https://#{domain}/nodeinfo/2.0",
+      },
+    ],
+  }.to_json
+
+  stub_request(:get, "https://#{domain}/.well-known/nodeinfo").to_return(
+    body: nodeinfo_response_body,
+    headers: {
+      "Content-Type" => "application/json",
+    },
+    status: status,
+  )
+end
+
+def stub_gotosocial_software_detection(
+  domain: "gotosocial.example.com",
+  software: "gotosocial",
+  status: 200
+)
+  nodeinfo_software_response_body = {
+    version: "2.1",
+    software: {
+      name: software,
+      version: "0.19.2+git-90851fc",
+      repository: "https://codeberg.org/superseriousbusiness/gotosocial",
+      homepage: "https://docs.gotosocial.org",
+    },
+    protocols: ["activitypub"],
+    services: {
+      inbound: [],
+      outbound: [],
+    },
+    openRegistrations: false,
+    usage: {
+      users: {
+        total: 1,
+      },
+      localPosts: 432,
+    },
+    metadata: {
+    },
+  }.to_json
+
+  stub_request(:get, "https://#{domain}/nodeinfo/2.1").to_return(
+    body: nodeinfo_software_response_body,
+    headers: {
+      "Content-Type" => "application/json",
+    },
+    status: status,
+  )
+end
+
+def stub_gotosocial_mastodon_software_detection(domain: "gotosocial.example.com", status: 200)
+  nodeinfo_mastodon_response_body = {
+    version: "2.1",
+    software: {
+      name: "mastodon",
+      version: "4.0.0",
+    },
+    protocols: ["activitypub"],
+  }.to_json
+
+  stub_request(:get, "https://#{domain}/nodeinfo/2.1").to_return(
+    body: nodeinfo_mastodon_response_body,
+    headers: {
+      "Content-Type" => "application/json",
+    },
+    status: status,
+  )
+end
+
+def stub_gotosocial_app_registration(
+  domain: "gotosocial.example.com",
+  client_id: "test_client_id",
+  client_secret: "test_client_secret",
+  status: 200
+)
+  app_response_body = {
+    id: "563419",
+    name: "test app",
+    website: "",
+    redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
+    client_id: client_id,
+    client_secret: client_secret,
+  }.to_json
+
+  stub_request(:post, "https://#{domain}/api/v1/apps").with(
+    body: {
+      client_name: DiscourseActivityPub.host,
+      redirect_uris:
+        "#{DiscourseActivityPub.base_url}/#{DiscourseActivityPub::Auth::Gotosocial::REDIRECT_PATH}",
+      scopes: DiscourseActivityPub::Auth::Gotosocial::SCOPES,
+      website: DiscourseActivityPub.base_url,
+    }.to_json,
+  ).to_return(
+    body: app_response_body,
+    headers: {
+      "Content-Type" => "application/json",
+    },
+    status: status,
+  )
+end
+
+def stub_gotosocial_token_request(
+  domain: "gotosocial.example.com",
+  access_token: "test_access_token",
+  status: 200
+)
+  token_response_body = {
+    access_token: access_token,
+    token_type: "Bearer",
+    scope: DiscourseActivityPub::Auth::Gotosocial::SCOPES,
+    created_at: 1_573_979_017,
+  }.to_json
+
+  stub_request(:post, "https://#{domain}/oauth/token").to_return(
+    body: token_response_body,
+    headers: {
+      "Content-Type" => "application/json",
+    },
+    status: status,
+  )
+end
+
+def stub_gotosocial_account_verification(
+  domain: "gotosocial.example.com",
+  username: "angus",
+  status: 200
+)
+  account_response_body = {
+    id: "14715",
+    username: username,
+    acct: username,
+    display_name: "Ton the cat",
+    url: "https://#{domain}/@#{username}",
+  }.to_json
+
+  stub_request(:get, "https://#{domain}/api/v1/accounts/verify_credentials").with(
+    headers: {
+      "Authorization" => "Bearer test_access_token",
+    },
+  ).to_return(
+    body: account_response_body,
+    headers: {
+      "Content-Type" => "application/json",
+    },
+    status: status,
+  )
+end

@@ -14,3 +14,8 @@ Fabricator(
   :discourse_activity_pub_authorization_discourse,
   from: :discourse_activity_pub_authorization,
 ) { client { Fabricate(:discourse_activity_pub_client_discourse) } }
+
+Fabricator(
+  :discourse_activity_pub_authorization_gotosocial,
+  from: :discourse_activity_pub_authorization,
+) { client { Fabricate(:discourse_activity_pub_client_gotosocial) } }
