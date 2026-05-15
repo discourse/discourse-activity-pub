@@ -150,6 +150,7 @@ nl:
         model_not_found: "Model niet gevonden"
         target_actor_not_found: "Doelactor niet gevonden"
         not_following_target_actor: "Actor volgt de doelactor niet"
+        cant_follow_target_actor: "Actor kan de doelactor niet volgen"
         username_required: Om een actor aan te maken, is een ActivityPub-gebruikersnaam vereist.
         full_topic_must_be_public: "Publicatie van een volledig topic vereist openbare publicatie."
         user_not_authorized: "Gebruiker niet geautoriseerd"
@@ -269,6 +270,7 @@ nl:
             one: "%{count} activiteit bijgewerkt."
             other: "%{count} activiteiten bijgewerkt."
   site_settings:
+    activity_pub_enabled: "ActivityPub-plug-in inschakelen"
     activity_pub_rate_limit_post_to_inbox_per_minute: "Aantal POST-verzoeken dat per minuut naar de inbox van een actor kan worden gestuurd."
     activity_pub_rate_limit_get_objects_per_minute: "Aantal GET-verzoeken dat per minuut kan worden gedaan op AcitivityPub-objecten."
     activity_pub_note_excerpt_maxlength: "Maximale lengte van berichtuittreksels in AcitivityPub-opmerkingen (0 is geen maximale lengte)."
@@ -277,6 +279,7 @@ nl:
     activity_pub_allowed_request_origins: "Lijst van domeinen die ActivityPub-verzoeken mogen doen."
     activity_pub_blocked_request_origins: "Lijst van domeinen die geen ActivityPub-verzoeken mogen doen."
     activity_pub_delivery_delay_minutes: "Aantal minuten om te vertragen bij de levering van ActivityPub-activiteiten (verwijderingsactiviteiten worden direct geleverd)."
+    activity_pub_send_user_agent: "Stel de User-Agent-header in bij het maken van ActivityPub-verzoeken. Wanneer ingeschakeld, is de agentindeling 'Discourse-ActivityPub/x.y.z (+https://siteurl.com)'."
     activity_pub_verbose_logging: "Uitgebreide ActivityPub-logs inschakelen"
     activity_pub_object_logging: "Voeg alle inkomende en uitgaande ActivityPub-objecten toe aan de logs (vereist uitgebreide logging)."
     activity_pub_post_status_visibility_groups: "Groepen die ActivityPub-berichtstatussen kunnen zien."
