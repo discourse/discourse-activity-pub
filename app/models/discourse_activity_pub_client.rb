@@ -6,12 +6,13 @@ class DiscourseActivityPubClient < ActiveRecord::Base
   ALLOWED_CREDENTIAL_KEYS = {
     discourse: %w[public_key private_key],
     mastodon: %w[client_id client_secret access_token],
+    gotosocial: %w[client_id client_secret access_token],
   }
 
   DISCOURSE_SCOPE = "discourse-activity-pub:read"
 
   def self.auth_types
-    @auth_types ||= Enum.new(discourse: 1, mastodon: 2)
+    @auth_types ||= Enum.new(discourse: 1, mastodon: 2, gotosocial: 3)
   end
 
   validates :auth_type,
@@ -27,6 +28,10 @@ class DiscourseActivityPubClient < ActiveRecord::Base
 
   def mastodon?
     auth_type === self.class.auth_types[:mastodon]
+  end
+
+  def gotosocial?
+    auth_type === self.class.auth_types[:gotosocial]
   end
 
   def auth_type_name
