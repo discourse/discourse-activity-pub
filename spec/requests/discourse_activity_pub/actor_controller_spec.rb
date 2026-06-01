@@ -504,5 +504,4 @@ RSpec.describe DiscourseActivityPub::ActorController do
       end
     end
   end
-
 end

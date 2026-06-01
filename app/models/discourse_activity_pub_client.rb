@@ -3,9 +3,7 @@
 class DiscourseActivityPubClient < ActiveRecord::Base
   has_many :authorizations, class_name: "DiscourseActivityPubAuthorization"
 
-  ALLOWED_CREDENTIAL_KEYS = {
-    mastodon: %w[client_id client_secret access_token],
-  }
+  ALLOWED_CREDENTIAL_KEYS = { mastodon: %w[client_id client_secret access_token] }
 
   def self.auth_types
     @auth_types ||= Enum.new(mastodon: 2)

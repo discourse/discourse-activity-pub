@@ -65,7 +65,6 @@ export default class ActivityPubAuthorize extends Component {
 
   get verifyDisabled() {
     return (
-      !this.authType ||
       this.verifiedDomain ||
       this.verifyingDomain ||
       !this.mayContainDomain

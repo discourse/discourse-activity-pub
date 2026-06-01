@@ -125,9 +125,7 @@ module DiscourseActivityPub
     def validate_auth_type
       params.require(:auth_type)
       @auth_type = params[:auth_type].to_sym
-      if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
-        raise ::Discourse::InvalidParameters
-      end
+      raise ::Discourse::InvalidParameters if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
     end
 
     def validate_domain
