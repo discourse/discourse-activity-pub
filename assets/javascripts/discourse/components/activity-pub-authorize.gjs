@@ -9,12 +9,13 @@ import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import getURL from "discourse/lib/get-url";
 import ComboBox from "discourse/select-kit/components/combo-box";
+import { or } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 
 const supportedAuthTypes = ["mastodon"];
 
 export default class ActivityPubAuthorize extends Component {
-  @tracked authType = "mastodon";
+  @tracked authType = null;
   @tracked domain = null;
   @tracked verifyingDomain = false;
   @tracked verifiedDomain = false;
@@ -134,7 +135,7 @@ export default class ActivityPubAuthorize extends Component {
           @id="user_activity_pub_authorize_auth_type"
           class="activity-pub-authorize-auth-type"
           @content={{this.authTypes}}
-          @value={{this.authType}}
+          @value={{or this.authType "mastodon"}}
           @onChange={{fn (mut this.authType)}}
           @disabled={{this.verifiedDomain}}
           @options={{hash
