@@ -482,14 +482,6 @@ after_initialize do
   end
 
   ##
-  ## Discourse authentication
-  ##
-
-  add_user_api_key_scope(:read, methods: :get, actions: "discourse_activity_pub/actor#find_by_user")
-  DiscourseActivityPubClient.update_scope_settings
-  on_enabled_change { DiscourseActivityPubClient.update_scope_settings }
-
-  ##
   ## ActivityPub processing (incoming activities)
   ##
 

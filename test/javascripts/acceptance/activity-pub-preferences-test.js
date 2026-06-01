@@ -28,7 +28,7 @@ acceptance("Discourse Activity Pub | Preferences", function (needs) {
       .exists("the authorizations table is visible");
     assert
       .dom(".activity-pub-actor-table-row")
-      .exists({ count: 2 }, "authorized actors are visible");
+      .exists({ count: 1 }, "authorized actors are visible");
     assert
       .dom(".activity-pub-actor-image img")
       .hasAttribute(

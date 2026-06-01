@@ -11,10 +11,9 @@ module DiscourseActivityPub
 
     before_action :ensure_admin, only: %i[follow unfollow reject find_by_handle]
     before_action :ensure_site_enabled
-    before_action :ensure_user_api, only: %i[find_by_user]
-    before_action :find_actor, except: %i[find_by_user]
-    before_action :ensure_model_enabled, except: %i[find_by_user]
-    before_action :ensure_can_access, except: %i[find_by_user]
+    before_action :find_actor
+    before_action :ensure_model_enabled
+    before_action :ensure_can_access
     before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
@@ -69,16 +68,6 @@ module DiscourseActivityPub
         render_serialized(handle_actor, DiscourseActivityPub::ActorSerializer)
       else
         render json: failed_json
-      end
-    end
-
-    def find_by_user
-      actor = DiscourseActivityPub::ActorHandler.update_or_create_actor(current_user)
-
-      if actor
-        render json: actor.ap.json
-      else
-        render json: failed_json, status: :not_found
       end
     end
 

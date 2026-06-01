@@ -189,40 +189,9 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
     end
 
     context "with discourse" do
-      let!(:auth_redirect) { "#{DiscourseActivityPub.base_url}/ap/auth/redirect/discourse" }
-
-      context "with a successful client registration" do
-        before do
-          stub_request(
-            :head,
-            "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Discourse::CLIENT_PATH}?client_id=#{DiscourseActivityPubActor.application.ap_id}",
-          )
-          stub_request(
-            :post,
-            "https://#{external_domain1}/#{DiscourseActivityPub::Auth::Discourse::CLIENT_PATH}",
-          ).to_return(body: { "success" => "OK" }.to_json, status: 200)
-        end
-
-        it "returns the domain" do
-          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "discourse" }
-          expect(response.status).to eq(200)
-          expect(response.parsed_body["domain"]).to eq(external_domain1)
-        end
-
-        it "sets the domain as the verified domain in the session" do
-          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "discourse" }
-          expect(server_session[described_class::DOMAIN_SESSION_KEY]).to eq(external_domain1)
-        end
-
-        it "creates a client" do
-          post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "discourse" }
-          client =
-            DiscourseActivityPubClient.find_by(
-              domain: external_domain1,
-              auth_type: DiscourseActivityPubClient.auth_types[:discourse],
-            )
-          expect(client.credentials.keys).to match_array(%w[public_key private_key])
-        end
+      it "raises an invalid parameters error" do
+        post "/ap/auth/verify", params: { domain: external_domain1, auth_type: "discourse" }
+        expect(response.status).to eq(400)
       end
     end
   end
@@ -290,35 +259,9 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
       end
 
       context "with discourse" do
-        let!(:client) do
-          Fabricate(:discourse_activity_pub_client_discourse, domain: external_domain1)
-        end
-
-        it "creates an authorization" do
+        it "raises an invalid parameters error" do
           get "/ap/auth/authorize/discourse"
-          expect(DiscourseActivityPubAuthorization.where(client_id: client.id).exists?).to eq(true)
-        end
-
-        it "saves the authorization id to the session" do
-          get "/ap/auth/authorize/discourse"
-          expect(
-            DiscourseActivityPubAuthorization.exists?(
-              server_session[described_class::AUTHORIZATION_SESSION_KEY].to_i,
-            ),
-          ).to eq(true)
-        end
-
-        it "saves a nonce to the session" do
-          ENV["ACTIVITY_PUB_TEST_RANDOM_HEX"] = "123"
-          get "/ap/auth/authorize/discourse"
-          expect(server_session[described_class::NONCE_SESSION_KEY]).to eq("123")
-        end
-
-        it "redirects to the authorize url for the app" do
-          get "/ap/auth/authorize/discourse"
-          expect(response).to redirect_to(
-            DiscourseActivityPub::Auth::Discourse.get_authorize_url(external_domain1),
-          )
+          expect(response.status).to eq(400)
         end
       end
     end
@@ -444,88 +387,9 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
       end
 
       context "with discourse" do
-        context "with an authorization in the session" do
-          let!(:authorization) do
-            Fabricate(:discourse_activity_pub_authorization_discourse, user: user)
-          end
-
-          before do
-            server_session[
-              DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY
-            ] = authorization.id
-          end
-
-          context "with a nonce in the session" do
-            let!(:nonce) { "12345" }
-
-            before do
-              server_session[
-                DiscourseActivityPub::AuthorizationController::NONCE_SESSION_KEY
-              ] = nonce
-            end
-
-            context "when the callback has a valid payload" do
-              let!(:key) { "12345" }
-              let!(:actor_json) { build_actor_json }
-              let!(:raw_payload) { { key: key, nonce: nonce, push: false, api: 4 } }
-              let!(:payload) do
-                rsa = OpenSSL::PKey::RSA.new(authorization.client.credentials["private_key"])
-                Base64.encode64(rsa.public_encrypt(raw_payload.to_json))
-              end
-
-              before do
-                stub_request(
-                  :get,
-                  "https://#{authorization.client.domain}/#{DiscourseActivityPub::Auth::Discourse::FIND_ACTOR_BY_USER_PATH}",
-                ).with(headers: { "User-Api-Key" => key }).to_return(
-                  body: actor_json.to_json,
-                  headers: {
-                    "Content-Type" => "application/json",
-                  },
-                  status: 200,
-                )
-                stub_request(:get, actor_json[:id]).to_return(
-                  body: actor_json.to_json,
-                  headers: {
-                    "Content-Type" => DiscourseActivityPub::JsonLd.content_type_header,
-                  },
-                  status: 200,
-                )
-              end
-
-              it "adds the token to the authorization" do
-                get "/ap/auth/redirect/discourse", params: { payload: payload }
-                expect(authorization.reload.token).to eq(key)
-              end
-
-              it "adds the actor to the authorization" do
-                get "/ap/auth/redirect/discourse", params: { payload: payload }
-                expect(authorization.reload.actor.ap_id).to eq(actor_json[:id])
-              end
-
-              context "with a staged user with an actor with the returned actor id" do
-                let!(:user2) { Fabricate(:user, staged: true) }
-                let!(:actor) do
-                  Fabricate(
-                    :discourse_activity_pub_actor_person,
-                    ap_id: actor_json[:id],
-                    model: user2,
-                  )
-                end
-
-                it "enqueues a job to merge the existing user into the current user" do
-                  get "/ap/auth/redirect/discourse", params: { payload: payload }
-                  args = { user_id: user2.id, target_user_id: user.id, current_user_id: user.id }
-                  expect(job_enqueued?(job: :merge_user, args: args)).to eq(true)
-                end
-              end
-
-              it "redirects to the current user's activity pub settings" do
-                get "/ap/auth/redirect/discourse", params: { payload: payload }
-                expect(response).to redirect_to("/u/#{user.username}/preferences/activity-pub")
-              end
-            end
-          end
+        it "raises an invalid parameters error" do
+          get "/ap/auth/redirect/discourse"
+          expect(response.status).to eq(400)
         end
       end
     end

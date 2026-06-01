@@ -3,7 +3,6 @@ import { module, test } from "qunit";
 import sinon from "sinon";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import pretender, { response } from "discourse/tests/helpers/create-pretender";
-import selectKit from "discourse/tests/helpers/select-kit-helper";
 import ActivityPubAuthorize from "discourse/plugins/discourse-activity-pub/discourse/components/activity-pub-authorize";
 
 module(
@@ -11,9 +10,20 @@ module(
   function (hooks) {
     setupRenderingTest(hooks);
 
+    test("defaults the auth type to Mastodon", async function (assert) {
+      await render(<template><ActivityPubAuthorize /></template>);
+
+      assert
+        .dom("#user_activity_pub_authorize_auth_type-header")
+        .hasText("Mastodon", "selects Mastodon by default");
+      assert
+        .dom("#user_activity_pub_authorize_domain")
+        .hasAttribute("placeholder", "e.g. mastodon.social");
+    });
+
     test("verifies a domain", async function (assert) {
       let domain = "test.com";
-      let authType = "discourse";
+      let authType = "mastodon";
       let requests = 0;
 
       pretender.post("/ap/auth/verify.json", (request) => {
@@ -27,10 +37,6 @@ module(
       });
 
       await render(<template><ActivityPubAuthorize /></template>);
-
-      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
-      await authTypes.expand();
-      await authTypes.selectRowByValue("discourse");
 
       await fillIn("#user_activity_pub_authorize_domain", domain);
       await click("#user_activity_pub_authorize_verify_domain");
@@ -49,7 +55,7 @@ module(
 
     test("pressing Enter in input triggers domain verification", async function (assert) {
       let domain = "test.com";
-      let authType = "discourse";
+      let authType = "mastodon";
       let requests = 0;
 
       pretender.post("/ap/auth/verify.json", (request) => {
@@ -63,10 +69,6 @@ module(
       });
 
       await render(<template><ActivityPubAuthorize /></template>);
-
-      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
-      await authTypes.expand();
-      await authTypes.selectRowByValue("discourse");
 
       await fillIn("#user_activity_pub_authorize_domain", domain);
       await triggerKeyEvent(
@@ -85,10 +87,6 @@ module(
 
       await render(<template><ActivityPubAuthorize /></template>);
 
-      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
-      await authTypes.expand();
-      await authTypes.selectRowByValue("discourse");
-
       await fillIn("#user_activity_pub_authorize_domain", "test.com");
       await click("#user_activity_pub_authorize_verify_domain");
       await click("#user_activity_pub_authorize_clear_domain");
@@ -105,7 +103,7 @@ module(
     });
 
     test("authorizes a verified domain", async function (assert) {
-      let authType = "discourse";
+      let authType = "mastodon";
 
       pretender.post("/ap/auth/verify.json", () => {
         return response({ success: true });
@@ -114,10 +112,6 @@ module(
       const openStub = sinon.stub(window, "open").returns(null);
 
       await render(<template><ActivityPubAuthorize /></template>);
-
-      const authTypes = selectKit("#user_activity_pub_authorize_auth_type");
-      await authTypes.expand();
-      await authTypes.selectRowByValue("discourse");
 
       await fillIn("#user_activity_pub_authorize_domain", "test.com");
       await click("#user_activity_pub_authorize_verify_domain");
