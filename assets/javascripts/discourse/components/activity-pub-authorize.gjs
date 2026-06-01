@@ -11,10 +11,10 @@ import getURL from "discourse/lib/get-url";
 import ComboBox from "discourse/select-kit/components/combo-box";
 import { i18n } from "discourse-i18n";
 
-const supportedAuthTypes = ["discourse", "mastodon"];
+const supportedAuthTypes = ["mastodon"];
 
 export default class ActivityPubAuthorize extends Component {
-  @tracked authType = null;
+  @tracked authType = "mastodon";
   @tracked domain = null;
   @tracked verifyingDomain = false;
   @tracked verifiedDomain = false;
@@ -64,10 +64,7 @@ export default class ActivityPubAuthorize extends Component {
 
   get verifyDisabled() {
     return (
-      !this.authType ||
-      this.verifiedDomain ||
-      this.verifyingDomain ||
-      !this.mayContainDomain
+      this.verifiedDomain || this.verifyingDomain || !this.mayContainDomain
     );
   }
 

@@ -24,7 +24,6 @@ DiscourseActivityPub::Engine.routes.draw do
 
   scope "/local" do
     scope "/actor" do
-      get "/find-by-user" => "actor#find_by_user", :defaults => { format: :json }
       get ":actor_id" => "actor#show"
       get ":actor_id/followers" => "actor#followers"
       get ":actor_id/follows" => "actor#follows"

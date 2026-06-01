@@ -3,15 +3,10 @@
 class DiscourseActivityPubClient < ActiveRecord::Base
   has_many :authorizations, class_name: "DiscourseActivityPubAuthorization"
 
-  ALLOWED_CREDENTIAL_KEYS = {
-    discourse: %w[public_key private_key],
-    mastodon: %w[client_id client_secret access_token],
-  }
-
-  DISCOURSE_SCOPE = "discourse-activity-pub:read"
+  ALLOWED_CREDENTIAL_KEYS = { mastodon: %w[client_id client_secret access_token] }
 
   def self.auth_types
-    @auth_types ||= Enum.new(discourse: 1, mastodon: 2)
+    @auth_types ||= Enum.new(mastodon: 2)
   end
 
   validates :auth_type,
@@ -21,43 +16,12 @@ class DiscourseActivityPubClient < ActiveRecord::Base
             }
   validate :verify_credentials
 
-  def discourse?
-    auth_type === self.class.auth_types[:discourse]
-  end
-
   def mastodon?
     auth_type === self.class.auth_types[:mastodon]
   end
 
   def auth_type_name
     auth_type && self.class.auth_types[auth_type]
-  end
-
-  def self.update_scope_settings
-    allowed_client_scopes = SiteSetting.allow_user_api_key_client_scopes.split("|")
-    allowed_key_scopes = SiteSetting.allow_user_api_key_scopes.split("|")
-    client_scope_allowed = allowed_client_scopes.include?(DISCOURSE_SCOPE)
-    key_scope_allowed = allowed_key_scopes.include?(DISCOURSE_SCOPE)
-
-    if SiteSetting.activity_pub_enabled
-      if !client_scope_allowed
-        allowed_client_scopes.push(DISCOURSE_SCOPE)
-        SiteSetting.allow_user_api_key_client_scopes = allowed_client_scopes.join("|")
-      end
-      if !key_scope_allowed
-        allowed_key_scopes.push(DISCOURSE_SCOPE)
-        SiteSetting.allow_user_api_key_scopes = allowed_key_scopes.join("|")
-      end
-    else
-      if client_scope_allowed
-        allowed_client_scopes.delete(DISCOURSE_SCOPE)
-        SiteSetting.allow_user_api_key_client_scopes = allowed_client_scopes.join("|")
-      end
-      if key_scope_allowed
-        allowed_key_scopes.delete(DISCOURSE_SCOPE)
-        SiteSetting.allow_user_api_key_scopes = allowed_key_scopes.join("|")
-      end
-    end
   end
 
   protected
@@ -74,7 +38,9 @@ class DiscourseActivityPubClient < ActiveRecord::Base
       )
     end
 
-    if self.credentials.keys.any? { |key| ALLOWED_CREDENTIAL_KEYS[auth_type_name].exclude?(key) }
+    allowed_credential_keys = ALLOWED_CREDENTIAL_KEYS[auth_type_name]
+    if !allowed_credential_keys ||
+         self.credentials.keys.any? { |key| allowed_credential_keys.exclude?(key) }
       errors.add(
         :credentials,
         I18n.t(

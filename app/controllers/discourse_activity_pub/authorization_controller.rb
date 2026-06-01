@@ -4,8 +4,8 @@ module DiscourseActivityPub
   class AuthorizationController < ApplicationController
     DOMAIN_SESSION_KEY = "activity_pub_authorize_domain"
     AUTHORIZATION_SESSION_KEY = "activity_pub_authorize_id"
-    NONCE_SESSION_KEY = "activity_pub_authorize_nonce"
     SESSION_EXPIRY_MINUTES = 10
+    SUPPORTED_AUTH_TYPES = %i[mastodon]
 
     requires_plugin DiscourseActivityPub::PLUGIN_NAME
 
@@ -14,7 +14,7 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
     before_action :ensure_logged_in
     before_action :validate_domain, only: %i[verify]
-    before_action :validate_auth_type, only: %i[verify authorize]
+    before_action :validate_auth_type, only: %i[verify authorize redirect]
     before_action :ensure_domain_session, only: %i[authorize]
     before_action :ensure_client, only: %i[authorize]
     before_action :create_authorization, only: %i[authorize]
@@ -50,7 +50,6 @@ module DiscourseActivityPub
 
       authorize_url = auth_handler.get_authorize_url
       if authorize_url
-        set_session_value(NONCE_SESSION_KEY, auth_handler.nonce) if @authorization.client.discourse?
         redirect_to authorize_url, allow_other_host: true
       else
         render_auth_error("invalid_domain", 404)
@@ -126,9 +125,7 @@ module DiscourseActivityPub
     def validate_auth_type
       params.require(:auth_type)
       @auth_type = params[:auth_type].to_sym
-      if DiscourseActivityPubClient.auth_types.keys.exclude?(@auth_type)
-        raise ::Discourse::InvalidParameters
-      end
+      raise ::Discourse::InvalidParameters if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
     end
 
     def validate_domain
@@ -185,6 +182,7 @@ module DiscourseActivityPub
               )
       end
       @auth_type = @authorization.client.auth_type_name
+      raise ::Discourse::InvalidParameters if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
       @domain = @authorization.client.domain
       auth_handler.auth_id = @authorization.id
     end
@@ -198,9 +196,7 @@ module DiscourseActivityPub
     end
 
     def redirect_params
-      result = params.permit(:code, :payload).to_h.symbolize_keys
-      result[:nonce] = get_session_value(NONCE_SESSION_KEY) if @authorization.client.discourse?
-      result
+      params.permit(:code).to_h.symbolize_keys
     end
   end
 end

@@ -334,9 +334,6 @@ en:
             mastodon:
               title: Mastodon
               placeholder: e.g. mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: e.g. meta.discourse.org
         clear_domain_button:
           title: Clear the verified domain.
         verify_domain_button:
