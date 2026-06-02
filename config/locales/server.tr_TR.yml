@@ -39,9 +39,6 @@ tr_TR:
     discourse_activity_pub:
       error:
         edit_after_publication: Bir ActivityPub notunun yayınlandıktan sonra düzenlenmesi şu anda desteklenmiyor.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub etkin değil"
     request:

@@ -39,9 +39,6 @@ vi:
     discourse_activity_pub:
       error:
         edit_after_publication: Việc chỉnh sửa một note ActivityPub sau khi đã đăng chưa được hỗ trợ.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub chưa được kích hoạt"
     request:

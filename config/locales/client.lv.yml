@@ -65,9 +65,5 @@ lv:
       discourse_activity_pub:
         auth_type: Tips
         actions: Darbības
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         remove_authorization_button:
           label: Atcelt

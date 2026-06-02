@@ -65,10 +65,6 @@ hy:
       discourse_activity_pub:
         auth_type: Տիպը
         actions: Գործողություններ
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Նույնականացնել
         remove_authorization_button:

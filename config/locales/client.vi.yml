@@ -332,9 +332,6 @@ vi:
             mastodon:
               title: Mastodon
               placeholder: 'Ví dụ: mastodon.social'
-            discourse:
-              title: Discourse
-              placeholder: 'Ví dụ: meta.discourse.org'
         clear_domain_button:
           title: Xóa tên miền đã được xác minh.
         verify_domain_button:

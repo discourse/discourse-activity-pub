@@ -337,9 +337,6 @@ pt_BR:
             mastodon:
               title: Mastodon
               placeholder: 'Por exemplo: mastodon.social'
-            discourse:
-              title: Discourse
-              placeholder: 'Por exemplo: meta.discourse.org'
         clear_domain_button:
           title: Remova o domínio verificado.
         verify_domain_button:

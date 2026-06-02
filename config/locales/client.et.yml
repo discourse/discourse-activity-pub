@@ -65,10 +65,6 @@ et:
       discourse_activity_pub:
         auth_type: Tüüp
         actions: Tegevused
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Autoriseeri
         remove_authorization_button:

@@ -39,9 +39,6 @@ de:
     discourse_activity_pub:
       error:
         edit_after_publication: Das Bearbeiten einer ActivityPub-Note nach der Veröffentlichung wird derzeit nicht unterstützt.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub ist nicht aktiviert"
     request:

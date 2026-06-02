@@ -67,10 +67,6 @@ lt:
       discourse_activity_pub:
         auth_type: Tipas
         actions: Veiksmai
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Leisti
         remove_authorization_button:

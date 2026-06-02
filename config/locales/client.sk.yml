@@ -74,10 +74,6 @@ sk:
       discourse_activity_pub:
         auth_type: Typ
         actions: Akcie
-        authorize:
-          auth_type:
-            discourse:
-              title: DIscourse
         authorize_button:
           label: Autorizovať
         remove_authorization_button:

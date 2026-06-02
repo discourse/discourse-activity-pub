@@ -66,10 +66,6 @@ pt:
       discourse_activity_pub:
         auth_type: Tipo
         actions: Ações
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Autorizar
         remove_authorization_button:

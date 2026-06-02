@@ -71,10 +71,6 @@ zh_TW:
       discourse_activity_pub:
         auth_type: 類型
         actions: 動作
-        authorize:
-          auth_type:
-            discourse:
-              title: 論壇
         authorize_button:
           label: 授權
         remove_authorization_button:

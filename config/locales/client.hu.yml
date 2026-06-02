@@ -74,10 +74,6 @@ hu:
       discourse_activity_pub:
         auth_type: Típus
         actions: Műveletek
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Engedélyezés
         remove_authorization_button:

@@ -332,9 +332,6 @@ zh_CN:
             mastodon:
               title: Mastodon
               placeholder: 例如 mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: 例如 meta.discourse.org
         clear_domain_button:
           title: 清除已验证的域。
         verify_domain_button:

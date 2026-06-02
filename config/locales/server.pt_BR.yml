@@ -39,9 +39,6 @@ pt_BR:
     discourse_activity_pub:
       error:
         edit_after_publication: Não é possível editar observações do ActivityPub após a publicação por enquanto.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "O ActivityPub não está ativado"
     request:

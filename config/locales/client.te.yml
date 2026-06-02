@@ -69,10 +69,6 @@ te:
       discourse_activity_pub:
         auth_type: రకం
         actions: చర్యలు
-        authorize:
-          auth_type:
-            discourse:
-              title: డిస్కోర్స్
         authorize_button:
           label: అధికారం ఇవ్వండి
         remove_authorization_button:

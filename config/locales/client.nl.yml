@@ -337,9 +337,6 @@ nl:
             mastodon:
               title: Mastodon
               placeholder: bijvoorbeeld mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: bijvoorbeeld meta.discourse.org
         clear_domain_button:
           title: Wis het geverifieerde domein.
         verify_domain_button:

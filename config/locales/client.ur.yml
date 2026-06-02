@@ -65,10 +65,6 @@ ur:
       discourse_activity_pub:
         auth_type: قِسم
         actions: عمل
-        authorize:
-          auth_type:
-            discourse:
-              title: ڈسکورس
         authorize_button:
           label: اجازت دیں
         remove_authorization_button:
