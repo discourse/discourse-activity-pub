@@ -60,10 +60,6 @@ sw:
       discourse_activity_pub:
         auth_type: Aina
         actions: Vitendo
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Idhini
         remove_authorization_button:

@@ -74,10 +74,6 @@ pl_PL:
       discourse_activity_pub:
         auth_type: Typ
         actions: Akcje
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Autoryzuj
         remove_authorization_button:

@@ -39,9 +39,6 @@ it:
     discourse_activity_pub:
       error:
         edit_after_publication: La modifica di una nota ActivityPub dopo la pubblicazione non è attualmente supportata.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub non è abilitato"
     request:

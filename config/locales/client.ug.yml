@@ -72,10 +72,6 @@ ug:
       discourse_activity_pub:
         auth_type: تىپى
         actions: مەشغۇلات
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: دەلىللە
         remove_authorization_button:

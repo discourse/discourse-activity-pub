@@ -66,9 +66,5 @@ bg:
       discourse_activity_pub:
         auth_type: Тип
         actions: Действия
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         remove_authorization_button:
           label: Премахване

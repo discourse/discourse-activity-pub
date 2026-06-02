@@ -39,9 +39,6 @@ nl:
     discourse_activity_pub:
       error:
         edit_after_publication: Het bewerken van een ActivityPub-opmerking na publicatie wordt momenteel niet ondersteund.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub is niet ingeschakeld"
     request:

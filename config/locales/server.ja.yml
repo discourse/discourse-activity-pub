@@ -39,9 +39,6 @@ ja:
     discourse_activity_pub:
       error:
         edit_after_publication: 公開後の ActivityPub ノートの編集は現在サポートされていません。
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub は有効になっていません"
     request:

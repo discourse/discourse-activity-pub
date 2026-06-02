@@ -59,9 +59,5 @@ th:
       discourse_activity_pub:
         auth_type: ชนิด
         actions: การกระทำ
-        authorize:
-          auth_type:
-            discourse:
-              title: ดิสคอส
         remove_authorization_button:
           label: ลบ

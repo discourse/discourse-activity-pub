@@ -68,10 +68,6 @@ da:
       discourse_activity_pub:
         auth_type: Type
         actions: Handlinger
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Autoriser
         remove_authorization_button:

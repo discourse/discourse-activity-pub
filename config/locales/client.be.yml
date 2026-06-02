@@ -60,10 +60,6 @@ be:
       discourse_activity_pub:
         auth_type: Тып
         actions: Дзеянні
-        authorize:
-          auth_type:
-            discourse:
-              title: гаворка
         authorize_button:
           label: санкцыянаваць
         remove_authorization_button:

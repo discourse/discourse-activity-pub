@@ -39,9 +39,6 @@ ru:
     discourse_activity_pub:
       error:
         edit_after_publication: Изменение заметки ActivityPub после публикации сейчас не поддерживается.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub не включен"
     request:

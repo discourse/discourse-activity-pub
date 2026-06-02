@@ -332,9 +332,6 @@ ja:
             mastodon:
               title: Mastodon
               placeholder: '例: mastodon.social'
-            discourse:
-              title: Discourse
-              placeholder: '例: meta.discourse.org'
         clear_domain_button:
           title: 確認済みのドメインをクリアします。
         verify_domain_button:

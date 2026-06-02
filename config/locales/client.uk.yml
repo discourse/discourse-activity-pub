@@ -74,10 +74,6 @@ uk:
       discourse_activity_pub:
         auth_type: Тип
         actions: Дії
-        authorize:
-          auth_type:
-            discourse:
-              title: Discourse
         authorize_button:
           label: Авторизувати
         remove_authorization_button:

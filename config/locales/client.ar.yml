@@ -357,9 +357,6 @@ ar:
             mastodon:
               title: Mastodon
               placeholder: على سبيل المثال mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: على سبيل المثال meta.discourse.org
         clear_domain_button:
           title: مسح النطاق المؤكد.
         verify_domain_button:

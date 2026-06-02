@@ -337,9 +337,6 @@ tr_TR:
             mastodon:
               title: Mastodon
               placeholder: ör. mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: ör. meta.discourse.org
         clear_domain_button:
           title: Doğrulanmış alan adını temizleyin.
         verify_domain_button:

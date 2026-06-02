@@ -39,9 +39,6 @@ fi:
     discourse_activity_pub:
       error:
         edit_after_publication: ActivityPub-huomautuksen muokkaamista julkaisun jälkeen ei tällä hetkellä tueta.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub ei ole käytössä"
     request:

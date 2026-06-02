@@ -39,9 +39,6 @@ ar:
     discourse_activity_pub:
       error:
         edit_after_publication: تحرير ملاحظة ActivityPub بعد النشر غير مدعوم حاليًا.
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "تم تعطيل ActivityPub"
     request:

@@ -39,9 +39,6 @@ zh_CN:
     discourse_activity_pub:
       error:
         edit_after_publication: 目前不支持在发布后编辑 ActivityPub 注释。
-  user_api_key:
-    scopes:
-      "discourse-activity-pub:read": "ActivityPub"
   discourse_activity_pub:
     not_enabled: "ActivityPub 未启用"
     request:

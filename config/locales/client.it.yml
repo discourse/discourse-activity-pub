@@ -321,9 +321,6 @@ it:
             mastodon:
               title: Mastodon
               placeholder: es. mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: es. meta.discourse.org
         clear_domain_button:
           title: Cancella il dominio verificato.
         verify_domain_button:

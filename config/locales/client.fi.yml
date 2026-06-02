@@ -321,9 +321,6 @@ fi:
             mastodon:
               title: Mastodon
               placeholder: esim. mastodon.social
-            discourse:
-              title: Discourse
-              placeholder: esim. meta.discourse.org
         clear_domain_button:
           title: Tyhjennä vahvistettu verkkotunnus.
         verify_domain_button:
