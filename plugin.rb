@@ -44,6 +44,7 @@ after_initialize do
         :constraints => {
           username: RouteFormat.username,
         }
+    get "/ap/debug/fetch" => "discourse_activity_pub/debug_fetch#show"
 
     scope constraints: AdminConstraint.new do
       get "/admin/plugins/ap" => "admin/plugins#index"
