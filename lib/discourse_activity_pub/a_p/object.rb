@@ -16,6 +16,7 @@ module DiscourseActivityPub
       attr_writer :delivered_to
       attr_writer :cache
       attr_accessor :parent
+      attr_accessor :signed_actor_ap_id
 
       def initialize(json: nil, stored: nil, parent: nil)
         @json = json
@@ -270,7 +271,9 @@ module DiscourseActivityPub
 
         if resolve_attribution && object.json[:attributedTo]
           attributed_to =
-            if parent&.actor && DiscourseActivityPub::JsonLd.resolve_id(object.json[:attributedTo]) == parent.actor.id
+            if parent&.actor &&
+                 DiscourseActivityPub::JsonLd.resolve_id(object.json[:attributedTo]) ==
+                   parent.actor.id
               parent.actor
             else
               Actor.resolve_and_store(object.json[:attributedTo])

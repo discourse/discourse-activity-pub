@@ -4,7 +4,6 @@ module DiscourseActivityPub
   module AP
     class Activity < Object
       attr_writer :actor, :object
-      attr_accessor :signed_actor_ap_id
 
       def base_type
         "Activity"

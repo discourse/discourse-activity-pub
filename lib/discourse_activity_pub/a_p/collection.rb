@@ -47,6 +47,7 @@ module DiscourseActivityPub
 
           if activity.respond_to?(:process)
             activity.delivered_to << delivered_to if delivered_to
+            activity.signed_actor_ap_id = signed_actor_ap_id
 
             result = activity.process
             if result
