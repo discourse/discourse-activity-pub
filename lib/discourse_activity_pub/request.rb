@@ -9,6 +9,7 @@ module DiscourseActivityPub
     ALLOWED_ERRORS = [410]
 
     TIMEOUT = 60
+    MAX_REDIRECTS = 3
     REQUEST_TARGET_HEADER = "(request-target)"
     CREATED_HEADER = "(created)"
     EXPIRES_HEADER = "(expires)"
@@ -28,9 +29,15 @@ module DiscourseActivityPub
     def get_json_ld
       @headers.merge!({ "Accept" => content_type_header })
       @expects = SUCCESS_CODES + REDIRECT_CODES + allowed_errors
-      @middlewares = Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower]
 
-      response = perform(:get)
+      response = nil
+      (MAX_REDIRECTS + 1).times do
+        response = perform(:get)
+        break unless redirect_response?(response)
+        break unless follow_redirect(response)
+        response = nil
+      end
+
       response ? validate_json_ld(response.body) : nil
     end
 
@@ -146,6 +153,10 @@ module DiscourseActivityPub
     end
 
     def final_headers(verb)
+      @headers["Host"] = uri.host
+      @headers["Date"] = Time.now.utc.httpdate
+      @headers.delete("Signature")
+
       @headers["Signature"] = self.class.build_signature(
         verb: verb,
         path: uri.path,
@@ -159,6 +170,20 @@ module DiscourseActivityPub
 
     def sign_request?
       actor.present? && actor.keypair.present?
+    end
+
+    def redirect_response?(response)
+      response && REDIRECT_CODES.include?(response.status)
+    end
+
+    def follow_redirect(response)
+      location = response.headers["Location"] || response.headers["location"]
+      return false if location.blank?
+
+      @uri = uri.join(location)
+      DiscourseActivityPub::URI.valid_url?(uri)
+    rescue Addressable::URI::InvalidURIError
+      false
     end
 
     def safe_request_uri
