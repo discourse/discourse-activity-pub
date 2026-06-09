@@ -54,6 +54,42 @@ RSpec.describe DiscourseActivityPub::Request do
   end
 
   describe "#expects" do
+    context "with an unsafe destination" do
+      it "does not perform the request" do
+        FinalDestination::SSRFDetector
+          .expects(:lookup_and_filter_ips)
+          .with("127.0.0.1")
+          .raises(FinalDestination::SSRFDetector::DisallowedIpError)
+        Excon.expects(:get).never
+
+        request = described_class.new(uri: "https://127.0.0.1/admin")
+        expect(request.perform(:get)).to eq(nil)
+      end
+    end
+
+    context "with a safe destination" do
+      it "performs the request against the resolved IP outside test mode" do
+        Rails.env.stubs(:test?).returns(false)
+        FinalDestination::SSRFDetector
+          .expects(:lookup_and_filter_ips)
+          .with("success.com")
+          .returns(["93.184.216.34"])
+
+        response = Excon::Response.new(body: { success: "OK" }.to_s, status: 200)
+        Excon
+          .expects(:get)
+          .with do |url, options|
+            url == "https://93.184.216.34/path" &&
+              options[:headers]["Host"] == "success.com" &&
+              options[:ssl_verify_peer_host] == "success.com"
+          end
+          .returns(response)
+
+        request = described_class.new(uri: "https://success.com/path")
+        expect(request.perform(:get)).to eq(response)
+      end
+    end
+
     context "with no expectation" do
       it "returns the response" do
         response = Excon::Response.new(body: { error: "Request failed" }.to_s, status: 401)
@@ -258,6 +294,19 @@ RSpec.describe DiscourseActivityPub::Request do
 
       it "returns false" do
         expect(described_class.post_json_ld(uri: object[:inbox], body: accept_json)).to eq(false)
+      end
+    end
+
+    context "with an unsafe destination" do
+      it "does not perform the request" do
+        FinalDestination::SSRFDetector
+          .expects(:lookup_and_filter_ips)
+          .with("127.0.0.1")
+          .raises(FinalDestination::SSRFDetector::DisallowedIpError)
+        Excon.expects(:post).never
+
+        result = described_class.post_json_ld(uri: "https://127.0.0.1/inbox", body: accept_json)
+        expect(result).to eq(false)
       end
     end
   end
