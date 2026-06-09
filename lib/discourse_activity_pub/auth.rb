@@ -5,6 +5,8 @@ module DiscourseActivityPub
     include JsonLd
     include HasErrors
 
+    TIMEOUT = 30
+
     attr_reader :domain
     attr_accessor :auth_id
 
@@ -99,7 +101,7 @@ module DiscourseActivityPub
 
       opts = {}
       opts[:body] = body.to_json if body
-      opts[:headers] = {}
+      opts[:headers] = { "Host" => uri.host }
       opts[:headers]["Content-Type"] = "application/json" if body
       if SiteSetting.activity_pub_send_user_agent
         opts[:headers][
@@ -107,9 +109,15 @@ module DiscourseActivityPub
         ] = "Discourse-ActivityPub/#{::Discourse::VERSION::STRING} (+#{::Discourse.base_url})"
       end
       headers.each { |k, v| opts[:headers][k] = v } if headers
+      opts[:read_timeout] = TIMEOUT
+      opts[:write_timeout] = TIMEOUT
+      opts[:ssl_verify_peer_host] = uri.host
+
+      request_uri = safe_request_uri(uri)
+      return false unless request_uri
 
       begin
-        response = Excon.send(verb, uri.to_s, opts)
+        response = Excon.send(verb, request_uri.to_s, opts)
       rescue Excon::Error => e
         add_error(e.message)
       end
@@ -131,6 +139,24 @@ module DiscourseActivityPub
       end
 
       body_hash || true
+    end
+
+    def safe_request_uri(uri)
+      return unless DiscourseActivityPub::URI.valid_url?(uri)
+      return if uri.host.blank?
+
+      resolved_ip = FinalDestination::SSRFDetector.lookup_and_filter_ips(uri.host).first
+      return if resolved_ip.blank?
+
+      safe_uri = uri.dup
+      safe_uri.host = resolved_ip unless Rails.env.test?
+      safe_uri
+    rescue FinalDestination::SSRFDetector::DisallowedIpError,
+           FinalDestination::SSRFDetector::LookupFailedError,
+           IPAddr::InvalidAddressError,
+           SocketError,
+           Timeout::Error
+      nil
     end
   end
 end

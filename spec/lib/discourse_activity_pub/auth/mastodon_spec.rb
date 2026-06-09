@@ -93,7 +93,7 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
   def expect_request(domain: "", path: "", body: nil, verb: :post, response: nil, headers: nil)
     opts = {}
     opts[:body] = body.to_json if body
-    opts[:headers] = {}
+    opts[:headers] = { "Host" => domain }
     opts[:headers]["Content-Type"] = "application/json" if body
     if SiteSetting.activity_pub_send_user_agent
       opts[:headers][
@@ -101,11 +101,26 @@ RSpec.describe DiscourseActivityPub::Auth::Mastodon do
       ] = "Discourse-ActivityPub/#{Discourse::VERSION::STRING} (+#{Discourse.base_url})"
     end
     headers.each { |k, v| opts[:headers][k] = v } if headers
+    opts[:read_timeout] = DiscourseActivityPub::Auth::TIMEOUT
+    opts[:write_timeout] = DiscourseActivityPub::Auth::TIMEOUT
+    opts[:ssl_verify_peer_host] = domain
 
     Excon.expects(:send).with(verb, "https://#{domain}/#{path}", opts).returns(response)
   end
 
   describe "create_client" do
+    context "with an unsafe domain" do
+      it "does not send a request" do
+        FinalDestination::SSRFDetector
+          .expects(:lookup_and_filter_ips)
+          .with("internal.example")
+          .raises(FinalDestination::SSRFDetector::DisallowedIpError)
+        Excon.expects(:send).never
+
+        expect(DiscourseActivityPub::Auth::Mastodon.create_client("internal.example")).to eq(nil)
+      end
+    end
+
     it "sends the right request to register a client" do
       expect_request(
         domain: domain1,
