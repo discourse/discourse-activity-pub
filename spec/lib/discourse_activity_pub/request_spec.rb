@@ -234,6 +234,38 @@ RSpec.describe DiscourseActivityPub::Request do
         expect(described_class.get_json_ld(uri: object[:id])).to eq(object)
       end
     end
+
+    context "with a redirect to an unsafe destination" do
+      it "does not follow the redirect" do
+        FinalDestination::SSRFDetector
+          .expects(:lookup_and_filter_ips)
+          .with("remote.com")
+          .returns(["93.184.216.34"])
+        FinalDestination::SSRFDetector
+          .expects(:lookup_and_filter_ips)
+          .with("127.0.0.1")
+          .raises(FinalDestination::SSRFDetector::DisallowedIpError)
+
+        Excon
+          .expects(:get)
+          .with do |url, _options|
+            url == object[:id]
+          end
+          .returns(
+            Excon::Response.new(
+              status: 302,
+              body: "",
+              headers: {
+                "Location" => "https://127.0.0.1/admin",
+              },
+            ),
+          )
+          .once
+        Excon.expects(:get).with { |url, _options| url == "https://127.0.0.1/admin" }.never
+
+        expect(described_class.get_json_ld(uri: object[:id])).to eq(nil)
+      end
+    end
   end
 
   describe "#post_json_ld" do
