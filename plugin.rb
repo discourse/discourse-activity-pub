@@ -505,6 +505,10 @@ after_initialize do
     end
 
     reply_to_post = activity.object.stored.reload.in_reply_to_post
+    if !activity.announce? && activity.object.stored.attributed_to_id != activity.actor.id
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+            I18n.t("discourse_activity_pub.process.warning.attributed_to_must_match_actor")
+    end
 
     if reply_to_post
       if reply_to_post.trashed?
@@ -563,10 +567,18 @@ after_initialize do
             I18n.t("discourse_activity_pub.process.warning.actor_cannot_be_deleted")
     elsif activity.object.stored.is_a?(DiscourseActivityPubObject)
       DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
+      if activity.object.stored.attributed_to_id != activity.actor.id
+        raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+              I18n.t("discourse_activity_pub.process.warning.actor_must_own_object")
+      end
     end
   end
   activity_pub_on(:update, :validate) do |activity|
     DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)
+    if activity.object.stored.attributed_to_id != activity.actor.id
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+            I18n.t("discourse_activity_pub.process.warning.actor_must_own_object")
+    end
   end
   activity_pub_on(:like, :validate) do |activity|
     DiscourseActivityPub::PostHandler.ensure_activity_has_post(activity)

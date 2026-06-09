@@ -12,8 +12,10 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
     context "with a remote note" do
       let!(:object_json) { build_object_json }
       let!(:tombstone_json) { build_object_json(id: object_json[:id], type: "Tombstone") }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:activity_json) do
         build_activity_json(
+          actor: actor,
           object: object_json,
           type: "Delete",
           to: [category.activity_pub_actor.ap_id],
@@ -25,6 +27,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
           ap_id: object_json[:id],
           local: false,
           model: post,
+          attributed_to: actor,
         )
       end
 
@@ -49,6 +52,23 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Delete do
         it "tombstones the object" do
           perform_process(activity_json)
           expect(note.reload.tombstoned?).to be(true)
+        end
+
+        context "when the activity actor does not own the note" do
+          let!(:other_actor) { Fabricate(:discourse_activity_pub_actor_person) }
+          let!(:activity_json) do
+            build_activity_json(
+              actor: other_actor,
+              object: object_json,
+              type: "Delete",
+              to: [category.activity_pub_actor.ap_id],
+            )
+          end
+
+          it "does not trash the post" do
+            perform_process(activity_json)
+            expect(post.reload.trashed?).to be(false)
+          end
         end
       end
 

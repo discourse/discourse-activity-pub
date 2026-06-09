@@ -276,10 +276,11 @@ def prefix_log(message)
   "[Discourse Activity Pub] #{message}"
 end
 
-def perform_process(json, delivered_to = nil)
+def perform_process(json, delivered_to = nil, signed_actor_ap_id: nil)
   klass = described_class.new
   klass.json = json
   klass.delivered_to << delivered_to if delivered_to
+  klass.signed_actor_ap_id = signed_actor_ap_id
   klass.process
 end
 

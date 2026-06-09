@@ -54,7 +54,14 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           post_to_inbox(group, body: post_body)
           expect(response.status).to eq(202)
           expect(
-            job_enqueued?(job: Jobs::DiscourseActivityPub::Process, args: { json: post_body }),
+            job_enqueued?(
+              job: Jobs::DiscourseActivityPub::Process,
+              args: {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: nil,
+              },
+            ),
           ).to eq(true)
         end
 
@@ -227,6 +234,20 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           it "succeeds" do
             post_to_inbox(group, body: post_body, headers: headers)
             expect(response.status).to eq(202)
+          end
+
+          it "enqueues the signed actor identity" do
+            post_to_inbox(group, body: post_body, headers: headers)
+            expect(
+              job_enqueued?(
+                job: Jobs::DiscourseActivityPub::Process,
+                args: {
+                  json: post_body,
+                  delivered_to: group.ap_id,
+                  signed_actor_ap_id: person.ap_id,
+                },
+              ),
+            ).to eq(true)
           end
 
           context "with an actor from an allowed domain" do

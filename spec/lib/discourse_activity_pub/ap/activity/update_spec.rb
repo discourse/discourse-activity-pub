@@ -15,9 +15,11 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Update do
     end
 
     context "with valid Update json" do
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
       let!(:object_json) { build_object_json }
       let!(:activity_json) do
         build_activity_json(
+          actor: actor,
           object: object_json,
           type: "Update",
           to: [category.activity_pub_actor.ap_id],
@@ -31,6 +33,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Update do
             ap_id: object_json[:id],
             local: false,
             model: post,
+            attributed_to: actor,
           )
         end
 
@@ -42,6 +45,22 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Update do
 
         it "creates an activity" do
           expect(DiscourseActivityPubActivity.exists?(ap_id: activity_json[:id])).to be(true)
+        end
+
+        context "when the activity actor does not own the note" do
+          let!(:other_actor) { Fabricate(:discourse_activity_pub_actor_person) }
+          let!(:activity_json) do
+            build_activity_json(
+              actor: other_actor,
+              object: object_json,
+              type: "Update",
+              to: [category.activity_pub_actor.ap_id],
+            )
+          end
+
+          it "does not update the post raw" do
+            expect(post.reload.raw).not_to eq(object_json[:content])
+          end
         end
       end
     end
