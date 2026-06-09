@@ -49,7 +49,8 @@ module DiscourseActivityPub
     end
 
     def perform(verb)
-      return unless DiscourseActivityPub::URI.valid_url?(uri)
+      request_uri = safe_request_uri
+      return unless request_uri
 
       options = { headers: final_headers(verb) }
 
@@ -57,8 +58,9 @@ module DiscourseActivityPub
       options[:body] = body if body.present?
       options[:read_timeout] = TIMEOUT
       options[:write_timeout] = TIMEOUT
+      options[:ssl_verify_peer_host] = uri.host
 
-      response = Excon.send(verb, uri.to_s, options)
+      response = Excon.send(verb, request_uri.to_s, options)
 
       if expects.present? && expects.exclude?(response.status)
         raise Excon::Error.new(response.body.to_s[0..200])
@@ -157,6 +159,28 @@ module DiscourseActivityPub
 
     def sign_request?
       actor.present? && actor.keypair.present?
+    end
+
+    def safe_request_uri
+      return unless DiscourseActivityPub::URI.valid_url?(uri)
+      return if uri.host.blank?
+
+      resolved_ip = FinalDestination::SSRFDetector.lookup_and_filter_ips(uri.host).first
+      return if resolved_ip.blank?
+
+      safe_uri = uri.dup
+
+      unless Rails.env.test?
+        safe_uri.host = resolved_ip
+      end
+
+      safe_uri
+    rescue FinalDestination::SSRFDetector::DisallowedIpError,
+           FinalDestination::SSRFDetector::LookupFailedError,
+           IPAddr::InvalidAddressError,
+           SocketError,
+           Timeout::Error
+      nil
     end
   end
 end
