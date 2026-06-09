@@ -269,7 +269,12 @@ module DiscourseActivityPub
         object.cache["delete_object"] = true if parent&.delete? && delete_object
 
         if resolve_attribution && object.json[:attributedTo]
-          attributed_to = Actor.resolve_and_store(object.json[:attributedTo])
+          attributed_to =
+            if parent&.actor && DiscourseActivityPub::JsonLd.resolve_id(object.json[:attributedTo]) == parent.actor.id
+              parent.actor
+            else
+              Actor.resolve_and_store(object.json[:attributedTo])
+            end
           object.attributed_to = attributed_to if attributed_to.present?
         end
 

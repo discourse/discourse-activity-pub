@@ -11,6 +11,7 @@ module Jobs
 
           if ap_activity && ap_activity.respond_to?(:process)
             ap_activity.delivered_to << @args[:delivered_to] if @args[:delivered_to].present?
+            ap_activity.signed_actor_ap_id = @args[:signed_actor_ap_id]
             log_process_start
             ap_activity.process
           end

@@ -24,7 +24,12 @@ class DiscourseActivityPub::AP::InboxesController < DiscourseActivityPub::AP::Ac
   end
 
   def process_json
-    Jobs.enqueue(Jobs::DiscourseActivityPub::Process, json: @json, delivered_to: @actor.ap_id)
+    Jobs.enqueue(
+      Jobs::DiscourseActivityPub::Process,
+      json: @json,
+      delivered_to: @actor.ap_id,
+      signed_actor_ap_id: signed_request_actor&.ap_id,
+    )
   end
 
   def validate_json

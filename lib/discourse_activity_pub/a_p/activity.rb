@@ -4,6 +4,7 @@ module DiscourseActivityPub
   module AP
     class Activity < Object
       attr_writer :actor, :object
+      attr_accessor :signed_actor_ap_id
 
       def base_type
         "Activity"
@@ -131,6 +132,7 @@ module DiscourseActivityPub
       def process_actor_and_object
         @actor = Actor.resolve_and_store(json[:actor])
         return process_failed("cant_create_actor") if actor.blank?
+        return process_failed("signed_actor_must_match_activity_actor") unless signed_actor_matches?
 
         @object = Object.resolve_and_store(json[:object], self)
         return process_failed("cant_find_object") if object.blank?
@@ -140,6 +142,10 @@ module DiscourseActivityPub
         end
 
         true
+      end
+
+      def signed_actor_matches?
+        signed_actor_ap_id.blank? || actor.id == signed_actor_ap_id
       end
 
       def activity_host_matches_object_host?

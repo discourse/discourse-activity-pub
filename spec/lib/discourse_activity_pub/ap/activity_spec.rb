@@ -126,6 +126,27 @@ RSpec.describe DiscourseActivityPub::AP::Activity do
           expect(perform_process(json, activity_type)).to eq(true)
         end
 
+        context "with a signed actor" do
+          it "returns true when the signed actor matches the activity actor" do
+            klass = described_class.new
+            klass.json = json
+            klass.signed_actor_ap_id = person.ap_id
+            klass.stubs(:type).returns(activity_type)
+
+            expect(klass.send(:process_actor_and_object)).to eq(true)
+          end
+
+          it "returns false when the signed actor does not match the activity actor" do
+            other_actor = Fabricate(:discourse_activity_pub_actor_person)
+            klass = described_class.new
+            klass.json = json
+            klass.signed_actor_ap_id = other_actor.ap_id
+            klass.stubs(:type).returns(activity_type)
+
+            expect(klass.send(:process_actor_and_object)).to eq(false)
+          end
+        end
+
         it "creates a actor" do
           perform_process(json, activity_type)
           expect(DiscourseActivityPubActor.exists?(ap_id: json["actor"]["id"])).to eq(true)

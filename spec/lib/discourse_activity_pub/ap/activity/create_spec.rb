@@ -26,7 +26,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             build_object_json(
               in_reply_to: original_object.ap_id,
               url: reply_external_url,
-              attributed_to: original_object.attributed_to,
+              attributed_to: actor,
             ),
           type: "Create",
           to: [category.activity_pub_actor.ap_id],
@@ -87,7 +87,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
             build_object_json(
               in_reply_to: remote_reply_json[:id],
               url: reply_external_url,
-              attributed_to: reply_actor_json[:id],
+              attributed_to: actor,
             ),
           type: "Create",
           to: [category.activity_pub_actor.ap_id],
@@ -98,7 +98,6 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
         freeze_time
         stub_object_request(remote_reply_actor_json)
         stub_object_request(remote_reply_json)
-        stub_object_request(reply_actor_json)
         perform_process(reply_json)
       end
 
@@ -154,7 +153,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Create do
       let(:reply_json) do
         build_activity_json(
           actor: actor,
-          object: build_object_json(in_reply_to: original_object.ap_id),
+          object: build_object_json(in_reply_to: original_object.ap_id, attributed_to: actor),
           type: "Create",
           to: [category.activity_pub_actor.ap_id],
         )
