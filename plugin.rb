@@ -223,6 +223,7 @@ after_initialize do
       actors[actor.model_type.downcase.to_sym] << DiscourseActivityPub::SiteActorSerializer.new(
         actor,
         root: false,
+        scope: scope,
       ).as_json
     end
     actors.as_json
@@ -327,7 +328,11 @@ after_initialize do
     :activity_pub_actor,
     include_condition: -> { object.topic.activity_pub_enabled },
   ) do
-    DiscourseActivityPub::ActorSerializer.new(object.topic.activity_pub_actor, root: false).as_json
+    DiscourseActivityPub::ActorSerializer.new(
+      object.topic.activity_pub_actor,
+      root: false,
+      scope: scope,
+    ).as_json
   end
   add_to_serializer(
     :topic_view,
