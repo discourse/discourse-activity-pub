@@ -326,6 +326,45 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           end
         end
 
+        context "with an actor keyId on an allowed internal host" do
+          before do
+            setup_logging
+            SiteSetting.allowed_internal_hosts = "127.0.0.1"
+          end
+
+          after { teardown_logging }
+
+          it "does not fetch or store the actor" do
+            private_actor_id = "http://127.0.0.1/u/#{SecureRandom.hex(8)}"
+            actor_json = build_actor_json(public_key: keypair.public_key.to_pem)
+            actor_json[:id] = private_actor_id
+            actor_json[:inbox] = "#{private_actor_id}/inbox"
+            actor_json[:outbox] = "#{private_actor_id}/outbox"
+            actor_json[:publicKey][:id] = "#{private_actor_id}#main-key"
+            actor_json[:publicKey][:owner] = private_actor_id
+
+            stub_request(:get, private_actor_id).to_return(
+              body: actor_json.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+              },
+              status: 200,
+            )
+
+            headers = build_post_headers(key_id: actor_json[:publicKey][:id], keypair: keypair)
+            post_to_inbox(group, body: post_body, headers: headers)
+
+            expect_request_error(
+              response,
+              "actor_not_found_for_key",
+              401,
+              key_id: actor_json[:publicKey][:id],
+            )
+            expect(DiscourseActivityPubActor.exists?(ap_id: private_actor_id)).to eq(false)
+            expect(a_request(:get, private_actor_id)).not_to have_been_made
+          end
+        end
+
         context "with an invalid digest" do
           let!(:invalid_digest) { Digest::SHA256.base64digest("invalid body") }
           let!(:headers) do
