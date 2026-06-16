@@ -123,7 +123,11 @@ module Admin::DiscourseActivityPub
         render json:
                  success_json.merge(
                    actor:
-                     DiscourseActivityPub::DetailedActorSerializer.new(actor, root: false).as_json,
+                     DiscourseActivityPub::DetailedActorSerializer.new(
+                       actor,
+                       root: false,
+                       scope: guardian,
+                     ).as_json,
                  )
       else
         render json: failed_json.merge(errors: handler.errors.map(&:message)), status: :bad_request
