@@ -50,6 +50,46 @@ RSpec.describe DiscourseActivityPub::AP::ActivitiesController do
     end
   end
 
+  context "with publishing disabled and an Undo of a Like" do
+    fab!(:category)
+
+    fab!(:group) { Fabricate(:discourse_activity_pub_actor_group, model: category, enabled: true) }
+
+    fab!(:topic) { Fabricate(:topic, category: category) }
+
+    fab!(:post) { Fabricate(:post, topic: topic, raw: "Sensitive liked post content") }
+
+    fab!(:note) do
+      Fabricate(:discourse_activity_pub_object_note, model: post).tap do |note|
+        note.update!(content: post.raw)
+      end
+    end
+
+    fab!(:person, :discourse_activity_pub_actor_person)
+    fab!(:like_activity) do
+      Fabricate(:discourse_activity_pub_activity_like, actor: person, object: note)
+    end
+
+    fab!(:undo_activity) do
+      Fabricate(:discourse_activity_pub_activity_undo, actor: person, object: like_activity)
+    end
+
+    before do
+      SiteSetting.activity_pub_enabled = true
+      SiteSetting.login_required = true
+    end
+
+    it "returns json without nested post content" do
+      get_object(undo_activity)
+
+      aggregate_failures do
+        expect(response.status).to eq(200)
+        expect(response.body).not_to include(post.raw)
+        expect(parsed_body["object"]).to eq(like_activity.ap_id)
+      end
+    end
+  end
+
   describe "with an available base model" do
     before do
       category =
