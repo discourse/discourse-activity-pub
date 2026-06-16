@@ -19,6 +19,7 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
   before_action :validate_headers, unless: :browser_request?
   before_action :ensure_object_exists, if: :is_object_controller
   before_action :ensure_model_exists, if: -> { is_object_controller && browser_request? }
+  before_action :ensure_can_access_object_model, if: :is_object_controller
   before_action :set_raw_body
 
   def show
@@ -107,6 +108,12 @@ class DiscourseActivityPub::AP::ObjectsController < ApplicationController
 
   def ensure_model_exists
     raise Discourse::NotFound if @object.model_trashed?
+  end
+
+  def ensure_can_access_object_model
+    unless guardian.can_see?(@object.model) && @object.model&.activity_pub_enabled
+      render_activity_pub_error("not_available", 401)
+    end
   end
 
   def render_activity_json(json)

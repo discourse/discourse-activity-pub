@@ -115,6 +115,37 @@ RSpec.describe DiscourseActivityPub::AP::ObjectsController do
         expect(parsed_body["to"]).to eq([public_collection_id, group&.ap_id])
         expect(parsed_body["cc"]).to eq(nil)
       end
+
+      context "when the published object's category is no longer public" do
+        before do
+          create_activity.publish!
+          object.update!(content: "published restricted content")
+          setup_logging
+        end
+        after { teardown_logging }
+
+        it "returns not available when the category is made read restricted" do
+          category.set_permissions(staff: :full)
+          category.save!
+
+          get_object(object)
+
+          expect_request_error(response, "not_available", 401)
+          expect(response.body).not_to include(object.content)
+        end
+
+        it "returns not available when the topic is moved to a private category" do
+          private_category = Fabricate(:category)
+          private_category.set_permissions(staff: :full)
+          private_category.save!
+          topic.update!(category: private_category)
+
+          get_object(object)
+
+          expect_request_error(response, "not_available", 401)
+          expect(response.body).not_to include(object.content)
+        end
+      end
     end
 
     context "when requested from a browser" do
