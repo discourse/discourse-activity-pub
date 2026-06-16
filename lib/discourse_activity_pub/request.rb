@@ -188,10 +188,10 @@ module DiscourseActivityPub
 
     def safe_request_uri
       return unless DiscourseActivityPub::URI.valid_url?(uri)
-      return if uri.host.blank?
+      return if uri.host.blank? || disallowed_ip?(uri.host)
 
       resolved_ip = FinalDestination::SSRFDetector.lookup_and_filter_ips(uri.host).first
-      return if resolved_ip.blank?
+      return if resolved_ip.blank? || disallowed_ip?(resolved_ip)
 
       safe_uri = uri.dup
 
@@ -204,6 +204,12 @@ module DiscourseActivityPub
            SocketError,
            Timeout::Error
       nil
+    end
+
+    def disallowed_ip?(host)
+      !FinalDestination::SSRFDetector.ip_allowed?(IPAddr.new(host))
+    rescue IPAddr::InvalidAddressError
+      false
     end
   end
 end
