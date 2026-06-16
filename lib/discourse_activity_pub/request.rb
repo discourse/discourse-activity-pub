@@ -195,9 +195,7 @@ module DiscourseActivityPub
 
       safe_uri = uri.dup
 
-      unless Rails.env.test?
-        safe_uri.host = resolved_ip
-      end
+      safe_uri.host = resolved_ip unless Rails.env.test?
 
       safe_uri
     rescue FinalDestination::SSRFDetector::DisallowedIpError,
