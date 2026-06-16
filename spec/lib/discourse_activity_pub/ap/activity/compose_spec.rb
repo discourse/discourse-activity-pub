@@ -9,9 +9,10 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
   it { expect(described_class).to be < DiscourseActivityPub::AP::Activity }
 
   describe "#process" do
-    let!(:object_json) { build_object_json }
+    let!(:actor) { Fabricate(:discourse_activity_pub_actor_person) }
+    let!(:object_json) { build_object_json(attributed_to: actor) }
     let!(:activity_json) do
-      build_activity_json(object: object_json, type: "Update", to: [group.ap_id])
+      build_activity_json(actor: actor, object: object_json, type: "Update", to: [group.ap_id])
     end
     let!(:note) do
       Fabricate(
@@ -19,6 +20,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Compose do
         ap_id: object_json[:id],
         local: false,
         model: post,
+        attributed_to: actor,
       )
     end
 
