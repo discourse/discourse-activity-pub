@@ -79,8 +79,7 @@ RSpec.describe DiscourseActivityPub::Request do
         Excon
           .expects(:get)
           .with do |url, options|
-            url == "https://93.184.216.34/path" &&
-              options[:headers]["Host"] == "success.com" &&
+            url == "https://93.184.216.34/path" && options[:headers]["Host"] == "success.com" &&
               options[:ssl_verify_peer_host] == "success.com"
           end
           .returns(response)
@@ -248,9 +247,7 @@ RSpec.describe DiscourseActivityPub::Request do
 
         Excon
           .expects(:get)
-          .with do |url, _options|
-            url == object[:id]
-          end
+          .with { |url, _options| url == object[:id] }
           .returns(
             Excon::Response.new(
               status: 302,

@@ -11,7 +11,9 @@ module DiscourseActivityPub
         def process
           @actor = Actor.resolve_and_store(json[:actor])
           return process_failed("cant_create_actor") if actor.blank?
-          return process_failed("signed_actor_must_match_activity_actor") unless signed_actor_matches?
+          unless signed_actor_matches?
+            return process_failed("signed_actor_must_match_activity_actor")
+          end
 
           @object = Object.resolve_and_store(json[:object], self)
           return process_failed("cant_find_object") if object.blank?
