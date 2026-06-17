@@ -72,6 +72,38 @@ RSpec.describe DiscourseActivityPub::AP::CollectionsController do
         expect(parsed_body["orderedItems"].first["id"]).to eq(note2.ap_id)
         expect(parsed_body["orderedItems"].last["id"]).to eq(note1.ap_id)
       end
+
+      it "does not return hidden post content in collection items" do
+        stale_hidden_post = Fabricate(:post, topic: collection.model)
+        stale_hidden_note =
+          Fabricate(
+            :discourse_activity_pub_object_note,
+            model: stale_hidden_post,
+            collection_id: collection.id,
+            created_at: 30.seconds.ago,
+          )
+
+        note2.update!(content: "Hidden ActivityPub content #{SecureRandom.hex}")
+        stale_hidden_note.update!(content: "Stale hidden ActivityPub content #{SecureRandom.hex}")
+        stale_hidden_post.update_columns(
+          hidden: true,
+          hidden_at: Time.zone.now,
+          hidden_reason_id: Post.hidden_reasons[:flag_threshold_reached],
+        )
+
+        post2.hide!(PostActionType.types[:inappropriate])
+        get_object(collection)
+
+        expect(response.status).to eq(200)
+        expect(parsed_body["orderedItems"].map { |item| item["id"] }).to eq([note1.ap_id])
+        expect(response.body).not_to include(note2.content)
+        expect(response.body).not_to include(stale_hidden_note.content)
+        expect(DiscourseActivityPubObject.unscoped.find(note2.id)).to be_tombstoned
+        expect(DiscourseActivityPubObject.unscoped.find(stale_hidden_note.id)).not_to be_tombstoned
+
+        post2.unhide!
+        expect(DiscourseActivityPubObject.unscoped.find(note2.id)).not_to be_tombstoned
+      end
     end
   end
 end

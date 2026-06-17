@@ -6,6 +6,11 @@ module DiscourseActivityPub
 
       attr_accessor :items_to_process
 
+      def items=(items)
+        @items = items
+        @ordered_items = nil
+      end
+
       def id
         stored.ap_id
       end
