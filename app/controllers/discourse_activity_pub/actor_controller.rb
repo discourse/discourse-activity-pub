@@ -17,6 +17,8 @@ module DiscourseActivityPub
     before_action :find_target_actor, only: %i[follow unfollow reject]
 
     def show
+      guardian.ensure_can_see!(@actor.model)
+
       render_serialized(@actor, DiscourseActivityPub::DetailedActorSerializer, root: "actor")
     end
 

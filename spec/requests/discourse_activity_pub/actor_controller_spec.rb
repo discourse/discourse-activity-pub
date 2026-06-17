@@ -85,6 +85,25 @@ RSpec.describe DiscourseActivityPub::ActorController do
         end
       end
     end
+
+    context "with a restricted category actor" do
+      fab!(:private_group, :group)
+      fab!(:private_category) { Fabricate(:private_category, group: private_group) }
+
+      fab!(:private_category_actor) do
+        Fabricate(:discourse_activity_pub_actor_group, model: private_category, local: true)
+      end
+
+      before { toggle_activity_pub(private_category) }
+
+      it "blocks users who cannot see the category" do
+        get "/ap/local/actor/#{private_category_actor.id}.json"
+
+        expect(response.status).to eq(403)
+        expect(response.parsed_body["errors"]).to be_present
+        expect(response.body).not_to include(private_category.name)
+      end
+    end
   end
 
   describe "#follows" do
