@@ -48,7 +48,7 @@ module DiscourseActivityPub::User
   end
 
   def activity_pub_name
-    name
+    name if SiteSetting.enable_names?
   end
 
   def activity_pub_skip_email_validation

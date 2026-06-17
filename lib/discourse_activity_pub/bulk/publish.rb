@@ -248,7 +248,12 @@ module DiscourseActivityPub
             object: user.activity_pub_actor,
             base_type: AP::Actor.type,
             type: AP::Actor::Person.type,
-          ).merge(username: user.username, name: user.name, model_id: user.id, model_type: "User")
+          ).merge(
+            username: user.username,
+            name: user.activity_pub_name,
+            model_id: user.id,
+            model_type: "User",
+          )
         end
       end
 

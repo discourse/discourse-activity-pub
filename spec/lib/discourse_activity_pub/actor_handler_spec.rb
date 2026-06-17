@@ -185,6 +185,20 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
           expect(DiscourseActivityPubActor.all.size).to eq(actor_count)
         end
 
+        context "when names are disabled" do
+          before do
+            SiteSetting.enable_names = false
+            user.update!(name: "Hidden Name")
+            actor.update!(name: user.name)
+          end
+
+          it "clears the actor name" do
+            described_class.update_or_create_actor(user)
+
+            expect(actor.reload.read_attribute(:name)).to be_nil
+          end
+        end
+
         context "when required attributes are blank" do
           before { actor.update(public_key: nil, private_key: nil, inbox: nil, outbox: nil) }
 
