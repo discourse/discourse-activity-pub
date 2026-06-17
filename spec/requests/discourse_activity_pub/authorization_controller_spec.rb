@@ -399,12 +399,25 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
     before { sign_in(user) }
 
     context "with a valid authorization id" do
-      let!(:authorization) { Fabricate(:discourse_activity_pub_authorization_mastodon) }
+      let!(:authorization) { Fabricate(:discourse_activity_pub_authorization_mastodon, user: user) }
 
       it "destroys the authorization" do
         delete "/ap/auth/destroy/#{authorization.id}"
         expect(response).to be_successful
         expect(DiscourseActivityPubAuthorization.find_by(id: authorization.id)).to eq(nil)
+      end
+    end
+
+    context "with another user's authorization id" do
+      it "returns not found and preserves the authorization" do
+        other_user = Fabricate(:user)
+        authorization = Fabricate(:discourse_activity_pub_authorization_mastodon, user: other_user)
+
+        delete "/ap/auth/destroy/#{authorization.id}"
+
+        expect(response.status).to eq(404)
+        expect(response.parsed_body["failed"]).to eq("FAILED")
+        expect(DiscourseActivityPubAuthorization.exists?(authorization.id)).to eq(true)
       end
     end
 

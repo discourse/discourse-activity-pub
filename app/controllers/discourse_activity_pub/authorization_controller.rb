@@ -91,11 +91,12 @@ module DiscourseActivityPub
     def destroy
       params.require(:auth_id)
 
-      authorization = DiscourseActivityPubAuthorization.find_by(id: params[:auth_id])
+      authorization =
+        DiscourseActivityPubAuthorization.find_by(id: params[:auth_id], user_id: current_user.id)
       if authorization && authorization.destroy!
         render json: success_json
       else
-        render json: failed_json, status: :unprocessable_content
+        render json: failed_json, status: :not_found
       end
     end
 
