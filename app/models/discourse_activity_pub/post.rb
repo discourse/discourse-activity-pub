@@ -331,6 +331,25 @@ module DiscourseActivityPub::Post
     perform_activity_pub_activity(:delete)
   end
 
+  def hide!(post_action_type_id, reason = nil, custom_message: nil)
+    super.tap { update_activity_pub_object_visibility }
+  end
+
+  def unhide!
+    super.tap { update_activity_pub_object_visibility }
+  end
+
+  def update_activity_pub_object_visibility
+    object = DiscourseActivityPubObject.unscoped.find_by(model_id: self.id, model_type: "Post")
+    return unless object
+
+    if hidden?
+      object.tombstone! unless object.tombstoned?
+    elsif object.tombstoned?
+      object.restore_tombstoned!
+    end
+  end
+
   def activity_pub_deliver!
     return false if !activity_pub_published? || activity_pub_taxonomy_followers.blank?
     activity_pub_deliver_create
