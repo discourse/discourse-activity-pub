@@ -204,7 +204,8 @@ module DiscourseActivityPub
       )
 
       actor.username = username
-      actor.name = model.activity_pub_name if model.activity_pub_name
+      name = model.activity_pub_name
+      actor.name = name if name || model_type == "User"
     end
 
     def update_actor_from_opts

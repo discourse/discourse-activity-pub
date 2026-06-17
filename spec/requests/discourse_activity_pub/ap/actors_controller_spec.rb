@@ -84,6 +84,27 @@ RSpec.describe DiscourseActivityPub::AP::ActorsController do
       expect(parsed_body).to eq(group.reload.ap.json)
     end
 
+    context "with a person actor" do
+      fab!(:user_with_name) { Fabricate(:user, name: "Hidden Name") }
+      fab!(:named_person) do
+        Fabricate(
+          :discourse_activity_pub_actor_person,
+          local: true,
+          model: user_with_name,
+          name: user_with_name.name,
+        )
+      end
+
+      before { SiteSetting.enable_names = false }
+
+      it "omits stored names from actor json" do
+        get_object(named_person)
+
+        expect(response.status).to eq(200)
+        expect(parsed_body).not_to have_key("name")
+      end
+    end
+
     it "ensures actor has required attributes" do
       person.update_columns(inbox: "/inbox", outbox: "/outbox")
       get_object(person)

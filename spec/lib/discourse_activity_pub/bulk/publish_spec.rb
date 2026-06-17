@@ -68,6 +68,15 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
             expect(post4.user.activity_pub_actor.username).to eq(post4.user.username)
           end
 
+          it "omits user actor names when names are disabled" do
+            SiteSetting.enable_names = false
+            post1.user.update!(name: "Hidden Name")
+
+            described_class.perform(actor_id: actor.id)
+
+            expect(post1.reload.user.activity_pub_actor.read_attribute(:name)).to be_nil
+          end
+
           it "creates the right post objects" do
             described_class.perform(actor_id: actor.id)
             expect(post1.reload.activity_pub_object.content).to eq(post1.cooked)

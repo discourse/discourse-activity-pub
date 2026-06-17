@@ -157,6 +157,12 @@ class DiscourseActivityPubActor < ActiveRecord::Base
     end
   end
 
+  def name
+    return nil if local? && model_type == "User" && !SiteSetting.enable_names?
+
+    read_attribute(:name)
+  end
+
   def followers_collection
     @followers_collection ||=
       begin
