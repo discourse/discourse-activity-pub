@@ -71,6 +71,11 @@ module DiscourseActivityPub::Topic
   end
 
   def create_activity_pub_collection!
+    if existing = DiscourseActivityPubCollection.unscoped.find_by(model: self)
+      existing.restore_tombstoned! if existing.tombstoned?
+      return association(:activity_pub_object).target = existing
+    end
+
     params = { local: true, ap_type: activity_pub_default_object_type, name: activity_pub_name }
     attributed_to = DiscourseActivityPub::ActorHandler.update_or_create_actor(self.user)
     params[:attributed_to_id] = attributed_to.ap_id if attributed_to

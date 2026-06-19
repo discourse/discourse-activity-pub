@@ -116,6 +116,18 @@ RSpec.describe Topic do
           end
         end
 
+        context "when the destination topic's collection was tombstoned" do
+          before { collection2.tombstone! }
+
+          it "revives it instead of failing to move posts in" do
+            expect {
+              topic1.move_posts(user1, [post1.id, post3.id], destination_topic_id: topic2.id)
+            }.not_to raise_error
+            expect(DiscourseActivityPubCollection.all).to contain_exactly(collection1, collection2)
+            expect(collection2.reload).not_to be_tombstoned
+          end
+        end
+
         context "when moved to a new non-ap topic" do
           before do
             topic1.move_posts(
