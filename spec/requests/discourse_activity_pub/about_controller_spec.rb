@@ -79,6 +79,22 @@ RSpec.describe DiscourseActivityPub::AboutController do
           expect(response.parsed_body["category_actors"].size).to eq(2)
           expect(response.parsed_body["tag_actors"].size).to eq(1)
         end
+
+        it "does not return hidden tag actors" do
+          hidden_tag = Fabricate(:tag, name: "staff-only")
+          hidden_tag_actor =
+            Fabricate(:discourse_activity_pub_actor_group, model: hidden_tag, local: true)
+          Fabricate(:tag_group, permissions: { "staff" => 1 }, tag_names: [hidden_tag.name])
+          toggle_activity_pub(hidden_tag)
+
+          get "/ap/about.json"
+
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["tag_actors"].map { |actor| actor["id"] }).not_to include(
+            hidden_tag_actor.id,
+          )
+          expect(response.body).not_to include(hidden_tag.name)
+        end
       end
     end
   end

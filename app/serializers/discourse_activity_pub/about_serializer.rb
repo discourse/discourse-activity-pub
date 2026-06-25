@@ -11,9 +11,11 @@ module DiscourseActivityPub
     end
 
     def tag_actors
-      object.tag_actors.map do |actor|
-        DiscourseActivityPub::CardActorSerializer.new(actor, root: false, scope: scope).as_json
-      end
+      object
+        .tag_actors(scope)
+        .map do |actor|
+          DiscourseActivityPub::CardActorSerializer.new(actor, root: false, scope: scope).as_json
+        end
     end
   end
 end

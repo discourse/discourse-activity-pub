@@ -5,13 +5,15 @@ module DiscourseActivityPub
     attributes :local, :url, :icon_url, :followed_at, :model
 
     def model
+      return nil unless scope&.can_see?(object.model)
+
       case object.model_type
       when "User"
-        BasicUserSerializer.new(object.model, root: false).as_json
+        BasicUserSerializer.new(object.model, root: false, scope: scope).as_json
       when "Category"
-        SiteCategorySerializer.new(object.model, root: false).as_json
+        SiteCategorySerializer.new(object.model, root: false, scope: scope).as_json
       when "Tag"
-        TagSerializer.new(object.model, root: false).as_json
+        TagSerializer.new(object.model, root: false, scope: scope).as_json
       end
     end
   end
