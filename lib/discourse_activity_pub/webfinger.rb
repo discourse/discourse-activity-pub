@@ -39,7 +39,7 @@ module DiscourseActivityPub
       return true if actor.ap.application?
       return false if actor.model.blank?
 
-      actor.ready? && ::Guardian.new(nil).can_see?(actor.model)
+      actor.ready? && ::Guardian.new.can_see?(actor.model)
     end
 
     def self.resolve_handle(raw_handle)
