@@ -9,6 +9,7 @@ module DiscourseActivityPub
     before_action :ensure_site_enabled
     before_action :ensure_staff
     before_action :find_topic
+    before_action :ensure_can_see_topic
     before_action :ensure_can_publish
 
     def publish
@@ -19,10 +20,14 @@ module DiscourseActivityPub
     protected
 
     def ensure_can_publish
-      if !@topic.activity_pub_full_topic || @topic.activity_pub_all_posts_published? ||
+      if !@topic.activity_pub_publishable? || @topic.activity_pub_all_posts_published? ||
            @topic.activity_pub_scheduled?
         render_topic_error("cant_publish_topic", 422)
       end
+    end
+
+    def ensure_can_see_topic
+      render_topic_error("topic_not_found", 400) if !guardian.can_see?(@topic)
     end
 
     def find_topic

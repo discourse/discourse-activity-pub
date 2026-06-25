@@ -39,6 +39,25 @@ RSpec.describe DiscourseActivityPub::TopicController do
         end
 
         context "with a valid topic id" do
+          it "does not publish a topic the staff user cannot see" do
+            group = Fabricate(:group)
+            restricted_category = Fabricate(:category)
+            restricted_category.set_permissions(group => :full)
+            restricted_category.save!
+            tag = Fabricate(:tag)
+            restricted_topic = Fabricate(:topic, category: restricted_category, tags: [tag])
+            Fabricate(:post, topic: restricted_topic, post_number: 1)
+            Fabricate(:post, topic: restricted_topic, post_number: 2)
+
+            toggle_activity_pub(tag, publication_type: "full_topic")
+
+            post "/ap/topic/publish/#{restricted_topic.id}"
+
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("topic_not_found"))
+            expect(restricted_topic.reload.activity_pub_object).to eq(nil)
+          end
+
           context "with a first_post activity pub category" do
             before { toggle_activity_pub(category, publication_type: "first_post") }
 
