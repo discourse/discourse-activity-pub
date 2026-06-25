@@ -31,7 +31,8 @@ RSpec.describe DiscourseActivityPub::AP::OutboxesController do
     it "omits activities whose base object is no longer publishable" do
       tag = Fabricate(:tag)
       category = Fabricate(:category)
-      topic = Fabricate(:topic, category: category, tags: [tag], title: "Restricted ActivityPub Topic")
+      topic =
+        Fabricate(:topic, category: category, tags: [tag], title: "Restricted ActivityPub Topic")
       Fabricate(:post, topic: topic, post_number: 1)
       Fabricate(:post, topic: topic, post_number: 2)
 

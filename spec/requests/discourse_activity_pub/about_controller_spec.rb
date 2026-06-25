@@ -80,6 +80,21 @@ RSpec.describe DiscourseActivityPub::AboutController do
           expect(response.parsed_body["tag_actors"].size).to eq(1)
         end
 
+        it "does not return stale enabled category actors that are no longer ActivityPub-ready" do
+          private_description = "Private ActivityPub category description"
+          category1.update_column(:description, private_description)
+          toggle_activity_pub(category1)
+          category1.set_permissions(staff: :full)
+          category1.save!
+          category_actor_1.update!(enabled: true)
+
+          get "/ap/about.json"
+
+          expect(response.status).to eq(200)
+          expect(response.parsed_body["category_actors"]).to eq([])
+          expect(response.body).not_to include(category1.description_text)
+        end
+
         it "does not return hidden tag actors" do
           hidden_tag = Fabricate(:tag, name: "staff-only")
           hidden_tag_actor =
