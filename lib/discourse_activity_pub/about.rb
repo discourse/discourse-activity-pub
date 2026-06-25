@@ -9,9 +9,11 @@ module DiscourseActivityPub
         DiscourseActivityPubActor.local.active.includes(:model).group(:id).left_joins(:followers)
     end
 
-    def category_actors
+    def category_actors(guardian = nil)
       @categories ||=
-        actors.where(model_type: "Category").order("COUNT(discourse_activity_pub_actors.id) DESC")
+        actors
+          .where(model_type: "Category", model_id: Category.secured(guardian).select(:id))
+          .order("COUNT(discourse_activity_pub_actors.id) DESC")
     end
 
     def tag_actors(guardian = nil)
