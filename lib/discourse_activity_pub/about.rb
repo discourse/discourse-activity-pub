@@ -14,9 +14,11 @@ module DiscourseActivityPub
         actors.where(model_type: "Category").order("COUNT(discourse_activity_pub_actors.id) DESC")
     end
 
-    def tag_actors
-      @tags ||=
-        actors.where(model_type: "Tag").order("COUNT(discourse_activity_pub_actors.id) DESC")
+    def tag_actors(guardian = nil)
+      actors.where(
+        model_type: "Tag",
+        model_id: DiscourseTagging.visible_tags(guardian).select(:id),
+      ).order("COUNT(discourse_activity_pub_actors.id) DESC")
     end
   end
 end
