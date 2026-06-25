@@ -851,6 +851,22 @@ RSpec.describe DiscourseActivityPub::Bulk::Publish do
     end
 
     context "with a topic" do
+      it "does not create ActivityPub records for a topic that is no longer publishable" do
+        tag = Fabricate(:tag)
+        restricted_category = Fabricate(:category)
+        restricted_topic = Fabricate(:topic, category: restricted_category, tags: [tag])
+        Fabricate(:post, topic: restricted_topic, post_number: 1)
+        Fabricate(:post, topic: restricted_topic, post_number: 2)
+
+        toggle_activity_pub(tag, publication_type: "full_topic")
+        restricted_category.update!(read_restricted: true)
+
+        described_class.perform(topic_id: restricted_topic.id)
+
+        expect(restricted_topic.reload.activity_pub_object).to eq(nil)
+        expect(::Post.where(topic: restricted_topic).any?(&:activity_pub_published?)).to eq(false)
+      end
+
       context "with full topic enabled" do
         before { toggle_activity_pub(category, publication_type: "full_topic") }
 

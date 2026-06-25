@@ -17,6 +17,7 @@ module DiscourseActivityPub
         log_started
 
         return log_publish_failed("actor_not_found") if !actor
+        return log_publish_failed("actor_not_ready") if topic && !topic.activity_pub_publishable?
         return log_publish_failed("actor_not_ready") if !actor&.ready?
         if !DiscourseActivityPubActor::GROUP_MODELS.map(&:downcase).include?(
              actor.model_type.downcase,

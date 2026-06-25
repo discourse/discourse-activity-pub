@@ -281,4 +281,13 @@ RSpec.describe Topic do
       end
     end
   end
+
+  describe "#activity_pub_publish!" do
+    it "returns false without publishing posts when the topic is not full-topic publishable" do
+      toggle_activity_pub(category1, publication_type: "first_post")
+
+      expect(topic1.reload.activity_pub_publish!).to eq(false)
+      expect(post1.reload.activity_pub_published?).to eq(false)
+    end
+  end
 end

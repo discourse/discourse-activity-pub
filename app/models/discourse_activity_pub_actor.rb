@@ -191,10 +191,32 @@ class DiscourseActivityPubActor < ActiveRecord::Base
             updated_at: self.updated_at,
             summary: I18n.t("discourse_activity_pub.actor.outbox.summary", actor: username),
           )
-        collection.items = activities
+        collection.items = publishable_outbox_activities
         collection.context = :outbox
         collection
       end
+  end
+
+  def publishable_outbox_activities
+    activities.select { |activity| outbox_activity_publishable?(activity) }
+  end
+
+  def outbox_activity_publishable?(activity)
+    model = outbox_activity_model(activity)
+
+    case model
+    when ::Post
+      model.activity_pub_enabled
+    when ::Topic
+      model.activity_pub_publishable?
+    else
+      true
+    end
+  end
+
+  def outbox_activity_model(activity)
+    base_object = activity.base_object
+    base_object.model if base_object.respond_to?(:model)
   end
 
   def shared_inbox

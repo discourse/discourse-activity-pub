@@ -70,6 +70,10 @@ module DiscourseActivityPub::Topic
     activity_pub_enabled && activity_pub_full_topic
   end
 
+  def activity_pub_publishable?
+    activity_pub_enabled && activity_pub_ready? && activity_pub_full_topic_enabled
+  end
+
   def create_activity_pub_collection!
     if existing = DiscourseActivityPubCollection.unscoped.find_by(model: self)
       existing.restore_tombstoned! if existing.tombstoned?
@@ -103,7 +107,7 @@ module DiscourseActivityPub::Topic
   end
 
   def activity_pub_publish!
-    return false if activity_pub_published?
+    return false if activity_pub_published? || !activity_pub_publishable?
     Jobs.enqueue(Jobs::DiscourseActivityPub::Publish, topic_id: self.id)
   end
 
