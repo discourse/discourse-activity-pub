@@ -11,9 +11,10 @@ module DiscourseActivityPub
 
     def category_actors(guardian = nil)
       @categories ||=
-        actors
-          .where(model_type: "Category", model_id: Category.secured(guardian).select(:id))
-          .order("COUNT(discourse_activity_pub_actors.id) DESC")
+        actors.where(
+          model_type: "Category",
+          model_id: Category.secured(guardian).select(:id),
+        ).order("COUNT(discourse_activity_pub_actors.id) DESC")
     end
 
     def tag_actors(guardian = nil)

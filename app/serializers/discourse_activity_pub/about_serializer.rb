@@ -5,9 +5,11 @@ module DiscourseActivityPub
     attributes :category_actors, :tag_actors
 
     def category_actors
-      object.category_actors(scope).map do |actor|
-        DiscourseActivityPub::CardActorSerializer.new(actor, root: false, scope: scope).as_json
-      end
+      object
+        .category_actors(scope)
+        .map do |actor|
+          DiscourseActivityPub::CardActorSerializer.new(actor, root: false, scope: scope).as_json
+        end
     end
 
     def tag_actors
