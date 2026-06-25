@@ -18,7 +18,9 @@ module DiscourseActivityPub
     end
 
     def find_actor(raw_handle)
-      DiscourseActivityPubActor.find_by_handle(raw_handle, local: true, types: [permitted_types])
+      actor =
+        DiscourseActivityPubActor.find_by_handle(raw_handle, local: true, types: [permitted_types])
+      actor if actor_visible?(actor)
     end
 
     def permitted_types
@@ -30,6 +32,14 @@ module DiscourseActivityPub
         types << DiscourseActivityPub::AP::Actor::Person.type
       end
       types
+    end
+
+    def actor_visible?(actor)
+      return false if actor.blank?
+      return true if actor.ap.application?
+      return false if actor.model.blank?
+
+      actor.ready? && ::Guardian.new(nil).can_see?(actor.model)
     end
 
     def self.resolve_handle(raw_handle)

@@ -10,7 +10,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
       before { SiteSetting.activity_pub_enabled = false }
 
       it "returns a not enabled error" do
-        get "/.well-known/webfinger"
+        get "/.well-known/webfinger", headers: { "Accept" => "application/json" }
         expect(response.status).to eq(404)
       end
     end
@@ -27,7 +27,7 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
       end
 
       context "with a supported scheme" do
-        let!(:group) { Fabricate(:discourse_activity_pub_actor_group, domain: nil) }
+        let!(:group) { Fabricate(:discourse_activity_pub_actor_group, domain: nil, enabled: true) }
         let!(:person) { Fabricate(:discourse_activity_pub_actor_person, domain: nil) }
 
         context "when the domain is incorrect" do
@@ -55,6 +55,38 @@ RSpec.describe DiscourseActivityPub::WebfingerController do
             expect(body["subject"]).to eq("acct:#{group.username}@#{DiscourseActivityPub.host}")
             expect(body["aliases"]).to eq(group.webfinger_aliases)
             expect(body["links"]).to eq(group.webfinger_links.map(&:as_json))
+          end
+        end
+
+        context "when the actor model is read restricted" do
+          it "returns a not found error without disclosing the actor URLs" do
+            restricted_category = Fabricate(:category)
+            toggle_activity_pub(restricted_category)
+            restricted_category.set_permissions(staff: :full)
+            restricted_category.save!
+            restricted_actor = restricted_category.reload.activity_pub_actor
+
+            get "/.well-known/webfinger?resource=acct:#{restricted_actor.username}@#{DiscourseActivityPub.host}"
+
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("resource_not_found"))
+            expect(response.body).not_to include(restricted_category.activity_pub_url)
+            expect(response.body).not_to include(restricted_actor.ap_id)
+          end
+        end
+
+        context "when the actor is disabled" do
+          it "returns a not found error without disclosing the actor URLs" do
+            disabled_category = Fabricate(:category)
+            toggle_activity_pub(disabled_category, disable: true)
+            disabled_actor = disabled_category.reload.activity_pub_actor
+
+            get "/.well-known/webfinger?resource=acct:#{disabled_actor.username}@#{DiscourseActivityPub.host}"
+
+            expect(response.status).to eq(400)
+            expect(response.parsed_body).to eq(build_error("resource_not_found"))
+            expect(response.body).not_to include(disabled_category.activity_pub_url)
+            expect(response.body).not_to include(disabled_actor.ap_id)
           end
         end
 
