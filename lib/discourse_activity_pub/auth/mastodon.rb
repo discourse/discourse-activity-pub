@@ -68,15 +68,17 @@ module DiscourseActivityPub
 
         return nil unless auth_scopes
 
+        params = {
+          client_id: client.credentials["client_id"],
+          response_type: "code",
+          redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
+          scope: auth_scopes,
+          force_login: true,
+        }
+        params[:state] = state if state.present?
+
         uri = DiscourseActivityPub::URI.parse("https://#{domain}/#{AUTHORIZE_PATH}")
-        uri.query =
-          ::URI.encode_www_form(
-            client_id: client.credentials["client_id"],
-            response_type: "code",
-            redirect_uri: "#{DiscourseActivityPub.base_url}/#{REDIRECT_PATH}",
-            scope: auth_scopes,
-            force_login: true,
-          )
+        uri.query = ::URI.encode_www_form(params)
         uri.to_s
       end
 

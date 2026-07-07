@@ -8,7 +8,7 @@ module DiscourseActivityPub
     TIMEOUT = 30
 
     attr_reader :domain
-    attr_accessor :auth_id
+    attr_accessor :auth_id, :state
 
     def initialize(domain: nil)
       @domain = domain
