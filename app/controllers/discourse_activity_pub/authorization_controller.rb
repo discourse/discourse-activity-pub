@@ -4,6 +4,7 @@ module DiscourseActivityPub
   class AuthorizationController < ApplicationController
     DOMAIN_SESSION_KEY = "activity_pub_authorize_domain"
     AUTHORIZATION_SESSION_KEY = "activity_pub_authorize_id"
+    STATE_SESSION_KEY = "activity_pub_authorize_state"
     SESSION_EXPIRY_MINUTES = 10
     SUPPORTED_AUTH_TYPES = %i[mastodon]
 
@@ -23,6 +24,7 @@ module DiscourseActivityPub
 
     rescue_from DiscourseActivityPub::AuthFailed do |e|
       @authorization&.destroy!
+      clear_authorization_session
       redirect_to "/u/#{current_user.username}/preferences/activity-pub?error=#{CGI.escape(e.message)}"
     end
 
@@ -46,12 +48,16 @@ module DiscourseActivityPub
     end
 
     def authorize
+      state = SecureRandom.hex(32)
       set_session_value(AUTHORIZATION_SESSION_KEY, @authorization.id)
+      set_session_value(STATE_SESSION_KEY, state)
+      auth_handler.state = state
 
       authorize_url = auth_handler.get_authorize_url
       if authorize_url
         redirect_to authorize_url, allow_other_host: true
       else
+        clear_authorization_session
         render_auth_error("invalid_domain", 404)
       end
     end
@@ -59,6 +65,7 @@ module DiscourseActivityPub
     def redirect
       ensure_authorization_session
       ensure_authorization
+      ensure_authorization_state
 
       @authorization.token = auth_handler.get_token(redirect_params)
       raise_auth_failed unless @authorization.token
@@ -85,6 +92,7 @@ module DiscourseActivityPub
         )
       end
 
+      clear_authorization_session
       redirect_to "/u/#{current_user.username}/preferences/activity-pub"
     end
 
@@ -126,7 +134,10 @@ module DiscourseActivityPub
     def validate_auth_type
       params.require(:auth_type)
       @auth_type = params[:auth_type].to_sym
-      raise ::Discourse::InvalidParameters if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
+      if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
+        clear_authorization_session if action_name == "redirect"
+        raise ::Discourse::InvalidParameters
+      end
     end
 
     def validate_domain
@@ -169,6 +180,7 @@ module DiscourseActivityPub
     def ensure_authorization_session
       @auth_id = get_session_value(AUTHORIZATION_SESSION_KEY)
       unless @auth_id
+        clear_authorization_session
         raise ::Discourse::InvalidAccess.new(
                 I18n.t("discourse_activity_pub.auth.error.session_expired"),
               )
@@ -176,16 +188,37 @@ module DiscourseActivityPub
     end
 
     def ensure_authorization
-      @authorization = DiscourseActivityPubAuthorization.find_by(id: @auth_id)
+      @authorization =
+        DiscourseActivityPubAuthorization.find_by(id: @auth_id, user_id: current_user.id)
       unless @authorization
+        clear_authorization_session
         raise ::Discourse::InvalidAccess.new(
                 I18n.t("discourse_activity_pub.auth.error.authorization_required"),
               )
       end
       @auth_type = @authorization.client.auth_type_name
-      raise ::Discourse::InvalidParameters if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
+      if SUPPORTED_AUTH_TYPES.exclude?(@auth_type)
+        clear_authorization_session
+        raise ::Discourse::InvalidParameters
+      end
       @domain = @authorization.client.domain
       auth_handler.auth_id = @authorization.id
+    end
+
+    def ensure_authorization_state
+      expected_state = get_session_value(STATE_SESSION_KEY)
+      state = params[:state].to_s
+      state_matches =
+        expected_state.present? && state.present? && state.bytesize == expected_state.bytesize &&
+          ActiveSupport::SecurityUtils.secure_compare(state, expected_state)
+
+      raise_invalid_redirect_params unless state_matches
+    end
+
+    def raise_invalid_redirect_params
+      raise DiscourseActivityPub::AuthFailed.new(
+              I18n.t("discourse_activity_pub.auth.error.invalid_redirect_params"),
+            )
     end
 
     def get_session_value(key)
@@ -194,6 +227,11 @@ module DiscourseActivityPub
 
     def set_session_value(key, value)
       server_session.set(key, value, expires: SESSION_EXPIRY_MINUTES.minutes)
+    end
+
+    def clear_authorization_session
+      server_session.delete(AUTHORIZATION_SESSION_KEY)
+      server_session.delete(STATE_SESSION_KEY)
     end
 
     def redirect_params

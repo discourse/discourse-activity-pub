@@ -12,6 +12,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
   let!(:mastodon_access_token) { "ZA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
   let!(:mastodon_code) { "123456" }
   let!(:mastodon_client_access_token) { "BA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0" }
+  let(:authorization_state_session_key) { "activity_pub_authorize_state" }
   let!(:mastodon_app_json) do
     {
       id: "563419",
@@ -242,10 +243,13 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
             )
           end
 
-          it "redirects to the authorize url for the app" do
+          it "redirects to the authorize url with state" do
             get "/ap/auth/authorize/mastodon", params: { domain: external_domain1 }
+
+            state = server_session[authorization_state_session_key]
+            expect(state).to match(/\A[0-9a-f]{64}\z/)
             expect(response).to redirect_to(
-              DiscourseActivityPub::Auth::Mastodon.get_authorize_url(external_domain1),
+              "#{DiscourseActivityPub::Auth::Mastodon.get_authorize_url(external_domain1)}&state=#{state}",
             )
           end
         end
@@ -278,18 +282,83 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
     end
 
     context "with an authorization id in the session" do
-      let!(:authorization) { Fabricate(:discourse_activity_pub_authorization_mastodon, user: user) }
+      let!(:authorization) do
+        Fabricate(:discourse_activity_pub_authorization_mastodon, user: user, actor: nil)
+      end
+      let(:oauth_state) { "oauth-state" }
+      let(:valid_redirect_params) { { code: mastodon_code, state: oauth_state } }
 
       before do
         server_session[
           DiscourseActivityPub::AuthorizationController::AUTHORIZATION_SESSION_KEY
         ] = authorization.id
+        server_session[authorization_state_session_key] = oauth_state
+      end
+
+      context "with another user's authorization id" do
+        let!(:other_user) { Fabricate(:user) }
+        let!(:authorization) do
+          Fabricate(:discourse_activity_pub_authorization_mastodon, user: other_user, actor: nil)
+        end
+        let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, ap_id: external_actor_id) }
+
+        before do
+          DiscourseActivityPub::Auth::Mastodon
+            .any_instance
+            .stubs(:get_token)
+            .with({ code: mastodon_code })
+            .returns(mastodon_access_token)
+          DiscourseActivityPub::Auth::Mastodon
+            .any_instance
+            .stubs(:get_actor_ap_id)
+            .with(mastodon_access_token)
+            .returns(external_actor_id)
+        end
+
+        it "raises an invalid access error and clears the session" do
+          get "/ap/auth/redirect/mastodon", params: valid_redirect_params
+
+          expect(response.status).to eq(403)
+          expect(DiscourseActivityPubAuthorization.exists?(authorization.id)).to eq(true)
+          expect(server_session[described_class::AUTHORIZATION_SESSION_KEY]).to eq(nil)
+          expect(server_session[authorization_state_session_key]).to eq(nil)
+        end
       end
 
       context "with mastodon" do
+        context "with a mismatched state param" do
+          let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, ap_id: external_actor_id) }
+
+          before do
+            DiscourseActivityPub::Auth::Mastodon
+              .any_instance
+              .stubs(:get_token)
+              .with({ code: mastodon_code })
+              .returns(mastodon_access_token)
+            DiscourseActivityPub::Auth::Mastodon
+              .any_instance
+              .stubs(:get_actor_ap_id)
+              .with(mastodon_access_token)
+              .returns(external_actor_id)
+          end
+
+          it "rejects the redirect and clears the session" do
+            get "/ap/auth/redirect/mastodon", params: { code: mastodon_code, state: "wrong-state" }
+
+            message =
+              CGI.escape(I18n.t("discourse_activity_pub.auth.error.invalid_redirect_params"))
+            expect(response).to redirect_to(
+              "/u/#{user.username}/preferences/activity-pub?error=#{message}",
+            )
+            expect(DiscourseActivityPubAuthorization.exists?(authorization.id)).to eq(false)
+            expect(server_session[described_class::AUTHORIZATION_SESSION_KEY]).to eq(nil)
+            expect(server_session[authorization_state_session_key]).to eq(nil)
+          end
+        end
+
         context "without a code param" do
           it "redirects to the current user's activity pub settings with the right error" do
-            get "/ap/auth/redirect/mastodon"
+            get "/ap/auth/redirect/mastodon", params: { state: oauth_state }
             message = CGI.escape("Invalid redirect params")
             expect(response).to redirect_to(
               "/u/#{user.username}/preferences/activity-pub?error=#{message}",
@@ -306,7 +375,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
           end
 
           it "redirects to the current user's activity pub settings with the right error" do
-            get "/ap/auth/redirect/mastodon", params: { code: mastodon_code }
+            get "/ap/auth/redirect/mastodon", params: valid_redirect_params
             message = CGI.escape("Failed to get token")
             expect(response).to redirect_to(
               "/u/#{user.username}/preferences/activity-pub?error=#{message}",
@@ -337,12 +406,12 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
             end
 
             it "adds the token to the authorization" do
-              get "/ap/auth/redirect/mastodon", params: { code: mastodon_code }
+              get "/ap/auth/redirect/mastodon", params: valid_redirect_params
               expect(authorization.reload.token).to eq(mastodon_access_token)
             end
 
             it "adds the actor to the authorization" do
-              get "/ap/auth/redirect/mastodon", params: { code: mastodon_code }
+              get "/ap/auth/redirect/mastodon", params: valid_redirect_params
               expect(authorization.reload.actor.ap_id).to eq(external_actor_id)
             end
 
@@ -354,15 +423,17 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
               end
 
               it "enqueues a job to merge the existing user into the current user" do
-                get "/ap/auth/redirect/mastodon", params: { code: mastodon_code }
+                get "/ap/auth/redirect/mastodon", params: valid_redirect_params
                 args = { user_id: user2.id, target_user_id: user.id, current_user_id: user.id }
                 expect(job_enqueued?(job: :merge_user, args: args)).to eq(true)
               end
             end
 
             it "redirects to the current user's activity pub settings" do
-              get "/ap/auth/redirect/mastodon", params: { code: mastodon_code }
+              get "/ap/auth/redirect/mastodon", params: valid_redirect_params
               expect(response).to redirect_to("/u/#{user.username}/preferences/activity-pub")
+              expect(server_session[described_class::AUTHORIZATION_SESSION_KEY]).to eq(nil)
+              expect(server_session[authorization_state_session_key]).to eq(nil)
             end
           end
 
@@ -376,7 +447,7 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
             end
 
             it "redirects to the current user's activity pub settings with the right error" do
-              get "/ap/auth/redirect/mastodon", params: { code: mastodon_code }
+              get "/ap/auth/redirect/mastodon", params: valid_redirect_params
               message = CGI.escape("Failed to get actor")
               expect(response).to redirect_to(
                 "/u/#{user.username}/preferences/activity-pub?error=#{message}",
@@ -387,9 +458,11 @@ RSpec.describe DiscourseActivityPub::AuthorizationController do
       end
 
       context "with discourse" do
-        it "raises an invalid parameters error" do
+        it "raises an invalid parameters error and clears the session" do
           get "/ap/auth/redirect/discourse"
           expect(response.status).to eq(400)
+          expect(server_session[described_class::AUTHORIZATION_SESSION_KEY]).to eq(nil)
+          expect(server_session[authorization_state_session_key]).to eq(nil)
         end
       end
     end
