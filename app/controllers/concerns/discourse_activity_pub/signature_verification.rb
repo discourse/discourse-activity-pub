@@ -242,12 +242,32 @@ module DiscourseActivityPub
         actor = DiscourseActivityPubActor.find_by(ap_id: ap_id)
 
         if !actor
-          ap_actor = AP::Actor.resolve_and_store(ap_id)
-          actor = ap_actor.stored if ap_actor
+          ap_actor = AP::Actor.resolve(ap_id)
+          if resolved_actor_matches_key_id_actor?(ap_actor, ap_id)
+            ap_actor.apply_handlers(ap_actor.type, :store)
+            actor = ap_actor.stored
+          end
         end
       end
 
+      return unless actor
+
+      unless domain_allowed?(DiscourseActivityPub::URI.domain_from_uri(actor.ap_id))
+        @signature_verification_failure_code = 403
+        return
+      end
+
       actor
+    end
+
+    def resolved_actor_matches_key_id_actor?(ap_actor, ap_id)
+      return false if !ap_actor || ap_actor.id != ap_id
+
+      public_key = ap_actor.json["publicKey"]
+      return true if public_key.blank?
+
+      public_key.is_a?(Hash) && public_key["owner"] == ap_id &&
+        public_key["id"].to_s.split("#").first == ap_id
     end
   end
 end

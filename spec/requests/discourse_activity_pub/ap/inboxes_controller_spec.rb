@@ -326,6 +326,40 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           end
         end
 
+        context "with a keyId URL that resolves to a different actor" do
+          before do
+            setup_logging
+            SiteSetting.activity_pub_allowed_request_origins = "remote.com"
+          end
+
+          after { teardown_logging }
+
+          it "rejects the request" do
+            key_id_actor_id = "https://remote.com/u/key-id/#{SecureRandom.hex(8)}"
+            key_id = "#{key_id_actor_id}#main-key"
+            actor_json = build_actor_json(public_key: keypair.public_key.to_pem)
+            actor_json[:id] = "https://another-remote.com/u/attacker/#{SecureRandom.hex(8)}"
+            actor_json[:inbox] = "#{actor_json[:id]}/inbox"
+            actor_json[:outbox] = "#{actor_json[:id]}/outbox"
+            actor_json[:publicKey][:id] = "#{actor_json[:id]}#main-key"
+            actor_json[:publicKey][:owner] = actor_json[:id]
+
+            stub_request(:get, key_id_actor_id).to_return(
+              body: actor_json.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+              },
+              status: 200,
+            )
+
+            headers = build_post_headers(key_id: key_id, keypair: keypair)
+            post_to_inbox(group, body: post_body, headers: headers)
+
+            expect_request_error(response, "actor_not_found_for_key", 401, key_id: key_id)
+            expect(DiscourseActivityPubActor.exists?(ap_id: actor_json[:id])).to eq(false)
+          end
+        end
+
         context "with an actor keyId on an allowed internal host" do
           before do
             setup_logging
