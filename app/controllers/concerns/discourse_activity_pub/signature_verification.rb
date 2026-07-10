@@ -222,9 +222,10 @@ module DiscourseActivityPub
 
     def actor_from_key_id(key_id)
       ap_id = key_id.split("#").first
+      acct_key_id = ap_id.start_with?("acct:")
       domain =
         (
-          if ap_id.start_with?("acct:")
+          if acct_key_id
             ap_id.split("@").last
           else
             DiscourseActivityPub::URI.domain_from_uri(ap_id)
@@ -236,17 +237,24 @@ module DiscourseActivityPub
         return
       end
 
-      if ap_id.start_with?("acct:")
-        actor = DiscourseActivityPubActor.find_by_handle(ap_id.gsub(/\Aacct:/, ""), local: false)
-      else
-        actor = DiscourseActivityPubActor.find_by(ap_id: ap_id)
+      if acct_key_id
+        ap_id = actor_id_from_acct_key_id(ap_id)
+        return unless ap_id
 
-        if !actor
-          ap_actor = AP::Actor.resolve(ap_id)
-          if resolved_actor_matches_key_id_actor?(ap_actor, ap_id)
-            ap_actor.apply_handlers(ap_actor.type, :store)
-            actor = ap_actor.stored
-          end
+        unless domain_allowed?(DiscourseActivityPub::URI.domain_from_uri(ap_id))
+          @signature_verification_failure_code = 403
+          return
+        end
+      end
+
+      actor = DiscourseActivityPubActor.find_by(ap_id: ap_id)
+
+      if acct_key_id || !actor
+        actor = nil
+        ap_actor = AP::Actor.resolve(ap_id)
+        if resolved_actor_matches_key_id_actor?(ap_actor, ap_id)
+          ap_actor.apply_handlers(ap_actor.type, :store)
+          actor = ap_actor.stored
         end
       end
 
@@ -258,6 +266,28 @@ module DiscourseActivityPub
       end
 
       actor
+    end
+
+    def actor_id_from_acct_key_id(acct_key_id)
+      handle =
+        DiscourseActivityPub::Webfinger::Handle.new(
+          handle: acct_key_id.delete_prefix("#{DiscourseActivityPub::Webfinger::ACCOUNT_SCHEME}:"),
+        )
+      return unless handle.valid?
+
+      account = DiscourseActivityPub::Webfinger.resolve_handle(handle.to_s)
+      return unless account.is_a?(Hash)
+      return if account.blank?
+      return if account["subject"] != "#{DiscourseActivityPub::Webfinger::ACCOUNT_SCHEME}:#{handle}"
+
+      links = account["links"]
+      return unless links.is_a?(Array)
+
+      link =
+        links.find do |webfinger_link|
+          webfinger_link["rel"] == "self" && webfinger_link["href"].present?
+        end
+      link && link["href"]
     end
 
     def resolved_actor_matches_key_id_actor?(ap_actor, ap_id)

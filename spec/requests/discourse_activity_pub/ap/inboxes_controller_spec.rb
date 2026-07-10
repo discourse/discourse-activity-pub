@@ -360,6 +360,49 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
           end
         end
 
+        context "with an acct keyId whose public key id does not match" do
+          before { setup_logging }
+          after { teardown_logging }
+
+          it "rejects the request" do
+            username = "victim-#{SecureRandom.hex(8)}"
+            handle = "#{username}@remote.com"
+            key_id = "acct:#{handle}"
+            actor_json =
+              build_actor_json(preferredUsername: username, public_key: keypair.public_key.to_pem)
+            attacker_public_key_id = "https://remote.com/u/attacker/#{SecureRandom.hex(8)}#main-key"
+            actor_json[:publicKey][:id] = attacker_public_key_id
+
+            stub_request(:get, "https://remote.com/.well-known/webfinger").with(
+              query: {
+                "resource" => key_id,
+              },
+            ).to_return(
+              body: {
+                subject: key_id,
+                links: [DiscourseActivityPub::Webfinger.activity_link(actor_json[:id])],
+              }.to_json,
+              headers: {
+                "Content-Type" => DiscourseActivityPub::Webfinger::CONTENT_TYPE,
+              },
+              status: 200,
+            )
+            stub_request(:get, actor_json[:id]).to_return(
+              body: actor_json.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+              },
+              status: 200,
+            )
+
+            headers = build_post_headers(key_id: key_id, keypair: keypair)
+            post_to_inbox(group, body: post_body, headers: headers)
+
+            expect_request_error(response, "actor_not_found_for_key", 401, key_id: key_id)
+            expect(DiscourseActivityPubActor.exists?(ap_id: actor_json[:id])).to eq(false)
+          end
+        end
+
         context "with an actor keyId on an allowed internal host" do
           before do
             setup_logging
