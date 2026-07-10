@@ -4,6 +4,8 @@ class DiscourseActivityPubFollow < ActiveRecord::Base
   belongs_to :follower, class_name: "DiscourseActivityPubActor"
   belongs_to :followed, class_name: "DiscourseActivityPubActor"
 
+  validates :follower_id, uniqueness: { scope: :followed_id }
+
   def followed_at
     created_at
   end
@@ -18,6 +20,10 @@ end
 #  followed_id :bigint           not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#
+# Indexes
+#
+#  idx_discourse_activity_pub_follows_unique_pair  (follower_id,followed_id) UNIQUE
 #
 # Foreign Keys
 #
