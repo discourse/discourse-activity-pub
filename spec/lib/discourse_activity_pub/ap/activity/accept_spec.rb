@@ -19,6 +19,7 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Accept do
           let!(:follow) do
             Fabricate(
               :discourse_activity_pub_activity_follow,
+              local: true,
               actor: category.activity_pub_actor,
               object: followed_actor,
             )
@@ -51,6 +52,50 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Accept do
                 follower_id: category.activity_pub_actor.id,
               ),
             ).to eq(true)
+          end
+        end
+
+        context "when the accepted follow was for another actor" do
+          let!(:accepted_actor) do
+            Fabricate(
+              :discourse_activity_pub_actor_person,
+              ap_id: "https://mastodon.pavilion.tech/users/accepted",
+              local: false,
+            )
+          end
+          let!(:forging_actor) do
+            Fabricate(
+              :discourse_activity_pub_actor_person,
+              ap_id: "https://mastodon.pavilion.tech/users/forger",
+              local: false,
+            )
+          end
+          let!(:follow) do
+            Fabricate(
+              :discourse_activity_pub_activity_follow,
+              local: true,
+              actor: category.activity_pub_actor,
+              object: accepted_actor,
+            )
+          end
+
+          it "does not create a follow for the accepting actor" do
+            json =
+              build_activity_json(
+                id: "#{forging_actor.ap_id}#accepts/follows/forged",
+                type: "Accept",
+                actor: forging_actor,
+                object: follow.ap.json,
+              )
+
+            perform_process(json)
+
+            expect(
+              DiscourseActivityPubFollow.exists?(
+                followed_id: forging_actor.id,
+                follower_id: category.activity_pub_actor.id,
+              ),
+            ).to eq(false)
           end
         end
       end

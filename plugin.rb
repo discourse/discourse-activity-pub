@@ -745,12 +745,17 @@ after_initialize do
   activity_pub_on(:accept, :perform) do |activity|
     case activity.object.type
     when DiscourseActivityPub::AP::Activity::Follow.type
-      DiscourseActivityPubFollow.create!(
-        follower_id: activity.object.actor.stored.id,
-        followed_id: activity.actor.stored.id,
-      )
-      message = { model: { id: activity.object.actor.stored.model.id, type: "category" } }
-      MessageBus.publish("/activity-pub", message)
+      if activity.object.stored.local? &&
+           activity.object.object.stored.id == activity.actor.stored.id
+        DiscourseActivityPubFollow.find_or_create_by!(
+          follower_id: activity.object.actor.stored.id,
+          followed_id: activity.actor.stored.id,
+        )
+        message = { model: { id: activity.object.actor.stored.model.id, type: "category" } }
+        MessageBus.publish("/activity-pub", message)
+      else
+        false
+      end
     else
       false
     end
