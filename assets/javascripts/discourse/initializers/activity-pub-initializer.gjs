@@ -55,34 +55,26 @@ export default {
         },
       });
 
-      api.modifyClass(
-        "model:post-stream",
-        (Superclass) =>
-          class extends Superclass {
-            triggerActivityPubStateChange(postId, stateProps) {
-              const resolved = Promise.resolve();
-              resolved.then(() => {
-                const post = this.findLoadedPost(postId);
-                if (post) {
-                  post.setProperties(stateProps);
-                  this.storePost(post);
-                }
-              });
-              return resolved;
+      api.addModelMethod(
+        "post-stream",
+        "triggerActivityPubStateChange",
+        function (postId, stateProps) {
+          const resolved = Promise.resolve();
+          resolved.then(() => {
+            const post = this.findLoadedPost(postId);
+            if (post) {
+              post.setProperties(stateProps);
+              this.storePost(post);
             }
-          }
+          });
+          return resolved;
+        }
       );
 
-      api.modifyClass(
-        "model:topic",
-        (Superclass) =>
-          class extends Superclass {
-            getActivityPubPostActor(postId) {
-              const postActors = this.activity_pub_post_actors || [];
-              return postActors.find((item) => item.post_id === postId);
-            }
-          }
-      );
+      api.addModelMethod("topic", "getActivityPubPostActor", function (postId) {
+        const postActors = this.activity_pub_post_actors || [];
+        return postActors.find((item) => item.post_id === postId);
+      });
 
       api.modifyClass(
         "controller:topic",
