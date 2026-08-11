@@ -648,7 +648,7 @@ after_initialize do
   activity_pub_on(:update, :perform) do |activity|
     post = activity.object.stored.model
     revisor = PostRevisor.new(post)
-    revisor.revise!(post.user, { raw: activity.object.content })
+    revisor.revise!(post.user, { raw: activity.object.content }, bypass_rate_limiter: true)
   end
   activity_pub_on(:like, :perform) do |activity|
     user = DiscourseActivityPub::ActorHandler.update_or_create_user(activity.actor.stored)
