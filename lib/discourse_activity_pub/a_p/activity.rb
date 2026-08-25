@@ -144,7 +144,9 @@ module DiscourseActivityPub
       end
 
       def signed_actor_matches?
-        signed_actor_ap_id.blank? || actor.id == signed_actor_ap_id
+        return true if signed_actor_ap_id.blank?
+        return true if actor.id == signed_actor_ap_id
+        !!(parent&.announce? && parent.actor&.id == signed_actor_ap_id)
       end
 
       def activity_host_matches_object_host?
