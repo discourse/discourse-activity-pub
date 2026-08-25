@@ -43,6 +43,39 @@ RSpec.describe DiscourseActivityPub::AP::Activity::Announce do
             DiscourseActivityPub::AP::Activity::Create.any_instance.expects(:process).once
             perform_process(announce_json)
           end
+
+          context "when the announcing group signed the delivery" do
+            let!(:follow) do
+              Fabricate(
+                :discourse_activity_pub_follow,
+                follower: category.activity_pub_actor,
+                followed: followed_actor,
+              )
+            end
+            let!(:note_actor_json) { build_actor_json }
+            let!(:object_json) do
+              build_object_json(attributed_to: note_actor_json[:id], name: "My cool topic title")
+            end
+            let!(:create_json) do
+              build_activity_json(
+                type: "Create",
+                actor: note_actor_json,
+                object: object_json,
+                to: [category_actor.ap_id],
+              )
+            end
+
+            it "creates the topic" do
+              perform_process(
+                announce_json,
+                category_actor.ap_id,
+                signed_actor_ap_id: followed_actor_id,
+              )
+              post = Post.find_by(raw: object_json[:content])
+              expect(post.present?).to eq(true)
+              expect(post.topic.title).to eq(object_json[:name])
+            end
+          end
         end
 
         context "when announcing an object" do
