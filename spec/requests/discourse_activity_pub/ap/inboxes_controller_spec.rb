@@ -250,6 +250,69 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
             ).to eq(true)
           end
 
+          context "with an announced Update from a different actor" do
+            let!(:topic) { Fabricate(:topic, category: group.model) }
+            let!(:remote_post) { Fabricate(:post, topic: topic, raw: "Original remote post") }
+            let!(:victim) { Fabricate(:discourse_activity_pub_actor_person) }
+            let!(:object_json) do
+              build_object_json(
+                content: "Attacker-controlled content",
+                id: "https://remote.com/object/note/#{SecureRandom.hex(8)}",
+              )
+            end
+            let!(:note) do
+              Fabricate(
+                :discourse_activity_pub_object_note,
+                ap_id: object_json[:id],
+                attributed_to: victim,
+                local: false,
+                model: remote_post,
+              )
+            end
+            let!(:update_json) do
+              build_activity_json(
+                actor: victim,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Update",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                cc: DiscourseActivityPub::JsonLd.public_collection_id,
+                object: update_json,
+                to: [group.ap_id],
+                type: "Announce",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              topic.create_activity_pub_collection!
+            end
+
+            it "does not update the federated post" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+              expect(response.body).to eq("")
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Process, args: job_args)).to eq(
+                true,
+              )
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(remote_post.reload.raw).to eq("Original remote post")
+            end
+          end
           context "with an actor from an allowed domain" do
             before { SiteSetting.activity_pub_allowed_request_origins = "remote.com" }
 
