@@ -59,7 +59,7 @@ acceptance(
     needs.user({
       moderator: false,
       admin: false,
-      groups: [AUTO_GROUPS.trust_level_0, AUTO_GROUPS.trust_level_1],
+      visibleGroups: [AUTO_GROUPS.trust_level_0, AUTO_GROUPS.trust_level_1],
     });
 
     setupServer(needs, [
