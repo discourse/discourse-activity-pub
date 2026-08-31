@@ -24,7 +24,7 @@ export function showStatusToUser(user, siteSettings) {
 
   return (
     groupIds.includes(AUTO_GROUPS.everyone.id) ||
-    user?.groups.some((group) => groupIds.includes(group.id))
+    user?.visibleGroups.some((group) => groupIds.includes(group.id))
   );
 }
 
