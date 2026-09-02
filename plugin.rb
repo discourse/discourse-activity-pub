@@ -21,12 +21,12 @@ module ::DiscourseActivityPub
 end
 require_relative "lib/discourse_activity_pub/engine"
 
-require_relative "lib/discourse_activity_pub/plugin/instance.rb"
-Plugin::Instance.prepend DiscourseActivityPub::Plugin::Instance
-
 require_relative "validators/activity_pub_signed_requests_validator.rb"
 
 after_initialize do
+  require_relative "lib/discourse_activity_pub/plugin/instance.rb"
+  Plugin::Instance.prepend DiscourseActivityPub::Plugin::Instance
+
   ##
   ## Discourse routes
   ##
