@@ -25,7 +25,10 @@ require_relative "validators/activity_pub_signed_requests_validator.rb"
 
 after_initialize do
   require_relative "lib/discourse_activity_pub/plugin/instance.rb"
-  Plugin::Instance.prepend DiscourseActivityPub::Plugin::Instance
+
+  reloadable_patch do
+    Plugin::Instance.prepend DiscourseActivityPub::Plugin::Instance
+  end
 
   ##
   ## Discourse routes
