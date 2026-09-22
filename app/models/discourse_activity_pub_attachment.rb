@@ -4,7 +4,7 @@ class DiscourseActivityPubAttachment < ActiveRecord::Base
   include DiscourseActivityPub::AP::TypeValidations
   include DiscourseActivityPub::AP::ObjectValidations
 
-  belongs_to :object, class_name: "DiscourseActivityPubObject", polymorphic: true
+  belongs_to :object, polymorphic: true
 
   validate :validate_media_type
 
