@@ -171,18 +171,18 @@ end
 # Table name: discourse_activity_pub_activities
 #
 #  id           :bigint           not null, primary key
-#  ap_id        :string           not null
 #  ap_key       :string
 #  ap_type      :string           not null
 #  local        :boolean
-#  actor_id     :bigint           not null
-#  object_id    :bigint
 #  object_type  :string
-#  summary      :string
 #  published_at :datetime
+#  summary      :string
+#  visibility   :integer          default(2)
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
-#  visibility   :integer          default(2)
+#  actor_id     :bigint           not null
+#  ap_id        :string           not null
+#  object_id    :bigint
 #
 # Indexes
 #
