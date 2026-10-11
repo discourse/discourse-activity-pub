@@ -37,9 +37,12 @@ RSpec.describe DiscourseActivityPub::UsernameValidator do
     end
 
     it "is invalid when the username is longer than core site setting" do
-      SiteSetting.max_username_length = 8
+      max_length = SiteSetting.max_username_length
 
-      expect_invalid("abcdefghi", error_message: I18n.t(:"user.username.long", count: 8))
+      expect_invalid(
+        "a" * (max_length + 1),
+        error_message: I18n.t(:"user.username.long", count: max_length),
+      )
     end
 
     it "is valid when the username contains alphanumeric characters, dots, underscores and dashes" do

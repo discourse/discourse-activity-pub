@@ -29,11 +29,11 @@ end
 #
 #  id          :bigint           not null, primary key
 #  ap_type     :string           not null
-#  object_id   :bigint           not null
+#  media_type  :string(200)
+#  name        :string
 #  object_type :string           not null
 #  url         :string
-#  name        :string
-#  media_type  :string(200)
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  object_id   :bigint           not null
 #

@@ -12,9 +12,9 @@ end
 # Table name: discourse_activity_pub_logs
 #
 #  id         :bigint           not null, primary key
+#  json       :json
 #  level      :integer
 #  message    :string
-#  json       :json
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
