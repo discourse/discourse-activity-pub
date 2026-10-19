@@ -7,6 +7,9 @@
 fr:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_activity_pub: "Discourse ActivityPub"
       discourse_activity_pub:
         label: ActivityPub
         actor:
@@ -29,7 +32,7 @@ fr:
               message: |
                 <ul>
                 <li>%{actor} ne sera plus disponible pour le fediverse.</li>
-                <li>Le %{model} %{model_type} ne sera pas supprimé.</li>
+                <li>Cela ne supprimera pas %{model} (%{model_type}).</li>
                 <li>Vous pouvez restaurer les acteurs supprimés.</li>
                 </ul>
           restore:
@@ -43,7 +46,7 @@ fr:
               message: |
                 <ul>
                 <li>%{actor} sera détruit.</li>
-                <li>Le %{model} %{model_type} ne sera pas détruit.</li>
+                <li>Cela ne détruira pas %{model} (%{model_type}).</li>
                 <li>Vous ne pouvez pas restaurer les acteurs détruits.</li>
                 </ul>
           edit:
@@ -62,22 +65,22 @@ fr:
             title: Paramètres du site
             activity_pub_enabled:
               label: L'extension est activée
-              title: L'extension ActivityPub est activée par le paramètre de site activé par ActivityPub.
-              description: Les activités entrantes destinées aux acteurs habilités seront traitées.
+              title: L'extension ActivityPub est activée par le paramètre de site « activity pub enabled ».
+              description: Les activités entrantes destinées aux acteurs activés seront traitées.
             login_required:
               label: La connexion est requise
-              title: La connexion est requise par le paramètre de connexion requise du site.
+              title: La connexion est requise par le paramètre de site « login required ».
               description: Seules les demandes de suivi sortantes et les attributs des acteurs activés sont publiés.
           username: Nom d'utilisateur
-          username_description: "%{min_length} à %{max_length} lettres, chiffres, tirets ou traits de soulignement."
+          username_description: "%{min_length} à %{max_length} lettres, chiffres, tirets ou traits de soulignement."
           name: Nom
           name_description: Utilisé comme nom d'affichage sur certains services.
           default_visibility: Visibilité
-          default_visibility_description: Tous les articles seront publiés via ActivityPub avec cette visibilité.
+          default_visibility_description: Toutes les publications seront publiées via ActivityPub avec cette visibilité.
           post_object_type: Type d'objet de publication
-          post_object_type_description: Utilisez Note pour le contenu court (par exemple Mastodon) et Article pour le contenu long.
+          post_object_type_description: Utilisez Note pour le contenu court (p. ex. Mastodon) et Article pour le contenu long.
           publication_type: Type de publication
-          publication_type_description: Première publication publie la première publication de chaque sujet. Sujet complet publie toutes les publications et intègre les réponses.
+          publication_type_description: '« Première publication » publie la première publication de chaque sujet. « Sujet complet » publie toutes les publications et importe les réponses.'
           table:
             actor: Acteur
             model: Modèle
@@ -101,15 +104,15 @@ fr:
           message: Message
           json:
             label: JSON
-            title: Activité JSON
+            title: JSON de l'activité
             show:
               label: JSON
-              title: Afficher l'activité JSON
+              title: Afficher le JSON de l'activité
             copy:
-              label: Copie
+              label: Copier
               title: Copiez le code JSON dans le presse-papiers.
               success: Copié !
-            logged_at: Connecté %{logged_at}
+            logged_at: Consigné %{logged_at}
   js:
     discourse_activity_pub:
       about:
@@ -122,16 +125,20 @@ fr:
         tags: Étiquettes
         actor:
           follower_count:
-            one: "%{count} abonné"
-            other: "%{count} abonnés"
+            one: "%{count} abonné"
+            other: "%{count} abonnés"
       status:
         title:
-          publishing_disabled: La publication d'ActivityPub est désactivée par le paramètre de connexion requise pour le site. Les activités entrantes et sortantes sont activées.
+          publishing_disabled: La publication via ActivityPub est désactivée par le paramètre de site « login required ». Les activités entrantes et les demandes de suivi sortantes restent activées.
           plugin_disabled: L'extension ActivityPub est désactivée
           category_read_restricted: ActivityPub ne fonctionne pas avec les catégories privées
-          model_disabled: ActivityPub est désactivé pour ce %{model_type}
-          model_not_ready: ActivityPub n'est pas prêt pour ce %{model_type}
-          model_not_active: ActivityPub n'est pas actif pour ce %{model_type}
+          model_disabled: ActivityPub est désactivé pour cet élément (%{model_type})
+          model_not_ready: ActivityPub n'est pas prêt pour cet élément (%{model_type})
+          model_not_active: ActivityPub n'est pas actif pour cet élément (%{model_type})
+          model_active:
+            first_post:
+              one: La première publication d'un nouveau sujet sera publiée %{delay_minutes} minute après sa création
+              other: La première publication d'un nouveau sujet sera publiée %{delay_minutes} minutes après sa création
         label:
           active: Actif
           not_active: Inactif
@@ -140,12 +147,12 @@ fr:
         label: Fédération
         description: Fédération pour %{model_name}
         followers: Abonnés
-        follows: Suit
+        follows: Acteurs suivis
       banner:
         text: Suivez %{model_name} sur n'importe quel service prenant en charge la fédération
         responsive_text: Fédéré
-        public_full_topic: Chaque publication de chaque sujet sera publiée publiquement via ActivityPub.
-        public_first_post: La première publication de chaque sujet sera publiée publiquement via ActivityPub.
+        public_full_topic: Chaque publication de chaque sujet sera rendue publique via ActivityPub.
+        public_first_post: La première publication de chaque sujet sera rendue publique via ActivityPub.
         followers_only_full_topic: Chaque publication de chaque sujet est publiée uniquement pour les abonnés d'ActivityPub.
         followers_only_first_post: La première publication de chaque sujet est publiée uniquement pour les abonnés d'ActivityPub.
       handle:
@@ -153,15 +160,15 @@ fr:
         description: Utilisez cet identifiant pour rechercher et suivre cette catégorie.
       follow:
         label: Suivre
-        title: Suivez %{actor} via ActivityPub
+        title: Suivre %{actor} via ActivityPub
         domain:
           label: Mastodon
           placeholder: domaine
           btn_label: Suivre
-          btn_title: Suivez ce domaine Mastodon
+          btn_title: Suivre cet acteur depuis ce domaine Mastodon
           description: domaine de votre compte Mastodon
-          verifying: vérification du domaine...
-          invalid: pas un domaine Mastodon valide
+          verifying: vérification du domaine…
+          invalid: domaine Mastodon non valide
       actor_follow:
         label: Nouveau suivi
         title: Nouveau suivi pour %{actor} via ActivityPub
@@ -169,34 +176,34 @@ fr:
           label: Cherchez un acteur à suivre
           btn_label: Chercher
           btn_title: Chercher l'identifiant
-          description: "p. ex., @announcements@meta.discourse.org"
-          validating: validation de l'identifiant...
-          invalid: pas un identifiant valide
-          finding: recherche de l'acteur...
+          description: "p. ex. @announcements@meta.discourse.org"
+          validating: validation de l'identifiant…
+          invalid: identifiant non valide
+          finding: recherche de l'acteur…
           not_found: 'impossible de trouver « %{handle} »'
         follow:
           label: Suivre
-          title: 'Créez un suivi de « %{follow_actor} » pour %{actor}'
+          title: 'Suivre « %{follow_actor} » en tant que %{actor}'
         following:
-          label: Suivis
+          label: Déjà suivi
           title: '%{actor} suit %{follow_actor}'
         follow_requested:
           label: Suivi demandé
           title: '%{actor} a demandé à suivre %{follow_actor}'
       actor_unfollow:
         label: Ne plus suivre
-        title: Ne plus suivre %{actor} via ActivityPub
+        title: Mettre fin au suivi pour %{actor} via ActivityPub
         modal_title: Confirmer le désabonnement
-        confirm: Voulez-vous vraiment que %{actor} arrête le suivi de %{followed_actor} ?
+        confirm: Voulez-vous vraiment que %{actor} cesse de suivre %{followed_actor} ?
       actor_reject:
         label: Rejeter
         title: Rejeter le suivi de %{actor} via ActivityPub
         modal_title: Confirmer le rejet du suivi
-        confirm: Voulez-vous vraiment rejeter l'arrêt du suivi de %{actor} par %{follower} ?
+        confirm: Voulez-vous vraiment empêcher %{follower} de suivre %{actor} ?
       follow_table:
         actor: Acteur
         user: Utilisateur
-        followed_at: Suivi
+        followed_at: Date de suivi
         follow_pending: en attente
         actions: Actions
       visibility:
@@ -204,8 +211,8 @@ fr:
           private: Abonnés uniquement
           public: Public
         description:
-          private: "%{object_type} s'adresse aux abonnés."
-          public: "%{object_type} est adressé publiquement."
+          private: "%{object_type} : diffusion aux abonnés."
+          public: "%{object_type} : diffusion publique."
       object_type:
         label:
           note: Note
@@ -213,35 +220,35 @@ fr:
           collection: Collection
           ordered_collection: Collection ordonnée
         description:
-          note: Idéal pour les plateformes de microblogging (p. ex., Mastodon).
-          article: Idéal pour les plateformes longues (p. ex., Lemmy).
+          note: Idéal pour les plateformes de microblogging (p. ex. Mastodon).
+          article: Idéal pour les plateformes de contenus longs (p. ex. Lemmy).
       publication_type:
         label:
           first_post: Première publication
           full_topic: Sujet complet
         description:
-          first_post: La première publication de chaque sujet de ce %{model_type} est publiée via ActivityPub.
-          full_topic: Chaque publication de chaque sujet de ce %{model_type} est publiée via ActivityPub et les réponses sur d'autres serveurs ActivityPub sont importées en tant que réponses dans Discourse.
+          first_post: La première publication de chaque sujet de cet élément (%{model_type}) est publiée via ActivityPub.
+          full_topic: Chaque publication de chaque sujet de cet élément (%{model_type}) est publiée via ActivityPub et les réponses sur d'autres serveurs ActivityPub sont importées en tant que réponses dans Discourse.
       copy_uri:
-        copied: URL copiée !
+        copied: URI copiée !
       model:
         actions: Actions
-        group_actors: Acteurs du groupe
+        group_actors: Acteurs de groupe
         attributes: Attributs
         status: Statut
-        menu: Actions ActivityPub...
+        menu: Actions ActivityPub…
     post:
       discourse_activity_pub:
         title: "ActivityPub pour la publication n° %{post_number}"
         status:
           published: "La publication a été publiée via ActivityPub le %{datetime}."
-          scheduled: "La publication de l'article est prévue via ActivityPub le %{datetime}."
-          scheduled_past: "La publication de l'article était prévue via ActivityPub le %{datetime}."
+          scheduled: "La publication est programmée via ActivityPub pour le %{datetime}."
+          scheduled_past: "La publication avait été programmée via ActivityPub pour le %{datetime}."
           deleted: "La publication a été supprimée via ActivityPub le %{datetime}."
           updated: "La publication a été mise à jour via ActivityPub le %{datetime}."
           published_remote: "La publication a été publiée via ActivityPub par %{actor} le %{datetime}."
           not_published: "La publication n'est pas publiée via ActivityPub."
-          delivered: "La publication a été livrée via ActivityPub le %{datetime}."
+          delivered: "La publication a été transmise via ActivityPub le %{datetime}."
         info_status:
           published: "La publication a été publiée le %{datetime}."
           scheduled: "La publication est prévue le %{datetime}."
@@ -250,29 +257,32 @@ fr:
           updated: "La publication a été mise à jour le %{datetime}."
           published_remote: "La publication a été publiée le %{datetime}."
           not_published: "La publication n'est pas publiée."
-          delivered: "La publication a été livrée le %{datetime}."
+          delivered: "La publication a été transmise le %{datetime}."
         actions:
           publish:
             label: "Publier la publication n° %{post_number}"
             description:
-              followers: "Publiez la publication n° %{post_number} et transmettez-la aux abonnés des acteurs du groupe."
-              no_followers: "Publier la publication n° %{post_number} sans la diffuser. Les acteurs du groupe n'ont aucun abonné à qui le diffuser."
-              topic_not_published: "La publication est désactivée pour la publication n° %{post_number}. Le sujet n° %{topic_id} n'est pas publié."
-              post_is_scheduled: "La publication est désactivée pour la publication n° %{post_number}. La publication n° %{post_number} est prévue."
+              followers: "Publier la publication n° %{post_number} et la transmettre aux abonnés des acteurs de groupe."
+              no_followers: "Publier la publication n° %{post_number} sans la transmettre. Les acteurs de groupe n'ont aucun abonné à qui la transmettre."
+              topic_not_published: "La publication n° %{post_number} ne peut pas encore être publiée. Le sujet n° %{topic_id} n'est pas publié."
+              post_is_scheduled: "La publication n° %{post_number} ne peut pas être publiée maintenant. La publication n° %{post_number} est déjà programmée."
           deliver:
-            label: "Livrer la publication n° %{post_number}"
+            label: "Transmettre la publication n° %{post_number}"
             description:
-              followers: "Livrez la publication n° %{post_number} aux abonnés des acteurs du groupe."
-              no_followers: "La livraison est désactivée pour la publication n° %{post_number}. Les acteurs du groupe n'ont aucun abonné à qui livrer."
-              topic_not_delivered: "La livraison est désactivée pour la publication n° %{post_number}. Le sujet n° %{topic_id} n'a pas été livré."
-              delivered: "La publication n° %{post_number} vient d'être livrée aux abonnés des acteurs du groupe."
+              followers: "Transmettre la publication n° %{post_number} aux abonnés des acteurs de groupe."
+              no_followers: "La publication n° %{post_number} ne peut pas être transmise. Les acteurs de groupe n'ont aucun abonné à qui la transmettre."
+              topic_not_delivered: "La publication n° %{post_number} ne peut pas être transmise. Le sujet n° %{topic_id} n'a pas encore été transmis."
+              delivered: "La publication n° %{post_number} vient d'être transmise aux abonnés des acteurs de groupe."
           schedule:
-            label: "Planifier la publication n° %{post_number}"
+            label: "Programmer la publication n° %{post_number}"
             description:
-              no_followers: "La publication est désactivée pour la publication n° %{post_number}. Les acteurs du groupe n'ont aucun abonné à qui livrer."
+              followers:
+                one: "Publier et transmettre la publication n° %{post_number} aux abonnés des acteurs de groupe dans %{minutes} minute."
+                other: "Publier et transmettre la publication n° %{post_number} aux abonnés des acteurs de groupe dans %{minutes} minutes."
+              no_followers: "La publication n° %{post_number} ne peut pas être programmée. Les acteurs de groupe n'ont aucun abonné à qui la transmettre."
           unschedule:
-            label: "Annuler la publication n°%{post_number}"
-            description: "Annuler la publication de la publication n° %{post_number}."
+            label: "Annuler la programmation de la publication n° %{post_number}"
+            description: "Annuler la programmation de la publication n° %{post_number}."
     topic:
       discourse_activity_pub:
         title: "ActivityPub pour le sujet n° %{topic_id}"
@@ -293,8 +303,11 @@ fr:
         posts_status:
           label: Statut des publications
           published: Toutes les publications de ce sujet sont publiées.
+          some_published:
+            one: "%{count} publication sur %{total} a été publiée dans ce sujet."
+            other: "%{count} publications sur %{total} ont été publiées dans ce sujet."
           none_published: Aucune publication de ce sujet n'est publiée.
-          scheduled: Ce sujet est prévu pour être publié.
+          scheduled: La publication de ce sujet est programmée.
         actions:
           label: Actions du sujet
         actors:
@@ -302,8 +315,11 @@ fr:
         publish:
           label: Publier toutes les publications
           description:
-            published: "La publication de toutes les publications est désactivée. Toutes les publications du sujet n° %{topic_id} sont déjà publiées."
-            scheduled: "La publication de toutes les publications est désactivée. La publication du sujet n° %{topic_id} est prévue."
+            unpublished:
+              one: "Publier %{count} publication du sujet n° %{topic_id} qui n'a pas encore été diffusée. Elle ne sera pas transmise aux abonnés des acteurs de groupe."
+              other: "Publier %{count} publications du sujet n° %{topic_id} qui n'ont pas encore été diffusées. Elles ne seront pas transmises aux abonnés des acteurs de groupe."
+            published: "Le bouton « Publier toutes les publications » est désactivé. Toutes les publications du sujet n° %{topic_id} sont déjà publiées."
+            scheduled: "Le bouton « Publier toutes les publications » est désactivé. La publication du sujet n° %{topic_id} est déjà programmée."
     user:
       discourse_activity_pub:
         title: ActivityPub
@@ -316,11 +332,11 @@ fr:
         authorize:
           auth_type:
             none:
-              label: Sélectionnez un type...
+              label: Sélectionnez un type…
               placeholder: "saisissez un domaine"
             mastodon:
               title: Mastodon
-              placeholder: p. ex., mastodon.social
+              placeholder: p. ex. mastodon.social
         clear_domain_button:
           title: Effacez le domaine vérifié.
         verify_domain_button:
@@ -334,7 +350,7 @@ fr:
         authorizations:
           title: Acteurs liés
         authorization:
-          confirm_remove: Voulez-vous vraiment supprimer le lien pour %{handle} ?
+          confirm_remove: Voulez-vous vraiment supprimer le lien avec %{handle} ?
         remove_authorization_button:
           title: Supprimer l'autorisation
           label: Supprimer
