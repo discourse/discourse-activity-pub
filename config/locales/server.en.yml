@@ -85,6 +85,7 @@ en:
         activity_host_must_match_object_host: "Activity host must match Object host"
         signed_actor_must_match_activity_actor: "Signed actor must match Activity actor"
         attributed_to_must_match_actor: "Object attribution must match Activity actor"
+        attributed_to_cannot_be_local_actor: "Object attribution cannot be a local actor"
         actor_must_own_object: "Activity actor must own Object"
         cant_find_post: "Can't find post"
         post_is_deleted: "Post is deleted"
@@ -157,6 +158,8 @@ en:
         actor_cant_be_restored: "Actor cannot be restored"
       warning:
         cant_create_model_for_actor_type: "Cannot create a model for %{actor_type} %{actor_id}"
+        cant_create_user_for_local_actor: "Cannot create a user for the local actor %{actor_id}"
+        cant_create_user_for_unauthenticated_linked_actor: "Cannot create a user for the unauthenticated linked actor %{actor_id}"
         cant_create_actor_for_model_type: "Cannot create an actor for %{model_type} %{model_id}"
         not_allowed_to_create_actor_for_model: "Not allowed to create an actor for %{model_id}"
         no_options: "No options passed to ActorHandler"

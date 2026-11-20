@@ -58,6 +58,77 @@ RSpec.describe DiscourseActivityPub::AP::Actor do
       expect(DiscourseActivityPubActor.exists?(ap_id: new_id)).to eq(true)
     end
 
+    context "with a local actor" do
+      let!(:user) { Fabricate(:user) }
+      let!(:local_actor) do
+        Fabricate(:discourse_activity_pub_actor_person, model: user, local: true)
+      end
+
+      it "does not update the local actor" do
+        local_json = local_actor.ap.json.merge(name: "Attacker name", preferredUsername: "attacker")
+
+        DiscourseActivityPub::AP::Actor.resolve_and_store(local_json)
+
+        local_actor.reload
+        expect(local_actor.name).not_to eq("Attacker name")
+        expect(local_actor.username).not_to eq("attacker")
+      end
+    end
+
+    context "with a linked remote actor" do
+      let!(:user) { Fabricate(:user) }
+      let!(:linked_actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+      let!(:authorization) do
+        Fabricate(:discourse_activity_pub_authorization, user: user, actor: linked_actor)
+      end
+      let!(:attacker_keypair) { OpenSSL::PKey::RSA.new(2048) }
+      let!(:attacker_json) do
+        linked_actor.ap.json.merge(
+          name: "Attacker name",
+          preferredUsername: "attacker",
+          publicKey: {
+            id: signature_key_id(linked_actor),
+            owner: linked_actor.ap_id,
+            publicKeyPem: attacker_keypair.public_key.to_pem,
+          },
+        )
+      end
+
+      it "does not update the linked actor from an embedded actor document" do
+        DiscourseActivityPub::AP::Actor.resolve_and_store(attacker_json)
+
+        linked_actor.reload
+        expect(linked_actor.name).not_to eq("Attacker name")
+        expect(linked_actor.username).not_to eq("attacker")
+        expect(linked_actor.public_key).to eq(nil)
+      end
+
+      it "updates the linked actor from its own actor document" do
+        stub_object_request(linked_actor, body: attacker_json.to_json)
+
+        DiscourseActivityPub::AP::Actor.resolve_and_store(linked_actor.ap_id)
+
+        expect(linked_actor.reload.name).to eq("Attacker name")
+      end
+
+      it "does not update the linked actor from a document served from another id" do
+        other_id = "https://remote.com/u/attacker/#{SecureRandom.hex(8)}"
+        stub_request(:get, other_id).to_return(
+          body: attacker_json.to_json,
+          headers: {
+            "Content-Type" => "application/json",
+          },
+          status: 200,
+        )
+
+        DiscourseActivityPub::AP::Actor.resolve_and_store(other_id)
+
+        linked_actor.reload
+        expect(linked_actor.name).not_to eq("Attacker name")
+        expect(linked_actor.public_key).to eq(nil)
+      end
+    end
+
     context "with verbose logging enabled" do
       before { setup_logging }
       after { teardown_logging }

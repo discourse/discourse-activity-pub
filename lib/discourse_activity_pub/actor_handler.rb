@@ -8,9 +8,10 @@ module DiscourseActivityPub
     attr_accessor :opts
     attr_writer :skip_avatar_update
 
-    def initialize(actor: nil, model: nil)
+    def initialize(actor: nil, model: nil, authenticated_actor_ap_id: nil)
       @actor = actor
       @model = model
+      @authenticated_actor_ap_id = authenticated_actor_ap_id
     end
 
     def model
@@ -43,6 +44,28 @@ module DiscourseActivityPub
       return if model_type.present? && model_type != "User"
       @model_type = "User"
       return invalid_opts unless valid_actor?
+
+      # The local site is authoritative for its own actors; inbound content cannot author as one.
+      if actor&.local?
+        add_error(
+          I18n.t(
+            "discourse_activity_pub.actor.warning.cant_create_user_for_local_actor",
+            actor_id: actor.ap_id,
+          ),
+        )
+        return invalid_opts
+      end
+
+      # A remote actor linked to a local account only authors as that account when it authenticated the content.
+      if actor&.authorization.present? && actor.ap_id != @authenticated_actor_ap_id
+        add_error(
+          I18n.t(
+            "discourse_activity_pub.actor.warning.cant_create_user_for_unauthenticated_linked_actor",
+            actor_id: actor.ap_id,
+          ),
+        )
+        return invalid_opts
+      end
 
       ActiveRecord::Base.transaction do
         find_or_create_user unless model
@@ -92,9 +115,9 @@ module DiscourseActivityPub
       actor.ensure_inbox_and_outbox
     end
 
-    def self.update_or_create_user(actor)
+    def self.update_or_create_user(actor, authenticated_actor_ap_id: nil)
       return nil unless actor
-      new(actor: actor).update_or_create_user
+      new(actor: actor, authenticated_actor_ap_id: authenticated_actor_ap_id).update_or_create_user
     end
 
     def self.update_or_create_actor(model, opts = {})

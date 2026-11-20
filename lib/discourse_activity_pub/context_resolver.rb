@@ -84,6 +84,7 @@ module DiscourseActivityPub
             )
           rollback_remote_store if new_local_object&.stored.blank?
 
+          # Resolved objects are not authenticated by the actors they attribute their content to.
           user =
             DiscourseActivityPub::ActorHandler.update_or_create_user(
               new_local_object.stored.attributed_to,
