@@ -231,7 +231,7 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
         context "with a valid public key" do
           let(:headers) { build_post_headers }
 
-          it "succeeds" do
+          it "accepts the signed request" do
             post_to_inbox(group, body: post_body, headers: headers)
             expect(response.status).to eq(202)
           end
@@ -313,6 +313,434 @@ RSpec.describe DiscourseActivityPub::AP::InboxesController do
               expect(remote_post.reload.raw).to eq("Original remote post")
             end
           end
+
+          context "with an announced Create attributed to a local actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:victim_actor) do
+              Fabricate(:discourse_activity_pub_actor_person, model: victim, local: true)
+            end
+            let!(:forged_content) { "Attacker-controlled content #{SecureRandom.hex(8)}" }
+            let!(:object_json) do
+              build_object_json(
+                attributed_to: victim_actor.ap_id,
+                content: forged_content,
+                name: "Forged topic title",
+              )
+            end
+            let!(:create_json) do
+              build_activity_json(
+                actor: victim_actor.ap.json,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Create",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                cc: DiscourseActivityPub::JsonLd.public_collection_id,
+                object: create_json,
+                to: [group.ap_id],
+                type: "Announce",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              Fabricate(:discourse_activity_pub_follow, follower: group, followed: person)
+            end
+
+            it "does not create a post authored by the local actor" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+              expect(job_enqueued?(job: Jobs::DiscourseActivityPub::Process, args: job_args)).to eq(
+                true,
+              )
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(Post.find_by(raw: forged_content)).to be_nil
+              expect(victim.posts.count).to eq(0)
+            end
+          end
+
+          context "with an announced object attributed to a local actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:victim_actor) do
+              Fabricate(:discourse_activity_pub_actor_person, model: victim, local: true)
+            end
+            let!(:forged_content) { "Attacker-controlled content #{SecureRandom.hex(8)}" }
+            let!(:object_json) do
+              build_object_json(
+                attributed_to: victim_actor.ap_id,
+                content: forged_content,
+                name: "Forged topic title",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                cc: DiscourseActivityPub::JsonLd.public_collection_id,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Announce",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              Fabricate(:discourse_activity_pub_follow, follower: group, followed: person)
+            end
+
+            it "does not create a post authored by the local actor" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(Post.find_by(raw: forged_content)).to be_nil
+              expect(victim.posts.count).to eq(0)
+            end
+          end
+
+          context "with a Create replying through an object attributed to a local actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:victim_actor) do
+              Fabricate(:discourse_activity_pub_actor_person, model: victim, local: true)
+            end
+            let!(:topic) { Fabricate(:topic, category: group.model) }
+            let!(:original_post) { Fabricate(:post, topic: topic) }
+            let!(:original_object) do
+              Fabricate(:discourse_activity_pub_object_note, model: original_post, local: true)
+            end
+            let!(:forged_content) { "Forged reply content #{SecureRandom.hex(8)}" }
+            let!(:intermediate_json) do
+              build_object_json(
+                in_reply_to: original_object.ap_id,
+                attributed_to: victim_actor.ap_id,
+                content: forged_content,
+              )
+            end
+            let!(:object_json) do
+              build_object_json(in_reply_to: intermediate_json[:id], attributed_to: person.ap_id)
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Create",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              topic.create_activity_pub_collection!
+              stub_object_request(intermediate_json)
+            end
+
+            it "does not create a post authored by the local actor" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(Post.find_by(raw: forged_content)).to be_nil
+              expect(victim.posts.count).to eq(0)
+            end
+          end
+
+          context "with an announced Create attributed to a remote actor" do
+            let!(:note_actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+            let!(:content) { "Relayed content #{SecureRandom.hex(8)}" }
+            let!(:object_json) do
+              build_object_json(
+                attributed_to: note_actor.ap_id,
+                content: content,
+                name: "Relayed topic title",
+              )
+            end
+            let!(:create_json) do
+              build_activity_json(
+                actor: note_actor.ap.json,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Create",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                cc: DiscourseActivityPub::JsonLd.public_collection_id,
+                object: create_json,
+                to: [group.ap_id],
+                type: "Announce",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              Fabricate(:discourse_activity_pub_follow, follower: group, followed: person)
+            end
+
+            it "creates the post authored by the remote actor" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              post = Post.find_by(raw: content)
+              expect(post.present?).to eq(true)
+              expect(post.user.activity_pub_actor).to eq(note_actor)
+            end
+          end
+
+          context "with an announced Create attributed to a linked remote actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:linked_actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+            let!(:authorization) do
+              Fabricate(:discourse_activity_pub_authorization, user: victim, actor: linked_actor)
+            end
+            let!(:forged_content) { "Attacker-controlled content #{SecureRandom.hex(8)}" }
+            let!(:object_json) do
+              build_object_json(
+                attributed_to: linked_actor.ap.json,
+                content: forged_content,
+                name: "Forged topic title",
+              )
+            end
+            let!(:create_json) do
+              build_activity_json(
+                actor: linked_actor.ap.json,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Create",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                cc: DiscourseActivityPub::JsonLd.public_collection_id,
+                object: create_json,
+                to: [group.ap_id],
+                type: "Announce",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              Fabricate(:discourse_activity_pub_follow, follower: group, followed: person)
+            end
+
+            it "does not create a post authored by the linked actor's local account" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(Post.find_by(raw: forged_content)).to be_nil
+              expect(victim.posts.count).to eq(0)
+            end
+          end
+
+          context "with an announced object attributed to a linked remote actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:linked_actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+            let!(:authorization) do
+              Fabricate(:discourse_activity_pub_authorization, user: victim, actor: linked_actor)
+            end
+            let!(:forged_content) { "Attacker-controlled content #{SecureRandom.hex(8)}" }
+            let!(:object_json) do
+              build_object_json(
+                attributed_to: linked_actor.ap.json,
+                content: forged_content,
+                name: "Forged topic title",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                cc: DiscourseActivityPub::JsonLd.public_collection_id,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Announce",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              Fabricate(:discourse_activity_pub_follow, follower: group, followed: person)
+            end
+
+            it "does not create a post authored by the linked actor's local account" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(Post.find_by(raw: forged_content)).to be_nil
+              expect(victim.posts.count).to eq(0)
+            end
+          end
+
+          context "with a Create replying through an object attributed to a linked remote actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:linked_actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+            let!(:authorization) do
+              Fabricate(:discourse_activity_pub_authorization, user: victim, actor: linked_actor)
+            end
+            let!(:topic) { Fabricate(:topic, category: group.model) }
+            let!(:original_post) { Fabricate(:post, topic: topic) }
+            let!(:original_object) do
+              Fabricate(:discourse_activity_pub_object_note, model: original_post, local: true)
+            end
+            let!(:forged_content) { "Forged reply content #{SecureRandom.hex(8)}" }
+            let!(:intermediate_json) do
+              build_object_json(
+                in_reply_to: original_object.ap_id,
+                attributed_to: linked_actor.ap.json,
+                content: forged_content,
+              )
+            end
+            let!(:object_json) do
+              build_object_json(in_reply_to: intermediate_json[:id], attributed_to: person.ap_id)
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: person,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Create",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              topic.create_activity_pub_collection!
+              stub_object_request(intermediate_json)
+            end
+
+            it "does not create a post authored by the linked actor's local account" do
+              headers = build_post_headers
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: person.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              expect(Post.find_by(raw: forged_content)).to be_nil
+              expect(victim.posts.count).to eq(0)
+            end
+          end
+
+          context "with a Create attributed to a linked remote actor signed by that actor" do
+            let!(:victim) { Fabricate(:admin) }
+            let!(:linked_actor) do
+              Fabricate(
+                :discourse_activity_pub_actor_person,
+                local: false,
+                public_key: keypair.public_key.to_pem,
+              )
+            end
+            let!(:authorization) do
+              Fabricate(:discourse_activity_pub_authorization, user: victim, actor: linked_actor)
+            end
+            let!(:content) { "Linked actor content #{SecureRandom.hex(8)}" }
+            let!(:object_json) do
+              build_object_json(
+                attributed_to: linked_actor.ap.json,
+                content: content,
+                name: "Linked actor topic title",
+              )
+            end
+            let!(:post_body) do
+              build_activity_json(
+                actor: linked_actor.ap.json,
+                object: object_json,
+                to: [group.ap_id],
+                type: "Create",
+              )
+            end
+
+            before do
+              toggle_activity_pub(group.model, publication_type: "full_topic")
+              Fabricate(:discourse_activity_pub_follow, follower: group, followed: linked_actor)
+            end
+
+            it "creates the post authored by the linked actor's local account" do
+              headers = build_post_headers(actor: linked_actor)
+              job_args = {
+                json: post_body,
+                delivered_to: group.ap_id,
+                signed_actor_ap_id: linked_actor.ap_id,
+              }
+
+              post_to_inbox(group, body: post_body, headers: headers)
+
+              expect(response.status).to eq(202)
+
+              Jobs::DiscourseActivityPub::Process.new.execute(job_args)
+
+              post = Post.find_by(raw: content)
+              expect(post.present?).to eq(true)
+              expect(post.user).to eq(victim)
+            end
+          end
+
           context "with an actor from an allowed domain" do
             before { SiteSetting.activity_pub_allowed_request_origins = "remote.com" }
 

@@ -263,6 +263,9 @@ module DiscourseActivityPub
           return process_failed(resolved_object["id"], "cant_resolve_#{base_type.downcase}")
         end
 
+        # Only a document served from its own id is authoritative for the object it describes.
+        object.cache["resolved_from"] = object_id if raw_object.is_a?(String) || parent&.delete?
+
         if object.respond_to?(:can_belong_to) && !object.can_belong_to.include?(:remote)
           return process_failed(resolved_object["id"], "object_not_supported")
         end

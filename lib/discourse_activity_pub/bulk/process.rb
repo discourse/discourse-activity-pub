@@ -233,7 +233,11 @@ module DiscourseActivityPub
 
         result.actors_by_ap_id.each do |actor_ap_id, actor|
           creating = !actor.model
-          user = DiscourseActivityPub::ActorHandler.update_or_create_user(actor)
+          user =
+            DiscourseActivityPub::ActorHandler.update_or_create_user(
+              actor,
+              authenticated_actor_ap_id: target_actor.ap_id,
+            )
 
           if user
             if creating
@@ -625,6 +629,9 @@ module DiscourseActivityPub
       def store_actors(actor_attrs)
         return {} if actor_attrs.blank?
 
+        actor_attrs = actor_attrs_to_store(actor_attrs)
+        return {} if actor_attrs.blank?
+
         stored =
           DiscourseActivityPubActor.upsert_all(
             actor_attrs,
@@ -639,6 +646,24 @@ module DiscourseActivityPub
           actor = DiscourseActivityPubActor.new(attrs.except("inserted"))
           result[actor.ap_id] = actor
         end
+      end
+
+      # The local site is authoritative for its own actors, and a remote actor linked to a local
+      # account is only stored from its own outbox.
+      def actor_attrs_to_store(actor_attrs)
+        ap_ids = actor_attrs.map { |attrs| attrs[:ap_id] }
+
+        authoritative_ap_ids =
+          DiscourseActivityPubActor.where(ap_id: ap_ids, local: true).pluck(:ap_id) +
+            DiscourseActivityPubAuthorization
+              .joins(:actor)
+              .where(discourse_activity_pub_actors: { ap_id: ap_ids })
+              .pluck("discourse_activity_pub_actors.ap_id")
+
+        authoritative_ap_ids -= [target_actor.ap_id]
+        return actor_attrs if authoritative_ap_ids.blank?
+
+        actor_attrs.reject { |attrs| authoritative_ap_ids.include?(attrs[:ap_id]) }
       end
 
       def store_objects(object_attrs)

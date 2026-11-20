@@ -511,6 +511,12 @@ after_initialize do
             I18n.t("discourse_activity_pub.process.warning.attributed_to_must_match_actor")
     end
 
+    # The local site is authoritative for its own actors; a remote delivery cannot author as one.
+    if activity.object.stored.attributed_to&.local?
+      raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
+            I18n.t("discourse_activity_pub.process.warning.attributed_to_cannot_be_local_actor")
+    end
+
     if reply_to_post
       if reply_to_post.trashed?
         raise DiscourseActivityPub::AP::Handlers::Warning::Validate,
@@ -596,7 +602,10 @@ after_initialize do
   end
   activity_pub_on(:create, :perform) do |activity|
     user =
-      DiscourseActivityPub::ActorHandler.update_or_create_user(activity.object.stored.attributed_to)
+      DiscourseActivityPub::ActorHandler.update_or_create_user(
+        activity.object.stored.attributed_to,
+        authenticated_actor_ap_id: activity.signed_actor_ap_id,
+      )
 
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
@@ -652,7 +661,11 @@ after_initialize do
     revisor.revise!(post.user, { raw: activity.object.content }, bypass_rate_limiter: true)
   end
   activity_pub_on(:like, :perform) do |activity|
-    user = DiscourseActivityPub::ActorHandler.update_or_create_user(activity.actor.stored)
+    user =
+      DiscourseActivityPub::ActorHandler.update_or_create_user(
+        activity.actor.stored,
+        authenticated_actor_ap_id: activity.signed_actor_ap_id,
+      )
 
     unless user
       raise DiscourseActivityPub::AP::Handlers::Error::Perform,
@@ -681,7 +694,11 @@ after_initialize do
         followed_id: activity.object.object.stored.id,
       ).destroy_all
     when DiscourseActivityPub::AP::Activity::Like.type
-      user = DiscourseActivityPub::ActorHandler.update_or_create_user(activity.actor.stored)
+      user =
+        DiscourseActivityPub::ActorHandler.update_or_create_user(
+          activity.actor.stored,
+          authenticated_actor_ap_id: activity.signed_actor_ap_id,
+        )
       post = activity.object.object.stored.model
       PostActionDestroyer.destroy(user, post, :like, reason: :activity_pub) if user && post
     else
@@ -883,6 +900,14 @@ after_initialize do
   end
   activity_pub_on(:actor, :store) do |actor|
     actor.stored = DiscourseActivityPubActor.find_by(ap_id: actor.json[:id])
+
+    # The local site is authoritative for its own actors; inbound JSON cannot create or change one.
+    next if actor.stored&.local?
+
+    # A remote actor linked to a local account is only changed by a document served from its own id.
+    if actor.stored&.authorization.present? && actor.cache["resolved_from"] != actor.stored.ap_id
+      next
+    end
 
     DiscourseActivityPubActor.transaction do
       if !actor.stored

@@ -370,6 +370,7 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
               prev_page: 1,
             )
           end
+
           before do
             DiscourseActivityPub::Request
               .expects(:get_json_ld)
@@ -596,6 +597,139 @@ RSpec.describe DiscourseActivityPub::Bulk::Process do
                 ),
               ].each { |info| expect(@fake_logger.info).to include(prefix_log(info)) }
             end
+          end
+        end
+
+        context "when target actor returns an outbox with an activity from a local actor" do
+          let!(:local_user) { Fabricate(:user) }
+          let!(:local_actor) do
+            Fabricate(:discourse_activity_pub_actor_person, model: local_user, local: true)
+          end
+          let!(:local_actor_json) do
+            build_actor_json(name: "Attacker name", preferredUsername: "attacker").merge(
+              id: local_actor.ap_id,
+              inbox: local_actor.inbox,
+              outbox: local_actor.outbox,
+            )
+          end
+          let!(:local_object_json) do
+            build_object_json(name: "Forged title", attributed_to: local_actor_json[:id])
+          end
+          let!(:create_json) do
+            build_activity_json(actor: local_actor_json, object: local_object_json, type: "Create")
+          end
+          let!(:ordered_collection_json) do
+            build_collection_json(type: "OrderedCollection", items: [create_json])
+          end
+
+          before do
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: target_actor.outbox)
+              .returns(ordered_collection_json)
+          end
+
+          it "does not update the local actor" do
+            perform
+
+            local_actor.reload
+            expect(local_actor.name).not_to eq("Attacker name")
+            expect(local_actor.username).not_to eq("attacker")
+          end
+
+          it "does not create a post authored by the local actor" do
+            result = perform
+            expect(result.finished).to eq(true)
+            expect(Post.find_by(raw: local_object_json[:content])).to be_nil
+            expect(local_user.posts.count).to eq(0)
+          end
+        end
+
+        context "when target actor returns an outbox with an activity from a linked actor" do
+          let!(:linked_user) { Fabricate(:user) }
+          let!(:linked_actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+          let!(:authorization) do
+            Fabricate(:discourse_activity_pub_authorization, user: linked_user, actor: linked_actor)
+          end
+          let!(:linked_actor_json) do
+            build_actor_json(name: "Attacker name", preferredUsername: "attacker").merge(
+              id: linked_actor.ap_id,
+              inbox: linked_actor.inbox,
+              outbox: linked_actor.outbox,
+              publicKey: {
+                id: "#{linked_actor.ap_id}#main-key",
+                owner: linked_actor.ap_id,
+                publicKeyPem: OpenSSL::PKey::RSA.new(2048).public_key.to_pem,
+              },
+            )
+          end
+          let!(:linked_object_json) do
+            build_object_json(name: "Forged title", attributed_to: linked_actor_json[:id])
+          end
+          let!(:create_json) do
+            build_activity_json(
+              actor: linked_actor_json,
+              object: linked_object_json,
+              type: "Create",
+            )
+          end
+          let!(:ordered_collection_json) do
+            build_collection_json(type: "OrderedCollection", items: [create_json])
+          end
+
+          before do
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: target_actor.outbox)
+              .returns(ordered_collection_json)
+          end
+
+          it "does not update the linked actor" do
+            perform
+
+            linked_actor.reload
+            expect(linked_actor.name).not_to eq("Attacker name")
+            expect(linked_actor.username).not_to eq("attacker")
+            expect(linked_actor.public_key).to eq(nil)
+          end
+
+          it "does not create a post authored by the linked user" do
+            result = perform
+            expect(result.finished).to eq(true)
+            expect(Post.find_by(raw: linked_object_json[:content])).to be_nil
+            expect(linked_user.posts.count).to eq(0)
+          end
+        end
+
+        context "when the target actor is linked to a local user" do
+          let!(:linked_user) { Fabricate(:user) }
+          let!(:authorization) do
+            Fabricate(:discourse_activity_pub_authorization, user: linked_user, actor: target_actor)
+          end
+          let!(:ordered_collection_json) do
+            build_collection_json(type: "OrderedCollection", items: [create_1_json])
+          end
+
+          before do
+            target_actor.update_columns(model_id: nil, model_type: nil)
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: target_actor.outbox)
+              .returns(ordered_collection_json)
+            DiscourseActivityPub::Request
+              .expects(:get_json_ld)
+              .with(uri: topic_collection_json[:id])
+              .returns(topic_collection_json)
+              .once
+          end
+
+          it "creates the target actor's post authored by the linked user" do
+            result = perform
+            expect(result.finished).to eq(true)
+
+            post = Post.find_by(raw: object1_json[:content])
+            expect(post.present?).to eq(true)
+            expect(post.user).to eq(linked_user)
           end
         end
       end

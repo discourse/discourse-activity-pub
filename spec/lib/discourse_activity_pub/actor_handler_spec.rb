@@ -58,6 +58,70 @@ RSpec.describe DiscourseActivityPub::ActorHandler do
       end
     end
 
+    context "when actor is local" do
+      let!(:user) { Fabricate(:user) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, model: user, local: true) }
+
+      before { setup_logging }
+      after { teardown_logging }
+
+      it "does not return the local user" do
+        expect(described_class.update_or_create_user(actor)).to eq(nil)
+      end
+
+      it "logs the right warning" do
+        described_class.update_or_create_user(actor)
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.actor.warning.cant_create_user_for_local_actor",
+            actor_id: actor.ap_id,
+          ),
+        )
+      end
+    end
+
+    context "when actor is linked to a local user" do
+      let!(:user) { Fabricate(:user) }
+      let!(:actor) { Fabricate(:discourse_activity_pub_actor_person, local: false) }
+      let!(:authorization) do
+        Fabricate(:discourse_activity_pub_authorization, user: user, actor: actor)
+      end
+
+      before { setup_logging }
+      after { teardown_logging }
+
+      it "does not return the linked user" do
+        expect(described_class.update_or_create_user(actor)).to eq(nil)
+      end
+
+      it "logs the right warning" do
+        described_class.update_or_create_user(actor)
+        expect(@fake_logger.warnings.first).to match(
+          I18n.t(
+            "discourse_activity_pub.actor.warning.cant_create_user_for_unauthenticated_linked_actor",
+            actor_id: actor.ap_id,
+          ),
+        )
+      end
+
+      it "returns the linked user when the actor authenticated the content" do
+        expect(
+          described_class.update_or_create_user(actor, authenticated_actor_ap_id: actor.ap_id),
+        ).to eq(user)
+      end
+
+      it "does not return the linked user when another actor authenticated the content" do
+        other_actor = Fabricate(:discourse_activity_pub_actor_person, local: false)
+
+        expect(
+          described_class.update_or_create_user(
+            actor,
+            authenticated_actor_ap_id: other_actor.ap_id,
+          ),
+        ).to eq(nil)
+      end
+    end
+
     context "when actor has icon" do
       fab!(:external_origin) { "https://remote.com" }
 
